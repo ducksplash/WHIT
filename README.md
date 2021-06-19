@@ -54,7 +54,8 @@ https://www.youtube.com/watch?v=cPOo5lKXzKU
 
 Some screens:
 
-![Game Screenshot 1](https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/3.jpg)
-![Game Screenshot 2](https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/2.jpg)
-![Game Screenshot 3](https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/1.jpg)
-![Game Screenshot 4](https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/4.jpg)
+<img src="https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/3.jpg" width="500" height="326">
+<img src="https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/1.jpg" width="500" height="326">
+<img src="https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/2.jpg" width="500" height="326">
+<img src="https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/4.jpg" width="500" height="326">
+

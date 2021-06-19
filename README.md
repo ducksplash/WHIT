@@ -47,8 +47,12 @@ This will be my second game (if you can count the cat game as 'a game') and will
 
 I am open to collaboration with persons interested in this sort of game and local to Northern Ireland.
 
-Some screens:
+Demo? No demo soz.
 
+Very early video:
+https://www.youtube.com/watch?v=cPOo5lKXzKU
+
+Some screens:
 
 ![Game Screenshot 1](https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/3.jpg)
 ![Game Screenshot 2](https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/2.jpg)

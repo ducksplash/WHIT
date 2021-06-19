@@ -49,4 +49,8 @@ I am open to collaboration with persons interested in this sort of game and loca
 
 Some screens:
 
-https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/1.jpg
+
+![Game Screenshot 1](https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/1.jpg)
+![Game Screenshot 2](https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/1.jpg)
+![Game Screenshot 3](https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/1.jpg)
+![Game Screenshot 4](https://media.githubusercontent.com/media/ducksplash/WHIT/master/screenshots/1.jpg)

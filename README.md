@@ -17,7 +17,7 @@ That's just the way it is.
 
 --------------------------------------------------------------------------------------
 
-The clip in the video is a first rough draft of the first level, canonically taking place after the characters have been introduced.  The first level is a Meat Packing Plant owned by the main antagonist, Tom Herron; a wealthy industrialist Kieron believes is at the centre of the case.
+The first level is a Meat Packing Plant owned by the main antagonist, Tom Herron; a wealthy industrialist Kieron believes is at the centre of the case.
 
 In this scene, you will be on a telephone call with Kieron who will direct you to the Switch Room to turn on the power, and then to the computer in the Manager's Office to unlock the rest of the internal doors, check the CCTV feed and gather the first few clues in the form of some images and a Site Survey (the relevance of this is explained in the opening cut scene, which will be done waaaaaaay down the line)
 
@@ -29,13 +29,9 @@ The concept of Kieron being on a call with you will be frequent throughout the g
 
 W.H.I.T is a one-man-band production and as such, probably won't be a finished game in the world for at least a year.
 
-These videos will serve as a progress meter.
-
-This is the first, some initial bits and pieces of the first level before any parts of the story have been set up.
-
-The order of development will always be:
-Environment
+The order of development will be:
 Functionals (useable items, doors, locks, breakables, devices, etc)
+Environments
 Narrativities (Phone messages, feedback to player, mission objectives, move story along etc)
 Sound (Self explanatory)
 FMV (videos, cut scenes, any events where the player is not in control)
@@ -43,7 +39,7 @@ Wrap (Bug fixes, polish, etc)
 
 Cut scenes and anything requiring human voices will be done at the very end, and placeholder texts will be created to act as a record, so that I don't forget what they're supposed to be!
 
-This will be my second game (if you can count the cat game as 'a game') and will serve as a way for me to learn Unity/Blender/Etc and get something into my GitHub.
+This will be my second game (if you can count the cat game as 'a game') and will serve as a way for me to learn Unity/Blender/Etc.
 
 I am open to collaboration with persons interested in this sort of game and local to Northern Ireland.
 

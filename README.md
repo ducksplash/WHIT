@@ -39,7 +39,7 @@ Wrap (Bug fixes, polish, etc)
 
 Cut scenes and anything requiring human voices will be done at the very end, and placeholder texts will be created to act as a record, so that I don't forget what they're supposed to be!
 
-This will be my second game (if you can count the cat game as 'a game') and will serve as a way for me to learn Unity/Blender/Etc.
+This will be my third game (if you can count Winston & Awkward Robot as 'games') and will serve as a way for me to learn Unity/Blender/Etc.
 
 I am open to collaboration with persons interested in this sort of game and local to Northern Ireland.
 

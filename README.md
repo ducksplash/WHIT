@@ -27,7 +27,7 @@ The concept of Kieron being on a call with you will be frequent throughout the g
 
 --------------------------------------------------------------------------------------
 
-W.H.I.T is a one-man-band production and as such, probably won't be a finished game in the world for at least a year.
+W.H.I.T is a one-man-band production and as such, probably won't be a finished game in the world for a while.
 
 The order of development will be:
 Functionals (useable items, doors, locks, breakables, devices, etc)

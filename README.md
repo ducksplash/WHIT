@@ -45,7 +45,7 @@ I am open to collaboration with persons interested in this sort of game and loca
 
 Demo? No demo soz.
 
-It's current status is "On hold; queued behind <a href="https://github.com/ducksplash/MarbleMania">Marble Mania</a>, in need of voice actor(s)!"
+It's current status is "On hold; queued behind <a href="https://github.com/ducksplash/MarbleMania">Marble Mania</a>."
 
 Very early video:
 https://www.youtube.com/watch?v=cPOo5lKXzKU

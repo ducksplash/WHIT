@@ -45,10 +45,12 @@ I am open to collaboration with persons interested in this sort of game and loca
 
 Demo? No demo soz.
 
+It's current status is "On hold; queued behind <a href="https://github.com/ducksplash/MarbleMania">Marble Mania</a>, in need of voice actor(s)!"
+
 Very early video:
 https://www.youtube.com/watch?v=cPOo5lKXzKU
 
-Some screens:
+Some early screens:
 
 <img src="https://media.githubusercontent.com/media/ducksplash/WHIT/main/screenshots/3.jpg" width="500" height="326"> <img src="https://media.githubusercontent.com/media/ducksplash/WHIT/main/screenshots/1.jpg" width="500" height="326"> <img src="https://media.githubusercontent.com/media/ducksplash/WHIT/main/screenshots/2.jpg" width="500" height="326"> <img src="https://media.githubusercontent.com/media/ducksplash/WHIT/main/screenshots/4.jpg" width="500" height="326">
 

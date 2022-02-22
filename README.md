@@ -30,8 +30,8 @@ The concept of Kieron being on a call with you will be frequent throughout the g
 W.H.I.T is a one-man-band production and as such, probably won't be a finished game in the world for a while.
 
 The order of development will be:
-Functionals (useable items, doors, locks, breakables, devices, etc)
-Environments
+Functionals (useable items, doors, locks, breakables, machines, devices, etc)
+Environments (texturing, particles etc)
 Narrativities (Phone messages, feedback to player, mission objectives, move story along etc)
 Sound (Self explanatory)
 FMV (videos, cut scenes, any events where the player is not in control)

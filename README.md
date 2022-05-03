@@ -17,35 +17,9 @@ That's just the way it is.
 
 --------------------------------------------------------------------------------------
 
-The first level is a Meat Packing Plant owned by the main antagonist, Tom Herron; a wealthy industrialist Kieron believes is at the centre of the case.
-
-In this scene, you will be on a telephone call with Kieron who will direct you to the Switch Room to turn on the power, and then to the computer in the Manager's Office to unlock the rest of the internal doors, check the CCTV feed and gather the first few clues in the form of some images and a Site Survey (the relevance of this is explained in the opening cut scene, which will be done waaaaaaay down the line)
-
-Part of this level (but not in this scene) you will be required to take photographs of the evidence found using your phone (in game, not your real actual phone!) and your first introduction to an additional character who's identity will remain a mystery for some time.
-
-The concept of Kieron being on a call with you will be frequent throughout the game, you'll immediately think of Atlas from Bioshock. Similarly, Kieron will surprise you, but not in the way you expect.
-
---------------------------------------------------------------------------------------
-
 W.H.I.T is a one-man-band production and as such, probably won't be a finished game in the world for a while.
 
-The order of development will be:
-Functionals (useable items, doors, locks, breakables, machines, devices, etc)
-Environments (texturing, particles etc)
-Narrativities (Phone messages, feedback to player, mission objectives, move story along etc)
-Sound (Self explanatory)
-FMV (videos, cut scenes, any events where the player is not in control)
-Wrap (Bug fixes, polish, etc)
-
-Cut scenes and anything requiring human voices will be done at the very end, and placeholder texts will be created to act as a record, so that I don't forget what they're supposed to be!
-
-This will be my third game (if you can count Winston & Awkward Robot as 'games') and will serve as a way for me to learn Unity/Blender/Etc.
-
-I am open to collaboration with persons interested in this sort of game and local to Northern Ireland.
-
 Demo? No demo soz.
-
-It's current status is "On hold; queued behind <a href="https://github.com/ducksplash/MarbleMania">Marble Mania</a>."
 
 Very early video:
 https://www.youtube.com/watch?v=cPOo5lKXzKU

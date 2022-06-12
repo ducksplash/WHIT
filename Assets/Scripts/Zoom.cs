@@ -11,7 +11,6 @@ public class Zoom : MonoBehaviour
     [HideInInspector]
     public float zoomAmount;
 
-
     void Awake()
     {
         camera = GetComponent<Camera>();

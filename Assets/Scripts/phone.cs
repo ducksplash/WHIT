@@ -242,56 +242,56 @@ public class phone : MonoBehaviour
 
 
 
-if (Input.GetKeyUp("0") || Input.GetKeyUp("[0]") )
+if ((Input.GetKeyUp("0") || Input.GetKeyUp("[0]")) && PT)
 {
 DialBar.text = DialBar.text+"0";
 }
-if (Input.GetKeyUp("1") || Input.GetKeyUp("[1]") )
+if ((Input.GetKeyUp("1") || Input.GetKeyUp("[1]")) && PT)
 {
 DialBar.text = DialBar.text+"1";
 }
-if (Input.GetKeyUp("2") || Input.GetKeyUp("[2]") )
+if ((Input.GetKeyUp("2") || Input.GetKeyUp("[2]")) && PT)
 {
 DialBar.text = DialBar.text+"2";
 }
-if (Input.GetKeyUp("3") || Input.GetKeyUp("[3]") )
+if ((Input.GetKeyUp("3") || Input.GetKeyUp("[3]")) && PT)
 {
 DialBar.text = DialBar.text+"3";
 }
-if (Input.GetKeyUp("4") || Input.GetKeyUp("[4]") )
+if ((Input.GetKeyUp("4") || Input.GetKeyUp("[4]")) && PT)
 {
 DialBar.text = DialBar.text+"4";
 }
-if (Input.GetKeyUp("5") || Input.GetKeyUp("[5]") )
+if ((Input.GetKeyUp("5") || Input.GetKeyUp("[5]")) && PT)
 {
 DialBar.text = DialBar.text+"5";
 }
-if (Input.GetKeyUp("6") || Input.GetKeyUp("[6]") )
+if ((Input.GetKeyUp("6") || Input.GetKeyUp("[6]")) && PT)
 {
 DialBar.text = DialBar.text+"6";
 }
-if (Input.GetKeyUp("7") || Input.GetKeyUp("[7]") )
+if ((Input.GetKeyUp("7") || Input.GetKeyUp("[7]")) && PT)
 {
 DialBar.text = DialBar.text+"7";
 }
-if (Input.GetKeyUp("8") || Input.GetKeyUp("[8]") )
+if ((Input.GetKeyUp("8") || Input.GetKeyUp("[8]")) && PT)
 {
 DialBar.text = DialBar.text+"8";
 }
-if (Input.GetKeyUp("9") || Input.GetKeyUp("[9]") )
+if ((Input.GetKeyUp("9") || Input.GetKeyUp("[9]")) && PT)
 {
 DialBar.text = DialBar.text+"9";
 }
-if (Input.GetKeyUp("[*]") )
+if ((Input.GetKeyUp("[*]")) && PT)
 {
 DialBar.text = DialBar.text+"*";
 }
-if (Input.GetKeyUp("#"))
+if ((Input.GetKeyUp("#")) && PT)
 {
 DialBar.text = DialBar.text+"#";
 }
 
-if (Input.GetKeyUp("backspace") || Input.GetKeyUp("delete") )
+if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 {
 	if (DialBar.text.Length > 0)
 	{

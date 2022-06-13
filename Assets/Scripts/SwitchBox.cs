@@ -173,7 +173,7 @@ public class SwitchBox : MonoBehaviour
 									var nuCol = new Color(0,1,0,1);
 									
 									ledRenderer.material.SetColor("_Color", nuCol);
-									ledRenderer.material.SetColor("_EmissionColor", nuCol);
+									ledRenderer.material.SetColor("_EmissiveColor", nuCol * 5);
 								
 								}	
 							}
@@ -190,7 +190,7 @@ public class SwitchBox : MonoBehaviour
 									var ledRenderer = thisIndicator.GetComponent<Renderer>();
 									
 									ledRenderer.material.SetColor("_Color", Color.black);
-									ledRenderer.material.SetColor("_EmissionColor", Color.black);
+									ledRenderer.material.SetColor("_EmissiveColor", Color.black);
 								}
 								
 								

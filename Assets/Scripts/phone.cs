@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI; 
-
+using UnityEngine.UI;
+using TMPro;
 
 public class phone : MonoBehaviour
 {
@@ -26,11 +26,12 @@ public class phone : MonoBehaviour
 
 	// contacts' nums
 	private bool callingContact = false;
-	public Text anonNum; 
-	public Text kieronNum; 
-	public Text maryNum; 
-	public Text tomNum; 
-	public Text workNum;          
+	public TextMeshProUGUI anonNum; 
+	public TextMeshProUGUI kieronNum; 
+	public TextMeshProUGUI maryNum; 
+	public TextMeshProUGUI tomNum;
+	public TextMeshProUGUI workNum;
+	public TextMeshProUGUI darraghNum;
 	public bool PT = false;
     // Start is called before the first frame update
 	private bool isLocked = true;
@@ -68,7 +69,7 @@ public class phone : MonoBehaviour
     void Start()
     {
         DeviceAnim = MobilePhone.GetComponent<Animator>();
-		DialBar = theDialler.GetComponent<Text>();
+		DialBar = theDialler.GetComponentInChildren<Text>();
     }
 
 
@@ -427,18 +428,29 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 	
 		StartCoroutine("CallContact");
 
-	}		
+	}
 
 
 	public void callDarragh()
 	{
 
-		CallTitleText.text = "Calling\nKieron";
+		CallTitleText.text = "Calling\nDarragh";
+		CallText.text = darraghNum.text;
+
+		StartCoroutine("CallContact");
+
+	}
+
+
+	public void callKieron()
+	{
+
+		CallTitleText.text = "Calling\nDarragh";
 		CallText.text = kieronNum.text;
-	
-		StartCoroutine("CallContact");		
-			
-	}		
+
+		StartCoroutine("CallContact");
+
+	}
 
 
 	public void callMary()

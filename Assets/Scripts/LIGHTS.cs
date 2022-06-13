@@ -34,7 +34,7 @@ public class LIGHTS : MonoBehaviour
 		{
 		thatSwitchName = null;	
 		}
-		theseLights = GameObject.FindGameObjectsWithTag(lightTag);
+
     }
 
 
@@ -42,28 +42,28 @@ public class LIGHTS : MonoBehaviour
 	
 	void changeSwitch(Material[] switchMats, bool onState)
 	{
-		var lightEmissionColour = new Color(0,0.7f,0,0.5f);
+		var lightEmissionColour = new Color(0,0.7f,0,1);
 		
 		if (onState)
 		{
-			lightEmissionColour = new Color(0,0.7f,0,0.5f);
+			lightEmissionColour = new Color(0,0.7f,0,1);
 		}
 		else
 		{
-			lightEmissionColour = new Color(0.5f,0,0,0.7f);
+			lightEmissionColour = new Color(0.5f,0,0,1);
 		}
 
 		for (int i = 0; i < switchMats.Length; i++)
 		{
 			if (switchMats[i].name.Contains("bulb"))
 			{
-				switchMats[i].SetColor("_EmissionColor", lightEmissionColour * 20f);
+				switchMats[i].SetColor("_EmissiveColor", lightEmissionColour * 5f);
 				switchMats[i].SetColor("_Color", lightEmissionColour);
 			}	
 			
 			if (switchMats[i].name.Contains("diffuser"))
 			{
-				switchMats[i].SetColor("_EmissionColor", lightEmissionColour * 1f);
+				switchMats[i].SetColor("_EmissiveColor", lightEmissionColour * 5f);
 				switchMats[i].SetColor("_Color", lightEmissionColour);
 			}	
 		}
@@ -98,13 +98,13 @@ public class LIGHTS : MonoBehaviour
 				
 				if (powerState)
 				{
-					theLightMats[i].SetColor("_EmissionColor", litLiteCol * 10f);
+					theLightMats[i].SetColor("_EmissiveColor", litLiteCol * 5f);
 					theLightMats[i].SetColor("_Color", litLiteCol);
 				}	
 				else
 				{
 					var offColour = new Color(0,0,0,1f);
-					theLightMats[i].SetColor("_EmissionColor", offColour * 0f);
+					theLightMats[i].SetColor("_EmissiveColor", offColour);
 					theLightMats[i].SetColor("_Color", offColour);
 				}
 			}

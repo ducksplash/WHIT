@@ -20,7 +20,7 @@ public class FirstPersonLook : MonoBehaviour
         //Cursor.lockState = CursorLockMode.Locked;
     }
 
-    void Update()
+    void FixedUpdate()
     {
 		
 		if (!Input.GetKeyDown(KeyCode.LeftShift))

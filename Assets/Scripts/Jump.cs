@@ -21,7 +21,7 @@ public class Jump : MonoBehaviour
         rigidbody = GetComponent<Rigidbody>();
     }
 
-    void LateUpdate()
+    void FixedUpdate()
     {
         if (Input.GetButtonDown("Jump") && groundCheck.isGrounded)
         {

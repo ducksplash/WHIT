@@ -23,14 +23,15 @@ public class FirstPersonCollision : MonoBehaviour
 	
 	void OnCollisionEnter(Collision thisCollision)
     {
-        //Output the Collider's GameObject's name
-		didCollide = true;
+		if (thisCollision.transform.name.Contains("abbotoir"))
+		{
+			didCollide = true;
+		}
 		
     }	
 	
 	void OnCollisionExit(Collision thisCollision)
     {
-        //Output the Collider's GameObject's name
 		didCollide = false;
     }
 
@@ -39,10 +40,12 @@ public class FirstPersonCollision : MonoBehaviour
 
     void FixedUpdate()
     {
-		
-        velocity.y = Input.GetAxis("Vertical") * speed * Time.fixedDeltaTime;
-        velocity.x = Input.GetAxis("Horizontal") * speed * Time.fixedDeltaTime;
-        transform.Translate(velocity.x, 0, velocity.y);
+		if (!didCollide)
+		{
+			velocity.y = Input.GetAxis("Vertical") * speed * Time.fixedDeltaTime;
+			velocity.x = Input.GetAxis("Horizontal") * speed * Time.fixedDeltaTime;
+			transform.Translate(velocity.x, 0, velocity.y);
+		}
 		
     }
 }

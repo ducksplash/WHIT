@@ -37,14 +37,16 @@ public class innerDoors : MonoBehaviour
 					if (doorOpen)
 					{
 						var litLiteCol = thisLight.color;
-						theseMats[i].SetColor("_EmissionColor", litLiteCol * 10f);
 						theseMats[i].SetColor("_Color", litLiteCol);
+						theseMats[i].SetColor("_EmissiveColor", litLiteCol * 10f);
+
+
 					}
 					else
 					{
 						var litLiteCol = new Color(0,0,0,0.8f);				
-						theseMats[i].SetColor("_EmissionColor", litLiteCol * 10f);
 						theseMats[i].SetColor("_Color", litLiteCol);
+						theseMats[i].SetColor("_EmissiveColor", litLiteCol * 10f);
 					}				
 					
 				}			

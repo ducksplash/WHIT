@@ -4,10 +4,12 @@ public class Jump : MonoBehaviour
 {
     [SerializeField]
     GroundCheck groundCheck;
-    Rigidbody rigidbody;
+    CharacterController thisChar;
     public float jumpStrength = 2;
     public event System.Action Jumped;
-
+    private Vector3 moveDirection = Vector3.zero;
+    public float jumpSpeed = 8.0F;
+    public float gravity = 1F;
 
     void Reset()
     {
@@ -18,15 +20,21 @@ public class Jump : MonoBehaviour
 
     void Awake()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        thisChar = GetComponent<CharacterController>();
     }
 
     void FixedUpdate()
     {
-        if (Input.GetButtonDown("Jump") && groundCheck.isGrounded)
+
+
+        if (groundCheck.isGrounded && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space)))
         {
-            rigidbody.AddForce(Vector3.up * 100 * jumpStrength);
-            Jumped?.Invoke();
+            moveDirection.y = jumpSpeed;
         }
+        moveDirection.y -= gravity * Time.deltaTime;
+        thisChar.Move(moveDirection * Time.deltaTime);
+
+
+
     }
 }

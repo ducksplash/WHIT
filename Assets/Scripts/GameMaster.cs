@@ -17,7 +17,7 @@ public static bool POWER_SUPPLY_ENABLED;
 
 void Awake()
 {
-	Application.targetFrameRate = 61;
+	//Application.targetFrameRate = 61;
 }
 
 

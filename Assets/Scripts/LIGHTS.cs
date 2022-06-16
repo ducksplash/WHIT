@@ -10,13 +10,16 @@ public class LIGHTS : MonoBehaviour
 	private string thatSwitchName;
 	private Material[] thatSwitchMats;
 	private Material[] thisSwitchMats;
-	public GameObject[] theseLights;
+	public Light[] theseLights;
 	public string lightTag;
 	public float LightSwitchEmissionStrength = 5f;
 	private Material[] theLightMats;
 	private GameObject theLightBulb;
-	
-    void Start()
+
+
+
+
+	void Start()
     {
 		
 		thisSwitchName = thisSwitch.name;
@@ -34,15 +37,14 @@ public class LIGHTS : MonoBehaviour
 		{
 		thatSwitchName = null;	
 		}
-
-    }
+	}
 
 
 	// change state of switch
 	
 	void changeSwitch(Material[] switchMats, bool onState)
 	{
-		var lightEmissionColour = new Color(0,0.7f,0,1);
+		var lightEmissionColour = new Color(0,0,0,0);
 		
 		if (onState)
 		{
@@ -55,25 +57,24 @@ public class LIGHTS : MonoBehaviour
 
 		for (int i = 0; i < switchMats.Length; i++)
 		{
-			if (switchMats[i].name.Contains("bulb"))
+			if (switchMats[i].name.Contains("neon"))
 			{
-				switchMats[i].SetColor("_EmissiveColor", lightEmissionColour * 5f);
 				switchMats[i].SetColor("_Color", lightEmissionColour);
+				switchMats[i].SetColor("_EmissiveColor", lightEmissionColour * 5f);
 			}	
 			
 			if (switchMats[i].name.Contains("diffuser"))
 			{
-				switchMats[i].SetColor("_EmissiveColor", lightEmissionColour * 5f);
 				switchMats[i].SetColor("_Color", lightEmissionColour);
+				switchMats[i].SetColor("_EmissiveColor", lightEmissionColour * 5f);
 			}	
 		}
 	}
 	
 
-	void changeLights(GameObject subjectLight, bool powerState)
+	void changeLights(Light myLight, bool powerState)
 	{
 		// Grab Light
-		var myLight = subjectLight.GetComponent<Light>();	
 		
 		if (powerState)
 		{
@@ -98,14 +99,14 @@ public class LIGHTS : MonoBehaviour
 				
 				if (powerState)
 				{
-					theLightMats[i].SetColor("_EmissiveColor", litLiteCol * 5f);
 					theLightMats[i].SetColor("_Color", litLiteCol);
+					theLightMats[i].SetColor("_EmissiveColor", litLiteCol * 5f);
 				}	
 				else
 				{
 					var offColour = new Color(0,0,0,1f);
-					theLightMats[i].SetColor("_EmissiveColor", offColour);
 					theLightMats[i].SetColor("_Color", offColour);
+					theLightMats[i].SetColor("_EmissiveColor", offColour);
 				}
 			}
 		}
@@ -125,48 +126,55 @@ public class LIGHTS : MonoBehaviour
 	  
 					if (hit.distance <= 5.5f)
 					{				
-						if (hit.transform.name.Equals(thisSwitchName) || hit.transform.name.Equals(thatSwitchName)) {  
-							
-							foreach (GameObject thisLight in theseLights)
-							{
-								if (thisLight.GetComponent<Light>().enabled == false)
-								{							
-									// turn lights on
-									changeLights(thisLight,true);
-									
-									// change appearance of switch
-									changeSwitch(thisSwitchMats,true);
-									
-									// Change Second Switch
-									if (thatSwitch)
-									{
-										
-										// change appearance of switch
-										changeSwitch(thatSwitchMats,true);
-									}
-								}
-								
-
-								else if (thisLight.GetComponent<Light>().enabled == true)
-								{
-									// turn lights on
-									changeLights(thisLight,false);
-									
-									// change appearance of switch
-									changeSwitch(thisSwitchMats,false);
-									
-									// Change Second Switch
-									if (thatSwitch)
-									{
-										// change appearance of switch
-										changeSwitch(thatSwitchMats,false);
-									}
-								}
-							}
+						if (hit.transform.name.Equals(thisSwitchName) || hit.transform.name.Equals(thatSwitchName))
+						{
+							ToggleLights();
 						}	
 					}  				
 				}  
 			} 
 		}		
     }
+
+
+
+	void ToggleLights()
+    {
+		foreach (Light thisLight in theseLights)
+		{
+			if (thisLight.enabled == false)
+			{
+				// turn lights on
+				changeLights(thisLight, true);
+
+				// change appearance of switch
+				changeSwitch(thisSwitchMats, true);
+
+				// Change Second Switch
+				if (thatSwitch)
+				{
+					// change appearance of switch
+					changeSwitch(thatSwitchMats, true);
+				}
+			}
+
+
+			else if (thisLight.enabled == true)
+			{
+				// turn lights on
+				changeLights(thisLight, false);
+
+				// change appearance of switch
+				changeSwitch(thisSwitchMats, false);
+
+				// Change Second Switch
+				if (thatSwitch)
+				{
+					// change appearance of switch
+					changeSwitch(thatSwitchMats, false);
+				}
+			}
+		}
+	}
+
 }

@@ -202,10 +202,6 @@ public class SwitchBox : MonoBehaviour
 									
 									aLight.enabled = false;
 									
-									//var ledRenderer = thisIndicator.GetComponent<Renderer>();
-									
-									//ledRenderer.material.SetColor("_Color", Color.green);
-									//ledRenderer.material.SetColor("_EmissionColor", Color.green);
 									}
 								}
 							}

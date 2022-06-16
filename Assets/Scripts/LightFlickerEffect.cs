@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class LightFlickerEffect : MonoBehaviour {
 	
-    private Light light;
+    public Light thelight;
     private Material[] theLightMats;
 	
     public float minIntensity = 0f;
@@ -22,8 +22,8 @@ public class LightFlickerEffect : MonoBehaviour {
     }
 
     void Start() {
-		
-		light = gameObject.GetComponent<Light>();
+
+		thelight = gameObject.GetComponent<Light>();
 		
          smoothQueue = new Queue<float>(smoothing);
     }
@@ -32,33 +32,33 @@ public class LightFlickerEffect : MonoBehaviour {
 	{
 
 
-		if (GameMaster.POWER_SUPPLY_ENABLED && light.enabled)
+		if (GameMaster.POWER_SUPPLY_ENABLED && thelight.enabled)
 		{
 
 			while (smoothQueue.Count >= smoothing) {
 				lastSum -= smoothQueue.Dequeue();
 			}
 
-			var thisLightParent = light.transform.parent.gameObject;
+			var thisLightParent = thelight.transform.parent.gameObject;
 				
 			theLightMats = thisLightParent.GetComponent<Renderer>().materials;
 
 
-			var litLiteCol = light.color;
+			var litLiteCol = thelight.color;
 
 			float newVal = Random.Range(minIntensity, maxIntensity);
 			smoothQueue.Enqueue(newVal);
 			lastSum += newVal;
 
-			light.intensity = lastSum / (float)smoothQueue.Count;
+			thelight.intensity = lastSum / (float)smoothQueue.Count;
 			
 			for (int i = 0; i < theLightMats.Length; i++)
 			{
 			
 				if (theLightMats[i].name.Contains("bulb"))
 				{
-					theLightMats[i].SetColor("_EmissionColor", litLiteCol * (lastSum / (float)smoothQueue.Count));
 					theLightMats[i].SetColor("_Color", litLiteCol);
+					theLightMats[i].SetColor("_EmissiveColor", litLiteCol * (lastSum / (float)smoothQueue.Count));
 				}
 			}
 		

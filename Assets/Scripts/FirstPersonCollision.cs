@@ -45,7 +45,6 @@ public class FirstPersonCollision : MonoBehaviour
 			velocity.y = Input.GetAxis("Vertical") * speed * Time.fixedDeltaTime;
 			velocity.x = Input.GetAxis("Horizontal") * speed * Time.fixedDeltaTime;
 			transform.Translate(velocity.x, 0, velocity.y);
-		}
-		
+		}		
     }
 }

@@ -151,7 +151,7 @@ public class LIGHTS : MonoBehaviour
 				changeSwitch(thisSwitchMats, true);
 
 				// Change Second Switch
-				if (thatSwitch)
+				if (thatSwitch != null)
 				{
 					// change appearance of switch
 					changeSwitch(thatSwitchMats, true);
@@ -168,7 +168,7 @@ public class LIGHTS : MonoBehaviour
 				changeSwitch(thisSwitchMats, false);
 
 				// Change Second Switch
-				if (thatSwitch)
+				if (thatSwitch != null)
 				{
 					// change appearance of switch
 					changeSwitch(thatSwitchMats, false);

@@ -26,13 +26,11 @@ Material:
   m_Name: facWall
   m_Shader: {fileID: 4800000, guid: 756bac9090102564582875f4c7e30202, type: 3}
   m_ValidKeywords:
-  - _DISABLE_SSR
   - _DISABLE_SSR_TRANSPARENT
+  - _ENABLE_GEOMETRIC_SPECULAR_AA
   - _HEIGHTMAP
   - _MAPPING_TRIPLANAR
-  - _MASKMAP
   - _MATERIAL_FEATURE_SPECULAR_COLOR
-  - _NORMALMAP
   - _NORMALMAP_TANGENT_SPACE
   - _SPECULARCOLORMAP
   m_InvalidKeywords: []
@@ -55,7 +53,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseColorMap:
-        m_Texture: {fileID: 2800000, guid: 9bb2be6d69a981b46bec2da704771802, type: 3}
+        m_Texture: {fileID: 2800000, guid: ad09d998b82e71a47ac5b7f5a9bc3e95, type: 3}
         m_Scale: {x: 0.15, y: 0.2}
         m_Offset: {x: 0, y: 0}
     - _BentNormalMap:
@@ -111,11 +109,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 9bb2be6d69a981b46bec2da704771802, type: 3}
+        m_Texture: {fileID: 2800000, guid: ad09d998b82e71a47ac5b7f5a9bc3e95, type: 3}
         m_Scale: {x: 0.15, y: 0.2}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
-        m_Texture: {fileID: 2800000, guid: 10cc0b63f40c85447b272bcf9e3807b6, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -123,7 +121,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: a03774ff0bb846a489edc93fa27bdc96, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMapOS:
@@ -180,8 +178,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AORemapMax: 1
-    - _AORemapMin: 0
+    - _AORemapMax: 0.17690153
+    - _AORemapMin: 0.17690153
     - _ATDistance: 1
     - _AddPrecomputedVelocity: 0
     - _AlbedoAffectEmissive: 0
@@ -212,7 +210,7 @@ Material:
     - _DisplacementLockTilingScale: 1
     - _DisplacementMode: 0
     - _DoubleSidedEnable: 0
-    - _DoubleSidedGIMode: 0
+    - _DoubleSidedGIMode: 2
     - _DoubleSidedNormalMode: 1
     - _DstBlend: 0
     - _EmissiveColorMode: 1
@@ -221,8 +219,8 @@ Material:
     - _EmissiveIntensityUnit: 0
     - _EnableBlendModePreserveSpecularLighting: 1
     - _EnableFogOnTransparent: 1
-    - _EnableGeometricSpecularAA: 0
-    - _EnergyConservingSpecularColor: 1
+    - _EnableGeometricSpecularAA: 1
+    - _EnergyConservingSpecularColor: 0
     - _GlossMapScale: 0
     - _Glossiness: 0.8
     - _GlossyReflections: 1
@@ -246,7 +244,7 @@ Material:
     - _MetallicRemapMin: 0
     - _Mode: 0
     - _NormalMapSpace: 0
-    - _NormalScale: 0.18
+    - _NormalScale: 0
     - _OcclusionStrength: 1
     - _OpaqueCullMode: 2
     - _PPDLodThreshold: 5
@@ -256,10 +254,10 @@ Material:
     - _PPDPrimitiveWidth: 1
     - _Parallax: 0.02
     - _RayTracing: 0
-    - _ReceivesSSR: 0
+    - _ReceivesSSR: 1
     - _ReceivesSSRTransparent: 0
     - _RefractionModel: 0
-    - _Smoothness: 0.8
+    - _Smoothness: 0.134
     - _SmoothnessRemapMax: 0
     - _SmoothnessRemapMin: 0
     - _SmoothnessTextureChannel: 0
@@ -269,9 +267,9 @@ Material:
     - _SpecularOcclusionMode: 1
     - _SrcBlend: 1
     - _StencilRef: 0
-    - _StencilRefDepth: 0
-    - _StencilRefGBuffer: 2
-    - _StencilRefMV: 32
+    - _StencilRefDepth: 8
+    - _StencilRefGBuffer: 10
+    - _StencilRefMV: 40
     - _StencilWriteMask: 6
     - _StencilWriteMaskDepth: 8
     - _StencilWriteMaskGBuffer: 14
@@ -319,7 +317,7 @@ Material:
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
     - _SpecColor: {r: 0.5366679, g: 0.5660378, b: 0.5634121, a: 1}
-    - _SpecularColor: {r: 0.5471698, g: 0.5471698, b: 0.5471698, a: 1}
+    - _SpecularColor: {r: 0.4716981, g: 0.4716981, b: 0.4716981, a: 1}
     - _ThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
     - _TransmittanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}

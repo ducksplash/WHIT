@@ -128,8 +128,9 @@ public class ManagersPC : MonoBehaviour
 								usingComputer = true;
 								
 								PlayerCamera.GetComponent<FirstPersonLook>().enabled = false;
-								Player.GetComponent<FirstPersonCollision>().enabled = false;
-								Player.GetComponent<Jump>().enabled = false;
+								//Player.GetComponent<FirstPersonCollision>().enabled = true;
+								//Player.GetComponent<Jump>().enabled = false;
+								FirstPersonCollision.FROZEN = true;
 				
 								CrossHair.GetComponent<Canvas>().enabled = false;
 								Cursor.lockState = CursorLockMode.None;
@@ -139,8 +140,9 @@ public class ManagersPC : MonoBehaviour
 							else
 							{
 								PlayerCamera.GetComponent<FirstPersonLook>().enabled = true;
-								Player.GetComponent<FirstPersonCollision>().enabled = true;
-								Player.GetComponent<Jump>().enabled = true;
+								//Player.GetComponent<FirstPersonCollision>().enabled = true;
+								//Player.GetComponent<Jump>().enabled = true;
+								FirstPersonCollision.FROZEN = false;
 
 								CrossHair.GetComponent<Canvas>().enabled = true;
 								Cursor.lockState = CursorLockMode.Locked;

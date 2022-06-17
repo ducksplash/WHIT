@@ -27,7 +27,7 @@ public class Jump : MonoBehaviour
     {
 
 
-        if (groundCheck.isGrounded && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space)))
+        if (!FirstPersonCollision.FROZEN && groundCheck.isGrounded && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space)))
         {
             moveDirection.y = jumpSpeed;
         }

@@ -14,7 +14,9 @@ public class FirstPersonCollision : MonoBehaviour
 	private bool didCollide = false;
 	private CharacterController thisRB;
 	private Camera MainCam;
-	
+	public static bool FROZEN;
+
+
 	void Start()
 	{
 		
@@ -47,53 +49,57 @@ public class FirstPersonCollision : MonoBehaviour
 
     void FixedUpdate()
 	{
-		if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+
+		if (!FROZEN)
 		{
 
-
-
-			if (Input.GetKey(KeyCode.Keypad0) || Input.GetKey(KeyCode.LeftShift))
+			if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
 			{
-				speed = sprintspeed;
+
+
+
+				if (Input.GetKey(KeyCode.Keypad0) || Input.GetKey(KeyCode.LeftShift))
+				{
+					speed = sprintspeed;
+				}
+				else
+				{
+					speed = walkspeed;
+				}
+
+
+				Debug.Log("f");
+				var moveForce = transform.forward * speed;
+				thisRB.Move(moveForce);
 			}
-			else
-            {
-				speed = walkspeed;
+
+
+			if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+			{
+				Debug.Log("l");
+				var moveForce = transform.right * speed;
+				thisRB.Move(-moveForce);
 			}
 
 
-			Debug.Log("f");
-			var moveForce = transform.forward * speed;
-			thisRB.Move(moveForce);
+
+			if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+			{
+				Debug.Log("r");
+				var moveForce = transform.right * speed;
+				thisRB.Move(moveForce);
+			}
+
+
+
+			if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+			{
+				Debug.Log("b");
+				var moveForce = transform.forward * speed;
+				thisRB.Move(-moveForce);
+			}
+
 		}
-
-
-		if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
-		{
-			Debug.Log("l");
-			var moveForce = transform.right * speed;
-			thisRB.Move(-moveForce);
-		}
-
-
-
-		if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
-		{
-			Debug.Log("r");
-			var moveForce = transform.right * speed;
-			thisRB.Move(moveForce);
-		}
-
-
-
-		if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
-		{
-			Debug.Log("b");
-			var moveForce = transform.forward * speed;
-			thisRB.Move(-moveForce);
-		}
-
-
 
 
 	}

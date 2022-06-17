@@ -68,7 +68,7 @@ public class FirstPersonCollision : MonoBehaviour
 				}
 
 
-				Debug.Log("f");
+				//Debug.Log("f");
 				var moveForce = transform.forward * speed;
 				thisRB.Move(moveForce);
 			}
@@ -76,7 +76,7 @@ public class FirstPersonCollision : MonoBehaviour
 
 			if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
 			{
-				Debug.Log("l");
+				//Debug.Log("l");
 				var moveForce = transform.right * speed;
 				thisRB.Move(-moveForce);
 			}
@@ -85,7 +85,7 @@ public class FirstPersonCollision : MonoBehaviour
 
 			if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
 			{
-				Debug.Log("r");
+				//Debug.Log("r");
 				var moveForce = transform.right * speed;
 				thisRB.Move(moveForce);
 			}
@@ -94,7 +94,7 @@ public class FirstPersonCollision : MonoBehaviour
 
 			if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
 			{
-				Debug.Log("b");
+				//Debug.Log("b");
 				var moveForce = transform.forward * speed;
 				thisRB.Move(-moveForce);
 			}

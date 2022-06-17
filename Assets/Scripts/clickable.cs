@@ -1,36 +1,62 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 
 public class clickable : MonoBehaviour
 {
-    public CanvasGroup selectcursor;
-
+    public Image selectcursor;
+    public Sprite clickablesprite;
+    public Sprite idlesprite;
+    public Sprite enemysprite;
+    public Sprite unknownsprite;
 
 
     void Awake()
     {
-        selectcursor = gameObject.GetComponent<CanvasGroup>();
+        selectcursor = gameObject.GetComponent<Image>();
+
+        selectcursor.sprite = idlesprite;
+
     }
 
     void FixedUpdate()
     {
 
-        int layer_mask = LayerMask.GetMask("clickable");
+        int clickablelayer = LayerMask.GetMask("clickable");
+        int enemylayer = LayerMask.GetMask("enemy");
+        int idlelayer = LayerMask.GetMask("Default");
+        int unknownlayer = LayerMask.GetMask("unknown");
 
-        //Actually you can add any layer name you want, for example:
-        //int layer_mask = LayerMask.GetMask("Ground","Enemy","Boxes");
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        //do the raycast specifying the mask
-        if (Physics.Raycast(ray, out hit, 5.5f, layer_mask))
-        {
-            Debug.Log("clickable");
-            selectcursor.alpha = 1f;
-        }
-        else
-        {
-            selectcursor.alpha = 0f;
-        }
 
 
+
+        if (Physics.Raycast(ray, out hit, 20f, idlelayer))
+        {
+            //Debug.Log("idle");
+            selectcursor.sprite = idlesprite;
+        }
+
+        if (Physics.Raycast(ray, out hit, 5.5f, clickablelayer))
+        {
+            //Debug.Log("clickable");
+            selectcursor.sprite = clickablesprite;
+        }
+
+        if (Physics.Raycast(ray, out hit, 5.5f, enemylayer))
+        {
+            //Debug.Log("enemy");
+            selectcursor.sprite = enemysprite;
+        }
+
+        if (Physics.Raycast(ray, out hit, 5.5f, unknownlayer))
+        {
+            //Debug.Log("enemy");
+            selectcursor.sprite = unknownsprite;
+        }
     }
 }

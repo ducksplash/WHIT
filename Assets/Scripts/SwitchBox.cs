@@ -21,49 +21,12 @@ public class SwitchBox : MonoBehaviour
 	private bool switchIsOn = false;
 	public string doorLockTag;
 	public string doorUnlockTag;
-	public innerDoors innerDoors;
+	public innerDoors[] innerDoors;
 	public GameObject[] doorLockedLights;
 	public GameObject[] doorUnlockedLights;
 	
 	
-	
-	IEnumerator doLockedLights()
-	{
-		doorLockedLights = GameObject.FindGameObjectsWithTag(doorLockTag);
-		doorUnlockedLights = GameObject.FindGameObjectsWithTag(doorUnlockTag);
 		
-		
-		foreach (GameObject lightie in doorLockedLights)
-		{
-			if (lightie.transform.parent.parent.GetComponent<innerDoors>().isLocked)
-			{
-				lightie.transform.parent.parent.GetComponent<innerDoors>().doLockedLights();
-			}
-			else
-			{
-				lightie.transform.parent.parent.GetComponent<innerDoors>().doLockedLights();
-			}
-		}	
-		
-		foreach (GameObject lightie in doorUnlockedLights)
-		{
-			if (!lightie.transform.parent.parent.GetComponent<innerDoors>().isLocked)
-			{
-				lightie.transform.parent.parent.GetComponent<innerDoors>().doLockedLights();
-			}
-			else
-			{
-				lightie.transform.parent.parent.GetComponent<innerDoors>().doLockedLights();
-			}
-		}
-		
-		
-		yield return new WaitForSeconds(0.1f);
-		
-		
-	}
-	
-	
 	void Awake()
 	{
 		
@@ -80,10 +43,6 @@ public class SwitchBox : MonoBehaviour
 
 			aLight.enabled = false;
 
-			//var ledRenderer = thisIndicator.GetComponent<Renderer>();
-
-			//ledRenderer.material.SetColor("_Color", Color.green);
-			//ledRenderer.material.SetColor("_EmissionColor", Color.green);
 			}
 
 		}
@@ -162,10 +121,14 @@ public class SwitchBox : MonoBehaviour
 								switchIsOn = true;
 								
 								GameMaster.POWER_SUPPLY_ENABLED = true;
-								
-								StartCoroutine(doLockedLights());
-								
-															
+
+
+								foreach (innerDoors thisdoor in innerDoors)
+                                {
+									thisdoor.doLockedLights();
+								}
+
+
 								foreach (GameObject thisIndicator in thisIndicatorSet)
 								{
 									var ledRenderer = thisIndicator.GetComponent<Renderer>();

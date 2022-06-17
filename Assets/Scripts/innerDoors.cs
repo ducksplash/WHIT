@@ -8,13 +8,13 @@ public class innerDoors : MonoBehaviour
 	public GameObject thisDoor;
 	private string thisDoorName;
 	public GameObject thisDoorHinge;
-	public Light[] doorLights;
 	public string doorLockTag;
 	public string doorUnlockTag;
 	private Animator doorAnimator;
 	private bool isOpen = false;
 	public bool isLocked = false;
 	private Material[] theLightMats;
+	private Transform[] doorLights;
 	private Collider theDoorCollider;
 
 	
@@ -22,38 +22,11 @@ public class innerDoors : MonoBehaviour
     {
 		doorAnimator = thisDoorHinge.GetComponent<Animator>();
 		thisDoorName = thisDoor.name;
+
+
+
     }
 	
-	
-	IEnumerator changeLightMats(Material[] theseMats, bool doorOpen, Light thisLight)
-	{
-		if (theseMats != null)
-		{
-			for (int i = 0; i < theseMats.Length; i++)
-			{
-				if (theseMats[i].name.Contains("bulb"))
-				{
-					
-					if (doorOpen)
-					{
-						var litLiteCol = thisLight.color;
-						theseMats[i].SetColor("_Color", litLiteCol);
-						theseMats[i].SetColor("_EmissiveColor", litLiteCol * 10f);
-
-
-					}
-					else
-					{
-						var litLiteCol = new Color(0,0,0,0.8f);				
-						theseMats[i].SetColor("_Color", litLiteCol);
-						theseMats[i].SetColor("_EmissiveColor", litLiteCol * 10f);
-					}				
-					
-				}			
-			}
-		}
-		yield return new WaitForSeconds(0.1f);
-	}
 	
 	
 	
@@ -61,53 +34,33 @@ public class innerDoors : MonoBehaviour
 
 	public void doLockedLights()
 	{
-		doorLights = thisDoorHinge.transform.parent.GetComponentsInChildren<Light>();
+		doorLights = thisDoorHinge.transform.parent.GetComponentsInChildren<Transform>();
 		
-		foreach (Light lightie in doorLights)
+		foreach (Transform lightpart in doorLights)
 		{
-			if (lightie.transform.parent.parent.GetComponent<innerDoors>().isLocked)
+			Debug.Log(lightpart.name);
+
+			if (lightpart.GetComponentInChildren<Renderer>().material.name.Contains("bulb"))
 			{
-				
-				if (lightie.name.Contains("locked"))
+				Debug.Log(lightpart.name);
+
+				if (!isLocked)
 				{
-					theLightMats = lightie.transform.parent.GetComponent<Renderer>().materials;
-					
-					lightie.enabled = true;	
-					
-					StartCoroutine(changeLightMats(theLightMats, true, lightie));
-					
+					var litLiteCol = new Color(0,0.5f,0,1);
+					lightpart.GetComponent<Renderer>().material.SetColor("_Color", litLiteCol);
+					lightpart.GetComponent<Renderer>().material.SetColor("_EmissiveColor", litLiteCol * 20f);
+					Debug.Log(lightpart.name);
+
+
 				}
-				if (lightie.name.Contains("open"))
+				else
 				{
-					theLightMats = lightie.transform.parent.GetComponent<Renderer>().materials;
-					
-					lightie.enabled = false;	
-					
-					StartCoroutine(changeLightMats(theLightMats, false, lightie));
-					
+					var litLiteCol = new Color(0.5f, 0, 0, 1);
+					lightpart.GetComponent<Renderer>().material.SetColor("_Color", litLiteCol);
+					lightpart.GetComponent<Renderer>().material.SetColor("_EmissiveColor", litLiteCol * 20f);
+					Debug.Log(lightpart.name);
 				}
 
-			}
-			else
-			{
-				if (lightie.name.Contains("locked"))
-				{
-					theLightMats = lightie.transform.parent.GetComponent<Renderer>().materials;
-					
-					lightie.enabled = false;	
-					
-					StartCoroutine(changeLightMats(theLightMats, false, lightie));
-					
-				}
-				if (lightie.name.Contains("open"))
-				{
-					theLightMats = lightie.transform.parent.GetComponent<Renderer>().materials;
-					
-					lightie.enabled = true;	
-					
-					StartCoroutine(changeLightMats(theLightMats, true, lightie));
-					
-				}
 			}
 			
 		}	

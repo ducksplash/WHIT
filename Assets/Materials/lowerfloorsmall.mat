@@ -26,11 +26,9 @@ Material:
   m_Name: lowerfloorsmall
   m_Shader: {fileID: 4800000, guid: 6e4ae4064600d784cac1e41a9e6f2e59, type: 3}
   m_ValidKeywords:
+  - _DISABLE_SSR
   - _DISABLE_SSR_TRANSPARENT
-  - _MASKMAP
-  - _MATERIAL_FEATURE_SPECULAR_COLOR
-  - _NORMALMAP
-  - _NORMALMAP_TANGENT_SPACE
+  - _MATERIAL_FEATURE_ANISOTROPY
   - _SPECULARCOLORMAP
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -52,7 +50,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseColorMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 27541d868abbbdc46a00c15f49d58256, type: 3}
         m_Scale: {x: 2, y: 0.3}
         m_Offset: {x: 0, y: 0}
     - _BentNormalMap:
@@ -108,11 +106,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 27541d868abbbdc46a00c15f49d58256, type: 3}
         m_Scale: {x: 2, y: 0.3}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
-        m_Texture: {fileID: 2800000, guid: d45d1654cd8583e4fb55b7259149e858, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -120,7 +118,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: ff458ea77b79e5a2986dfbf711a5fc9a, type: 3}
+        m_Texture: {fileID: 2800000, guid: 09d7e81256e317944b6c2d7472fc8409, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMapOS:
@@ -140,7 +138,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularColorMap:
-        m_Texture: {fileID: 2800000, guid: c8e75ef7e2a40b64a8937ecd3df93aa6, type: 3}
+        m_Texture: {fileID: 2800000, guid: eef5ad249f85b87428418ed84c798766, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SubsurfaceMaskMap:
@@ -177,7 +175,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AORemapMax: 1
+    - _AORemapMax: 1.0000001
     - _AORemapMin: 0
     - _ATDistance: 1
     - _AddPrecomputedVelocity: 0
@@ -191,7 +189,7 @@ Material:
     - _AlphaSrcBlend: 1
     - _AlphaToMask: 0
     - _AlphaToMaskInspectorValue: 0
-    - _Anisotropy: 0
+    - _Anisotropy: -0.37
     - _BlendMode: 0
     - _BumpScale: 0.36
     - _CoatMask: 0
@@ -219,7 +217,7 @@ Material:
     - _EnableBlendModePreserveSpecularLighting: 1
     - _EnableFogOnTransparent: 1
     - _EnableGeometricSpecularAA: 0
-    - _EnergyConservingSpecularColor: 1
+    - _EnergyConservingSpecularColor: 0
     - _GlossMapScale: 0.718
     - _Glossiness: 0
     - _GlossyReflections: 1
@@ -237,13 +235,13 @@ Material:
     - _IridescenceMask: 1
     - _IridescenceThickness: 1
     - _LinkDetailsWithBase: 0
-    - _MaterialID: 4
-    - _Metallic: 0
+    - _MaterialID: 2
+    - _Metallic: 1
     - _MetallicRemapMax: 0
     - _MetallicRemapMin: 0
     - _Mode: 0
-    - _NormalMapSpace: 0
-    - _NormalScale: 0.36
+    - _NormalMapSpace: 1
+    - _NormalScale: 0
     - _OcclusionStrength: 1
     - _OpaqueCullMode: 2
     - _PPDLodThreshold: 5
@@ -253,11 +251,11 @@ Material:
     - _PPDPrimitiveWidth: 1
     - _Parallax: 0.02
     - _RayTracing: 0
-    - _ReceivesSSR: 1
+    - _ReceivesSSR: 0
     - _ReceivesSSRTransparent: 0
     - _RefractionModel: 0
     - _Smoothness: 0
-    - _SmoothnessRemapMax: 0.718
+    - _SmoothnessRemapMax: 0
     - _SmoothnessRemapMin: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularAAScreenSpaceVariance: 0.1
@@ -266,9 +264,9 @@ Material:
     - _SpecularOcclusionMode: 1
     - _SrcBlend: 1
     - _StencilRef: 0
-    - _StencilRefDepth: 8
-    - _StencilRefGBuffer: 10
-    - _StencilRefMV: 40
+    - _StencilRefDepth: 0
+    - _StencilRefGBuffer: 2
+    - _StencilRefMV: 32
     - _StencilWriteMask: 6
     - _StencilWriteMaskDepth: 8
     - _StencilWriteMaskGBuffer: 14
@@ -298,9 +296,9 @@ Material:
     - _ZTestTransparent: 4
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.40566036, g: 0.40566036, b: 0.40566036, a: 1}
+    - _BaseColor: {r: 0.5377358, g: 0.5377358, b: 0.5377358, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
-    - _Color: {r: 0.40566033, g: 0.40566033, b: 0.40566033, a: 1}
+    - _Color: {r: 0.53773576, g: 0.53773576, b: 0.53773576, a: 1}
     - _DiffusionProfileAsset: {r: 0, g: 0, b: 0, a: 0}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
@@ -309,7 +307,7 @@ Material:
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+    - _SpecularColor: {r: 0.06496914, g: 0, b: 0.43396223, a: 1}
     - _ThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
     - _TransmittanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}

@@ -6,6 +6,7 @@ public class ElectricalRoomDoor : MonoBehaviour
 	
 	public GameObject theLock;
 	public GameObject theDoor;
+	public Collider theDoorCollider;
 	public GameObject theTorchCap;
 	public int DoorStrikes;
 	public int DoorStrikesNeeded = 18;
@@ -24,8 +25,8 @@ public class ElectricalRoomDoor : MonoBehaviour
 		torchCapName = theTorchCap.name;
 		lockName = theLock.name;
 		elecDoorAnimator = theDoor.GetComponent<Animator>();
-		
-    }
+
+	}
 	
 	
 	
@@ -56,6 +57,7 @@ public class ElectricalRoomDoor : MonoBehaviour
 	{
 		
 		elecDoorAnimator.SetTrigger("doorFall");
+		theDoorCollider.enabled = false;
 		doorHasFallen = true;
 	}	
 }

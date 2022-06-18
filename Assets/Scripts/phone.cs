@@ -211,10 +211,9 @@ public class phone : MonoBehaviour
 		if (Input.GetButtonUp("Phone") && !PT)
 		{
 			DeviceAnim.SetTrigger("phoneOut");
-			PT = true;
+			PT = true; 
 			Camera.GetComponent<FirstPersonLook>().enabled = false;
-			Player.GetComponent<FirstPersonCollision>().enabled = false;
-			Player.GetComponent<Jump>().enabled = false;
+			FirstPersonCollision.FROZEN = true;
 			MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 1.0f;
 			
 			Cursor.lockState = CursorLockMode.None;
@@ -227,8 +226,7 @@ public class phone : MonoBehaviour
 			DeviceAnim.SetTrigger("phoneAway");
 			PT = false;			
 			Camera.GetComponent<FirstPersonLook>().enabled = true;
-			Player.GetComponent<FirstPersonCollision>().enabled = true;
-			Player.GetComponent<Jump>().enabled = true;
+			FirstPersonCollision.FROZEN = false;
 			MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 0.0f;
 
 			Cursor.lockState = CursorLockMode.Locked;
@@ -445,7 +443,7 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 	public void callKieron()
 	{
 
-		CallTitleText.text = "Calling\nDarragh";
+		CallTitleText.text = "Calling\nKieron";
 		CallText.text = kieronNum.text;
 
 		StartCoroutine("CallContact");

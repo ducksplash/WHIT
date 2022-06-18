@@ -38,7 +38,7 @@ public class SwitchBox : MonoBehaviour
 		foreach (Light aLight in allTheLights)
 		{
 
-			if (aLight.tag != "TORCH" && aLight.tag != "HOUSELIGHTS")
+			if (aLight.tag != "TORCH" && aLight.tag != "STREETLAMP" && aLight.tag != "HOUSELIGHTS")
 			{
 
 			aLight.enabled = false;
@@ -159,11 +159,11 @@ public class SwitchBox : MonoBehaviour
 								
 								foreach (Light aLight in allTheLights)
 								{
-									
-									if (aLight.tag != "TORCH")
+
+									if (aLight.tag != "TORCH" && aLight.tag != "STREETLAMP" && aLight.tag != "HOUSELIGHTS")
 									{
-									
-									aLight.enabled = false;
+
+										aLight.enabled = false;
 									
 									}
 								}

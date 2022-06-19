@@ -23,16 +23,10 @@ public class FirstPersonLook : MonoBehaviour
     void FixedUpdate()
     {
 		
-		if (!Input.GetKeyDown(KeyCode.LeftShift))
-		{
+		
 		Cursor.lockState = CursorLockMode.Locked;
 		Cursor.visible = false;
-		}
-		else
-		{
-		Cursor.lockState = CursorLockMode.None;
-		Cursor.visible = true;	
-		}
+		
 		
 
 

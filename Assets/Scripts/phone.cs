@@ -129,7 +129,6 @@ public class phone : MonoBehaviour
 					readyForNewScreen = true;
 				}
 			}
-			//child.gameObject.SetActive(false);
 		}
 		
 		
@@ -161,21 +160,7 @@ public class phone : MonoBehaviour
 					Debug.Log("don't got it");
 				}
 			}
-	
-			
-/* 			if (useThisScreen.GetComponent<CanvasGroup>())
-			{
-				
-				useThisScreen.GetComponent<CanvasGroup>().alpha = 1.0f;
-				useThisScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;	
-				
 
-			}
-			else if (useThisScreen.GetComponent<TMPro.TextMeshPro>())
-			{
-				// enable textmesh component
-				useThisScreen.GetComponent<TMPro.TextMeshPro>().enabled = true;
-			} */
 		}
 	}
 
@@ -208,31 +193,42 @@ public class phone : MonoBehaviour
 				Fader.GetComponent<CanvasGroup>().alpha = 1.0f;
 			}
 		}
-		if (Input.GetButtonUp("Phone") && !PT)
+
+
+		if (Input.GetButtonUp("Phone"))
 		{
-			DeviceAnim.SetTrigger("phoneOut");
-			PT = true; 
-			Camera.GetComponent<FirstPersonLook>().enabled = false;
-			FirstPersonCollision.FROZEN = true;
-			MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 1.0f;
-			
-			Cursor.lockState = CursorLockMode.None;
-			Cursor.visible = true;	
-	
+
+			if (!PT)
+			{				
+				Camera.transform.rotation = Quaternion.Euler(new Vector3(0, Camera.transform.rotation.y, Camera.transform.rotation.z));
+
+				MobilePhone.transform.position = new Vector3(MobilePhone.transform.position.x, MobilePhone.transform.position.y+1, MobilePhone.transform.position.z);
+
+
+
+				Camera.GetComponent<FirstPersonLook>().enabled = false;
+				FirstPersonCollision.FROZEN = true;
+				MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 1.0f;
+
+				Cursor.lockState = CursorLockMode.None;
+				Cursor.visible = true;
+				PT = true;
+			}
+			else
+            {
+				PT = false;
+				MobilePhone.transform.position = new Vector3(MobilePhone.transform.position.x, MobilePhone.transform.position.y - 1, MobilePhone.transform.position.z);
+
+				Camera.GetComponent<FirstPersonLook>().enabled = true;
+				FirstPersonCollision.FROZEN = false;
+				MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 0.0f;
+
+				Cursor.lockState = CursorLockMode.Locked;
+				Cursor.visible = false;
+            }
 			
 		}
-		else if (Input.GetButtonUp("Phone") && PT)
-		{
-			DeviceAnim.SetTrigger("phoneAway");
-			PT = false;			
-			Camera.GetComponent<FirstPersonLook>().enabled = true;
-			FirstPersonCollision.FROZEN = false;
-			MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 0.0f;
 
-			Cursor.lockState = CursorLockMode.Locked;
-			Cursor.visible = false;
-
-			}
 		
 	
 

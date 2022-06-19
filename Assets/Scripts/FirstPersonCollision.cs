@@ -15,6 +15,9 @@ public class FirstPersonCollision : MonoBehaviour
 	private CharacterController thisRB;
 	private Camera MainCam;
 	public static bool FROZEN;
+	public bool crouching;
+	public float croucheight;
+	public float standheight;
 
 
 	void Start()
@@ -46,6 +49,9 @@ public class FirstPersonCollision : MonoBehaviour
 
 	
 	
+
+
+
 
     void FixedUpdate()
 	{
@@ -98,6 +104,19 @@ public class FirstPersonCollision : MonoBehaviour
 				var moveForce = transform.forward * speed;
 				thisRB.Move(-moveForce);
 			}
+
+
+			if (Input.GetKeyDown(KeyCode.RightControl))
+			{
+				thisRB.height = croucheight;
+			}
+
+
+			if (Input.GetKeyUp(KeyCode.RightControl))
+			{
+				thisRB.height = standheight;
+			}
+
 
 		}
 

@@ -12,6 +12,7 @@ public class clickable : MonoBehaviour
     public Sprite idlesprite;
     public Sprite enemysprite;
     public Sprite unknownsprite;
+    public Sprite doorsprite;
 
 
     void Awake()
@@ -25,9 +26,11 @@ public class clickable : MonoBehaviour
     void FixedUpdate()
     {
 
+        int doorlayer = LayerMask.GetMask("door");
         int clickablelayer = LayerMask.GetMask("clickable");
         int enemylayer = LayerMask.GetMask("enemy");
         int idlelayer = LayerMask.GetMask("Default");
+        int floorlayer = LayerMask.GetMask("ground");
         int unknownlayer = LayerMask.GetMask("unknown");
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -36,6 +39,12 @@ public class clickable : MonoBehaviour
 
 
         if (Physics.Raycast(ray, out hit, 20f, idlelayer))
+        {
+            //Debug.Log("idle");
+            selectcursor.sprite = idlesprite;
+        }
+
+        if (Physics.Raycast(ray, out hit, 20f, floorlayer))
         {
             //Debug.Log("idle");
             selectcursor.sprite = idlesprite;
@@ -57,6 +66,12 @@ public class clickable : MonoBehaviour
         {
             //Debug.Log("enemy");
             selectcursor.sprite = unknownsprite;
+        }
+
+        if (Physics.Raycast(ray, out hit, 5.5f, doorlayer))
+        {
+            //Debug.Log("door");
+            selectcursor.sprite = doorsprite;
         }
     }
 }

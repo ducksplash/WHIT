@@ -32,7 +32,6 @@ public class Torch : MonoBehaviour
 		phoneBool = thePhone.GetComponent<phone>().PT;
 		pcBool = thePC.GetComponent<ManagersPC>().usingComputer;
 		
-		lightBeam.intensity = lightIntensity;
 		
 		
 		if (phoneBool == false && pcBool == false)

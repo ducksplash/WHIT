@@ -200,7 +200,10 @@ public class phone : MonoBehaviour
 
 			if (!PT)
 			{				
-				Camera.transform.rotation = Quaternion.Euler(new Vector3(0, Camera.transform.rotation.y, Camera.transform.rotation.z));
+
+
+
+				Camera.transform.rotation = Quaternion.Euler(new Vector3(0, Camera.transform.eulerAngles.y, Camera.transform.eulerAngles.z));
 
 				MobilePhone.transform.position = new Vector3(MobilePhone.transform.position.x, MobilePhone.transform.position.y+1, MobilePhone.transform.position.z);
 

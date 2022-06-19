@@ -47,9 +47,34 @@ public class FirstPersonCollision : MonoBehaviour
 		didCollide = false;
     }
 
-	
-	
 
+
+    private void Update()
+    {
+
+		if (Input.GetKeyUp(KeyCode.RightControl))
+		{
+
+			if (!crouching)
+			{
+				crouching = true;
+				thisRB.height = croucheight;
+			}
+			else
+			{
+				var up = transform.TransformDirection(Vector3.up);
+				RaycastHit hit;
+				Debug.DrawRay(transform.position, up * 6, Color.green);
+
+				if (!Physics.Raycast(transform.position, up, out hit, 5))
+				{
+					crouching = false;
+					thisRB.height = standheight;
+				}
+
+			}
+		}
+	}
 
 
 
@@ -105,17 +130,6 @@ public class FirstPersonCollision : MonoBehaviour
 				thisRB.Move(-moveForce);
 			}
 
-
-			if (Input.GetKeyDown(KeyCode.RightControl))
-			{
-				thisRB.height = croucheight;
-			}
-
-
-			if (Input.GetKeyUp(KeyCode.RightControl))
-			{
-				thisRB.height = standheight;
-			}
 
 
 		}

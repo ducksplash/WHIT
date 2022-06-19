@@ -29,7 +29,6 @@ public class Torch : MonoBehaviour
 
     }
 
-    // Update is called once per frame
     void Update()
     {
 		phoneBool = thePhone.GetComponent<phone>().PT;
@@ -61,7 +60,10 @@ public class Torch : MonoBehaviour
 			
 			if (Input.GetMouseButtonUp(0))
 			{  
-				torchAnimator.SetTrigger("swing");		
+				if (!pickup.hasobject)
+                {
+					torchAnimator.SetTrigger("swing");		
+                }
 			}
 			else
 			{

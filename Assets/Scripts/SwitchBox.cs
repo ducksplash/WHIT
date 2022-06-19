@@ -86,8 +86,6 @@ public class SwitchBox : MonoBehaviour
 			{  
 				if (hit.distance <= 5.5f)
 				{
-
-					Debug.Log(hit.transform.name);
 				
 					if (hit.transform.name.Equals(thisDoorName))
 					{  

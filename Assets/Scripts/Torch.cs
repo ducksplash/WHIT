@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Torch : MonoBehaviour
 {
@@ -14,11 +15,13 @@ public class Torch : MonoBehaviour
 	public GameObject thePC;
 	private bool phoneBool;
 	private bool pcBool;
-	
-	
-	
-    // Start is called before the first frame update
-    void Start()
+	public Image torchimg;
+	public Sprite litsprite;
+	public Sprite unlitsprite;
+
+
+	// Start is called before the first frame update
+	void Start()
     {
 		
 		lightBeam = gameObject.GetComponentInChildren<Light>();
@@ -43,13 +46,14 @@ public class Torch : MonoBehaviour
 				if (!torchToggle)
 				{
 				lightBeam.enabled = true;
-				
+					torchimg.sprite = litsprite;
 				torchToggle = true;
 				}
 				else
 				{
 				lightBeam.enabled = false;
-					
+				torchimg.sprite = unlitsprite;
+
 				torchToggle = false;
 				//Debug.Log("off");
 				}

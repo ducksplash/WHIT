@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class FirstPersonCollision : MonoBehaviour
 {
@@ -12,19 +13,26 @@ public class FirstPersonCollision : MonoBehaviour
 	Vector2 velocity;
 	private Collision thisCollision;
 	private bool didCollide = false;
-	private CharacterController thisRB;
+	private CharacterController thisCharController;
 	private Camera MainCam;
 	public static bool FROZEN;
-	public bool crouching;
+	public static bool crouching;
 	public float croucheight;
 	public float standheight;
+	public Image stanceimg;
+	public Sprite crouchsprite;
+	public Sprite standsprite;
 
 
 	void Start()
 	{
-		
+
+		stanceimg = stanceimg.GetComponent<Image>();
+
+
+
 		thePlayerCollider = gameObject.GetComponent<CapsuleCollider>();
-		thisRB = gameObject.GetComponent<CharacterController>();
+		thisCharController = gameObject.GetComponent<CharacterController>();
 		MainCam = Camera.main;
 
 		
@@ -51,27 +59,30 @@ public class FirstPersonCollision : MonoBehaviour
 
     private void Update()
     {
-
 		if (Input.GetKeyUp(KeyCode.RightControl))
 		{
-
-			if (!crouching)
+			if (!FROZEN)
 			{
-				crouching = true;
-				thisRB.height = croucheight;
-			}
-			else
-			{
-				var up = transform.TransformDirection(Vector3.up);
-				RaycastHit hit;
-				Debug.DrawRay(transform.position, up * 6, Color.green);
-
-				if (!Physics.Raycast(transform.position, up, out hit, 5))
+				if (!crouching)
 				{
-					crouching = false;
-					thisRB.height = standheight;
+					crouching = true;
+					thisCharController.height = croucheight;
+					speed = walkspeed;
+					stanceimg.sprite = crouchsprite;
 				}
+				else
+				{
+					var up = transform.TransformDirection(Vector3.up);
+					RaycastHit hit;
 
+					if (!Physics.Raycast(transform.position, up, out hit, 5))
+					{
+						crouching = false;
+						thisCharController.height = standheight;
+						stanceimg.sprite = standsprite;
+					}
+
+				}
 			}
 		}
 	}
@@ -87,21 +98,22 @@ public class FirstPersonCollision : MonoBehaviour
 			if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
 			{
 
+				if(!crouching)
+                {
 
-
-				if (Input.GetKey(KeyCode.Keypad0) || Input.GetKey(KeyCode.LeftShift))
-				{
-					speed = sprintspeed;
-				}
-				else
-				{
-					speed = walkspeed;
-				}
-
+					if (Input.GetKey(KeyCode.Keypad0) || Input.GetKey(KeyCode.LeftShift))
+					{
+						speed = sprintspeed;
+					}
+					else
+					{
+						speed = walkspeed;
+					}
+                }
 
 				//Debug.Log("f");
 				var moveForce = transform.forward * speed;
-				thisRB.Move(moveForce);
+				thisCharController.Move(moveForce);
 			}
 
 
@@ -109,7 +121,7 @@ public class FirstPersonCollision : MonoBehaviour
 			{
 				//Debug.Log("l");
 				var moveForce = transform.right * speed;
-				thisRB.Move(-moveForce);
+				thisCharController.Move(-moveForce);
 			}
 
 
@@ -118,7 +130,7 @@ public class FirstPersonCollision : MonoBehaviour
 			{
 				//Debug.Log("r");
 				var moveForce = transform.right * speed;
-				thisRB.Move(moveForce);
+				thisCharController.Move(moveForce);
 			}
 
 
@@ -127,7 +139,7 @@ public class FirstPersonCollision : MonoBehaviour
 			{
 				//Debug.Log("b");
 				var moveForce = transform.forward * speed;
-				thisRB.Move(-moveForce);
+				thisCharController.Move(-moveForce);
 			}
 
 

@@ -6,6 +6,7 @@ public class FirstPersonLook : MonoBehaviour
     Transform character;
     Vector2 currentMouseLook;
     Vector2 appliedMouseDelta;
+    public phone thephonescript;
     public float sensitivity = 1;
     public float smoothing = 2;
 
@@ -23,9 +24,12 @@ public class FirstPersonLook : MonoBehaviour
     void FixedUpdate()
     {
 		
-		
+		if (thephonescript.PT == false)
+        {
+
 		Cursor.lockState = CursorLockMode.Locked;
 		Cursor.visible = false;
+        }
 		
 		
 
@@ -44,5 +48,8 @@ public class FirstPersonLook : MonoBehaviour
         currentMouseLook += appliedMouseDelta;
         currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, -40, 40);
     }
+
+
+
 
 }

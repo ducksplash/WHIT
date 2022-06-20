@@ -11,19 +11,24 @@ public class phone : MonoBehaviour
 	public Animator DeviceAnim;     
 	public GameObject Fader;      
 	public GameObject Clock;     
-	public GameObject Player;   
-	public GameObject Camera;     
+	public GameObject Player;
+	public GameObject Camera;
+	public GameObject PhoneCamera;
 	public Slider UnlockSlider;   
-	public GameObject LockScreen;   
-	public GameObject ContactsScreen;  
+	public GameObject LockScreen;
+	public GameObject ContactsScreen;
+	public GameObject CameraScreen;
 	public GameObject DiallerScreen;  
 	public GameObject CallingScreen;   
 	public GameObject HomeScreen;   
-	public GameObject theDialler;     
+	public GameObject theDialler;
+	public Image CameraReadyFrame;
+	public TextMeshProUGUI CameraReadyText;
+	public bool CameraReady;
 	private Text DialBar;          
 	public Text CallText;       
-	public Text CallTitleText;  
-
+	public Text CallTitleText;
+	public CanvasGroup CrosshairCanvas;
 	// contacts' nums
 	private bool callingContact = false;
 	public TextMeshProUGUI anonNum; 
@@ -35,7 +40,7 @@ public class phone : MonoBehaviour
 	public bool PT = false;
     // Start is called before the first frame update
 	private bool isLocked = true;
-
+	public bool CameraOpen;
 	
 	
 	// Make Call Coroutine
@@ -83,7 +88,10 @@ public class phone : MonoBehaviour
 		Transform[] allScreens = MobilePhone.GetComponentsInChildren<Transform>();
 		
 		Transform[] useTheseScreens = useThisScreen.GetComponentsInChildren<Transform>();
-		
+
+		PhoneCamera.GetComponent<Camera>().enabled = false;
+		CameraOpen = false;
+
 		var readyForNewScreen = false;
 		
 		
@@ -184,7 +192,7 @@ public class phone : MonoBehaviour
 		if (isLocked == true)
 		{
 			Fader.GetComponent<CanvasGroup>().alpha = 0.0f;
-			
+
 			if (UnlockSlider.value == 10)
 			{
 				changeScreen(HomeScreen);
@@ -203,31 +211,33 @@ public class phone : MonoBehaviour
 
 
 
-				Camera.transform.rotation = Quaternion.Euler(new Vector3(0, Camera.transform.eulerAngles.y, Camera.transform.eulerAngles.z));
 
-				MobilePhone.transform.position = new Vector3(MobilePhone.transform.position.x, MobilePhone.transform.position.y+1, MobilePhone.transform.position.z);
-
+				MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y+1, MobilePhone.transform.localPosition.z);
 
 
-				Camera.GetComponent<FirstPersonLook>().enabled = false;
-				FirstPersonCollision.FROZEN = true;
+
+				//Camera.GetComponent<FirstPersonLook>().enabled = false;
+				//FirstPersonCollision.FROZEN = true;
 				MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 1.0f;
 
+				CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
 				Cursor.lockState = CursorLockMode.None;
 				Cursor.visible = true;
+
 				PT = true;
 			}
 			else
             {
 				PT = false;
-				MobilePhone.transform.position = new Vector3(MobilePhone.transform.position.x, MobilePhone.transform.position.y - 1, MobilePhone.transform.position.z);
+				MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y - 1, MobilePhone.transform.localPosition.z);
 
-				Camera.GetComponent<FirstPersonLook>().enabled = true;
-				FirstPersonCollision.FROZEN = false;
+				CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;
+				//Camera.GetComponent<FirstPersonLook>().enabled = true;
+				//FirstPersonCollision.FROZEN = false;
 				MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 0.0f;
 
-				Cursor.lockState = CursorLockMode.Locked;
-				Cursor.visible = false;
+				//Cursor.lockState = CursorLockMode.Locked;
+				//Cursor.visible = false;
             }
 			
 		}
@@ -297,9 +307,9 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 	DialBar.text = SubString;
 	}
 }
-		
-    }
-	
+
+	}
+
 	// Contacts menu incorporating CallScreen, Dialler.
 	public void ContactsButton()
 	{
@@ -307,35 +317,48 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 
 		Debug.Log("contacts button");
 
-	}		
-	
-			// Dialler.
+	}
+
+	// Contacts menu incorporating CallScreen, Dialler.
+	public void CameraButton()
+	{
+		changeScreen(CameraScreen);
+
+		CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
+		PhoneCamera.GetComponent<Camera>().enabled = true;
+		CameraOpen = true;
+
+		Debug.Log("camera button");
+
+	}
+
+	// Dialler.
 	public void DiallerButton()
 	{
-		
+
 		Debug.Log("dialler button");
 		DialBar.text = "";
-		
+
 		if (callingContact == true)
 		{
-		
-		changeScreen(ContactsScreen);
 
-		callingContact = false;
+			changeScreen(ContactsScreen);
+
+			callingContact = false;
 		}
 		else
 		{
-		
-		changeScreen(DiallerScreen);
-		
+
+			changeScreen(DiallerScreen);
+
 		}
 	}
 
 
 
 
-	
-			public void a1Button()
+
+	public void a1Button()
 			{
 				DialBar.text = DialBar.text+"1";
 			}				
@@ -489,6 +512,42 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 	{
 		changeScreen(HomeScreen);
 	}
-	
-	
+
+
+	private void OnTriggerEnter(Collider other)
+	{
+
+		if (CameraOpen)
+		{
+			if (other.gameObject.layer == 13)
+			{
+				if (other.gameObject.GetComponent<Evidence>().PhotographableEvidence)
+					{
+					CameraReadyFrame.color = Color.green;
+					CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
+					CameraReady = true;
+					Debug.Log("photographable evidence out of view");
+                }
+			}
+		}
+
+	}
+	private void OnTriggerExit(Collider other)
+	{
+		if (CameraOpen)
+		{
+			if (other.gameObject.layer == 13)
+			{
+				if (other.gameObject.GetComponent<Evidence>().PhotographableEvidence)
+				{
+					CameraReadyFrame.color = Color.black;
+					CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
+					CameraReady = false;
+					Debug.Log("photographable evidence out of view");
+				}
+			}
+		}
+
+
+	}
 }

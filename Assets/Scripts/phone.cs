@@ -584,14 +584,31 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 			if (other.gameObject.layer == 13)
 			{
 				if (other.gameObject.GetComponent<Evidence>().PhotographableEvidence)
-					{
+				{
 					CameraReadyFrame.color = Color.green;
 					CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
 					CameraReady = true;
 					Debug.Log("photographable evidence out of view");
 					ObservedEvidence = other.gameObject;
-                }
+				}
 			}
+
+
+			if (other.gameObject.layer == 11)
+			{
+				if (other.gameObject.GetComponent<Evidence>().PhotographableEvidence)
+				{
+					CameraReadyFrame.color = Color.green;
+					CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
+					CameraReady = true;
+					Debug.Log("photographable evidence out of view");
+					ObservedEvidence = other.gameObject;
+				}
+			}
+
+
+
+
 		}
 
 	}
@@ -607,7 +624,19 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 				CameraReady = false;
 				Debug.Log("photographable evidence out of view");
 				ObservedEvidence = null;
-		
+
+			}
+
+
+			if (other.gameObject.layer == 11)
+			{
+
+				CameraReadyFrame.color = Color.black;
+				CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
+				CameraReady = false;
+				Debug.Log("photographable evidence out of view");
+				ObservedEvidence = null;
+
 			}
 		}
 
@@ -641,7 +670,7 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 
 
 
-			var photodate = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+			var photoname = ObservedEvidence.name;
 
 			var filepath = Application.persistentDataPath + "/Phone/0/DCIM/";
 
@@ -651,11 +680,15 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 			DirectoryInfo di = Directory.CreateDirectory(filepath);
 
 
-			System.IO.File.WriteAllBytes(file.FullName + photodate + ".png", bytes);
+			var filenameString = file.FullName + photoname + ".png";
+
+			var nameForEvidenceFile = photoname + ".png";
+
+			System.IO.File.WriteAllBytes(filenameString, bytes);
 
 			ObservedEvidence.GetComponent<Evidence>().PhotographableEvidence = false;
 			ObservedEvidence.GetComponent<Evidence>().EvidenceCollected = true;
-			ObservedEvidence.GetComponent<Evidence>().CollectEvidence();
+			ObservedEvidence.GetComponent<Evidence>().CollectEvidence(nameForEvidenceFile);
 
 			CameraReadyFrame.color = Color.black;
 			CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;

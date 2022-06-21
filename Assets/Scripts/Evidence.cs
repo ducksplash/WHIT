@@ -7,6 +7,7 @@ public class Evidence : MonoBehaviour
     public bool EvidenceFake;
     public bool PlayerSeen;
     public bool PhotographableEvidence;
+    public int EvidenceQuality;
 
 
     public string EvidenceName;
@@ -32,13 +33,24 @@ public class Evidence : MonoBehaviour
 
 
 
-    public void CollectEvidence()
+    public void CollectEvidence(string evfilename)
      {
 
 
         var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
 
         var evidencedate = System.DateTime.Now.ToString("HH:mm on dd/MM/yyyy");
+
+
+        if (gameObject.layer == 13)
+        {
+            Debug.Log("Physical Evidence");
+        }
+        if (gameObject.layer == 5)
+        {
+            Debug.Log("Digital Evidence");
+        }
+
 
 
         DirectoryInfo di = Directory.CreateDirectory(filepath);
@@ -48,6 +60,7 @@ public class Evidence : MonoBehaviour
         var EvidenceSlug = "Name: " + EvidenceName + "\n";
         EvidenceSlug += "Details: " + EvidenceBody + "\n";
         EvidenceSlug += "Date Collected: " + evidencedate + "\n";
+        EvidenceSlug += "Photograph: " + evfilename + "\n";
 
 
 

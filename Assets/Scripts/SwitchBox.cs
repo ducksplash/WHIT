@@ -41,7 +41,7 @@ public class SwitchBox : MonoBehaviour
 			if (aLight.tag != "TORCH" && aLight.tag != "STREETLAMP" && aLight.tag != "HOUSELIGHTS")
 			{
 
-			aLight.enabled = false;
+				aLight.enabled = false;
 
 			}
 

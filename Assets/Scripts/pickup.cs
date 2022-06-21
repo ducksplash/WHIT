@@ -88,7 +88,7 @@ public class pickup : MonoBehaviour
 
 		myHeldItem.SetParent(defaultparent);
 		myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-		myHeldItem.transform.GetComponent<Rigidbody>().AddForce(cameraTransform.forward * 500f);
+		myHeldItem.transform.GetComponent<Rigidbody>().AddForce(cameraTransform.forward * 100f);
 		myHeldItem = null;
 
 		Invoke("SetAbsent", 0.5f);

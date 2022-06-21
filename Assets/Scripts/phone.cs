@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -41,10 +42,15 @@ public class phone : MonoBehaviour
     // Start is called before the first frame update
 	private bool isLocked = true;
 	public bool CameraOpen;
-	
-	
+	public Light CameraLeftFlash;
+	public Light CameraRightFlash;
+	public Light TorchLight;
+	public int resWidth = 600;
+	public int resHeight = 1000;
+	public Camera getCamera;
+
 	// Make Call Coroutine
-	
+
 	IEnumerator CallContact() 
 	{		
 	
@@ -75,7 +81,9 @@ public class phone : MonoBehaviour
     {
         DeviceAnim = MobilePhone.GetComponent<Animator>();
 		DialBar = theDialler.GetComponentInChildren<Text>();
-    }
+
+		Debug.Log(Application.persistentDataPath);
+	}
 
 
 
@@ -91,6 +99,11 @@ public class phone : MonoBehaviour
 
 		PhoneCamera.GetComponent<Camera>().enabled = false;
 		CameraOpen = false;
+
+
+		CameraLeftFlash.enabled = false;
+		CameraRightFlash.enabled = false;
+
 
 		var readyForNewScreen = false;
 		
@@ -236,17 +249,45 @@ public class phone : MonoBehaviour
 				//FirstPersonCollision.FROZEN = false;
 				MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 0.0f;
 
+
+
+				if (!TorchLight.enabled)
+				{
+					Torch.torchToggle = true;
+					TorchLight.enabled = true;
+				}
+
+				CameraLeftFlash.enabled = false;
+				CameraRightFlash.enabled = false;
+
+				changeScreen(HomeScreen);
+
 				//Cursor.lockState = CursorLockMode.Locked;
 				//Cursor.visible = false;
-            }
+			}
 			
 		}
 
-		
-	
 
 
-// Dial By Keyb
+
+		// take photos
+
+		if (Input.GetKey(KeyCode.X) && CameraReady)
+		{
+
+			TakePhoto();
+		}
+
+
+
+
+
+
+
+
+
+		// Dial By Keyb
 
 
 
@@ -324,7 +365,16 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 	{
 		changeScreen(CameraScreen);
 
-		CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
+		if (TorchLight.enabled)
+		{
+			Torch.torchToggle = false;
+			TorchLight.enabled = false;
+		}
+
+		CameraLeftFlash.enabled = true;
+		CameraRightFlash.enabled = true;
+
+	CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
 		PhoneCamera.GetComponent<Camera>().enabled = true;
 		CameraOpen = true;
 
@@ -547,6 +597,38 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 				}
 			}
 		}
+
+
+	}
+
+
+
+	public void TakePhoto()
+	{
+
+
+		RenderTexture activeRenderTexture = RenderTexture.active;
+		RenderTexture.active = PhoneCamera.GetComponent<Camera>().targetTexture;
+
+		PhoneCamera.GetComponent<Camera>().Render();
+
+
+
+		Texture2D image = new Texture2D(PhoneCamera.GetComponent<Camera>().targetTexture.width, PhoneCamera.GetComponent<Camera>().targetTexture.height);
+		image.ReadPixels(new Rect(0, 0, PhoneCamera.GetComponent<Camera>().targetTexture.width, PhoneCamera.GetComponent<Camera>().targetTexture.height), 0, 0);
+		image.Apply();
+		RenderTexture.active = activeRenderTexture;
+
+		byte[] bytes = image.EncodeToPNG();
+		Destroy(image);
+
+
+
+		var photodate = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+
+
+
+		File.WriteAllBytes(Application.persistentDataPath + "/" + photodate + ".png", bytes);
 
 
 	}

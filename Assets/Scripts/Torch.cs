@@ -8,7 +8,7 @@ public class Torch : MonoBehaviour
 	
 	public Light lightBeam;
 	public GameObject theTorch;
-	private bool torchToggle = false;
+	public static bool torchToggle;
 	public int lightIntensity = 4;
 	private Animator torchAnimator;
 	public GameObject thePhone;
@@ -45,7 +45,7 @@ public class Torch : MonoBehaviour
 				if (!torchToggle)
 				{
 				lightBeam.enabled = true;
-					torchimg.sprite = litsprite;
+				torchimg.sprite = litsprite;
 				torchToggle = true;
 				}
 				else

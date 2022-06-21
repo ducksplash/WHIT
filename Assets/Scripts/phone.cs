@@ -25,6 +25,7 @@ public class phone : MonoBehaviour
 	public GameObject theDialler;
 	public Image CameraReadyFrame;
 	public TextMeshProUGUI CameraReadyText;
+	public TextMeshProUGUI CameraSavedText;
 	public bool CameraReady;
 	private Text DialBar;          
 	public Text CallText;       
@@ -48,6 +49,9 @@ public class phone : MonoBehaviour
 	public int resWidth = 600;
 	public int resHeight = 1000;
 	public Camera getCamera;
+
+
+	private GameObject ObservedEvidence;
 
 	// Make Call Coroutine
 
@@ -363,6 +367,9 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 	// Contacts menu incorporating CallScreen, Dialler.
 	public void CameraButton()
 	{
+
+
+
 		changeScreen(CameraScreen);
 
 		if (TorchLight.enabled)
@@ -374,11 +381,16 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 		CameraLeftFlash.enabled = true;
 		CameraRightFlash.enabled = true;
 
-	CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
+		CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
+		CameraSavedText.GetComponent<CanvasGroup>().alpha = 0;
 		PhoneCamera.GetComponent<Camera>().enabled = true;
 		CameraOpen = true;
 
 		Debug.Log("camera button");
+
+		
+
+
 
 	}
 
@@ -577,6 +589,7 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 					CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
 					CameraReady = true;
 					Debug.Log("photographable evidence out of view");
+					ObservedEvidence = other.gameObject;
                 }
 			}
 		}
@@ -588,13 +601,13 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 		{
 			if (other.gameObject.layer == 13)
 			{
-				if (other.gameObject.GetComponent<Evidence>().PhotographableEvidence)
-				{
-					CameraReadyFrame.color = Color.black;
-					CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
-					CameraReady = false;
-					Debug.Log("photographable evidence out of view");
-				}
+
+				CameraReadyFrame.color = Color.black;
+				CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
+				CameraReady = false;
+				Debug.Log("photographable evidence out of view");
+				ObservedEvidence = null;
+		
 			}
 		}
 
@@ -607,29 +620,78 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 	{
 
 
-		RenderTexture activeRenderTexture = RenderTexture.active;
-		RenderTexture.active = PhoneCamera.GetComponent<Camera>().targetTexture;
-
-		PhoneCamera.GetComponent<Camera>().Render();
+		if (ObservedEvidence != null)
+		{
 
 
+			RenderTexture activeRenderTexture = RenderTexture.active;
+			RenderTexture.active = PhoneCamera.GetComponent<Camera>().targetTexture;
 
-		Texture2D image = new Texture2D(PhoneCamera.GetComponent<Camera>().targetTexture.width, PhoneCamera.GetComponent<Camera>().targetTexture.height);
-		image.ReadPixels(new Rect(0, 0, PhoneCamera.GetComponent<Camera>().targetTexture.width, PhoneCamera.GetComponent<Camera>().targetTexture.height), 0, 0);
-		image.Apply();
-		RenderTexture.active = activeRenderTexture;
-
-		byte[] bytes = image.EncodeToPNG();
-		Destroy(image);
+			PhoneCamera.GetComponent<Camera>().Render();
 
 
 
-		var photodate = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+			Texture2D image = new Texture2D(PhoneCamera.GetComponent<Camera>().targetTexture.width, PhoneCamera.GetComponent<Camera>().targetTexture.height);
+			image.ReadPixels(new Rect(0, 0, PhoneCamera.GetComponent<Camera>().targetTexture.width, PhoneCamera.GetComponent<Camera>().targetTexture.height), 0, 0);
+			image.Apply();
+			RenderTexture.active = activeRenderTexture;
+
+			byte[] bytes = image.EncodeToPNG();
+			Destroy(image);
 
 
 
-		File.WriteAllBytes(Application.persistentDataPath + "/" + photodate + ".png", bytes);
+			var photodate = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+
+			var filepath = Application.persistentDataPath + "/Phone/0/DCIM/";
+
+			System.IO.FileInfo file = new System.IO.FileInfo(filepath);
+
+
+			DirectoryInfo di = Directory.CreateDirectory(filepath);
+
+
+			System.IO.File.WriteAllBytes(file.FullName + photodate + ".png", bytes);
+
+			ObservedEvidence.GetComponent<Evidence>().PhotographableEvidence = false;
+			ObservedEvidence.GetComponent<Evidence>().EvidenceCollected = true;
+			ObservedEvidence.GetComponent<Evidence>().CollectEvidence();
+
+			CameraReadyFrame.color = Color.black;
+			CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
+			CameraSavedText.GetComponent<CanvasGroup>().alpha = 1;
+			CameraReady = false;
+
+			StartCoroutine(SavedPhoto());
+
+		}
 
 
 	}
+
+
+
+
+
+	IEnumerator SavedPhoto()
+    {
+
+		CameraSavedText.alpha = 1;
+
+
+		yield return new WaitForSeconds(3f);
+
+
+		CameraSavedText.alpha = 0;
+
+
+
+
+	}
+
+
+
+
+
+
 }

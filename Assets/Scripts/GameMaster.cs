@@ -7,23 +7,26 @@ public class GameMaster : MonoBehaviour
   GameData saveData = new GameData();
 
 
-// Game Globals
+    // Game Globals
 
-// Electricity Enabled - We can probably use this for all levels, resetting to false on scene change.
-public static bool POWER_SUPPLY_ENABLED;
+    // Electricity Enabled - We can probably use this for all levels, resetting to false on scene change.
+    public static bool POWER_SUPPLY_ENABLED;
+    public static bool INCINERATOR_ENABLED;
 
 
 
 
-void Awake()
+    void Awake()
 {
 	//Application.targetFrameRate = 61;
 }
 
 
 
-void Start () {
-		POWER_SUPPLY_ENABLED = false;
+void Start ()
+    {
+        POWER_SUPPLY_ENABLED = false;
+        INCINERATOR_ENABLED = true;
     }
 
 

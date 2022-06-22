@@ -195,6 +195,8 @@ public class FirstPersonCollision : MonoBehaviour
 		ButtonFaderLeave.alpha = 0f;
 		ButtonFaderContinue.alpha = 0f;
 		DiedTextFader.alpha = 0f;
+		ButtonFaderContinue.blocksRaycasts = false;
+		ButtonFaderLeave.blocksRaycasts = false;
 	}
 
 
@@ -285,7 +287,9 @@ public class FirstPersonCollision : MonoBehaviour
 		buildDate += ", ";
 		buildDate += System.DateTime.Now.ToString("yyyy");
 
-		PaperDeathText.text = CauseString;
+		// put cause of death on paper
+		// don't forget the full stop.
+		PaperDeathText.text = CauseString + ".";
 		PaperDateText.text = buildDate;
 
 
@@ -321,8 +325,8 @@ public class FirstPersonCollision : MonoBehaviour
 
 			while (diedduration > 0)
 			{
-				DiedTextFader.alpha += 0.01f;
-				yield return new WaitForSeconds(0.01f);
+				DiedTextFader.alpha += 0.02f;
+				yield return new WaitForSeconds(0.02f);
 				diedduration--;
 				Debug.Log(diedduration);
 			}
@@ -350,6 +354,9 @@ public class FirstPersonCollision : MonoBehaviour
 
 			while (buttonduration > 0)
 			{
+
+				ButtonFaderContinue.blocksRaycasts = true;
+				ButtonFaderLeave.blocksRaycasts = true;
 				ButtonFaderContinue.alpha += 0.02f;
 				ButtonFaderLeave.alpha += 0.02f;
 				yield return new WaitForSeconds(0.02f);

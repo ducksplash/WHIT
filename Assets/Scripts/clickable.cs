@@ -36,6 +36,7 @@ public class clickable : MonoBehaviour
         int unknownlayer = LayerMask.GetMask("unknown");
         int pickuplayer = LayerMask.GetMask("pickupable");
         int evidencelayer = LayerMask.GetMask("evidence");
+        int digitalevidencelayer = LayerMask.GetMask("digitalevidence");
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -85,6 +86,12 @@ public class clickable : MonoBehaviour
         }
 
         if (Physics.Raycast(ray, out hit, 5.5f, evidencelayer))
+        {
+            //Debug.Log("door");
+            selectcursor.sprite = evidencesprite;
+        }
+
+        if (Physics.Raycast(ray, out hit, 5.5f, digitalevidencelayer))
         {
             //Debug.Log("door");
             selectcursor.sprite = evidencesprite;

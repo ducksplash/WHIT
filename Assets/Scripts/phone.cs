@@ -86,7 +86,7 @@ public class phone : MonoBehaviour
         DeviceAnim = MobilePhone.GetComponent<Animator>();
 		DialBar = theDialler.GetComponentInChildren<Text>();
 
-		Debug.Log(Application.persistentDataPath);
+		//Debug.Log(Application.persistentDataPath);
 	}
 
 

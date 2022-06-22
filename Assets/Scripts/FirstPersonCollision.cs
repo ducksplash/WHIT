@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class FirstPersonCollision : MonoBehaviour
 {
@@ -12,7 +13,7 @@ public class FirstPersonCollision : MonoBehaviour
 	public float sprintspeed = 0.2f;
 	Vector2 velocity;
 	private Collision thisCollision;
-	private bool didCollide = false;
+	//private bool didCollide = false;
 	private CharacterController thisCharController;
 	private Camera MainCam;
 	public static bool FROZEN;
@@ -22,6 +23,18 @@ public class FirstPersonCollision : MonoBehaviour
 	public Image stanceimg;
 	public Sprite crouchsprite;
 	public Sprite standsprite;
+
+	public TextMeshProUGUI PaperDeathText;
+	public TextMeshProUGUI PaperDateText;
+	public CanvasGroup DeathScreen;
+	public CanvasGroup NewspaperBundle;
+
+	// the stuff we must disable
+	public CanvasGroup CrossHair;
+	public CanvasGroup CrouchIndicator;
+	public CanvasGroup TorchIndicator;
+
+
 
 
 	void Start()
@@ -45,19 +58,89 @@ public class FirstPersonCollision : MonoBehaviour
     {
 		if (thisCollision.transform.name.Contains("abbotoir"))
 		{
-			didCollide = true;
+			//didCollide = true;
 		}
-		
-    }	
-	
+
+	}
+
 	void OnCollisionExit(Collision thisCollision)
-    {
-		didCollide = false;
-    }
+	{
+		//didCollide = false;
+	}
 
 
 
-    private void Update()
+	void OnTriggerEnter(Collider theOther)
+	{
+
+
+		if (theOther.gameObject.layer == 20)
+		{
+			DEAD("Electrocution ( this isn't dynamic yet :p )");
+		}
+	}
+
+
+
+	public void DisableAllScreens()
+	{
+		CrossHair.alpha = 0f;
+		CrouchIndicator.alpha = 0f;
+		TorchIndicator.alpha = 0f;
+		NewspaperBundle.alpha = 0f;
+		DeathScreen.alpha = 0f;
+	}
+
+
+
+	public void DEAD(string CauseOfDeath) 
+	{
+
+
+		//we need to lerp this later, but for now just post it
+		// disable all screens and then re-enable the one I want. lazy, but the overheads are minimal (though not zero) :p
+		DisableAllScreens();
+
+		// death screen first
+		DeathScreen.alpha = 1f;
+
+		// then newspaper
+		NewspaperBundle.alpha = 1f;
+
+		var buildDate = "";
+
+		buildDate += System.DateTime.Now.ToString("dddd");
+		buildDate += ", ";
+		buildDate += System.DateTime.Now.ToString("MMMM d");
+		buildDate += MonthDay(System.DateTime.Now.ToString("dd").ToString());
+		buildDate += ", ";
+		buildDate += System.DateTime.Now.ToString("yyyy");
+
+		PaperDateText.text = buildDate;
+
+
+		Debug.Log("ya dead!");
+
+
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	private void Update()
     {
 		if (Input.GetKeyUp(KeyCode.RightControl))
 		{
@@ -147,5 +230,46 @@ public class FirstPersonCollision : MonoBehaviour
 		}
 
 
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	public string MonthDay(string day)
+	{
+		string nuNum = "th";
+		if (int.Parse(day) < 11 || int.Parse(day) > 20)
+		{
+			day = day.ToCharArray()[^1].ToString();
+			switch (day)
+			{
+				case "1":
+					nuNum = "st";
+					break;
+				case "2":
+					nuNum = "nd";
+					break;
+				case "3":
+					nuNum = "rd";
+					break;
+			}
+		}
+		return nuNum;
 	}
 }

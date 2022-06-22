@@ -6,7 +6,7 @@ public class Jump : MonoBehaviour
     public bool groundCheck;
     CharacterController thisChar;
     public float jumpStrength = 2;
-    public event System.Action Jumped;
+    //public event System.Action Jumped;
     private Vector3 moveDirection = Vector3.zero;
     public float jumpSpeed = 8.0F;
     public float gravity = 1F;

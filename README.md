@@ -7,7 +7,7 @@ You assume the role of Nora Kennedy, a struggling reporter working for a small t
 
 One morning, you are awoken by a phone call from a man known only as "Kieron".
 
-Kieron's daughter is the latest in a string of unexplained disappearances in the town of Tawley, County Sligo.
+Kieron's daughter is the latest in a string of unexplained disappearances in the town of Tawley, County Leitrim.
 
 The Gardaí are fobbing him off and after months, he's at the end of his tether.  He saw one of your fluff pieces buried in the centre pages and thinks you might be able to help each other; you track down his daughter and then you get to run the story that gets you off Page 30 and into the nationals - a step closer to your dreams.
 

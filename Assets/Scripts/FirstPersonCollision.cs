@@ -7,7 +7,7 @@ public class FirstPersonCollision : MonoBehaviour
 	
 	
 	private Collider thePlayerCollider;
-
+	public bool INMENU;
 	public float speed = 0.1f;
 	public float walkspeed = 0.1f;
 	public float sprintspeed = 0.2f;
@@ -24,6 +24,8 @@ public class FirstPersonCollision : MonoBehaviour
 	public Sprite crouchsprite;
 	public Sprite standsprite;
 
+
+
 	public TextMeshProUGUI PaperDeathText;
 	public TextMeshProUGUI PaperDateText;
 	public CanvasGroup DeathScreen;
@@ -34,7 +36,7 @@ public class FirstPersonCollision : MonoBehaviour
 	public CanvasGroup CrouchIndicator;
 	public CanvasGroup TorchIndicator;
 
-
+	public Vector3 SpawnPoint;
 
 
 	void Start()
@@ -42,6 +44,8 @@ public class FirstPersonCollision : MonoBehaviour
 
 		stanceimg = stanceimg.GetComponent<Image>();
 
+
+		SpawnPoint = transform.position;
 
 
 		thePlayerCollider = gameObject.GetComponent<CapsuleCollider>();
@@ -67,75 +71,6 @@ public class FirstPersonCollision : MonoBehaviour
 	{
 		//didCollide = false;
 	}
-
-
-
-	void OnTriggerEnter(Collider theOther)
-	{
-
-
-		if (theOther.gameObject.layer == 20)
-		{
-			DEAD("Electrocution ( this isn't dynamic yet :p )");
-		}
-	}
-
-
-
-	public void DisableAllScreens()
-	{
-		CrossHair.alpha = 0f;
-		CrouchIndicator.alpha = 0f;
-		TorchIndicator.alpha = 0f;
-		NewspaperBundle.alpha = 0f;
-		DeathScreen.alpha = 0f;
-	}
-
-
-
-	public void DEAD(string CauseOfDeath) 
-	{
-
-
-		//we need to lerp this later, but for now just post it
-		// disable all screens and then re-enable the one I want. lazy, but the overheads are minimal (though not zero) :p
-		DisableAllScreens();
-
-		// death screen first
-		DeathScreen.alpha = 1f;
-
-		// then newspaper
-		NewspaperBundle.alpha = 1f;
-
-		var buildDate = "";
-
-		buildDate += System.DateTime.Now.ToString("dddd");
-		buildDate += ", ";
-		buildDate += System.DateTime.Now.ToString("MMMM d");
-		buildDate += MonthDay(System.DateTime.Now.ToString("dd").ToString());
-		buildDate += ", ";
-		buildDate += System.DateTime.Now.ToString("yyyy");
-
-		PaperDateText.text = buildDate;
-
-
-		Debug.Log("ya dead!");
-
-
-
-	}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -237,6 +172,119 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
+
+
+
+
+
+
+	public void DisableAllScreens()
+	{
+		CrossHair.alpha = 0f;
+		CrouchIndicator.alpha = 0f;
+		TorchIndicator.alpha = 0f;
+		NewspaperBundle.alpha = 0f;
+		DeathScreen.alpha = 0f;
+		DeathScreen.blocksRaycasts = false;
+	}
+
+
+
+
+
+	void OnTriggerEnter(Collider theOther)
+	{
+
+
+		if (theOther.gameObject.layer == 20 && !FROZEN)
+		{
+			DEAD("Electrocution ( this isn't dynamic yet :p )");
+		}
+	}
+
+
+	public void DEAD(string CauseOfDeath)
+	{
+
+
+		INMENU = true;
+		FROZEN = true;
+
+		Cursor.lockState = CursorLockMode.None;
+		Cursor.visible = true;
+
+		//we need to lerp this later, but for now just post it
+		// disable all screens and then re-enable the one I want. lazy, but the overheads are minimal (though not zero) :p
+		DisableAllScreens();
+
+		// death screen first
+		DeathScreen.alpha = 1f;
+		DeathScreen.blocksRaycasts = true;
+
+		// then newspaper
+		NewspaperBundle.alpha = 1f;
+
+		var buildDate = "";
+
+		buildDate += System.DateTime.Now.ToString("dddd");
+		buildDate += ", ";
+		buildDate += System.DateTime.Now.ToString("MMMM d");
+		buildDate += MonthDay(System.DateTime.Now.ToString("dd").ToString());
+		buildDate += ", ";
+		buildDate += System.DateTime.Now.ToString("yyyy");
+
+		PaperDeathText.text = CauseOfDeath;
+		PaperDateText.text = buildDate;
+
+
+		Debug.Log("ya dead!");
+
+
+	}
+
+
+
+
+
+
+
+
+	public void QuitToMainmenu()
+	{
+
+		INMENU = false;
+		FROZEN = false;
+
+
+		Debug.Log("quit while no menu lol");
+		DisableAllScreens();
+
+		CrouchIndicator.alpha = 1;
+		CrossHair.alpha = 1;
+		TorchIndicator.alpha = 1;
+
+	}
+
+
+
+
+	public void ContinueGame()
+	{
+
+		INMENU = false;
+		FROZEN = false;
+
+
+		transform.position = SpawnPoint;
+
+		Debug.Log("carry on");
+		DisableAllScreens();
+
+		CrouchIndicator.alpha = 1;
+		CrossHair.alpha = 1;
+		TorchIndicator.alpha = 1;
+
+	}
 
 
 

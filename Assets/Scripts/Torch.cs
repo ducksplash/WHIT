@@ -33,43 +33,45 @@ public class Torch : MonoBehaviour
     {
 		phoneBool = thePhone.GetComponent<phone>().PT;
 		pcBool = thePC.GetComponent<ManagersPC>().usingComputer;
-		
-		
-		
+
+
+
 		if (phoneBool == false && pcBool == false)
 		{
-		
-		
-			if (Input.GetMouseButtonUp(2) || Input.GetButtonUp("Flashlight"))
+			if (!FirstPersonCollision.FROZEN)
 			{
-				if (!torchToggle)
+
+				if (Input.GetMouseButtonUp(2) || Input.GetButtonUp("Flashlight"))
 				{
-				lightBeam.enabled = true;
-				torchimg.sprite = litsprite;
-				torchToggle = true;
+					if (!torchToggle)
+					{
+						lightBeam.enabled = true;
+						torchimg.sprite = litsprite;
+						torchToggle = true;
+					}
+					else
+					{
+						lightBeam.enabled = false;
+						torchimg.sprite = unlitsprite;
+
+						torchToggle = false;
+						//Debug.Log("off");
+					}
+				}
+
+				if (Input.GetMouseButtonUp(0))
+				{
+					if (!pickup.hasobject)
+					{
+						torchAnimator.SetTrigger("swing");
+					}
 				}
 				else
 				{
-				lightBeam.enabled = false;
-				torchimg.sprite = unlitsprite;
-
-				torchToggle = false;
-				//Debug.Log("off");
+					torchAnimator.SetTrigger("idle");
 				}
+
 			}
-			
-			if (Input.GetMouseButtonUp(0))
-			{  
-				if (!pickup.hasobject)
-                {
-					torchAnimator.SetTrigger("swing");		
-                }
-			}
-			else
-			{
-				torchAnimator.SetTrigger("idle");	
-			}
-		
 		}
         
     }

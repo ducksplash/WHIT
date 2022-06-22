@@ -7,6 +7,7 @@ public class FirstPersonLook : MonoBehaviour
     Vector2 currentMouseLook;
     Vector2 appliedMouseDelta;
     public phone thephonescript;
+    public FirstPersonCollision playerhandler;
     public float sensitivity = 1;
     public float smoothing = 2;
 
@@ -24,29 +25,34 @@ public class FirstPersonLook : MonoBehaviour
     void FixedUpdate()
     {
 		
-		if (thephonescript.PT == false)
+		if (!thephonescript.PT && !playerhandler.INMENU)
         {
-
-		Cursor.lockState = CursorLockMode.Locked;
-		Cursor.visible = false;
+		    Cursor.lockState = CursorLockMode.Locked;
+		    Cursor.visible = false;
         }
 		
 		
+
+        if (!FirstPersonCollision.FROZEN)
+        {
 
 
         // Rotate camera and controller.
         transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
         character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
+        }
     }
 
     private void LateUpdate()
     {
-
-        // Get smooth mouse look.
-        Vector2 smoothMouseDelta = Vector2.Scale(new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")), Vector2.one * sensitivity * smoothing);
-        appliedMouseDelta = Vector2.Lerp(appliedMouseDelta, smoothMouseDelta, 1 / smoothing);
-        currentMouseLook += appliedMouseDelta;
-        currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, -40, 40);
+        if (!FirstPersonCollision.FROZEN)
+        {
+            // Get smooth mouse look.
+            Vector2 smoothMouseDelta = Vector2.Scale(new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")), Vector2.one * sensitivity * smoothing);
+            appliedMouseDelta = Vector2.Lerp(appliedMouseDelta, smoothMouseDelta, 1 / smoothing);
+            currentMouseLook += appliedMouseDelta;
+            currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, -40, 40);
+        }
     }
 
 

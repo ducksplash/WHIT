@@ -13,9 +13,10 @@ public class clickable : MonoBehaviour
     public Sprite enemysprite;
     public Sprite unknownsprite;
     public Sprite doorsprite;
+    public Sprite lockeddoorsprite; 
     public Sprite pickupsprite;
     public Sprite evidencesprite;
-
+    public TextMeshProUGUI infotext;
 
     void Awake()
     {
@@ -29,6 +30,7 @@ public class clickable : MonoBehaviour
     {
 
         int doorlayer = LayerMask.GetMask("door");
+        int cupboardlayer = LayerMask.GetMask("cupboard");
         int clickablelayer = LayerMask.GetMask("clickable");
         int enemylayer = LayerMask.GetMask("enemy");
         int idlelayer = LayerMask.GetMask("Default");
@@ -36,7 +38,7 @@ public class clickable : MonoBehaviour
         int unknownlayer = LayerMask.GetMask("unknown");
         int pickuplayer = LayerMask.GetMask("pickupable");
         int evidencelayer = LayerMask.GetMask("evidence");
-        int digitalevidencelayer = LayerMask.GetMask("digitalevidence");
+        int staticevidencelayer = LayerMask.GetMask("staticevidence");
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -47,12 +49,14 @@ public class clickable : MonoBehaviour
         {
             //Debug.Log("idle");
             selectcursor.sprite = idlesprite;
+            infotext.text = "";
         }
 
         if (Physics.Raycast(ray, out hit, 20f, floorlayer))
         {
             //Debug.Log("idle");
             selectcursor.sprite = idlesprite;
+            infotext.text = "";
         }
 
         if (Physics.Raycast(ray, out hit, 5.5f, clickablelayer))
@@ -76,7 +80,27 @@ public class clickable : MonoBehaviour
         if (Physics.Raycast(ray, out hit, 5.5f, doorlayer))
         {
             //Debug.Log("door");
-            selectcursor.sprite = doorsprite;
+
+            if (hit.transform.parent.parent.GetComponent<innerDoors>().isLocked)
+            {
+                selectcursor.sprite = lockeddoorsprite;
+                infotext.text = "locked";
+            }
+            else
+            {
+                selectcursor.sprite = doorsprite;
+                infotext.text = "";
+            }
+
+        }
+
+        if (Physics.Raycast(ray, out hit, 5.5f, cupboardlayer))
+        {
+            //Debug.Log("door");
+
+                selectcursor.sprite = doorsprite;
+                infotext.text = "";
+
         }
 
         if (Physics.Raycast(ray, out hit, 5.5f, pickuplayer))
@@ -91,7 +115,7 @@ public class clickable : MonoBehaviour
             selectcursor.sprite = evidencesprite;
         }
 
-        if (Physics.Raycast(ray, out hit, 5.5f, digitalevidencelayer))
+        if (Physics.Raycast(ray, out hit, 5.5f, staticevidencelayer))
         {
             //Debug.Log("door");
             selectcursor.sprite = evidencesprite;

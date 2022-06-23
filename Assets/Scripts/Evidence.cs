@@ -27,12 +27,6 @@ public class Evidence : MonoBehaviour
     }
 
 
-
-
-
-
-
-
     public void CollectEvidence(string evfilename)
      {
 

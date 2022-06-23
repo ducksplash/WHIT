@@ -8,7 +8,7 @@ public class walls : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
 
-        if (collision.gameObject.layer == 12)
+        if (collision.gameObject.layer == 12 || collision.gameObject.layer == 13)
         {
             pickup.hasobject = false;
             //Debug.Log(collision.transform.name);

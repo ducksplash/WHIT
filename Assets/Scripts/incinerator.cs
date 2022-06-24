@@ -9,10 +9,16 @@ public class incinerator : MonoBehaviour
     public bool flametriggered;
     public Renderer stopbuttonrim;
     public Renderer gobuttonrim;
+    public Light[] redlights;
+    public UnityEngine.ParticleSystem.MinMaxCurve origsize;
 
     void Start()
     {
-        
+        foreach (ParticleSystem flame in flames)
+        {
+            origsize = flame.main.startSize;
+
+        }
 
 
         foreach (ParticleSystem flame in flames)
@@ -102,6 +108,15 @@ public class incinerator : MonoBehaviour
         var emiColor = new Color(1f, 1f, 1, 1f);
         stopbuttonrim.material.SetColor("_Color", emiColor);
         stopbuttonrim.material.SetColor("_EmissiveColor", emiColor * 5);
+
+
+        foreach (Light singlight in redlights)
+        {
+
+            singlight.enabled = true;
+
+        }
+
     }
 
 
@@ -114,6 +129,12 @@ public class incinerator : MonoBehaviour
             FlameControl(flame, false);
         }
 
+        foreach (Light singlight in redlights)
+        {
+
+            singlight.enabled = false;
+
+        }
 
         var emitColor = new Color(0.8f, 0, 0, 1f);
         stopbuttonrim.material.SetColor("_Color", emitColor);
@@ -156,6 +177,12 @@ public class incinerator : MonoBehaviour
                     }
 
 
+                    foreach (Light singlight in redlights)
+                    {
+
+                        singlight.enabled = true;
+
+                    }
                     StartCoroutine(BurnPlayer(other.gameObject));
                 }
             }
@@ -206,9 +233,18 @@ public class incinerator : MonoBehaviour
         foreach (ParticleSystem flame in flames)
         {
             FlameControl(flame, false);
+            var main = flame.main;
+            main.startSize = origsize;
+
         }
         GetComponentInChildren<innerDoors>().isLocked = false;
 
+        foreach (Light singlight in redlights)
+        {
+
+            singlight.enabled = false;
+
+        }
     }
 
 

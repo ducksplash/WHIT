@@ -581,6 +581,19 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 
 		if (CameraOpen)
 		{
+			if (other.gameObject.layer == 11)
+			{
+				if (other.gameObject.GetComponent<Evidence>().PhotographableEvidence)
+				{
+					CameraReadyFrame.color = Color.green;
+					CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
+					CameraReady = true;
+					Debug.Log("photographable evidence out of view");
+					ObservedEvidence = other.gameObject;
+				}
+			}
+
+
 			if (other.gameObject.layer == 13)
 			{
 				if (other.gameObject.GetComponent<Evidence>().PhotographableEvidence)
@@ -594,7 +607,7 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 			}
 
 
-			if (other.gameObject.layer == 11)
+			if (other.gameObject.layer == 14)
 			{
 				if (other.gameObject.GetComponent<Evidence>().PhotographableEvidence)
 				{

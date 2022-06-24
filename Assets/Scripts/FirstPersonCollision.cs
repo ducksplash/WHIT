@@ -172,15 +172,19 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
+	public void uncrouch()
+    {
+		// for use post mortem
+
+		crouching = false;
+		thisCharController.height = standheight;
+		stanceimg.sprite = standsprite;
 
 
+	}
 
 
-
-
-
-
-	public void DisableAllScreens()
+    public void DisableAllScreens()
 	{
 		CrossHair.alpha = 0f;
 		CrouchIndicator.alpha = 0f;
@@ -261,6 +265,10 @@ public class FirstPersonCollision : MonoBehaviour
 
 	public void CauseDeath(string cause)
     {
+
+		INMENU = true;
+		GameMaster.FROZEN = true;
+
 		StartCoroutine(SlowDeath(cause));
     }
 
@@ -292,8 +300,6 @@ public class FirstPersonCollision : MonoBehaviour
 		DeathScreenMain.blocksRaycasts = true;
 
 
-		INMENU = true;
-		GameMaster.FROZEN = true;
 
 		Cursor.lockState = CursorLockMode.None;
 		Cursor.visible = true;
@@ -358,6 +364,7 @@ public class FirstPersonCollision : MonoBehaviour
 
 		}
 
+		uncrouch();
 
 
 	}

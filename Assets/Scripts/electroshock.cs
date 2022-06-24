@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class electroshock : MonoBehaviour
 {
@@ -7,7 +8,7 @@ public class electroshock : MonoBehaviour
 
 
     public float ShakeDuration = 2f;
-    public float ShakeIntensity = 0.8f;
+    public float ShakeIntensity = 1.4f;
 
     private bool canShake = false;
     private float ShakinTime;
@@ -42,6 +43,9 @@ public class electroshock : MonoBehaviour
 
     public void StartCameraShakeEffect()
     {
+        GameMaster.FROZEN = true;
+
+
         if (ShakinTime > 0)
         {
             cameraTransform.localPosition = orignalCameraPos + Random.insideUnitSphere * ShakeIntensity;
@@ -67,11 +71,29 @@ public class electroshock : MonoBehaviour
 
             ShakeCamera();
 
+            StartCoroutine(DoDeath(other));
+
+
+
 
         }
 
 
     }
+
+
+
+    IEnumerator DoDeath(Collider theplayer)
+    {
+        yield return new WaitForSeconds(2f);
+
+            theplayer.GetComponent<FirstPersonCollision>().CauseDeath("electrocution");
+
+
+    }
+
+
+
 
 
 

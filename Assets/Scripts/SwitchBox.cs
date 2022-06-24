@@ -29,7 +29,7 @@ public class SwitchBox : MonoBehaviour
 	public innerDoors[] innerDoors;
 	public GameObject[] doorLockedLights;
 	public GameObject[] doorUnlockedLights;
-	
+	public GameObject IncineratorDoor;
 	
 		
 	void Awake()
@@ -133,20 +133,10 @@ public class SwitchBox : MonoBehaviour
 									thisdoor.doLockedLights();
 								}
 
-
+								IncineratorDoor.GetComponent<innerDoors>().isLocked = false;
 
 
 								GameMaster.INCINERATOR_ENABLED = true;
-
-								foreach (Light aLight in allTheLights)
-								{
-									if (aLight.tag == "INCINERATOR")
-									{
-
-										aLight.enabled = true;
-
-									}
-								}
 
 
 								foreach (GameObject thisIndicator in thisIndicatorSet)
@@ -219,19 +209,7 @@ public class SwitchBox : MonoBehaviour
 									thatIndicator.GetComponent<Renderer>().material.SetColor("_Color", nuCol);
 									thatIndicator.GetComponent<Renderer>().material.SetColor("_EmissiveColor", nuCol * 5);
 
-									foreach (Light aLight in allTheLights)
-									{
-
-										if (aLight.tag == "INCINERATOR")
-										{
-
-											aLight.enabled = true;
-
-										}
-									}
 								}
-
-
 							}
 							else
 							{
@@ -247,17 +225,6 @@ public class SwitchBox : MonoBehaviour
 								thatIndicator.GetComponent<Renderer>().material.SetColor("_Color", Color.black);
 								thatIndicator.GetComponent<Renderer>().material.SetColor("_EmissiveColor", Color.black * 0); 
 								
-								
-								foreach (Light aLight in allTheLights)
-								{
-
-									if (aLight.tag == "INCINERATOR")
-									{
-
-										aLight.enabled = false;
-
-									}
-								}
 							}
 						}
 					}

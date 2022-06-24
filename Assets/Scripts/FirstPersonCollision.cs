@@ -17,7 +17,6 @@ public class FirstPersonCollision : MonoBehaviour
 	//private bool didCollide = false;
 	private CharacterController thisCharController;
 	private Camera MainCam;
-	public static bool FROZEN;
 	public static bool crouching;
 	public float croucheight;
 	public float standheight;
@@ -87,7 +86,7 @@ public class FirstPersonCollision : MonoBehaviour
 	{
 		if (Input.GetKeyUp(KeyCode.RightControl))
 		{
-			if (!FROZEN)
+			if (!GameMaster.FROZEN)
 			{
 				if (!crouching)
 				{
@@ -113,7 +112,7 @@ public class FirstPersonCollision : MonoBehaviour
 		}
 
 
-		if (!FROZEN)
+		if (!GameMaster.FROZEN)
 		{
 
 			if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
@@ -199,13 +198,13 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
-
+	/*
 
 	void OnTriggerEnter(Collider theOther)
 	{
 
 
-		if (theOther.gameObject.layer == 20 && !FROZEN)
+		if (theOther.gameObject.layer == 20 && !GameMaster.FROZEN)
 		{
 
 			var CauseString = theOther.name;
@@ -214,7 +213,7 @@ public class FirstPersonCollision : MonoBehaviour
 
 		}
 	}
-
+	*/
 
 
 
@@ -222,7 +221,7 @@ public class FirstPersonCollision : MonoBehaviour
 	{
 
 		INMENU = false;
-		FROZEN = false;
+		GameMaster.FROZEN = false;
 
 
 		DisableAllScreens();
@@ -238,19 +237,11 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
-
-
-
-
-
-
-
-
 	public void ContinueGame()
 	{
 
 		INMENU = false;
-		FROZEN = false;
+		GameMaster.FROZEN = false;
 
 
 		transform.position = SpawnPoint;
@@ -268,7 +259,10 @@ public class FirstPersonCollision : MonoBehaviour
 
 	}
 
-
+	public void CauseDeath(string cause)
+    {
+		StartCoroutine(SlowDeath(cause));
+    }
 
 
 	IEnumerator SlowDeath(string CauseString)
@@ -299,7 +293,7 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 		INMENU = true;
-		FROZEN = true;
+		GameMaster.FROZEN = true;
 
 		Cursor.lockState = CursorLockMode.None;
 		Cursor.visible = true;

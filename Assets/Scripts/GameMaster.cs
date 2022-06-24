@@ -12,6 +12,7 @@ public class GameMaster : MonoBehaviour
     // Electricity Enabled - We can probably use this for all levels, resetting to false on scene change.
     public static bool POWER_SUPPLY_ENABLED;
     public static bool INCINERATOR_ENABLED;
+    public static bool FROZEN;
 
 
 

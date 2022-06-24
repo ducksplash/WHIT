@@ -130,7 +130,7 @@ public class ManagersPC : MonoBehaviour
 								PlayerCamera.GetComponent<FirstPersonLook>().enabled = false;
 								//Player.GetComponent<FirstPersonCollision>().enabled = true;
 								//Player.GetComponent<Jump>().enabled = false;
-								FirstPersonCollision.FROZEN = true;
+								GameMaster.FROZEN = true;
 				
 								CrossHair.GetComponent<Canvas>().enabled = false;
 								Cursor.lockState = CursorLockMode.None;
@@ -142,7 +142,7 @@ public class ManagersPC : MonoBehaviour
 								PlayerCamera.GetComponent<FirstPersonLook>().enabled = true;
 								//Player.GetComponent<FirstPersonCollision>().enabled = true;
 								//Player.GetComponent<Jump>().enabled = true;
-								FirstPersonCollision.FROZEN = false;
+								GameMaster.FROZEN = false;
 
 								CrossHair.GetComponent<Canvas>().enabled = true;
 								Cursor.lockState = CursorLockMode.Locked;

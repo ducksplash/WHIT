@@ -57,9 +57,6 @@ public class clickable : MonoBehaviour
 
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            Debug.DrawLine(ray.origin, ray.origin + ray.direction * 100, Color.red);
-            Debug.DrawRay(ray.origin, ray.direction * 100, Color.red);
-
             RaycastHit hit;
 
             raycost++;
@@ -108,8 +105,37 @@ public class clickable : MonoBehaviour
                         }
                     }
 
-                }
 
+
+                    if (hit.transform.tag.Contains("INCINERATOR"))
+                    {
+
+                        if (GameMaster.POWER_SUPPLY_ENABLED && GameMaster.INCINERATOR_ENABLED)
+                        {
+                            INFOTEXT("Start Incinerator", "green");
+                        }
+                        else
+                        {
+                            INFOTEXT("Start Incinerator (Power Disabled)", "red");
+                        }
+                    }
+
+
+
+                    if (hit.transform.tag.Contains("INCINERATOROFF"))
+                    {
+
+                        if (GameMaster.POWER_SUPPLY_ENABLED && GameMaster.INCINERATOR_ENABLED)
+                        {
+                            INFOTEXT("Stop Incinerator", "green");
+                        }
+                        else
+                        {
+                            INFOTEXT("Stop Incinerator (Power Disabled)", "red");
+                        }
+                    }
+
+                }
 
 
 

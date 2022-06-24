@@ -38,7 +38,7 @@ public class Torch : MonoBehaviour
 
 		if (phoneBool == false && pcBool == false)
 		{
-			if (!FirstPersonCollision.FROZEN)
+			if (!GameMaster.FROZEN)
 			{
 
 				if (Input.GetMouseButtonUp(2) || Input.GetButtonUp("Flashlight"))

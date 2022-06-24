@@ -23,7 +23,7 @@ public class Jump : MonoBehaviour
     {
 
 
-        if (!FirstPersonCollision.FROZEN && groundCheck && !FirstPersonCollision.crouching && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space)))
+        if (!GameMaster.FROZEN && groundCheck && !FirstPersonCollision.crouching && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space)))
         {
             moveDirection.y = jumpSpeed;
             groundCheck = false;

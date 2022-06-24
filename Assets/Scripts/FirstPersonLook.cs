@@ -33,7 +33,7 @@ public class FirstPersonLook : MonoBehaviour
 		
 		
 
-        if (!FirstPersonCollision.FROZEN)
+        if (!GameMaster.FROZEN)
         {
 
 
@@ -45,7 +45,7 @@ public class FirstPersonLook : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!FirstPersonCollision.FROZEN)
+        if (!GameMaster.FROZEN)
         {
             // Get smooth mouse look.
             Vector2 smoothMouseDelta = Vector2.Scale(new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")), Vector2.one * sensitivity * smoothing);

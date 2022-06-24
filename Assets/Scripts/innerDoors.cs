@@ -11,7 +11,7 @@ public class innerDoors : MonoBehaviour
 	public string doorLockTag;
 	public string doorUnlockTag;
 	private Animator doorAnimator;
-	private bool isOpen = false;
+	public bool isOpen = false;
 	public bool isLocked = false;
 	private Material[] theLightMats;
 	private Transform[] doorLights;

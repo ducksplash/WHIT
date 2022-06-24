@@ -80,8 +80,11 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
-	private void Update()
-    {
+
+
+
+    void Update()
+	{
 		if (Input.GetKeyUp(KeyCode.RightControl))
 		{
 			if (!FROZEN)
@@ -108,12 +111,7 @@ public class FirstPersonCollision : MonoBehaviour
 				}
 			}
 		}
-	}
 
-
-
-    void FixedUpdate()
-	{
 
 		if (!FROZEN)
 		{
@@ -135,7 +133,7 @@ public class FirstPersonCollision : MonoBehaviour
                 }
 
 				//Debug.Log("f");
-				var moveForce = transform.forward * speed;
+				var moveForce = transform.forward * speed * Time.smoothDeltaTime;
 				thisCharController.Move(moveForce);
 			}
 
@@ -143,7 +141,7 @@ public class FirstPersonCollision : MonoBehaviour
 			if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
 			{
 				//Debug.Log("l");
-				var moveForce = transform.right * speed;
+				var moveForce = transform.right * speed * Time.smoothDeltaTime;
 				thisCharController.Move(-moveForce);
 			}
 
@@ -152,7 +150,7 @@ public class FirstPersonCollision : MonoBehaviour
 			if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
 			{
 				//Debug.Log("r");
-				var moveForce = transform.right * speed;
+				var moveForce = transform.right * speed * Time.smoothDeltaTime;
 				thisCharController.Move(moveForce);
 			}
 
@@ -161,7 +159,7 @@ public class FirstPersonCollision : MonoBehaviour
 			if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
 			{
 				//Debug.Log("b");
-				var moveForce = transform.forward * speed;
+				var moveForce = transform.forward * speed * Time.smoothDeltaTime;
 				thisCharController.Move(-moveForce);
 			}
 

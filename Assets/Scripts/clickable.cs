@@ -17,108 +17,234 @@ public class clickable : MonoBehaviour
     public Sprite pickupsprite;
     public Sprite evidencesprite;
     public TextMeshProUGUI infotext;
+    public TextMeshProUGUI infotextbg;
+    public Transform infotextbgimg;
+    public int raycost;
+
+    public int RaycastInterval;
+    public int StartRaycastInterval;
 
     void Awake()
     {
         selectcursor = gameObject.GetComponent<Image>();
 
         selectcursor.sprite = idlesprite;
+    }
 
+    private void Start()
+    {
+        raycost = 0;
+        RaycastInterval = StartRaycastInterval;
     }
 
     void FixedUpdate()
     {
 
-        int doorlayer = LayerMask.GetMask("door");
-        int cupboardlayer = LayerMask.GetMask("cupboard");
-        int clickablelayer = LayerMask.GetMask("clickable");
-        int enemylayer = LayerMask.GetMask("enemy");
-        int idlelayer = LayerMask.GetMask("Default");
-        int floorlayer = LayerMask.GetMask("ground");
-        int unknownlayer = LayerMask.GetMask("unknown");
-        int pickuplayer = LayerMask.GetMask("pickupable");
-        int evidencelayer = LayerMask.GetMask("evidence");
-        int staticevidencelayer = LayerMask.GetMask("staticevidence");
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-
-
-        if (Physics.Raycast(ray, out hit, 20f, idlelayer))
+        if (RaycastInterval < 1)
         {
-            //Debug.Log("idle");
-            selectcursor.sprite = idlesprite;
-            infotext.text = "";
-        }
 
-        if (Physics.Raycast(ray, out hit, 20f, floorlayer))
-        {
-            //Debug.Log("idle");
-            selectcursor.sprite = idlesprite;
-            infotext.text = "";
-        }
+            int doorlayer = LayerMask.NameToLayer("door");
+            int cupboardlayer = LayerMask.NameToLayer("cupboard");
+            int clickablelayer = LayerMask.NameToLayer("clickable");
+            int enemylayer = LayerMask.NameToLayer("enemy");
+            int idlelayer = LayerMask.NameToLayer("Default");
+            int floorlayer = LayerMask.NameToLayer("ground");
+            int unknownlayer = LayerMask.NameToLayer("unknown");
+            int pickuplayer = LayerMask.NameToLayer("pickupable");
+            int evidencelayer = LayerMask.NameToLayer("evidence");
+            int staticevidencelayer = LayerMask.NameToLayer("staticevidence");
 
-        if (Physics.Raycast(ray, out hit, 5.5f, clickablelayer))
-        {
-            //Debug.Log("clickable");
-            selectcursor.sprite = clickablesprite;
-        }
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(ray, out hit, 5.5f, enemylayer))
-        {
-            //Debug.Log("enemy");
-            selectcursor.sprite = enemysprite;
-        }
+            Debug.DrawLine(ray.origin, ray.origin + ray.direction * 100, Color.red);
+            Debug.DrawRay(ray.origin, ray.direction * 100, Color.red);
 
-        if (Physics.Raycast(ray, out hit, 5.5f, unknownlayer))
-        {
-            //Debug.Log("enemy");
-            selectcursor.sprite = unknownsprite;
-        }
+            RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 5.5f, doorlayer))
-        {
-            //Debug.Log("door");
+            raycost++;
 
-            if (hit.transform.parent.parent.GetComponent<innerDoors>().isLocked)
+
+
+
+            if (Physics.Raycast(ray, out hit, 5.5f))
             {
-                selectcursor.sprite = lockeddoorsprite;
-                infotext.text = "locked";
+
+                if (hit.transform.gameObject.layer == idlelayer)
+                {
+                    //Debug.Log("idle");
+                    selectcursor.sprite = idlesprite;
+                    INFOTEXT("");
+                }
+
+
+                if (hit.transform.gameObject.layer == floorlayer)
+                {
+                    //Debug.Log("idle");
+                    selectcursor.sprite = idlesprite;
+                    INFOTEXT("");
+                }
+
+
+
+
+                if (hit.transform.gameObject.layer == clickablelayer)
+                {
+                    //Debug.Log("clickable");
+
+                    selectcursor.sprite = clickablesprite;
+                    INFOTEXT("");
+
+                    if (hit.transform.tag.Contains("LIGHTSWITCHES"))
+                    {
+
+                        if (GameMaster.POWER_SUPPLY_ENABLED)
+                        {
+                            INFOTEXT("Lights", "green");
+                        }
+                        else
+                        {
+                            INFOTEXT("Lights (Power Disabled)", "red");
+                        }
+                    }
+
+                }
+
+
+
+
+                if (hit.transform.gameObject.layer == enemylayer)
+                {
+                    //Debug.Log("enemy");
+                    selectcursor.sprite = enemysprite;
+                }
+
+
+
+
+
+
+
+                if (hit.transform.gameObject.layer == unknownlayer)
+                {
+                    //Debug.Log("enemy");
+                    selectcursor.sprite = unknownsprite;
+                }
+
+
+                if (hit.transform.gameObject.layer == doorlayer)
+                {
+                    //Debug.Log("door");
+
+                    if (hit.transform.parent.parent.GetComponent<innerDoors>().isLocked)
+                    {
+                        selectcursor.sprite = lockeddoorsprite;
+                        INFOTEXT("locked", "red");
+                    }
+                    else
+                    {
+                        selectcursor.sprite = doorsprite;
+                        INFOTEXT("");
+                    }
+
+                }
+
+
+
+                if (hit.transform.gameObject.layer == cupboardlayer)
+                {
+                    //Debug.Log("door");
+
+                    selectcursor.sprite = doorsprite;
+                    INFOTEXT("");
+
+                }
+
+
+                if (hit.transform.gameObject.layer == pickuplayer)
+                {
+                    //Debug.Log("door");
+                    selectcursor.sprite = pickupsprite;
+                }
+
+
+
+
+
+                if (hit.transform.gameObject.layer == evidencelayer)
+                {
+                    //Debug.Log("door");
+                    selectcursor.sprite = evidencesprite;
+                }
+
+                if (hit.transform.gameObject.layer == staticevidencelayer)
+                {
+                    //Debug.Log("door");
+                    selectcursor.sprite = evidencesprite;
+                }
+
             }
             else
             {
-                selectcursor.sprite = doorsprite;
-                infotext.text = "";
+                //Debug.Log("idle");
+                selectcursor.sprite = idlesprite;
+                INFOTEXT("");
             }
 
-        }
 
-        if (Physics.Raycast(ray, out hit, 5.5f, cupboardlayer))
+
+            RaycastInterval = StartRaycastInterval;
+        }
+        else
         {
-            //Debug.Log("door");
-
-                selectcursor.sprite = doorsprite;
-                infotext.text = "";
-
+            RaycastInterval--;
         }
+    
 
-        if (Physics.Raycast(ray, out hit, 5.5f, pickuplayer))
-        {
-            //Debug.Log("door");
-            selectcursor.sprite = pickupsprite;
-        }
 
-        if (Physics.Raycast(ray, out hit, 5.5f, evidencelayer))
-        {
-            //Debug.Log("door");
-            selectcursor.sprite = evidencesprite;
-        }
-
-        if (Physics.Raycast(ray, out hit, 5.5f, staticevidencelayer))
-        {
-            //Debug.Log("door");
-            selectcursor.sprite = evidencesprite;
-        }
     }
+
+
+
+
+
+    public void INFOTEXT(string text, string textcolor = "white")
+    {
+
+        infotext.text = text;
+        infotextbg.text = text;
+
+        if (textcolor == "white")
+        {
+            infotext.color = new Color(1f, 1f, 1f, 1f);
+        }
+
+        if (textcolor == "red")
+        {
+            infotext.color = new Color(1f, 0.2f, 0.2f, 1f);
+        }
+
+        if (textcolor == "green")
+        {
+            infotext.color = new Color(0f, 0.9f, 0f, 1f);
+        }
+
+
+        var stringlen = text.Length;
+
+        var stringmaffs = stringlen * 18;
+
+
+
+        var theBarRectTransform = infotextbgimg as RectTransform;
+        theBarRectTransform.sizeDelta = new Vector2(stringmaffs, 35);
+
+
+
+
+    }
+
+
+
+
 }

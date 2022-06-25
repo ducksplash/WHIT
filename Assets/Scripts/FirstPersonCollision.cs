@@ -96,14 +96,20 @@ public class FirstPersonCollision : MonoBehaviour
 				}
 				else
 				{
-					var up = transform.TransformDirection(Vector3.up);
+					Debug.Log("uncrouch");
+					var up = Vector3.up;
 					RaycastHit hit;
 
-					if (!Physics.Raycast(transform.position, up, out hit, 5))
+					if (!Physics.Raycast(transform.position, up, out hit, 5f))
 					{
+						Debug.Log("uncrouch ray didnt hit");
 						crouching = false;
 						thisCharController.height = standheight;
 						stanceimg.sprite = standsprite;
+					}
+					else
+                    {
+						Debug.Log("uncrouch ray hit?");
 					}
 
 				}

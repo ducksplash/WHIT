@@ -11,7 +11,7 @@ public class pickup : MonoBehaviour
 	public Transform myHeldItem;
 	public Transform heldItemParent;
 	public Transform cameraTransform;
-
+	public bool hasobjectshown;
     private void Awake()
     {
 		hasobject = false;
@@ -21,6 +21,7 @@ public class pickup : MonoBehaviour
 
     void Update()
 	{
+		hasobjectshown = hasobject;
 		if (Input.GetMouseButtonDown(1))
 		{
 
@@ -34,7 +35,6 @@ public class pickup : MonoBehaviour
 				if (Physics.Raycast(ray, out hit, 5.5f, pickuplayer) || Physics.Raycast(ray, out hit, 5.5f, evidencelayer))
 				{
 
-					hasobject = true;
 					PickupItem(hit);
 
 				}
@@ -59,6 +59,19 @@ public class pickup : MonoBehaviour
 
 			
 		}
+
+
+
+
+
+		if (!hasobject)
+        {
+			myHeldItem = null;
+        }
+
+
+
+
 	}
 
 	public void PickupItem(RaycastHit hit)
@@ -76,7 +89,7 @@ public class pickup : MonoBehaviour
 
 	public void DropItem()
 	{
-		hasobject = false;
+
 		myHeldItem.SetParent(defaultparent);
 		myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 		myHeldItem = null;
@@ -86,18 +99,18 @@ public class pickup : MonoBehaviour
 	public void ThrowItem()
 	{
 
-		myHeldItem.SetParent(defaultparent);
 		myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 		myHeldItem.transform.GetComponent<Rigidbody>().AddForce(cameraTransform.forward * 100f);
-		myHeldItem = null;
+		myHeldItem.SetParent(defaultparent);
 
-		Invoke("SetAbsent", 0.5f);
+		if (myHeldItem.parent == defaultparent)
+        {
+			hasobject = false;
+			myHeldItem = null;
+        }
+
 	}
 
 
-	public void SetAbsent()
-    {
-		hasobject = false;
-    }
 
 }

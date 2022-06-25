@@ -131,7 +131,8 @@ public class ManagersPC : MonoBehaviour
 								//Player.GetComponent<FirstPersonCollision>().enabled = true;
 								//Player.GetComponent<Jump>().enabled = false;
 								GameMaster.FROZEN = true;
-				
+								GameMaster.INMENU = true;
+
 								CrossHair.GetComponent<Canvas>().enabled = false;
 								Cursor.lockState = CursorLockMode.None;
 								Cursor.visible = true;	
@@ -143,6 +144,7 @@ public class ManagersPC : MonoBehaviour
 								//Player.GetComponent<FirstPersonCollision>().enabled = true;
 								//Player.GetComponent<Jump>().enabled = true;
 								GameMaster.FROZEN = false;
+								GameMaster.INMENU = false;
 
 								CrossHair.GetComponent<Canvas>().enabled = true;
 								Cursor.lockState = CursorLockMode.Locked;

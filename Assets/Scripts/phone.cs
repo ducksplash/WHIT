@@ -242,10 +242,12 @@ public class phone : MonoBehaviour
 				Cursor.visible = true;
 
 				PT = true;
+				GameMaster.INMENU = true;
 			}
 			else
             {
 				PT = false;
+				GameMaster.INMENU = false;
 				MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y - 1, MobilePhone.transform.localPosition.z);
 
 				CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;

@@ -8,7 +8,6 @@ public class FirstPersonCollision : MonoBehaviour
 	
 	
 	private Collider thePlayerCollider;
-	public bool INMENU;
 	public float speed = 0.1f;
 	public float walkspeed = 0.1f;
 	public float sprintspeed = 0.2f;
@@ -224,7 +223,7 @@ public class FirstPersonCollision : MonoBehaviour
 	public void QuitToMainmenu()
 	{
 
-		INMENU = false;
+		GameMaster.INMENU = false;
 		GameMaster.FROZEN = false;
 
 
@@ -244,7 +243,7 @@ public class FirstPersonCollision : MonoBehaviour
 	public void ContinueGame()
 	{
 
-		INMENU = false;
+		GameMaster.INMENU = false;
 		GameMaster.FROZEN = false;
 
 
@@ -266,7 +265,7 @@ public class FirstPersonCollision : MonoBehaviour
 	public void CauseDeath(string cause)
     {
 
-		INMENU = true;
+		GameMaster.INMENU = true;
 		GameMaster.FROZEN = true;
 
 		StartCoroutine(SlowDeath(cause));

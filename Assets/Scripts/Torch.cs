@@ -11,8 +11,8 @@ public class Torch : MonoBehaviour
 	public static bool torchToggle;
 	public int lightIntensity = 4;
 	private Animator torchAnimator;
-	public GameObject thePhone;
-	public GameObject thePC;
+	//public GameObject thePhone;
+	//public GameObject thePC;
 	private bool phoneBool;
 	private bool pcBool;
 	public Image torchimg;
@@ -31,12 +31,11 @@ public class Torch : MonoBehaviour
 
     void Update()
     {
-		phoneBool = thePhone.GetComponent<phone>().PT;
-		pcBool = thePC.GetComponent<ManagersPC>().usingComputer;
 
 
 
-		if (phoneBool == false && pcBool == false)
+
+		if (!GameMaster.INMENU)
 		{
 			if (!GameMaster.FROZEN)
 			{

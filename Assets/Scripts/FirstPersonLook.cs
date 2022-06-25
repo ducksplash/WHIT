@@ -25,7 +25,7 @@ public class FirstPersonLook : MonoBehaviour
     void FixedUpdate()
     {
 		
-		if (!thephonescript.PT && !playerhandler.INMENU)
+		if (!GameMaster.INMENU)
         {
 		    Cursor.lockState = CursorLockMode.Locked;
 		    Cursor.visible = false;

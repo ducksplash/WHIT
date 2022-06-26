@@ -5,6 +5,9 @@ public class walls : MonoBehaviour
 
     public Transform defaultparent;
 
+
+
+
     private void OnCollisionEnter(Collision collision)
     {
 

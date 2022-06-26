@@ -89,7 +89,7 @@ public class innerDoors : MonoBehaviour
 			RaycastHit hit;  
 			if (Physics.Raycast(ray, out hit)) 
 			{  								
-				if (hit.distance <= 10.5f)
+				if (hit.distance <= 11f)
 				{	
 					
 					if (!isLocked)

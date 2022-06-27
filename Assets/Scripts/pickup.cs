@@ -10,12 +10,19 @@ public class pickup : MonoBehaviour
 	public Transform defaultparent;
 	public Transform myHeldItem;
 	public Transform heldItemParent;
-	public Transform cameraTransform;
+	public Transform handTransform;
 	public bool hasobjectshown;
+	public Vector3 StartRotation;
+	public CanvasGroup RotationMenu;
+
+
+
     private void Awake()
     {
 		hasobject = false;
-    }
+		StartRotation = handTransform.parent.eulerAngles;
+
+	}
 
 
 
@@ -69,16 +76,122 @@ public class pickup : MonoBehaviour
 			myHeldItem = null;
         }
 
+	}
+
+
+
+
+	void FixedUpdate()
+	{
+
+
+
+		if (hasobject == true && myHeldItem != null)
+		{
+
+			if (Input.GetKey(KeyCode.Keypad1))
+			{
+
+				handTransform.Rotate(new Vector3(-5, 0, 5) * (Time.smoothDeltaTime * 20));
+
+			}
+
+
+			if (Input.GetKey(KeyCode.Keypad2))
+			{
+
+				handTransform.Rotate(new Vector3(-5, 0, 0) * (Time.smoothDeltaTime * 20));
+
+			}
+
+
+			if (Input.GetKey(KeyCode.Keypad3))
+			{
+
+				handTransform.Rotate(new Vector3(-5, 0, -5) * (Time.smoothDeltaTime * 20));
+
+			}
+
+
+
+
+
+			if (Input.GetKey(KeyCode.Keypad4))
+			{
+
+				handTransform.Rotate(new Vector3(0, 0, 5) * (Time.smoothDeltaTime * 20));
+
+			}
+
+
+			if (Input.GetKeyUp(KeyCode.Keypad5))
+			{
+
+				Debug.Log("focus");
+
+				handTransform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
+				myHeldItem.eulerAngles = new Vector3(StartRotation.x, StartRotation.y, StartRotation.z);
+
+			}
+
+
+
+
+			if (Input.GetKey(KeyCode.Keypad6))
+			{
+
+				handTransform.Rotate(new Vector3(0, 0, -5) * (Time.smoothDeltaTime * 20));
+
+			}
+
+			if (Input.GetKey(KeyCode.Keypad7))
+			{
+
+				handTransform.Rotate(new Vector3(5, 0, 5) * (Time.smoothDeltaTime * 20));
+
+			}
+
+
+
+
+
+			if (Input.GetKey(KeyCode.Keypad8))
+			{
+
+				handTransform.Rotate(new Vector3(5, 0, 0) * (Time.smoothDeltaTime * 20));
+
+			}
+
+
+
+			if (Input.GetKey(KeyCode.Keypad9))
+			{
+
+				handTransform.Rotate(new Vector3(5, 0, -5) * (Time.smoothDeltaTime * 20));
+
+			}
+
+
+
+		}
 
 
 
 	}
 
+
 	public void PickupItem(RaycastHit hit)
     {
 		var TheItem = hit;
 
-		TheItem.transform.SetParent(cameraTransform, true);
+		RotationMenu.alpha = 0.8f;
+
+		TheItem.transform.SetParent(handTransform, true);
+
+
+		TheItem.transform.localPosition = new Vector3(0, 0, 0);
+		TheItem.transform.eulerAngles = new Vector3(TheItem.transform.eulerAngles.x, TheItem.transform.eulerAngles.y, TheItem.transform.eulerAngles.z);
+
 
 		TheItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
@@ -90,6 +203,7 @@ public class pickup : MonoBehaviour
 	public void DropItem()
 	{
 
+		RotationMenu.alpha = 0f;
 		myHeldItem.SetParent(defaultparent);
 		myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 		myHeldItem = null;
@@ -98,9 +212,10 @@ public class pickup : MonoBehaviour
 
 	public void ThrowItem()
 	{
-
+		
+		RotationMenu.alpha = 0f;
 		myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-		myHeldItem.transform.GetComponent<Rigidbody>().AddForce(cameraTransform.forward * 100f);
+		myHeldItem.transform.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward * 200f);
 		myHeldItem.SetParent(defaultparent);
 
 		if (myHeldItem.parent == defaultparent)

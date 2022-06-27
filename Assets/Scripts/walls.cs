@@ -11,14 +11,18 @@ public class walls : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
 
-        if (collision.gameObject.layer == 12 || collision.gameObject.layer == 13)
+        if (collision.gameObject.layer == 12 || collision.gameObject.layer == 13 || collision.gameObject.layer == 14)
         {
             //Debug.Log(collision.transform.name);
+
+
             collision.transform.SetParent(defaultparent);
-            if (collision.transform.parent == default)
-            {
-                pickup.hasobject = false;
-            }
+
+
+
+            pickup.hasobject = false;
+            GameObject.FindGameObjectWithTag("ROTATIONMENU").GetComponent<CanvasGroup>().alpha = 0;
+
             collision.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
             
         }

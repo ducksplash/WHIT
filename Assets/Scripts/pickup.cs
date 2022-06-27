@@ -19,7 +19,7 @@ public class pickup : MonoBehaviour
 
     private void Awake()
     {
-		hasobject = false;
+		pickup.hasobject = false;
 		StartRotation = handTransform.parent.eulerAngles;
 
 	}
@@ -28,11 +28,11 @@ public class pickup : MonoBehaviour
 
     void Update()
 	{
-		hasobjectshown = hasobject;
+		hasobjectshown = pickup.hasobject;
 		if (Input.GetMouseButtonDown(1))
 		{
 
-			if (!hasobject)
+			if (!pickup.hasobject)
 			{
 				int pickuplayer = LayerMask.GetMask("pickupable");
 				int evidencelayer = LayerMask.GetMask("evidence");
@@ -59,7 +59,7 @@ public class pickup : MonoBehaviour
 		{
 
 
-			if (hasobject)
+			if (pickup.hasobject)
 			{
 				ThrowItem();
 			}
@@ -70,11 +70,13 @@ public class pickup : MonoBehaviour
 
 
 
-
-		if (!hasobject)
+		// if focus broken for a reason other than dropping and throwing
+		if (!pickup.hasobject)
         {
 			myHeldItem = null;
-        }
+			RotationMenu.alpha = 0f;
+			hasobjectshown = false;
+		}
 
 	}
 
@@ -86,7 +88,7 @@ public class pickup : MonoBehaviour
 
 
 
-		if (hasobject == true && myHeldItem != null)
+		if (pickup.hasobject == true && myHeldItem != null)
 		{
 
 			if (Input.GetKey(KeyCode.Keypad1))
@@ -184,7 +186,7 @@ public class pickup : MonoBehaviour
     {
 		var TheItem = hit;
 
-		RotationMenu.alpha = 0.8f;
+		RotationMenu.alpha = 0.7f;
 
 		TheItem.transform.SetParent(handTransform, true);
 
@@ -196,7 +198,7 @@ public class pickup : MonoBehaviour
 		TheItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
 		myHeldItem = TheItem.transform;
-		hasobject = true;
+		pickup.hasobject = true;
 	}
 
 
@@ -207,7 +209,7 @@ public class pickup : MonoBehaviour
 		myHeldItem.SetParent(defaultparent);
 		myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 		myHeldItem = null;
-		hasobject = false;
+		pickup.hasobject = false;
 	}
 
 	public void ThrowItem()
@@ -220,7 +222,7 @@ public class pickup : MonoBehaviour
 
 		if (myHeldItem.parent == defaultparent)
         {
-			hasobject = false;
+			pickup.hasobject = false;
 			myHeldItem = null;
         }
 

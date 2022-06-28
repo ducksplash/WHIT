@@ -72,10 +72,19 @@ public class pickup : MonoBehaviour
 
 		// if focus broken for a reason other than dropping and throwing
 		if (!pickup.hasobject)
-        {
+		{
 			myHeldItem = null;
 			RotationMenu.alpha = 0f;
 			hasobjectshown = false;
+		}
+
+
+		if (handTransform.childCount > 0 && !pickup.hasobject)
+		{
+			myHeldItem = null;
+			RotationMenu.alpha = 0f;
+			hasobjectshown = false;
+			handTransform.GetChild(0).parent = defaultparent;
 		}
 
 	}
@@ -88,13 +97,15 @@ public class pickup : MonoBehaviour
 
 
 
+
+
 		if (pickup.hasobject == true && myHeldItem != null)
 		{
 
 			if (Input.GetKey(KeyCode.Keypad1))
 			{
 
-				handTransform.Rotate(new Vector3(-5, 0, 5) * (Time.smoothDeltaTime * 20));
+				myHeldItem.Rotate(new Vector3(-5, 5, 0) * (Time.smoothDeltaTime * 20));
 
 			}
 
@@ -102,7 +113,7 @@ public class pickup : MonoBehaviour
 			if (Input.GetKey(KeyCode.Keypad2))
 			{
 
-				handTransform.Rotate(new Vector3(-5, 0, 0) * (Time.smoothDeltaTime * 20));
+				myHeldItem.Rotate(new Vector3(-5, 0, 0) * (Time.smoothDeltaTime * 20));
 
 			}
 
@@ -110,7 +121,7 @@ public class pickup : MonoBehaviour
 			if (Input.GetKey(KeyCode.Keypad3))
 			{
 
-				handTransform.Rotate(new Vector3(-5, 0, -5) * (Time.smoothDeltaTime * 20));
+				myHeldItem.Rotate(new Vector3(-5, -5, 0) * (Time.smoothDeltaTime * 20));
 
 			}
 
@@ -121,7 +132,7 @@ public class pickup : MonoBehaviour
 			if (Input.GetKey(KeyCode.Keypad4))
 			{
 
-				handTransform.Rotate(new Vector3(0, 0, 5) * (Time.smoothDeltaTime * 20));
+				myHeldItem.Rotate(new Vector3(0, 5, 0) * (Time.smoothDeltaTime * 20));
 
 			}
 
@@ -131,9 +142,10 @@ public class pickup : MonoBehaviour
 
 				Debug.Log("focus");
 
-				handTransform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
-				myHeldItem.eulerAngles = new Vector3(StartRotation.x, StartRotation.y, StartRotation.z);
+				//handTransform.LookAt(transform, -transform.forward);
 
+
+				myHeldItem.transform.localEulerAngles = transform.forward * -1;
 			}
 
 
@@ -142,14 +154,14 @@ public class pickup : MonoBehaviour
 			if (Input.GetKey(KeyCode.Keypad6))
 			{
 
-				handTransform.Rotate(new Vector3(0, 0, -5) * (Time.smoothDeltaTime * 20));
+				myHeldItem.Rotate(new Vector3(0, -5, 0) * (Time.smoothDeltaTime * 20));
 
 			}
 
 			if (Input.GetKey(KeyCode.Keypad7))
 			{
 
-				handTransform.Rotate(new Vector3(5, 0, 5) * (Time.smoothDeltaTime * 20));
+				myHeldItem.Rotate(new Vector3(5, -5, 0) * (Time.smoothDeltaTime * 20));
 
 			}
 
@@ -160,7 +172,7 @@ public class pickup : MonoBehaviour
 			if (Input.GetKey(KeyCode.Keypad8))
 			{
 
-				handTransform.Rotate(new Vector3(5, 0, 0) * (Time.smoothDeltaTime * 20));
+				myHeldItem.Rotate(new Vector3(5, 0, 0) * (Time.smoothDeltaTime * 20));
 
 			}
 
@@ -169,7 +181,7 @@ public class pickup : MonoBehaviour
 			if (Input.GetKey(KeyCode.Keypad9))
 			{
 
-				handTransform.Rotate(new Vector3(5, 0, -5) * (Time.smoothDeltaTime * 20));
+				myHeldItem.Rotate(new Vector3(5, 5, 0) * (Time.smoothDeltaTime * 20));
 
 			}
 
@@ -190,9 +202,10 @@ public class pickup : MonoBehaviour
 
 		TheItem.transform.SetParent(handTransform, true);
 
-
+		//handTransform.Rotate(new Vector3(0,0,0), Space.Self);
 		TheItem.transform.localPosition = new Vector3(0, 0, 0);
-		TheItem.transform.eulerAngles = new Vector3(TheItem.transform.eulerAngles.x, TheItem.transform.eulerAngles.y, TheItem.transform.eulerAngles.z);
+
+		TheItem.transform.localEulerAngles = transform.forward * -1;
 
 
 		TheItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;

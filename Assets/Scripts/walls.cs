@@ -7,24 +7,24 @@ public class walls : MonoBehaviour
 
 
 
-
     private void OnCollisionEnter(Collision collision)
     {
 
+
+
         if (collision.gameObject.layer == 12 || collision.gameObject.layer == 13 || collision.gameObject.layer == 14)
         {
-            //Debug.Log(collision.transform.name);
 
+            if (gameObject.layer == 0)
+            {
 
-            collision.transform.SetParent(defaultparent);
+                collision.transform.SetParent(defaultparent);
 
-
-
-            pickup.hasobject = false;
-            GameObject.FindGameObjectWithTag("ROTATIONMENU").GetComponent<CanvasGroup>().alpha = 0;
-
-            collision.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-            
+                collision.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                pickup.hasobject = false;
+                GameObject.FindGameObjectWithTag("ROTATIONMENU").GetComponent<CanvasGroup>().alpha = 0;
+                
+            }
         }
     }
 

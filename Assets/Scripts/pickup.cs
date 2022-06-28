@@ -196,22 +196,26 @@ public class pickup : MonoBehaviour
 
 	public void PickupItem(RaycastHit hit)
     {
-		var TheItem = hit;
+		if (!GameMaster.PHONEOUT)
+		{
+			var TheItem = hit;
 
-		RotationMenu.alpha = 0.7f;
+			RotationMenu.alpha = 0.7f;
 
-		TheItem.transform.SetParent(handTransform, true);
+			TheItem.transform.SetParent(handTransform, true);
 
-		//handTransform.Rotate(new Vector3(0,0,0), Space.Self);
-		TheItem.transform.localPosition = new Vector3(0, 0, 0);
+			//handTransform.Rotate(new Vector3(0,0,0), Space.Self);
+			TheItem.transform.localPosition = new Vector3(0, 0, 0);
 
-		TheItem.transform.localEulerAngles = transform.forward * -1;
+			TheItem.transform.localEulerAngles = transform.forward * -1;
 
 
-		TheItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+			TheItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
-		myHeldItem = TheItem.transform;
-		pickup.hasobject = true;
+			myHeldItem = TheItem.transform;
+			pickup.hasobject = true;
+			GameMaster.HASITEM = true;
+		}
 	}
 
 
@@ -223,6 +227,7 @@ public class pickup : MonoBehaviour
 		myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 		myHeldItem = null;
 		pickup.hasobject = false;
+		GameMaster.HASITEM = false;
 	}
 
 	public void ThrowItem()
@@ -236,6 +241,7 @@ public class pickup : MonoBehaviour
 		if (myHeldItem.parent == defaultparent)
         {
 			pickup.hasobject = false;
+			GameMaster.HASITEM = false;
 			myHeldItem = null;
         }
 

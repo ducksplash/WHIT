@@ -39,7 +39,6 @@ public class phone : MonoBehaviour
 	public TextMeshProUGUI tomNum;
 	public TextMeshProUGUI workNum;
 	public TextMeshProUGUI darraghNum;
-	public bool PT = false;
     // Start is called before the first frame update
 	private bool isLocked = true;
 	public bool CameraOpen;
@@ -226,7 +225,7 @@ public class phone : MonoBehaviour
 		}
 
 
-		if (PT && Input.GetKeyUp(KeyCode.Escape))
+		if (GameMaster.PHONEOUT && Input.GetKeyUp(KeyCode.Escape))
 		{
 			TogglePhone();
 		}
@@ -256,56 +255,56 @@ public class phone : MonoBehaviour
 
 
 
-if ((Input.GetKeyUp("0") || Input.GetKeyUp("[0]")) && PT)
+if ((Input.GetKeyUp("0") || Input.GetKeyUp("[0]")) && GameMaster.PHONEOUT)
 {
 DialBar.text = DialBar.text+"0";
 }
-if ((Input.GetKeyUp("1") || Input.GetKeyUp("[1]")) && PT)
+if ((Input.GetKeyUp("1") || Input.GetKeyUp("[1]")) && GameMaster.PHONEOUT)
 {
 DialBar.text = DialBar.text+"1";
 }
-if ((Input.GetKeyUp("2") || Input.GetKeyUp("[2]")) && PT)
+if ((Input.GetKeyUp("2") || Input.GetKeyUp("[2]")) && GameMaster.PHONEOUT)
 {
 DialBar.text = DialBar.text+"2";
 }
-if ((Input.GetKeyUp("3") || Input.GetKeyUp("[3]")) && PT)
+if ((Input.GetKeyUp("3") || Input.GetKeyUp("[3]")) && GameMaster.PHONEOUT)
 {
 DialBar.text = DialBar.text+"3";
 }
-if ((Input.GetKeyUp("4") || Input.GetKeyUp("[4]")) && PT)
+if ((Input.GetKeyUp("4") || Input.GetKeyUp("[4]")) && GameMaster.PHONEOUT)
 {
 DialBar.text = DialBar.text+"4";
 }
-if ((Input.GetKeyUp("5") || Input.GetKeyUp("[5]")) && PT)
+if ((Input.GetKeyUp("5") || Input.GetKeyUp("[5]")) && GameMaster.PHONEOUT)
 {
 DialBar.text = DialBar.text+"5";
 }
-if ((Input.GetKeyUp("6") || Input.GetKeyUp("[6]")) && PT)
+if ((Input.GetKeyUp("6") || Input.GetKeyUp("[6]")) && GameMaster.PHONEOUT)
 {
 DialBar.text = DialBar.text+"6";
 }
-if ((Input.GetKeyUp("7") || Input.GetKeyUp("[7]")) && PT)
+if ((Input.GetKeyUp("7") || Input.GetKeyUp("[7]")) && GameMaster.PHONEOUT)
 {
 DialBar.text = DialBar.text+"7";
 }
-if ((Input.GetKeyUp("8") || Input.GetKeyUp("[8]")) && PT)
+if ((Input.GetKeyUp("8") || Input.GetKeyUp("[8]")) && GameMaster.PHONEOUT)
 {
 DialBar.text = DialBar.text+"8";
 }
-if ((Input.GetKeyUp("9") || Input.GetKeyUp("[9]")) && PT)
+if ((Input.GetKeyUp("9") || Input.GetKeyUp("[9]")) && GameMaster.PHONEOUT)
 {
 DialBar.text = DialBar.text+"9";
 }
-if ((Input.GetKeyUp("[*]")) && PT)
+if ((Input.GetKeyUp("[*]")) && GameMaster.PHONEOUT)
 {
 DialBar.text = DialBar.text+"*";
 }
-if ((Input.GetKeyUp("#")) && PT)
+if ((Input.GetKeyUp("#")) && GameMaster.PHONEOUT)
 {
 DialBar.text = DialBar.text+"#";
 }
 
-if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
+if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && GameMaster.PHONEOUT)
 {
 	if (DialBar.text.Length > 0)
 	{
@@ -323,10 +322,10 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 
 	public void TogglePhone()
     {
-		if (!PT)
+		if (!GameMaster.PHONEOUT)
 		{
 
-			if (!GameMaster.INMENU)
+			if (!GameMaster.INMENU && !GameMaster.HASITEM)
 			{
 
 
@@ -342,13 +341,13 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 				Cursor.lockState = CursorLockMode.None;
 				Cursor.visible = true;
 
-				PT = true;
+				GameMaster.PHONEOUT = true;
 				GameMaster.INMENU = true;
 			}
 		}
 		else
 		{
-			PT = false;
+			GameMaster.PHONEOUT = false;
 			GameMaster.INMENU = false;
 			MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y - 1, MobilePhone.transform.localPosition.z);
 

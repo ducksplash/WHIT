@@ -22,6 +22,7 @@ public class walls : MonoBehaviour
 
                 collision.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
                 pickup.hasobject = false;
+                GameMaster.HASITEM = false;
                 GameObject.FindGameObjectWithTag("ROTATIONMENU").GetComponent<CanvasGroup>().alpha = 0;
                 
             }

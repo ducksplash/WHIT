@@ -14,6 +14,8 @@ public class GameMaster : MonoBehaviour
     public static bool INCINERATOR_ENABLED;
     public static bool FROZEN;
     public static bool INMENU;
+    public static bool HASITEM;
+    public static bool PHONEOUT;
 
 
 

@@ -24,14 +24,20 @@ public class FirstPersonLook : MonoBehaviour
 
     void FixedUpdate()
     {
-		
-		if (!GameMaster.INMENU)
+
+        if (GameMaster.INMENU)
         {
-		    Cursor.lockState = CursorLockMode.Locked;
-		    Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
-		
-		
+
+        if (!GameMaster.INMENU)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+
+
 
         if (!GameMaster.FROZEN)
         {

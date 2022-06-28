@@ -222,57 +222,16 @@ public class phone : MonoBehaviour
 
 		if (Input.GetButtonUp("Phone"))
 		{
-
-			if (!PT)
-			{				
-
-
-
-
-				MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y+1, MobilePhone.transform.localPosition.z);
-
-
-
-				//Camera.GetComponent<FirstPersonLook>().enabled = false;
-				//FirstPersonCollision.FROZEN = true;
-				MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 1.0f;
-
-				CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
-				Cursor.lockState = CursorLockMode.None;
-				Cursor.visible = true;
-
-				PT = true;
-				GameMaster.INMENU = true;
-			}
-			else
-            {
-				PT = false;
-				GameMaster.INMENU = false;
-				MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y - 1, MobilePhone.transform.localPosition.z);
-
-				CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;
-				//Camera.GetComponent<FirstPersonLook>().enabled = true;
-				//FirstPersonCollision.FROZEN = false;
-				MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 0.0f;
-
-
-
-				if (!TorchLight.enabled)
-				{
-					Torch.torchToggle = true;
-					TorchLight.enabled = true;
-				}
-
-				CameraLeftFlash.enabled = false;
-				CameraRightFlash.enabled = false;
-
-				changeScreen(HomeScreen);
-
-				//Cursor.lockState = CursorLockMode.Locked;
-				//Cursor.visible = false;
-			}
-			
+			TogglePhone();
 		}
+
+
+		if (PT && Input.GetKeyUp(KeyCode.Escape))
+		{
+			TogglePhone();
+		}
+
+
 
 
 
@@ -356,6 +315,71 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && PT)
 }
 
 	}
+
+
+
+
+
+
+	public void TogglePhone()
+    {
+		if (!PT)
+		{
+
+			if (!GameMaster.INMENU)
+			{
+
+
+				MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 1, MobilePhone.transform.localPosition.z);
+
+
+
+				//Camera.GetComponent<FirstPersonLook>().enabled = false;
+				//FirstPersonCollision.FROZEN = true;
+				MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 1.0f;
+
+				CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
+				Cursor.lockState = CursorLockMode.None;
+				Cursor.visible = true;
+
+				PT = true;
+				GameMaster.INMENU = true;
+			}
+		}
+		else
+		{
+			PT = false;
+			GameMaster.INMENU = false;
+			MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y - 1, MobilePhone.transform.localPosition.z);
+
+			CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;
+			//Camera.GetComponent<FirstPersonLook>().enabled = true;
+			//FirstPersonCollision.FROZEN = false;
+			MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 0.0f;
+
+
+
+			if (!TorchLight.enabled)
+			{
+				Torch.torchToggle = true;
+				TorchLight.enabled = true;
+			}
+
+			CameraLeftFlash.enabled = false;
+			CameraRightFlash.enabled = false;
+
+			changeScreen(HomeScreen);
+
+			//Cursor.lockState = CursorLockMode.Locked;
+			//Cursor.visible = false;
+		}
+
+	}
+
+
+
+
+
 
 	// Contacts menu incorporating CallScreen, Dialler.
 	public void ContactsButton()

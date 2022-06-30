@@ -16,11 +16,15 @@ public class LIGHTS : MonoBehaviour
 	private Material[] theLightMats;
 	private GameObject theLightBulb;
 
+	[Header("Switch Type: PANEL or ROTATE")]
+	public string SwitchType;
 
 
 
 	void Start()
     {
+
+
 		
 		thisSwitchName = thisSwitch.name;
 		thisSwitchMats = thisSwitch.GetComponent<Renderer>().materials;
@@ -57,18 +61,19 @@ public class LIGHTS : MonoBehaviour
 
 		for (int i = 0; i < switchMats.Length; i++)
 		{
-			if (switchMats[i].name.Contains("neon"))
+			if (switchMats[i].name.Contains("neon") || switchMats[i].name.Contains("led") || switchMats[i].name.Contains("bulb") || switchMats[i].name.Contains("diffuser"))
 			{
 				switchMats[i].SetColor("_Color", lightEmissionColour);
 				switchMats[i].SetColor("_EmissiveColor", lightEmissionColour * 5f);
 			}	
-			
-			if (switchMats[i].name.Contains("diffuser"))
-			{
-				switchMats[i].SetColor("_Color", lightEmissionColour);
-				switchMats[i].SetColor("_EmissiveColor", lightEmissionColour * 5f);
-			}	
+
 		}
+
+
+
+
+
+
 	}
 	
 
@@ -129,6 +134,22 @@ public class LIGHTS : MonoBehaviour
 						if (hit.transform.name.Equals(thisSwitchName) || hit.transform.name.Equals(thatSwitchName))
 						{
 							ToggleLights();
+
+
+
+							// is this a rotating switch?
+							if (SwitchType == "ROTATE")
+							{
+								Debug.Log(SwitchType);
+								RotateSwitch(thisSwitch);
+
+								if (thatSwitch)
+								{
+									RotateSwitch(thatSwitch);
+								}
+
+							}
+
 						}	
 					}  				
 				}  
@@ -150,14 +171,15 @@ public class LIGHTS : MonoBehaviour
 				// change appearance of switch
 				changeSwitch(thisSwitchMats, true);
 
-				// Change Second Switch
+				// check if it's a rotatable switch
+
+					// Change Second Switch
 				if (thatSwitch != null)
 				{
 					// change appearance of switch
 					changeSwitch(thatSwitchMats, true);
 				}
 			}
-
 
 			else if (thisLight.enabled == true)
 			{
@@ -175,6 +197,24 @@ public class LIGHTS : MonoBehaviour
 				}
 			}
 		}
+	}
+
+
+
+
+
+
+	public void RotateSwitch(GameObject aswitch)
+    {
+
+
+		aswitch.transform.localScale = new Vector3(aswitch.transform.localScale.x, aswitch.transform.localScale.y, -aswitch.transform.localScale.z);
+
+
+
+
+		//aswitch.transform.Rotate(new Vector3(180, 0, 0));
+
 	}
 
 }

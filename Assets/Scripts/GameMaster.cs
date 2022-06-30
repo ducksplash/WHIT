@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 
 public class GameMaster : MonoBehaviour
 {
@@ -16,57 +18,48 @@ public class GameMaster : MonoBehaviour
     public static bool INMENU;
     public static bool HASITEM;
     public static bool PHONEOUT;
-
+    public static string THISLEVEL;
+    public Scene ThisScene;
 
 
 
     void Awake()
-{
-	//Application.targetFrameRate = 61;
-}
+    {
+
+        Scene ThisScene = SceneManager.GetActiveScene();
+
+
+        THISLEVEL = ThisScene.name;
+
+
+
+
+    }
 
 
 
 void Start ()
     {
-        POWER_SUPPLY_ENABLED = false;
-        INCINERATOR_ENABLED = true;
-    }
+
+        Debug.Log(THISLEVEL);
+
+        if (THISLEVEL != "NorasFlat")
+        {
+            POWER_SUPPLY_ENABLED = false;
+        }
+        else
+        {
+            POWER_SUPPLY_ENABLED = true;
+        }
+
+        // 1; Tawley Meats
+        if (THISLEVEL == "1")
+        {
+            INCINERATOR_ENABLED = true;
+        }
 
 
-  // Update is called once per frame
-/*   void Update()
-  {
-    if(Input.GetKeyDown(KeyCode.UpArrow))
-    {
-      saveData.AddScore(1);
-      PrintScore();
-    }
-    if (Input.GetKeyDown(KeyCode.DownArrow))
-    {
-      saveData.AddScore(-1);
-      PrintScore();
-    }
-    if(Input.GetKeyDown(KeyCode.S))
-    {
-      SaveSystem.instance.SaveGame(saveData);
-      Debug.Log("Saved data.");
-    }
-    if(Input.GetKeyDown(KeyCode.L))
-    {
-      saveData = SaveSystem.instance.LoadGame();
-      Debug.Log("Loaded data.");
-      PrintScore();
-    }
-    if(Input.GetKeyDown(KeyCode.X))
-    {
-      saveData.ResetData();
-      PrintScore();
-    }
-  } */
 
-/*   void PrintScore()
-  {
-    Debug.Log("The current score is " + saveData.score);
-  } */
+    }
+
 }

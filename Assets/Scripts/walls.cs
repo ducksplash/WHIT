@@ -15,7 +15,7 @@ public class walls : MonoBehaviour
         if (collision.gameObject.layer == 12 || collision.gameObject.layer == 13 || collision.gameObject.layer == 14)
         {
 
-            if (gameObject.layer == 0)
+            if (gameObject.layer == 0 || gameObject.layer == 6 || gameObject.layer == 7 || gameObject.layer == 8)
             {
 
                 collision.transform.SetParent(defaultparent);

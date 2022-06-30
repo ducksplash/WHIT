@@ -17,12 +17,13 @@ public class innerDoors : MonoBehaviour
 	private Transform[] doorLights;
 	private Collider theDoorCollider;
 
+	public bool PlayerClicked;
 	
     void Start()
     {
 		doorAnimator = thisDoorHinge.GetComponent<Animator>();
 		thisDoorName = thisDoor.name;
-
+		PlayerClicked = false;
 
 
     }
@@ -69,55 +70,71 @@ public class innerDoors : MonoBehaviour
 	
 	
 	
-	IEnumerator weeWait(float aWeeSecond, Collider theCollider)
+	IEnumerator DisableColliderMomentarily(float aWeeSecond, Collider theCollider)
 	{
 		
 		theCollider.enabled = false;
 		yield return new WaitForSeconds(aWeeSecond);
+		PlayerClicked = false;
 		theCollider.enabled = true;
 		
+	}
+
+
+
+	void Update()
+	{
+
+		if (!PlayerClicked)
+		{
+			if (Input.GetMouseButtonUp(1))
+			{
+				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+				RaycastHit hit;
+				if (Physics.Raycast(ray, out hit, 5.5f))
+				{
+					if (!isLocked)
+					{
+
+						if (hit.transform.name.Equals(thisDoorName))
+						{
+							DoDoor(hit);
+							PlayerClicked = true;
+						}
+					}
+				}
+			}
+		}
 	}
 	
 
 
-    void Update()
-    {
-		
-        if (Input.GetMouseButtonDown(1))
-		{  
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);  
-			RaycastHit hit;  
-			if (Physics.Raycast(ray, out hit)) 
-			{  								
-				if (hit.distance <= 11f)
-				{	
-					
-					if (!isLocked)
-					{
-						
-						if (hit.transform.name.Equals(thisDoorName))
-						{  
-							theDoorCollider = hit.transform.GetComponent<BoxCollider>();
-							
-							if (!isOpen)
-							{
-							
-								doorAnimator.SetTrigger("opened");
-								StartCoroutine(weeWait(1,theDoorCollider));
-								isOpen = true;
-								
-							}
-							else
-							{
-								doorAnimator.SetTrigger("closed");
-								isOpen = false;
-								StartCoroutine(weeWait(1,theDoorCollider));
-								doorAnimator.SetTrigger("idle");
-							}
-						}
-					}					
-				}  				
-			}  
-		} 
-    }
-}
+
+		public void DoDoor(RaycastHit hit)
+		{
+
+			var thisDoorCollider = hit.transform.GetComponent<Collider>();
+
+			if (!isOpen)
+			{
+
+				doorAnimator.SetTrigger("opened");
+				StartCoroutine(DisableColliderMomentarily(0.5f, thisDoorCollider));
+				isOpen = true;
+
+			}
+			else
+			{
+				doorAnimator.SetTrigger("closed");
+				isOpen = false;
+				StartCoroutine(DisableColliderMomentarily(0.5f, thisDoorCollider));
+				doorAnimator.SetTrigger("idle");
+			}
+
+		}
+
+
+
+
+
+	}

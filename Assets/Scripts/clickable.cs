@@ -13,6 +13,8 @@ public class clickable : MonoBehaviour
     public Sprite enemysprite;
     public Sprite unknownsprite;
     public Sprite doorsprite;
+    public Sprite drawersprite;
+    public Sprite lockeddrawersprite;
     public Sprite lockeddoorsprite; 
     public Sprite pickupsprite;
     public Sprite evidencesprite;
@@ -46,6 +48,7 @@ public class clickable : MonoBehaviour
 
             int doorlayer = LayerMask.NameToLayer("door");
             int cupboardlayer = LayerMask.NameToLayer("cupboard");
+            int drawerlayer = LayerMask.NameToLayer("drawer");
             int clickablelayer = LayerMask.NameToLayer("clickable");
             int enemylayer = LayerMask.NameToLayer("enemy");
             int idlelayer = LayerMask.NameToLayer("Default");
@@ -170,6 +173,27 @@ public class clickable : MonoBehaviour
                     else
                     {
                         selectcursor.sprite = doorsprite;
+                        INFOTEXT("");
+                    }
+
+
+
+                }
+
+
+
+                if (hit.transform.gameObject.layer == drawerlayer)
+                {
+                    //Debug.Log("door");
+
+                    if (hit.transform.GetComponentInParent<innerDoors>().isLocked)
+                    {
+                        selectcursor.sprite = lockeddrawersprite;
+                        INFOTEXT("locked", "red");
+                    }
+                    else
+                    {
+                        selectcursor.sprite = drawersprite;
                         INFOTEXT("");
                     }
 

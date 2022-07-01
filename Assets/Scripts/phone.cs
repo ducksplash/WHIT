@@ -328,8 +328,7 @@ if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && GameMaster.PHON
 			if (!GameMaster.INMENU && !GameMaster.HASITEM)
 			{
 
-
-				MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 1, MobilePhone.transform.localPosition.z);
+				MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 0.01f, MobilePhone.transform.localPosition.z);
 
 
 

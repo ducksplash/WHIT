@@ -10,7 +10,7 @@ public class walls : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
 
-
+        Debug.Log(gameObject);
 
         if (collision.gameObject.layer == 12 || collision.gameObject.layer == 13 || collision.gameObject.layer == 14)
         {

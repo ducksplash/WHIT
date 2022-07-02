@@ -4,15 +4,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
-public class TravelCompanion : MonoBehaviour
+public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 {
     public CanvasGroup TravelCanvas;
 
 	public bool CompanionOpen;
 	public GameObject Notepad;
 	public CanvasGroup crosshair;
-	public TextMeshProUGUI ButtonLocationOneText;
 
 
 
@@ -21,11 +21,34 @@ public class TravelCompanion : MonoBehaviour
 		Notepad.SetActive(false);
     }
 
-
-
-
-    void Update()
+	public void OnPointerClick(PointerEventData eventData)
 	{
+		if (eventData.button == PointerEventData.InputButton.Right)
+		{
+			if (CompanionOpen)
+			{
+				LaunchCompanion();
+			}
+		}
+	}
+
+
+	void Update()
+	{
+
+		// this first
+
+		if (CompanionOpen)
+		{
+			if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.P))
+			{
+
+				LaunchCompanion();
+
+			}
+		}
+
+		// then this
 
 		if (!CompanionOpen)
 		{
@@ -50,15 +73,6 @@ public class TravelCompanion : MonoBehaviour
 					}
 
 				}
-			}
-		}
-
-
-		if (CompanionOpen)
-		{
-			if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.P))
-			{
-				LaunchCompanion();
 			}
 		}
 	}
@@ -105,10 +119,5 @@ public class TravelCompanion : MonoBehaviour
 		GameMaster.FROZEN = false;
 		SceneManager.LoadScene(SceneName);
 	}
-
-
-
-
-
 
 }

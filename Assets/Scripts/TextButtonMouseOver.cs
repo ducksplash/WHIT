@@ -17,7 +17,9 @@ public class TextButtonMouseOver : MonoBehaviour, IPointerEnterHandler, IPointer
         OrigColor = theText.color;
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+
+
+        public void OnPointerEnter(PointerEventData eventData)
     {
         theText.color = HoverColor;
         theText.fontStyle = FontStyles.Bold;

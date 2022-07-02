@@ -10,15 +10,29 @@ public class TravelCompanion : MonoBehaviour
     public CanvasGroup TravelCanvas;
 
 	public bool CompanionOpen;
+	public GameObject Notepad;
+	public CanvasGroup crosshair;
+	public TextMeshProUGUI ButtonLocationOneText;
 
 
-	void Update()
+
+	private void Start()
+    {
+		Notepad.SetActive(false);
+    }
+
+
+
+
+    void Update()
 	{
 
 		if (!CompanionOpen)
 		{
 			if (Input.GetMouseButtonDown(1))
 			{
+
+
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 				RaycastHit hit;
 				if (Physics.Raycast(ray, out hit))
@@ -51,21 +65,36 @@ public class TravelCompanion : MonoBehaviour
 
 	void LaunchCompanion()
     {
-		if (TravelCanvas.alpha == 0)
+
+
+		if (!Notepad.activeSelf)
 		{
-			TravelCanvas.alpha = 0.9f;
+			Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
+
+
+
+			Notepad.SetActive(true);
+			TravelCanvas.alpha = 1f;
 			TravelCanvas.blocksRaycasts = true;
 			GameMaster.INMENU = true;
 			GameMaster.FROZEN = true;
 			CompanionOpen = true;
+			crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
+
 		}
 		else
 		{
+			Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y - 1, Notepad.transform.localPosition.z);
+
+			Notepad.SetActive(false);
+
 			TravelCanvas.alpha = 0f;
 			TravelCanvas.blocksRaycasts = false;
 			GameMaster.INMENU = false;
 			GameMaster.FROZEN = false;
-			CompanionOpen = false;
+			CompanionOpen = false; 
+			crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
+
 		}
 	}
 
@@ -76,6 +105,9 @@ public class TravelCompanion : MonoBehaviour
 		GameMaster.FROZEN = false;
 		SceneManager.LoadScene(SceneName);
 	}
+
+
+
 
 
 

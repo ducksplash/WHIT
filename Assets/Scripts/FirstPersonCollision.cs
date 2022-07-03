@@ -207,22 +207,27 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
-	/*
 
 	void OnTriggerEnter(Collider theOther)
 	{
 
+		// dialog movement triggers
 
-		if (theOther.gameObject.layer == 20 && !GameMaster.FROZEN)
+		if (theOther.gameObject.name.Contains("AreYouReady"))
 		{
 
-			var CauseString = theOther.name;
+			var TheCallingObject = theOther.gameObject;
 
-			StartCoroutine(SlowDeath(CauseString));
+			var TheContact = "Kieron";
+			var TheMessage = "Before you head out, are you certain you have everything you need?";
+			var Timer = 5;
+
+
+			gameObject.GetComponent<DialogueManager>().NewDialogue(TheContact, TheMessage, Timer, TheCallingObject);
 
 		}
 	}
-	*/
+
 
 
 

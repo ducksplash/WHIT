@@ -91,7 +91,7 @@ public class innerDoors : MonoBehaviour
 			{
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 				RaycastHit hit;
-				if (Physics.Raycast(ray, out hit, 5.5f))
+				if (Physics.Raycast(ray, out hit, 4f))
 				{
 					if (!isLocked)
 					{

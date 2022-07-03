@@ -31,6 +31,8 @@ public class clickable : MonoBehaviour
         selectcursor = gameObject.GetComponent<Image>();
 
         selectcursor.sprite = idlesprite;
+        INFOTEXT("");
+
     }
 
     private void Start()
@@ -67,7 +69,7 @@ public class clickable : MonoBehaviour
 
 
 
-            if (Physics.Raycast(ray, out hit, 5.5f))
+            if (Physics.Raycast(ray, out hit, 4f))
             {
 
                 if (hit.transform.gameObject.layer == idlelayer)
@@ -178,6 +180,7 @@ public class clickable : MonoBehaviour
 
 
 
+
                 }
 
 
@@ -208,6 +211,14 @@ public class clickable : MonoBehaviour
                     selectcursor.sprite = doorsprite;
                     INFOTEXT("");
 
+                    if (hit.transform.GetComponent<TravelCompanion>() != null)
+                    {
+
+                        if (hit.distance > 1.2f)
+                        {
+                            INFOTEXT("Move to a new location");
+                        }
+                    }
                 }
 
 

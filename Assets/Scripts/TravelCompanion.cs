@@ -13,16 +13,19 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 	public bool CompanionOpen;
 	public GameObject Notepad;
 	public CanvasGroup crosshair;
-
+	public Light Notepadlight;
 
 
 	private void Start()
     {
 		Notepad.SetActive(false);
-    }
+		Notepadlight.enabled = false;
+
+	}
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
+		Debug.Log("anything??");
 		if (eventData.button == PointerEventData.InputButton.Right)
 		{
 			if (CompanionOpen)
@@ -62,7 +65,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 				{
 					if (hit.transform.gameObject == gameObject)
 					{
-						if (hit.distance <= 11f)
+						if (hit.distance <= 4f && hit.distance > 1.2f)
 						{
 							LaunchCompanion();
 						}
@@ -92,6 +95,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 			TravelCanvas.blocksRaycasts = true;
 			GameMaster.INMENU = true;
 			GameMaster.FROZEN = true;
+			Notepadlight.enabled = true;
 			CompanionOpen = true;
 			crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
 
@@ -105,6 +109,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 			TravelCanvas.alpha = 0f;
 			TravelCanvas.blocksRaycasts = false;
 			GameMaster.INMENU = false;
+			Notepadlight.enabled = false;
 			GameMaster.FROZEN = false;
 			CompanionOpen = false; 
 			crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;

@@ -18,6 +18,7 @@ public class clickable : MonoBehaviour
     public Sprite lockeddoorsprite; 
     public Sprite pickupsprite;
     public Sprite evidencesprite;
+    public Sprite pickupcloseenoughsprite;
     public TextMeshProUGUI infotext;
     public TextMeshProUGUI infotextbg;
     public Transform infotextbgimg;
@@ -69,7 +70,7 @@ public class clickable : MonoBehaviour
 
 
 
-            if (Physics.Raycast(ray, out hit, 4f))
+            if (Physics.Raycast(ray, out hit, 5.5f))
             {
 
                 if (hit.transform.gameObject.layer == idlelayer)
@@ -99,14 +100,20 @@ public class clickable : MonoBehaviour
 
                     if (hit.transform.tag.Contains("LIGHTSWITCHES"))
                     {
-
-                        if (GameMaster.POWER_SUPPLY_ENABLED)
+                        if (hit.distance <= 3f)
                         {
-                            INFOTEXT("Lights", "green");
+                            if (GameMaster.POWER_SUPPLY_ENABLED)
+                            {
+                                INFOTEXT("Lights", "green");
+                            }
+                            else
+                            {
+                                INFOTEXT("Lights (Power Disabled)", "red");
+                            }
                         }
                         else
                         {
-                            INFOTEXT("Lights (Power Disabled)", "red");
+                            INFOTEXT("Lights", "red");
                         }
                     }
 
@@ -226,6 +233,12 @@ public class clickable : MonoBehaviour
                 {
                     //Debug.Log("door");
                     selectcursor.sprite = pickupsprite;
+
+                    if (hit.distance <= 3f)
+                    {
+                        selectcursor.sprite = pickupcloseenoughsprite;
+                    }
+
                 }
 
 

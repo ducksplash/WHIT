@@ -129,7 +129,7 @@ public class LIGHTS : MonoBehaviour
 				RaycastHit hit;  
 				if (Physics.Raycast(ray, out hit)) {  
 	  
-					if (hit.distance <= 4f)
+					if (hit.distance <= 3f)
 					{				
 						if (hit.transform.name.Equals(thisSwitchName) || hit.transform.name.Equals(thatSwitchName))
 						{

@@ -17,6 +17,8 @@ public class DialogueManager : MonoBehaviour
 
     public bool DialogInProgress;
     public Image timebar;
+    public float messagetimer = 0f;
+
 
     void Start()
     {
@@ -24,14 +26,21 @@ public class DialogueManager : MonoBehaviour
 
     }
 
+    private void Update()
+    {
+        if (messagetimer > 0)
+        { 
+            timebar.fillAmount -= 1.0f / messagetimer * Time.deltaTime;
+        }
+
+    }
 
     public void NewDialogue(string Contact, string message, float displaytimer, GameObject CallingObject)
     {
         DialogInProgress = true;
-
+        messagetimer = displaytimer;
 
         StartCoroutine(Fader(DialogManagerCanvas, 1));
-        StartCoroutine(TimeBar(timebar, displaytimer));
 
 
         ContactName.text = Contact;
@@ -67,23 +76,7 @@ public class DialogueManager : MonoBehaviour
 
     }
 
-    public IEnumerator TimeBar(Image ThisImage, float timetolive)
-    {
-        var counter = timetolive;
 
-        while (counter > 0)
-        {
-
-            yield return new WaitForSeconds(0.1f);
-
-
-            ThisImage.fillAmount -= 0.1f;
-
-
-            counter--;
-        }
-
-    }
 
 
     public IEnumerator MessageTimer(float timevalue, GameObject CalledBy)
@@ -97,6 +90,7 @@ public class DialogueManager : MonoBehaviour
         DialogInProgress = false;
         Destroy(CalledBy);
     }
+
 
 
 }

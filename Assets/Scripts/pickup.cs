@@ -14,10 +14,10 @@ public class pickup : MonoBehaviour
 	public bool hasobjectshown;
 	public Vector3 StartRotation;
 	public CanvasGroup RotationMenu;
+	public LayerMask IgnoreLayer;
 
 
-
-    private void Awake()
+	private void Awake()
     {
 		pickup.hasobject = false;
 		StartRotation = handTransform.parent.eulerAngles;
@@ -34,12 +34,12 @@ public class pickup : MonoBehaviour
 
 			if (!pickup.hasobject)
 			{
-				int pickuplayer = LayerMask.GetMask("pickupable");
-				int evidencelayer = LayerMask.GetMask("evidence");
+
 
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 				RaycastHit hit;
-				if (Physics.Raycast(ray, out hit, 5.5f, pickuplayer) || Physics.Raycast(ray, out hit, 5.5f, evidencelayer))
+
+				if (Physics.Raycast(ray, out hit, 3f, ~IgnoreLayer))
 				{
 
 					PickupItem(hit);

@@ -219,7 +219,7 @@ public class FirstPersonCollision : MonoBehaviour
 			var TheCallingObject = theOther.gameObject;
 
 			var TheContact = "Kieron";
-			var TheMessage = "Before you head out, are you certain you have everything you need?";
+			var TheMessage = "Before you head out, are you sure you've everything you need?";
 			var Timer = 5;
 
 

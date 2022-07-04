@@ -208,26 +208,6 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
-	void OnTriggerEnter(Collider theOther)
-	{
-
-		// dialog movement triggers
-
-		if (theOther.gameObject.name.Contains("AreYouReady"))
-		{
-
-			var TheCallingObject = theOther.gameObject;
-
-			var TheContact = "Kieron";
-			var TheMessage = "Before you head out, are you sure you've everything you need?";
-			var Timer = 5;
-
-
-			gameObject.GetComponent<DialogueManager>().NewDialogue(TheContact, TheMessage, Timer, TheCallingObject);
-
-		}
-	}
-
 
 
 

@@ -65,7 +65,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 				{
 					if (hit.transform.gameObject == gameObject)
 					{
-						if (hit.distance <= 4f && hit.distance > 1.2f)
+						if (hit.distance <= 3f && hit.distance > 1.2f)
 						{
 							LaunchCompanion();
 						}

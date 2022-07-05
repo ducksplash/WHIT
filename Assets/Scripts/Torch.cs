@@ -25,6 +25,7 @@ public class Torch : MonoBehaviour
 	void Start()
 	{
 
+		WaitingForTorch = true;
 		lightBeam = gameObject.GetComponentInChildren<Light>();
 		torchAnimator = theTorch.GetComponentInChildren<Animator>();
 
@@ -35,7 +36,14 @@ public class Torch : MonoBehaviour
 	void Update()
 	{
 
-
+		if (WaitingForTorch)
+		{
+			if (GameMaster.TORCHCOLLECTED)
+			{
+				theTorch.SetActive(true);
+				WaitingForTorch = false;
+			}
+		}
 
 		if (GameMaster.TORCHCOLLECTED)
 		{
@@ -82,18 +90,6 @@ public class Torch : MonoBehaviour
 
 
 
-	}
-
-    private void LateUpdate()
-    {
-		if (WaitingForTorch)
-		{
-			if (GameMaster.TORCHCOLLECTED)
-			{
-				theTorch.SetActive(true);
-				WaitingForTorch = false;
-			}
-		}
 	}
 
 

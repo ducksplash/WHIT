@@ -15,15 +15,16 @@ public class DialogueManager : MonoBehaviour
     public TextMeshProUGUI ContactName;
     public Image ContactPhoto;
     public TextMeshProUGUI ReceivedMessage;
+    public TextMeshProUGUI NoraMessage;
     public bool DialogInProgress;
     public Image timebar;
     public float messagetimer = 0f;
-
 
     void Start()
     {
         DialogManagerCanvas = DialogManager.GetComponent<CanvasGroup>();
 
+        NoraMessage.text = "";
     }
 
     private void Update()
@@ -47,6 +48,7 @@ public class DialogueManager : MonoBehaviour
             CreateDialogue(Contact, message, displaytimer, CallingObject);
         }
 
+
     }
 
 
@@ -60,15 +62,27 @@ public class DialogueManager : MonoBehaviour
 
     public void CreateDialogue(string Contact, string message, float displaytimer, GameObject CallingObject)
     {
-        DialogInProgress = true;
-        messagetimer = displaytimer;
 
+        if (Contact == "NORA")
+        {
+            DialogInProgress = true;
+            messagetimer = displaytimer;
 
+            NoraMessage.text = "NORA: "+message;
 
-        ContactName.text = Contact;
-        ReceivedMessage.text = message;
+            StartCoroutine(NoraTimer(displaytimer, CallingObject));
+        }
+        else
+        {
+            DialogInProgress = true;
+            messagetimer = displaytimer;
 
-        StartCoroutine(MessageTimer(displaytimer, CallingObject));
+            ContactName.text = Contact;
+            ReceivedMessage.text = message;
+
+            StartCoroutine(MessageTimer(displaytimer, CallingObject));
+        }
+
     }
 
 
@@ -129,6 +143,19 @@ public class DialogueManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         DialogInProgress = false;
         Destroy(CalledBy);
+    }
+
+
+
+
+    public IEnumerator NoraTimer(float timevalue, GameObject CalledBy)
+    {
+
+        yield return new WaitForSeconds(timevalue);
+        CalledBy.GetComponent<Collider>().enabled = true;
+        NoraMessage.text = "";
+        yield return new WaitForSeconds(0.5f);
+        DialogInProgress = false;
     }
 
 

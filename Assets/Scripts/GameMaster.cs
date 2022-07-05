@@ -24,6 +24,8 @@ public class GameMaster : MonoBehaviour
 
     // COLLECTED ITEMS
     public static bool TORCHCOLLECTED;
+    public static bool NOTEPADCOLLECTED;
+    public static bool PHONECOLLECTED;
 
 
     void Awake()

@@ -14,7 +14,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 	public GameObject Notepad;
 	public CanvasGroup crosshair;
 	public Light Notepadlight;
-
+	public GameObject Player;
 
 	private void Start()
     {
@@ -39,82 +39,143 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 	void Update()
 	{
 
-		// this first
 
-		if (CompanionOpen)
-		{
-			if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.P))
+
+
+			// this first
+
+			if (CompanionOpen)
 			{
-
-				LaunchCompanion();
-
-			}
-		}
-
-		// then this
-
-		if (!CompanionOpen)
-		{
-			if (Input.GetMouseButtonDown(1))
-			{
-
-
-				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-				RaycastHit hit;
-				if (Physics.Raycast(ray, out hit))
+				if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.P))
 				{
-					if (hit.transform.gameObject == gameObject)
-					{
-						if (hit.distance <= 3f && hit.distance > 1.2f)
-						{
-							LaunchCompanion();
-						}
-					}
-					else
-					{
-						Debug.Log("not travel door");
-					}
+
+					LaunchCompanion();
 
 				}
 			}
-		}
+
+			// then this
+
+			if (!CompanionOpen)
+			{
+				if (Input.GetMouseButtonDown(1))
+				{
+
+
+					Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+					RaycastHit hit;
+					if (Physics.Raycast(ray, out hit))
+					{
+						if (hit.transform.gameObject == gameObject)
+						{
+							if (hit.distance <= 3f && hit.distance > 1.2f)
+							{
+								LaunchCompanion();
+							}
+						}
+						else
+						{
+							Debug.Log("not travel door");
+						}
+
+					}
+				}
+			}
+
+		
+
+
+
+
+
 	}
 
 	void LaunchCompanion()
     {
 
 
-		if (!Notepad.activeSelf)
+
+
+		var itemsfound = 0;
+
+
+		if (GameMaster.PHONECOLLECTED)
 		{
-			Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
+			itemsfound += 1;
+		}
+
+
+		if (GameMaster.TORCHCOLLECTED)
+		{
+
+			itemsfound += 1;
+		}
 
 
 
-			Notepad.SetActive(true);
-			TravelCanvas.alpha = 1f;
-			TravelCanvas.blocksRaycasts = true;
-			GameMaster.INMENU = true;
-			GameMaster.FROZEN = true;
-			Notepadlight.enabled = true;
-			CompanionOpen = true;
-			crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
+
+		if (GameMaster.NOTEPADCOLLECTED)
+		{
+			itemsfound += 1;
+		}
+
+
+
+
+
+
+		if (itemsfound > 2)
+		{
+
+
+
+			if (!Notepad.activeSelf)
+			{
+				Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
+
+
+
+				Notepad.SetActive(true);
+				TravelCanvas.alpha = 1f;
+				TravelCanvas.blocksRaycasts = true;
+				GameMaster.INMENU = true;
+				GameMaster.FROZEN = true;
+				Notepadlight.enabled = true;
+				CompanionOpen = true;
+				crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
+
+			}
+			else
+			{
+				Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y - 1, Notepad.transform.localPosition.z);
+
+				Notepad.SetActive(false);
+
+				TravelCanvas.alpha = 0f;
+				TravelCanvas.blocksRaycasts = false;
+				GameMaster.INMENU = false;
+				Notepadlight.enabled = false;
+				GameMaster.FROZEN = false;
+				CompanionOpen = false;
+				crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
+
+			}
+
 
 		}
 		else
 		{
-			Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y - 1, Notepad.transform.localPosition.z);
+			var dialogstring = "I need my phone, my torch and my notepad.";
+			Player.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 3, gameObject);
+			gameObject.GetComponent<Collider>().enabled = false;
 
-			Notepad.SetActive(false);
+        }
 
-			TravelCanvas.alpha = 0f;
-			TravelCanvas.blocksRaycasts = false;
-			GameMaster.INMENU = false;
-			Notepadlight.enabled = false;
-			GameMaster.FROZEN = false;
-			CompanionOpen = false; 
-			crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
 
-		}
+
+
+
+
 	}
 
 

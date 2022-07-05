@@ -220,17 +220,39 @@ public class pickup : MonoBehaviour
 				GameMaster.HASITEM = true;
 			}
 			else
-            {
+			{
 
 				if (hit.transform.name.Contains("TORCH"))
-                {
+				{
 
 					GameMaster.TORCHCOLLECTED = true;
+					Destroy(hit.transform.gameObject); 
+					var dialogstring = "Ah, I need this.";
+					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 3, gameObject);
+
+				}
+
+				if (hit.transform.name.Contains("NOTEPAD"))
+				{
+
+					GameMaster.NOTEPADCOLLECTED = true;
 					Destroy(hit.transform.gameObject);
+					var dialogstring = "Got some places I wanna check out written down here.";
+					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 3, gameObject);
 
-                }
+				}
 
-            }
+				if (hit.transform.name.Contains("PHONE"))
+				{
+
+					GameMaster.PHONECOLLECTED = true;
+					Destroy(hit.transform.gameObject);
+					var dialogstring = "Naked without my phone.";
+					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 3, gameObject);
+
+				}
+
+			}
 
 		}
 	}

@@ -9,10 +9,13 @@ public class clickable : MonoBehaviour
 {
     public Image selectcursor;
     public Sprite clickablesprite;
+    public Sprite clickablespritegreen;
+    public Sprite clickablespritered;
     public Sprite idlesprite;
     public Sprite enemysprite;
     public Sprite unknownsprite;
     public Sprite doorsprite;
+    public Sprite doorspritegreen;
     public Sprite drawersprite;
     public Sprite lockeddrawersprite;
     public Sprite lockeddoorsprite; 
@@ -93,31 +96,34 @@ public class clickable : MonoBehaviour
 
                 if (hit.transform.gameObject.layer == clickablelayer)
                 {
-                    //Debug.Log("clickable");
-
-                    selectcursor.sprite = clickablesprite;
-                    INFOTEXT("");
-
-                    if (hit.transform.tag.Contains("LIGHTSWITCHES"))
+     
+                    if (hit.distance <= 3f)
                     {
-                        if (hit.distance <= 3f)
+                        if (hit.transform.tag.Contains("LIGHTSWITCHES"))
                         {
+
                             if (GameMaster.POWER_SUPPLY_ENABLED)
                             {
                                 INFOTEXT("Lights", "green");
+                                selectcursor.sprite = clickablespritegreen;
                             }
                             else
                             {
                                 INFOTEXT("Lights (Power Disabled)", "red");
+                                selectcursor.sprite = clickablespritered;
                             }
+
                         }
                         else
                         {
                             INFOTEXT("Lights", "red");
                         }
                     }
-
-
+                    else
+                    {
+                        selectcursor.sprite = clickablesprite;
+                        INFOTEXT("");
+                    }
 
                     if (hit.transform.tag.Contains("INCINERATOR"))
                     {
@@ -173,18 +179,24 @@ public class clickable : MonoBehaviour
                 if (hit.transform.gameObject.layer == doorlayer)
                 {
                     //Debug.Log("door");
-
-                    if (hit.transform.parent.parent.GetComponent<innerDoors>().isLocked)
+                    if (hit.distance <= 3f)
                     {
-                        selectcursor.sprite = lockeddoorsprite;
-                        INFOTEXT("locked", "red");
+                        if (hit.transform.parent.parent.GetComponent<innerDoors>().isLocked)
+                        {
+                            selectcursor.sprite = lockeddoorsprite;
+                            INFOTEXT("locked", "red");
+                        }
+                        else
+                        {
+                            selectcursor.sprite = doorspritegreen;
+                            INFOTEXT("");
+                        }
                     }
                     else
                     {
                         selectcursor.sprite = doorsprite;
                         INFOTEXT("");
                     }
-
 
 
 
@@ -221,9 +233,10 @@ public class clickable : MonoBehaviour
                     if (hit.transform.GetComponent<TravelCompanion>() != null)
                     {
 
-                        if (hit.distance > 1.2f)
+                        if (hit.distance < 3f && hit.distance > 1.2f)
                         {
                             INFOTEXT("Move to a new location");
+                            selectcursor.sprite = doorspritegreen;
                         }
                     }
                 }

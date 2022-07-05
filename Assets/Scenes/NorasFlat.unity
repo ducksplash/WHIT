@@ -10734,8 +10734,8 @@ GameObject:
   - component: {fileID: 547296990}
   - component: {fileID: 547296989}
   - component: {fileID: 547296988}
-  - component: {fileID: 547296987}
   - component: {fileID: 547296986}
+  - component: {fileID: 547296991}
   m_Layer: 12
   m_Name: dinnerplate_1
   m_TagString: Untagged
@@ -10759,20 +10759,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!64 &547296987
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 547296985}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 9115584536764724564, guid: 6da514b8f6e83cd479eacc0c42869ce2, type: 3}
 --- !u!23 &547296988
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10831,13 +10817,26 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 547296985}
   m_LocalRotation: {x: -0.9944222, y: -0, z: -0, w: -0.10547276}
-  m_LocalPosition: {x: 77.275, y: 2.922, z: 492.676}
+  m_LocalPosition: {x: 77.275, y: 2.922, z: 492.666}
   m_LocalScale: {x: 39, y: 39, z: 39}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: -192.109, y: 0, z: 0}
+--- !u!65 &547296991
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547296985}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.01930281, y: 0.019302811, z: 0.0006703672}
+  m_Center: {x: 0, y: -1.2964693e-10, z: 0.008700458}
 --- !u!1 &555378211
 GameObject:
   m_ObjectHideFlags: 0
@@ -31846,10 +31845,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectcursor: {fileID: 1585493948}
   clickablesprite: {fileID: 21300000, guid: f6f69e541a9c9f2429a3e2f5734cc667, type: 3}
+  clickablespritegreen: {fileID: 21300000, guid: aee8102cfca8ddd489381b934c499b48,
+    type: 3}
+  clickablespritered: {fileID: 21300000, guid: 6ae324ca47dde2d48aaa2445705720ac, type: 3}
   idlesprite: {fileID: 21300000, guid: 138c5fd0b7b572b498f13a39cf280552, type: 3}
   enemysprite: {fileID: 21300000, guid: 92d988fca7a8a814a945c4a89a0cdf8d, type: 3}
   unknownsprite: {fileID: 21300000, guid: 37c1a94ca511bf3418b9d25f1a432719, type: 3}
-  doorsprite: {fileID: 21300000, guid: 9d9479bbaf1f5874db6f7e3eb3d32b7a, type: 3}
+  doorsprite: {fileID: 21300000, guid: fa177a9ae3a8dd244b434b47527f57a3, type: 3}
+  doorspritegreen: {fileID: 21300000, guid: 9d9479bbaf1f5874db6f7e3eb3d32b7a, type: 3}
   drawersprite: {fileID: 21300000, guid: 967e2366c19c26742a1449c905fadac4, type: 3}
   lockeddrawersprite: {fileID: 21300000, guid: 066a736b070dce64c8fdc228ecc35eac, type: 3}
   lockeddoorsprite: {fileID: 21300000, guid: 19452a9cafc666649a9c4a1282dce486, type: 3}
@@ -52530,7 +52533,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4039306734682862920}
   m_LocalRotation: {x: -0.9944222, y: -0, z: -0, w: -0.10547276}
-  m_LocalPosition: {x: 11.729576, y: 4.0671678, z: 1.2623745}
+  m_LocalPosition: {x: 11.729576, y: 4.0671678, z: 1.023}
   m_LocalScale: {x: 33.92024, y: 53.133102, z: 36.907326}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -53192,8 +53195,8 @@ GameObject:
   - component: {fileID: 3694447848065937394}
   - component: {fileID: 354248538292625495}
   - component: {fileID: 2526093204658508957}
-  - component: {fileID: 4039306734682862922}
   - component: {fileID: 4039306734682862921}
+  - component: {fileID: 4039306734682862922}
   m_Layer: 12
   m_Name: dinnerplate
   m_TagString: Untagged
@@ -53217,8 +53220,8 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!64 &4039306734682862922
-MeshCollider:
+--- !u!65 &4039306734682862922
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -53227,10 +53230,9 @@ MeshCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 9115584536764724564, guid: 6da514b8f6e83cd479eacc0c42869ce2, type: 3}
+  serializedVersion: 2
+  m_Size: {x: 0.01930281, y: 0.01930281, z: 0.0006703675}
+  m_Center: {x: 0, y: -0.00000011946858, z: 0.008700458}
 --- !u!4 &4042780956783610902
 Transform:
   m_ObjectHideFlags: 0
@@ -61189,7 +61191,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1242109912483406856}
   m_LocalRotation: {x: -0.04778865, y: -0, z: -0, w: 0.9988575}
-  m_LocalPosition: {x: 11.104225, y: 3.9892206, z: 1.9948393}
+  m_LocalPosition: {x: 11.104225, y: 3.9892206, z: 2.096}
   m_LocalScale: {x: 13.252898, y: 16.062199, z: 14.25346}
   m_ConstrainProportionsScale: 0
   m_Children:

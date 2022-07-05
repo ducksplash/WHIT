@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class Torch : MonoBehaviour
 {
-	
+
 	public Light lightBeam;
 	public GameObject theTorch;
 	public static bool torchToggle;
@@ -19,59 +19,82 @@ public class Torch : MonoBehaviour
 	public Sprite litsprite;
 	public Sprite unlitsprite;
 
+	public bool WaitingForTorch;
 
 	// Start is called before the first frame update
 	void Start()
-    {
-		
+	{
+
 		lightBeam = gameObject.GetComponentInChildren<Light>();
-        torchAnimator = theTorch.GetComponentInChildren<Animator>();
+		torchAnimator = theTorch.GetComponentInChildren<Animator>();
 
-    }
+		theTorch.SetActive(false);
 
-    void Update()
-    {
+	}
+
+	void Update()
+	{
 
 
 
-
-		if (!GameMaster.INMENU)
+		if (GameMaster.TORCHCOLLECTED)
 		{
-			if (!GameMaster.FROZEN)
+			if (!GameMaster.INMENU)
 			{
-
-				if (Input.GetMouseButtonUp(2) || Input.GetButtonUp("Flashlight"))
+				if (!GameMaster.FROZEN)
 				{
-					if (!torchToggle)
+
+					if (Input.GetMouseButtonUp(2) || Input.GetButtonUp("Flashlight"))
 					{
-						lightBeam.enabled = true;
-						torchimg.sprite = litsprite;
-						torchToggle = true;
+						if (!torchToggle)
+						{
+							lightBeam.enabled = true;
+							torchimg.sprite = litsprite;
+							torchToggle = true;
+						}
+						else
+						{
+							lightBeam.enabled = false;
+							torchimg.sprite = unlitsprite;
+
+							torchToggle = false;
+							//Debug.Log("off");
+						}
+					}
+
+					if (Input.GetMouseButtonUp(0))
+					{
+						if (!pickup.hasobject)
+						{
+							torchAnimator.SetTrigger("swing");
+						}
 					}
 					else
 					{
-						lightBeam.enabled = false;
-						torchimg.sprite = unlitsprite;
-
-						torchToggle = false;
-						//Debug.Log("off");
+						torchAnimator.SetTrigger("idle");
 					}
-				}
 
-				if (Input.GetMouseButtonUp(0))
-				{
-					if (!pickup.hasobject)
-					{
-						torchAnimator.SetTrigger("swing");
-					}
 				}
-				else
-				{
-					torchAnimator.SetTrigger("idle");
-				}
+			}
 
+
+		}
+
+
+
+	}
+
+    private void LateUpdate()
+    {
+		if (WaitingForTorch)
+		{
+			if (GameMaster.TORCHCOLLECTED)
+			{
+				theTorch.SetActive(true);
+				WaitingForTorch = false;
 			}
 		}
-        
-    }
+	}
+
+
 }

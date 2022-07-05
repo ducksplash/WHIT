@@ -198,23 +198,40 @@ public class pickup : MonoBehaviour
     {
 		if (!GameMaster.PHONEOUT)
 		{
-			var TheItem = hit;
 
-			RotationMenu.alpha = 0.7f;
+			if (!hit.transform.gameObject.tag.Equals("COLLECTABLE"))
+			{
+				var TheItem = hit;
 
-			TheItem.transform.SetParent(handTransform, true);
+				RotationMenu.alpha = 0.7f;
 
-			//handTransform.Rotate(new Vector3(0,0,0), Space.Self);
-			TheItem.transform.localPosition = new Vector3(0, 0, 0);
+				TheItem.transform.SetParent(handTransform, true);
 
-			TheItem.transform.localEulerAngles = transform.forward * -1;
+				//handTransform.Rotate(new Vector3(0,0,0), Space.Self);
+				TheItem.transform.localPosition = new Vector3(0, 0, 0);
+
+				TheItem.transform.localEulerAngles = transform.forward * -1;
 
 
-			TheItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+				TheItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
-			myHeldItem = TheItem.transform;
-			pickup.hasobject = true;
-			GameMaster.HASITEM = true;
+				myHeldItem = TheItem.transform;
+				pickup.hasobject = true;
+				GameMaster.HASITEM = true;
+			}
+			else
+            {
+
+				if (hit.transform.name.Contains("TORCH"))
+                {
+
+					GameMaster.TORCHCOLLECTED = true;
+					Destroy(hit.transform.gameObject);
+
+                }
+
+            }
+
 		}
 	}
 

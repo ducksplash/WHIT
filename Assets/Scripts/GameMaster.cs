@@ -22,6 +22,9 @@ public class GameMaster : MonoBehaviour
     public Scene ThisScene;
 
 
+    // COLLECTED ITEMS
+    public static bool TORCHCOLLECTED;
+
 
     void Awake()
     {

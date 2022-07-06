@@ -19,7 +19,8 @@ public class phone : MonoBehaviour
 	public GameObject LockScreen;
 	public GameObject ContactsScreen;
 	public GameObject CameraScreen;
-	public GameObject DiallerScreen;  
+	public GameObject DiallerScreen;
+	public GameObject GalleryScreen;
 	public GameObject CallingScreen;   
 	public GameObject HomeScreen;   
 	public GameObject theDialler;
@@ -49,7 +50,7 @@ public class phone : MonoBehaviour
 	public int resHeight = 1000;
 	public Camera getCamera;
 	public bool WaitingForPhone;
-
+	public bool gotfiles;
 
 	private GameObject ObservedEvidence;
 
@@ -418,7 +419,104 @@ public class phone : MonoBehaviour
 
 		Debug.Log("camera button");
 
+
+
+
+
+	}
+	public void GalleryButton()
+	{
+
+		changeScreen(GalleryScreen);
+
+		if (TorchLight.enabled)
+		{
+			Torch.torchToggle = false;
+			TorchLight.enabled = false;
+		}
+
+		// lets get the files
+		var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
+
+
+		DirectoryInfo dir = new DirectoryInfo(filepath);
+		if (dir.Exists)
+		{
+			FileInfo[] info = dir.GetFiles("*.quack");
+
+			if (info.Length > 0)
+			{
+				gotfiles = true;
+			}
+			else
+			{
+				gotfiles = false;
+			}
+
+			foreach (FileInfo f in info)
+			{
+				print("Found: " + f.Name);
+			}
+		}
+		else
+		{
+			gotfiles = false;
+		}
+
+
+
+
+
+
+		// get the panels
+		CanvasGroup[] GalleryPanes = GalleryScreen.GetComponentsInChildren<CanvasGroup>();
+
+
+		// gallery got stuff?
+
+		// we have to temp it cos we haven't built all the back end for the photos and evidence yet :P
+
+
+
+		// got at least one photo?
+		if (gotfiles)
+		{
+			foreach (CanvasGroup screen in GalleryPanes)
+			{
+
+				if (screen.name.Contains("GALLERYPANE"))
+				{
+					screen.alpha = 1;
+				}
+				else
+                {
+					screen.alpha = 0;
+				}
+			}
+			GalleryScreen.GetComponent<CanvasGroup>().alpha = 1;
+		}
+		else
+		{
+			foreach (CanvasGroup screen in GalleryPanes)
+			{
+
+				if (screen.name.Contains("EMPTYPANE"))
+				{
+					screen.alpha = 1;
+				}
+				else
+				{
+					screen.alpha = 0;
+				}
+			}
+			GalleryScreen.GetComponent<CanvasGroup>().alpha = 1;
+		}
 		
+
+
+		Debug.Log("gallery button");
+
+
 
 
 

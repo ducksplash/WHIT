@@ -96,10 +96,10 @@ public class clickable : MonoBehaviour
 
                 if (hit.transform.gameObject.layer == clickablelayer)
                 {
-     
-                    if (hit.distance <= 3f)
+                    if (hit.transform.tag.Contains("LIGHTSWITCHES"))
                     {
-                        if (hit.transform.tag.Contains("LIGHTSWITCHES"))
+
+                        if (hit.distance <= 3f)
                         {
 
                             if (GameMaster.POWER_SUPPLY_ENABLED)
@@ -125,6 +125,37 @@ public class clickable : MonoBehaviour
                         INFOTEXT("");
                     }
 
+
+
+                    if (hit.transform.tag.Contains("POWERSWITCH"))
+                    {
+                        if (hit.distance <= 3f)
+                        {
+
+                            if (GameMaster.POWER_SUPPLY_ENABLED)
+                            {
+                                INFOTEXT("Power (on)", "green");
+                                selectcursor.sprite = clickablespritegreen;
+                            }
+                            else
+                            {
+                                INFOTEXT("Power (off)", "red");
+                                selectcursor.sprite = clickablespritered;
+                            }
+
+                        }
+                        else
+                        {
+                            INFOTEXT("Power", "red");
+                        }
+                    }
+                    else
+                    {
+                        selectcursor.sprite = clickablesprite;
+                        INFOTEXT("");
+                    }
+
+
                     if (hit.transform.tag.Contains("INCINERATOR"))
                     {
 
@@ -134,26 +165,25 @@ public class clickable : MonoBehaviour
                         }
                         else
                         {
-                            INFOTEXT("Start Incinerator (Power Disabled)", "red");
+                                INFOTEXT("Start Incinerator (Power Disabled)", "red");
+                        }
+                        
+
+                        if (hit.transform.tag.Contains("INCINERATOROFF"))
+                        {
+
+                            if (GameMaster.POWER_SUPPLY_ENABLED && GameMaster.INCINERATOR_ENABLED)
+                            {
+                                INFOTEXT("Stop Incinerator", "green");
+                            }
+                            else
+                            {
+                                INFOTEXT("Stop Incinerator (Power Disabled)", "red");
+                            }
                         }
                     }
-
-
-
-                    if (hit.transform.tag.Contains("INCINERATOROFF"))
-                    {
-
-                        if (GameMaster.POWER_SUPPLY_ENABLED && GameMaster.INCINERATOR_ENABLED)
-                        {
-                            INFOTEXT("Stop Incinerator", "green");
-                        }
-                        else
-                        {
-                            INFOTEXT("Stop Incinerator (Power Disabled)", "red");
-                        }
-                    }
-
                 }
+                
 
 
 

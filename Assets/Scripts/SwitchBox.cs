@@ -91,7 +91,7 @@ public class SwitchBox : MonoBehaviour
 			RaycastHit hit;  
 			if (Physics.Raycast(ray, out hit)) 
 			{  
-				if (hit.distance <= 5.5f)
+				if (hit.distance <= 3f)
 				{
 				
 					if (hit.transform.name.Equals(thisDoorName))

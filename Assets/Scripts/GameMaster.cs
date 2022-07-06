@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+using System.IO;
 
 public class GameMaster : MonoBehaviour
 {
   GameData saveData = new GameData();
 
+
+    // Debuggery
+    [Header("Debug Mode Toggle")]
+    public bool DEBUGGERY;
 
     // Game Globals
 
@@ -33,9 +37,38 @@ public class GameMaster : MonoBehaviour
     public GameObject notepadPickup;
     public GameObject torchPickup;
 
-
     void Awake()
     {
+
+        // cleanup
+        // We will use this on boot every time
+        // then copy a player's saved files back from the 'save' area.
+        // we can just copy the whole data structure for ease. 
+
+        // FFR; Dir Tree is:
+        // <persistent data path>/Phone/0/DCIM
+        // and
+        // <persistent data path>/Phone/0/Evidence
+        // So we can treat /0/ as a defacto root here.
+
+
+        var filepath = Application.persistentDataPath + "/Phone/0/";
+
+        if (Directory.Exists(filepath)) 
+        { 
+            // deleting the foler also deletes the files.
+            // handy.
+            Directory.Delete(filepath, true); 
+        }
+
+        // then just make the root folder back up; the phone will create the rest when needed.
+        Directory.CreateDirectory(filepath);
+
+
+
+
+
+
 
         Scene ThisScene = SceneManager.GetActiveScene();
 
@@ -44,6 +77,14 @@ public class GameMaster : MonoBehaviour
 
         WaitingForTrinity = true;
 
+        if (DEBUGGERY)
+        {
+
+            TORCHCOLLECTED = true;
+            NOTEPADCOLLECTED = true;
+            PHONECOLLECTED = true;
+
+        }
 
     }
 

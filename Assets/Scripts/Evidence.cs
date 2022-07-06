@@ -51,10 +51,10 @@ public class Evidence : MonoBehaviour
 
 
         var EvidenceFilename = transform.name + ".quack";
-        var EvidenceSlug = "Name: " + EvidenceName + "\n";
-        EvidenceSlug += "Details: " + EvidenceBody + "\n";
-        EvidenceSlug += "Date Collected: " + evidencedate + "\n";
-        EvidenceSlug += "Photograph: " + evfilename + "\n";
+        var EvidenceSlug = EvidenceName + "\n";
+        EvidenceSlug += EvidenceBody + "\n";
+        EvidenceSlug += evidencedate + "\n";
+        EvidenceSlug += evfilename + "\n";
 
 
 
@@ -67,27 +67,7 @@ public class Evidence : MonoBehaviour
 
     }
 
-    /* public static CharacterData LoadData()
-     {
-         string path = Application.persistentDataPath + "/Game.weeklyhow";
 
-         if(File.Exists(path))
-         {
-             BinaryFormatter formatter = new BinaryFormatter();
-             FileStream stream = new FileStream(path, FileMode.Open);
-
-             CharacterData data = formatter.Deserialize(stream) as CharacterData;
-
-             stream.Close();
-
-             return data;
-         } else
-         {
-             Debug.LogError("Error: Save file not found in " + path);
-             return null;
-         }
-     }
-    */
 
 
 }

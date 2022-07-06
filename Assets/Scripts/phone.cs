@@ -50,7 +50,21 @@ public class phone : MonoBehaviour
 	public int resHeight = 1000;
 	public Camera getCamera;
 	public bool WaitingForPhone;
+
+
+
+
 	public bool gotfiles;
+	public int currentpage;
+	public int nextpage;
+	public int lastpage;
+
+	public RawImage galleryEvidencePhoto;
+	public TextMeshProUGUI galleryEvidenceName;
+	public TextMeshProUGUI galleryEvidenceDate;
+	public TextMeshProUGUI galleryEvidenceDetails;
+
+
 
 	private GameObject ObservedEvidence;
 
@@ -153,7 +167,6 @@ public class phone : MonoBehaviour
 				}
 				else
 				{
-					Debug.Log("don't got it");
 					readyForNewScreen = true;
 				}
 			}
@@ -185,7 +198,8 @@ public class phone : MonoBehaviour
 				}
 				else
 				{
-					Debug.Log("don't got it");
+					//shush you
+					//Debug.Log("don't got it");
 				}
 			}
 
@@ -424,6 +438,10 @@ public class phone : MonoBehaviour
 
 
 	}
+
+	// GALLERY
+
+
 	public void GalleryButton()
 	{
 
@@ -436,6 +454,7 @@ public class phone : MonoBehaviour
 		}
 
 		// lets get the files
+		// we're only counting them here, the fishing will take place elsewhere
 		var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
 
 
@@ -452,11 +471,6 @@ public class phone : MonoBehaviour
 			{
 				gotfiles = false;
 			}
-
-			foreach (FileInfo f in info)
-			{
-				print("Found: " + f.Name);
-			}
 		}
 		else
 		{
@@ -466,7 +480,11 @@ public class phone : MonoBehaviour
 
 
 
+		// set up pagination
+		// get fields
+		// an image, a date and two strings.
 
+		
 
 		// get the panels
 		CanvasGroup[] GalleryPanes = GalleryScreen.GetComponentsInChildren<CanvasGroup>();
@@ -487,6 +505,7 @@ public class phone : MonoBehaviour
 				if (screen.name.Contains("GALLERYPANE"))
 				{
 					screen.alpha = 1;
+					GalleryGetContent();
 				}
 				else
                 {
@@ -517,10 +536,79 @@ public class phone : MonoBehaviour
 		Debug.Log("gallery button");
 
 
+	}
+
+
+
+
+	void GalleryGetContent(int page = 0)
+    {
+		// lets get the files
+		var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
+
+
+
+		DirectoryInfo dir = new DirectoryInfo(filepath);
+		if (dir.Exists)
+		{
+			FileInfo[] info = dir.GetFiles("*.quack");
+			var lines = System.IO.File.ReadAllLines(info[0].FullName);
+
+
+
+			MemoryStream dest = new MemoryStream();
+
+			var photopath = Application.persistentDataPath + "/Phone/0/DCIM/";
+			
+
+
+			byte[] imageData = File.ReadAllBytes(photopath + lines[3]);
+
+			//Create new Texture2D
+			Texture2D tempTexture = new Texture2D(2, 2);
+
+			//Load the Image Byte to Texture2D
+			tempTexture.LoadImage(imageData);
+
+
+			var finaltexture = tempTexture;
+
+			//Load to Rawmage?
+			galleryEvidencePhoto.texture = finaltexture;
+
+
+
+
+
+
+
+
+
+		galleryEvidenceName.text = lines[0];
+				galleryEvidenceDetails.text = lines[1];
+				galleryEvidenceDate.text = lines[2];
+
+
+
+
+				//galleryEvidencePhoto.sprite = photopath + lines[3];
+
+
+
+
+
+		}
 
 
 
 	}
+
+
+
+
+
+
+
 
 	// Dialler.
 	public void DiallerButton()

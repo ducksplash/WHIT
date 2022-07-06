@@ -222,7 +222,10 @@ public class FirstPersonCollision : MonoBehaviour
 
 		CrouchIndicator.alpha = 1;
 		CrossHair.alpha = 1;
-		TorchIndicator.alpha = 1;
+		if (GameMaster.TORCHCOLLECTED)
+        {
+			TorchIndicator.alpha = 1;
+        }
 
 	}
 
@@ -248,7 +251,10 @@ public class FirstPersonCollision : MonoBehaviour
 
 		CrouchIndicator.alpha = 1;
 		CrossHair.alpha = 1;
-		TorchIndicator.alpha = 1;
+		if (GameMaster.TORCHCOLLECTED)
+		{
+			TorchIndicator.alpha = 1;
+		}
 
 
 	}

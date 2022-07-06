@@ -21,6 +21,17 @@ public class DialogueBeef : MonoBehaviour
     public float DisplayTimer = 5.0f;
 
 
+    [Header("Nora Reply?")]
+    public bool Noraply;
+
+    [Header("Nora's Reply:")]
+    [TextArea(5, 10)]
+    public string NoraplyBody;
+
+    [Header("Delay before Nora's reply?")]
+    public float Noradelay = 5.0f;
+
+
     [Header("Debug (ignore)")]
     public float forhowlong;
 
@@ -40,11 +51,29 @@ public class DialogueBeef : MonoBehaviour
             other.gameObject.GetComponent<DialogueManager>().NewDialogue(ContactName, MessageBody, DisplayTimer, TheCallingObject);
            
 
+            if (Noraply)
+            {
+
+                StartCoroutine(Norasponse(other.gameObject));
+
+            }
+
+
+
         }
     }
 
 
 
+
+    public IEnumerator Norasponse(GameObject ThePlayer)
+    {
+        yield return new WaitForSeconds(Noradelay);
+
+        ThePlayer.gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", NoraplyBody, 4, gameObject);
+
+
+    }
 
 
 

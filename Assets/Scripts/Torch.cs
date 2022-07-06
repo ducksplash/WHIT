@@ -25,11 +25,14 @@ public class Torch : MonoBehaviour
 	void Start()
 	{
 
+		torchimg.sprite = litsprite;
 		WaitingForTorch = true;
+		torchToggle = true;
 		lightBeam = gameObject.GetComponentInChildren<Light>();
 		torchAnimator = theTorch.GetComponentInChildren<Animator>();
 
 		theTorch.SetActive(false);
+		torchimg.transform.parent.GetComponent<CanvasGroup>().alpha = 0f;
 
 	}
 
@@ -42,6 +45,7 @@ public class Torch : MonoBehaviour
 			{
 				theTorch.SetActive(true);
 				WaitingForTorch = false;
+				torchimg.transform.parent.GetComponent<CanvasGroup>().alpha = 1f;
 			}
 		}
 

@@ -13,13 +13,14 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 	public bool CompanionOpen;
 	public GameObject Notepad;
 	public CanvasGroup crosshair;
-	public Light Notepadlight;
 	public GameObject Player;
+	public CanvasGroup loadingpanel;
+	public Image loadingbar;
 
 	private void Start()
     {
 		Notepad.SetActive(false);
-		Notepadlight.enabled = false;
+		loadingbar.fillAmount = 0;
 
 	}
 
@@ -140,7 +141,6 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 				TravelCanvas.blocksRaycasts = true;
 				GameMaster.INMENU = true;
 				GameMaster.FROZEN = true;
-				Notepadlight.enabled = true;
 				CompanionOpen = true;
 				crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
 
@@ -154,7 +154,6 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 				TravelCanvas.alpha = 0f;
 				TravelCanvas.blocksRaycasts = false;
 				GameMaster.INMENU = false;
-				Notepadlight.enabled = false;
 				GameMaster.FROZEN = false;
 				CompanionOpen = false;
 				crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
@@ -183,7 +182,36 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 	{
 		GameMaster.INMENU = false;
 		GameMaster.FROZEN = false;
-		SceneManager.LoadScene(SceneName);
+		StartCoroutine(ChangeSceneAsync(SceneName));
 	}
+
+
+
+
+	IEnumerator ChangeSceneAsync(string levelName)
+	{
+
+		loadingpanel.alpha = 1;
+
+		AsyncOperation op = SceneManager.LoadSceneAsync(levelName);
+
+
+
+		while (!op.isDone)
+		{
+			loadingbar.fillAmount = Mathf.Clamp01(op.progress / .9f);
+
+
+			yield return null;
+		}
+	}
+
+
+
+
+
+
+
+
 
 }

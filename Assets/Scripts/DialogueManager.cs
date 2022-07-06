@@ -19,7 +19,6 @@ public class DialogueManager : MonoBehaviour
     public bool DialogInProgress;
     public Image timebar;
     public float messagetimer = 0f;
-
     void Start()
     {
         DialogManagerCanvas = DialogManager.GetComponent<CanvasGroup>();
@@ -34,21 +33,13 @@ public class DialogueManager : MonoBehaviour
             timebar.fillAmount -= 1.0f / messagetimer * Time.deltaTime;
         }
 
+
+
     }
 
     public void NewDialogue(string Contact, string message, float displaytimer, GameObject CallingObject)
     {
-
-        if (DialogInProgress)
-        {
-            StartCoroutine(Queuer(Contact, message, displaytimer, CallingObject));
-        }
-        else
-        {
-            CreateDialogue(Contact, message, displaytimer, CallingObject);
-        }
-
-
+        CreateDialogue(Contact, message, displaytimer, CallingObject);
     }
 
 
@@ -62,13 +53,18 @@ public class DialogueManager : MonoBehaviour
 
     public void CreateDialogue(string Contact, string message, float displaytimer, GameObject CallingObject)
     {
+        if (DialogInProgress)
+        {
+            StopCoroutine(NoraTimer(displaytimer, CallingObject));
+            StopCoroutine(MessageTimer(displaytimer, CallingObject));
+        }
 
         if (Contact == "NORA")
         {
             DialogInProgress = true;
             messagetimer = displaytimer;
 
-            NoraMessage.text = "NORA: "+message;
+            NoraMessage.text = "NORA: " + message;
 
             StartCoroutine(NoraTimer(displaytimer, CallingObject));
         }
@@ -79,11 +75,13 @@ public class DialogueManager : MonoBehaviour
 
             ContactName.text = Contact;
             ReceivedMessage.text = message;
-
             StartCoroutine(MessageTimer(displaytimer, CallingObject));
         }
 
     }
+
+
+ 
 
 
 
@@ -152,7 +150,12 @@ public class DialogueManager : MonoBehaviour
     {
 
         yield return new WaitForSeconds(timevalue);
-        CalledBy.GetComponent<Collider>().enabled = true;
+
+        if (CalledBy != null)
+        {
+            CalledBy.GetComponent<Collider>().enabled = true;
+        }
+
         NoraMessage.text = "";
         yield return new WaitForSeconds(0.5f);
         DialogInProgress = false;

@@ -20,12 +20,18 @@ public class GameMaster : MonoBehaviour
     public static bool PHONEOUT;
     public static string THISLEVEL;
     public Scene ThisScene;
-
+    public bool WaitingForTrinity;
 
     // COLLECTED ITEMS
     public static bool TORCHCOLLECTED;
     public static bool NOTEPADCOLLECTED;
     public static bool PHONECOLLECTED;
+
+    public static bool TRINITY;
+
+    public GameObject phonePickup;
+    public GameObject notepadPickup;
+    public GameObject torchPickup;
 
 
     void Awake()
@@ -36,7 +42,7 @@ public class GameMaster : MonoBehaviour
 
         THISLEVEL = ThisScene.name;
 
-
+        WaitingForTrinity = true;
 
 
     }
@@ -46,15 +52,35 @@ public class GameMaster : MonoBehaviour
 void Start ()
     {
 
-        Debug.Log(THISLEVEL);
 
-        if (THISLEVEL != "NorasFlat")
+
+
+
+
+        if (THISLEVEL == "NorasFlat")
         {
-            POWER_SUPPLY_ENABLED = false;
+            POWER_SUPPLY_ENABLED = true;
+
+            if (PHONECOLLECTED)
+            {
+                Destroy(phonePickup);
+            }
+
+            if (TORCHCOLLECTED)
+            {
+                Destroy(torchPickup);
+            }
+
+            if (NOTEPADCOLLECTED)
+            {
+                Destroy(notepadPickup);
+            }
+
+
         }
         else
         {
-            POWER_SUPPLY_ENABLED = true;
+            POWER_SUPPLY_ENABLED = false;
         }
 
         // 1; Tawley Meats
@@ -63,6 +89,38 @@ void Start ()
             INCINERATOR_ENABLED = true;
         }
 
+    }
+
+
+
+
+    private void Update()
+    {
+        if (THISLEVEL == "NorasFlat")
+        {
+            if (WaitingForTrinity)
+            {
+                if (TORCHCOLLECTED && NOTEPADCOLLECTED && PHONECOLLECTED)
+                {
+
+                    StartCoroutine(NoraReady());
+                    WaitingForTrinity = false;
+
+                }
+            }
+        }
+    }
+
+
+    IEnumerator NoraReady()
+    {
+        yield return new WaitForSeconds(5);
+
+        var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
+
+        var msg = "Ok, I think I'm ready to go now.";
+
+        gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
 
 
     }

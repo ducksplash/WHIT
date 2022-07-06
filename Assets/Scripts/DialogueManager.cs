@@ -61,21 +61,39 @@ public class DialogueManager : MonoBehaviour
 
         if (Contact == "NORA")
         {
+
+
+            if (!GameMaster.DialogueSeen.ContainsKey(message))
+            {
+
             DialogInProgress = true;
             messagetimer = displaytimer;
 
             NoraMessage.text = "NORA: " + message;
 
             StartCoroutine(NoraTimer(displaytimer, CallingObject));
+
+            // log me
+                GameMaster.DialogueSeen.Add(message, Contact);
+            }
+
+
+
         }
         else
         {
-            DialogInProgress = true;
-            messagetimer = displaytimer;
+            if (!GameMaster.DialogueSeen.ContainsKey(message))
+            {
+                DialogInProgress = true;
+                messagetimer = displaytimer;
 
-            ContactName.text = Contact;
-            ReceivedMessage.text = message;
-            StartCoroutine(MessageTimer(displaytimer, CallingObject));
+                ContactName.text = Contact;
+                ReceivedMessage.text = message;
+                StartCoroutine(MessageTimer(displaytimer, CallingObject));
+
+                // log me
+                GameMaster.DialogueSeen.Add(message, Contact);
+            }
         }
 
     }

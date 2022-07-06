@@ -16,6 +16,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 	public GameObject Player;
 	public CanvasGroup loadingpanel;
 	public Image loadingbar;
+	public TextMeshProUGUI loadingclock;
 
 	private void Start()
     {
@@ -196,6 +197,18 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 		AsyncOperation op = SceneManager.LoadSceneAsync(levelName);
 
 
+		var buildDate = "";
+
+		buildDate += System.DateTime.Now.ToString("dddd");
+		buildDate += ", ";
+		buildDate += System.DateTime.Now.ToString("MMMM d");
+		buildDate += MonthDay(System.DateTime.Now.ToString("dd").ToString());
+		buildDate += ", ";
+		buildDate += System.DateTime.Now.ToString("yyyy");
+
+
+		loadingclock.text = buildDate;
+
 
 		while (!op.isDone)
 		{
@@ -208,7 +221,27 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 
 
 
-
+	public string MonthDay(string day)
+	{
+		string nuNum = "th";
+		if (int.Parse(day) < 11 || int.Parse(day) > 20)
+		{
+			day = day.ToCharArray()[^1].ToString();
+			switch (day)
+			{
+				case "1":
+					nuNum = "st";
+					break;
+				case "2":
+					nuNum = "nd";
+					break;
+				case "3":
+					nuNum = "rd";
+					break;
+			}
+		}
+		return nuNum;
+	}
 
 
 

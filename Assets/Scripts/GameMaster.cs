@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
 
+
 public class GameMaster : MonoBehaviour
 {
   GameData saveData = new GameData();
@@ -37,8 +38,20 @@ public class GameMaster : MonoBehaviour
     public GameObject notepadPickup;
     public GameObject torchPickup;
 
+    public static bool GarbageRun;
+
+
+    public static Dictionary<string,string> DialogueSeen = new Dictionary<string,string>();
+
     void Awake()
     {
+        
+        // 
+
+        foreach (var Message in DialogueSeen)
+        {
+            Debug.Log("Message: " + Message.Key + "\n" + "Sender: " +Message.Value);
+        }
 
         // cleanup
         // We will use this on boot every time
@@ -51,19 +64,22 @@ public class GameMaster : MonoBehaviour
         // <persistent data path>/Phone/0/Evidence
         // So we can treat /0/ as a defacto root here.
 
+        if (!GarbageRun)
+        {
 
-        var filepath = Application.persistentDataPath + "/Phone/0/";
+            var filepath = Application.persistentDataPath + "/Phone/0/";
 
-        if (Directory.Exists(filepath)) 
-        { 
-            // deleting the foler also deletes the files.
-            // handy.
-            Directory.Delete(filepath, true); 
+            if (Directory.Exists(filepath))
+            {
+                // deleting the foler also deletes the files.
+                // handy.
+                Directory.Delete(filepath, true);
+            }
+
+            // then just make the root folder back up; the phone will create the rest when needed.
+            Directory.CreateDirectory(filepath);
+            GarbageRun = true;
         }
-
-        // then just make the root folder back up; the phone will create the rest when needed.
-        Directory.CreateDirectory(filepath);
-
 
 
 
@@ -139,14 +155,17 @@ void Start ()
     {
         if (THISLEVEL == "NorasFlat")
         {
-            if (WaitingForTrinity)
+            if (!TRINITY)
             {
-                if (TORCHCOLLECTED && NOTEPADCOLLECTED && PHONECOLLECTED)
+                if (WaitingForTrinity)
                 {
+                    if (TORCHCOLLECTED && NOTEPADCOLLECTED && PHONECOLLECTED)
+                    {
 
-                    StartCoroutine(NoraReady());
-                    WaitingForTrinity = false;
+                        StartCoroutine(NoraReady());
+                        WaitingForTrinity = false;
 
+                    }
                 }
             }
         }

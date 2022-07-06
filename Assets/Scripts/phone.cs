@@ -59,12 +59,14 @@ public class phone : MonoBehaviour
 	public int nextpage;
 	public int lastpage;
 
-	public RawImage galleryEvidencePhoto;
+	public RawImage galleryEvidencePhoto; 
+	public GameObject GalleryBigPhoto;
 	public TextMeshProUGUI galleryEvidenceName;
 	public TextMeshProUGUI galleryEvidenceDate;
 	public TextMeshProUGUI galleryEvidenceDetails;
-
-
+	public Button galleryBack;
+	public Button galleryNext;
+	public int PhotosInGallery;
 
 	private GameObject ObservedEvidence;
 
@@ -104,6 +106,10 @@ public class phone : MonoBehaviour
 		DialBar = theDialler.GetComponentInChildren<Text>();
 
 		//Debug.Log(Application.persistentDataPath);
+
+
+		GalleryBigPhoto.GetComponent<CanvasGroup>().alpha = 0f;
+		GalleryBigPhoto.GetComponent<CanvasGroup>().blocksRaycasts = false;
 	}
 
 
@@ -505,14 +511,17 @@ public class phone : MonoBehaviour
 				if (screen.name.Contains("GALLERYPANE"))
 				{
 					screen.alpha = 1;
+					screen.blocksRaycasts = true;
 					GalleryGetContent();
 				}
 				else
                 {
 					screen.alpha = 0;
+					screen.blocksRaycasts = false;
 				}
 			}
 			GalleryScreen.GetComponent<CanvasGroup>().alpha = 1;
+			GalleryScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
 		}
 		else
 		{
@@ -522,13 +531,16 @@ public class phone : MonoBehaviour
 				if (screen.name.Contains("EMPTYPANE"))
 				{
 					screen.alpha = 1;
+					screen.blocksRaycasts = true;
 				}
 				else
 				{
 					screen.alpha = 0;
+					screen.blocksRaycasts = false;
 				}
 			}
 			GalleryScreen.GetComponent<CanvasGroup>().alpha = 1;
+			GalleryScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
 		}
 		
 
@@ -539,6 +551,53 @@ public class phone : MonoBehaviour
 	}
 
 
+	public void GalleryBackNext(string direction)
+	{
+
+		if (direction.Equals("back"))
+		{
+			Debug.Log("This Page: " + currentpage + "\nThis Page -1 : " + (currentpage - 1));
+			if (currentpage > 0)
+			{
+				GalleryGetContent(currentpage - 1);
+				currentpage--;
+			}
+		}
+
+		if (direction.Equals("next"))
+		{
+			if (currentpage < PhotosInGallery)
+			{
+				GalleryGetContent(currentpage + 1);
+				currentpage++;
+			}
+		}
+
+
+	}
+
+
+
+	public void GalleryEnlargePhoto()
+	{
+
+		GalleryBigPhoto.GetComponent<CanvasGroup>().alpha = 1f;
+		GalleryBigPhoto.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
+	}
+
+
+	public void GalleryClosePhoto()
+	{
+
+		GalleryBigPhoto.GetComponent<CanvasGroup>().alpha = 0f;
+		GalleryBigPhoto.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+	}
+
+
+
+
 
 
 	void GalleryGetContent(int page = 0)
@@ -547,13 +606,35 @@ public class phone : MonoBehaviour
 		var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
 
 
-
 		DirectoryInfo dir = new DirectoryInfo(filepath);
 		if (dir.Exists)
 		{
 			FileInfo[] info = dir.GetFiles("*.quack");
-			var lines = System.IO.File.ReadAllLines(info[0].FullName);
+			var lines = System.IO.File.ReadAllLines(info[page].FullName);
 
+			PhotosInGallery = info.Length;
+
+			Debug.Log(PhotosInGallery +"Photos and "+ page + "page");
+
+			if (page < 1)
+			{
+				galleryBack.interactable = false;
+			}
+			else
+			{
+				galleryBack.interactable = true;
+			}
+
+			if (page+1 >= PhotosInGallery)
+			{
+				galleryNext.interactable = false;
+			}
+			else
+			{
+				galleryNext.interactable = true;
+			}
+
+			Debug.Log(PhotosInGallery + "Photos and " + page+1 + "page");
 
 
 			MemoryStream dest = new MemoryStream();
@@ -562,10 +643,10 @@ public class phone : MonoBehaviour
 			
 
 
-			byte[] imageData = File.ReadAllBytes(photopath + lines[3]);
+			byte[] imageData = File.ReadAllBytes(photopath + lines[1]);
 
 			//Create new Texture2D
-			Texture2D tempTexture = new Texture2D(2, 2);
+			Texture2D tempTexture = new Texture2D(100, 100);
 
 			//Load the Image Byte to Texture2D
 			tempTexture.LoadImage(imageData);
@@ -575,27 +656,18 @@ public class phone : MonoBehaviour
 
 			//Load to Rawmage?
 			galleryEvidencePhoto.texture = finaltexture;
+			GalleryBigPhoto.GetComponent<RawImage>().texture = finaltexture;
 
 
 
-
-
-
-
-
-
-		galleryEvidenceName.text = lines[0];
-				galleryEvidenceDetails.text = lines[1];
+			galleryEvidenceName.text = lines[0];
+				galleryEvidenceDetails.text = lines[3];
 				galleryEvidenceDate.text = lines[2];
 
 
 
 
 				//galleryEvidencePhoto.sprite = photopath + lines[3];
-
-
-
-
 
 		}
 

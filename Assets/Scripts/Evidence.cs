@@ -3,15 +3,26 @@ using System.IO;
 
 public class Evidence : MonoBehaviour
 {
-    public bool EvidenceCollected;
-    public bool EvidenceFake;
-    public bool PlayerSeen;
-    public bool PhotographableEvidence;
-    public int EvidenceQuality;
 
 
+    [Header("Evidence Setup")]
     public string EvidenceName;
-    public string EvidenceBody;
+
+    public string EvidenceDetails;
+
+    [Header("Evidence Veracity")]
+    public int EvidenceQuality;
+    public bool EvidenceFake;
+
+
+    [Header("Does player photograph it?")]
+    public bool PhotographableEvidence;
+
+
+
+    [Header("Debug Stuff (ignore)")]
+    public bool EvidenceCollected;
+    public bool PlayerSeen;
     public Transform EvidenceTransform;
     public Rigidbody EvidenceRigidbody;
     public Renderer EvidenceRenderer;
@@ -33,7 +44,7 @@ public class Evidence : MonoBehaviour
 
         var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
 
-        var evidencedate = System.DateTime.Now.ToString("HH:mm on dd/MM/yyyy");
+        var evidencedate = System.DateTime.Now.ToString("dd/MM/yyyy, HH:mm");
 
 
         if (gameObject.layer == 13)
@@ -52,9 +63,9 @@ public class Evidence : MonoBehaviour
 
         var EvidenceFilename = transform.name + ".quack";
         var EvidenceSlug = EvidenceName + "\n";
-        EvidenceSlug += EvidenceBody + "\n";
-        EvidenceSlug += evidencedate + "\n";
         EvidenceSlug += evfilename + "\n";
+        EvidenceSlug += evidencedate + "\n";
+        EvidenceSlug += EvidenceDetails + "\n";
 
 
 

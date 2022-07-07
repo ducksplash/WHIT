@@ -21,9 +21,18 @@ public class phone : MonoBehaviour
 	public GameObject CameraScreen;
 	public GameObject DiallerScreen;
 	public GameObject GalleryScreen;
-	public GameObject CallingScreen;   
+	public GameObject CallingScreen;
+	public GameObject MessagesScreen;
+	public GameObject InboxPane;
+	public GameObject SentPane;
+	public GameObject BigMessageScreen;
 	public GameObject HomeScreen;   
 	public GameObject theDialler;
+
+	public GameObject Messagelist;
+	public GameObject Sentlist;
+	public GameObject MessageBlockPrefab;
+
 	public Image CameraReadyFrame;
 	public TextMeshProUGUI CameraReadyText;
 	public TextMeshProUGUI CameraSavedText;
@@ -409,7 +418,183 @@ public class phone : MonoBehaviour
 
 		Debug.Log("contacts button");
 
+	}   
+
+
+
+	public void MessagesButton(string msgtype)
+	{
+
+
+		for (int i = 0; i < Messagelist.transform.childCount; i++)
+		{
+			Destroy(Messagelist.transform.GetChild(i).gameObject);
+		}
+
+
+		for (int i = 0; i < Sentlist.transform.childCount; i++)
+		{
+			Destroy(Sentlist.transform.GetChild(i).gameObject);
+		}
+
+
+		changeScreen(MessagesScreen);
+
+		if (msgtype == "sent")
+		{
+
+			SentItems();
+
+		}
+
+		if (msgtype == "inbox")
+		{
+
+			GetMessages();
+
+		}
+
+
+
+		Debug.Log("Messages button");
+
 	}
+
+
+
+
+	public void BigMessage(string Sender, string Message)
+	{
+		BigMessageScreen.GetComponent<CanvasGroup>().alpha = 1;
+		BigMessageScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
+		BigMessageScreen.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = Sender;
+		BigMessageScreen.transform.Find("allofMSG").GetComponent<TextMeshProUGUI>().text = Message;
+
+		Messagelist.transform.parent.parent.GetComponent<CanvasGroup>().alpha = 0f;
+		Messagelist.transform.parent.parent.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+
+	}
+
+	public void CloseBigMessage()
+    {
+		BigMessageScreen.GetComponent<CanvasGroup>().alpha = 0;
+		BigMessageScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+		BigMessageScreen.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = "";
+		BigMessageScreen.transform.Find("allofMSG").GetComponent<TextMeshProUGUI>().text = "";
+
+		Messagelist.transform.parent.parent.GetComponent<CanvasGroup>().alpha = 1f;
+		Messagelist.transform.parent.parent.GetComponent<CanvasGroup>().blocksRaycasts = true;
+	}
+
+
+
+	public void GetMessages()
+	{
+		CloseBigMessage();
+
+
+		InboxPane.GetComponent<CanvasGroup>().alpha = 1f;
+		InboxPane.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
+		SentPane.GetComponent<CanvasGroup>().alpha = 0f;
+		SentPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+		//var itty = 0;
+		foreach (KeyValuePair<string, string> entry in GameMaster.DialogueSeen)
+		{
+			if (!entry.Value.Contains("NORA"))
+			{
+				var buttonPosition = new Vector3(Messagelist.transform.localPosition.x, Messagelist.transform.localPosition.y, Messagelist.transform.localPosition.z);
+
+				GameObject messageBlock = Instantiate(MessageBlockPrefab, buttonPosition, Quaternion.identity);
+				messageBlock.transform.SetParent(Messagelist.transform, false);
+
+				Debug.Log(entry.Key);
+				Debug.Log("---");
+				Debug.Log(entry.Value);
+
+
+				messageBlock.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = entry.Value;
+
+				var messageBit = entry.Key;
+
+				if (messageBit.Length > 32)
+				{
+					messageBit = messageBit.Substring(0, 32) + "...";
+				}
+
+
+				messageBlock.transform.Find("bitofMSG").GetComponent<TextMeshProUGUI>().text = messageBit;
+
+				messageBlock.GetComponent<Button>().onClick.AddListener(delegate
+				{
+					BigMessage(entry.Value, entry.Key);
+				});
+			}
+		}
+	}
+
+
+
+
+
+
+
+	public void SentItems()
+	{
+		CloseBigMessage();
+
+
+		InboxPane.GetComponent<CanvasGroup>().alpha = 0f;
+		InboxPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+		SentPane.GetComponent<CanvasGroup>().alpha = 1f;
+		SentPane.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
+		//var itty = 0;
+		foreach (KeyValuePair<string, string> entry in GameMaster.DialogueSeen)
+		{
+			if (entry.Value.Contains("NORA"))
+			{
+
+				var buttonPosition = new Vector3(Sentlist.transform.localPosition.x, Sentlist.transform.localPosition.y, Sentlist.transform.localPosition.z);
+
+				GameObject messageBlock = Instantiate(MessageBlockPrefab, buttonPosition, Quaternion.identity);
+				messageBlock.transform.SetParent(Sentlist.transform, false);
+
+				Debug.Log(entry.Key);
+				Debug.Log("---");
+				Debug.Log(entry.Value);
+
+
+				messageBlock.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = entry.Value;
+
+				var messageBit = entry.Key;
+
+				if (messageBit.Length > 32)
+				{
+					messageBit = messageBit.Substring(0, 32) + "...";
+				}
+
+
+				messageBlock.transform.Find("bitofMSG").GetComponent<TextMeshProUGUI>().text = messageBit;
+
+				messageBlock.GetComponent<Button>().onClick.AddListener(delegate
+				{
+					BigMessage(entry.Value, entry.Key);
+				});
+			}
+		}
+	}
+
+
+
+
+
+
 
 	// Contacts menu incorporating CallScreen, Dialler.
 	public void CameraButton()
@@ -844,6 +1029,10 @@ public class phone : MonoBehaviour
 	public void BackButton()
 	{
 		changeScreen(HomeScreen);
+
+
+
+
 	}
 
 

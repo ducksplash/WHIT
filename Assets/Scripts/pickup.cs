@@ -247,7 +247,7 @@ public class pickup : MonoBehaviour
 
 					GameMaster.PHONECOLLECTED = true;
 					Destroy(hit.transform.gameObject);
-					var dialogstring = "My phone. I shouldtest that it works by pressing P.";
+					var dialogstring = "My phone. I should test that it works by pressing P.";
 					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
 
 				}

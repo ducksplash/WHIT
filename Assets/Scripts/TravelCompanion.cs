@@ -27,6 +27,8 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
+
+
 		Debug.Log("anything??");
 		if (eventData.button == PointerEventData.InputButton.Right)
 		{
@@ -35,6 +37,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 				LaunchCompanion();
 			}
 		}
+
 	}
 
 
@@ -90,86 +93,84 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 	void LaunchCompanion()
     {
 
-
-
-
-		var itemsfound = 0;
-
-
-		if (GameMaster.PHONECOLLECTED)
-		{
-			itemsfound += 1;
-		}
-
-
-		if (GameMaster.TORCHCOLLECTED)
+		if (GameMaster.EvidenceFound.Count > 0)
 		{
 
-			itemsfound += 1;
-		}
+			var itemsfound = 0;
 
 
-
-
-		if (GameMaster.NOTEPADCOLLECTED)
-		{
-			itemsfound += 1;
-		}
-
-
-
-
-
-
-		if (itemsfound > 2)
-		{
-
-
-
-			if (!Notepad.activeSelf)
+			if (GameMaster.PHONECOLLECTED)
 			{
-				Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
+				itemsfound += 1;
+			}
+
+
+			if (GameMaster.TORCHCOLLECTED)
+			{
+
+				itemsfound += 1;
+			}
 
 
 
-				Notepad.SetActive(true);
-				TravelCanvas.alpha = 1f;
-				TravelCanvas.blocksRaycasts = true;
-				GameMaster.INMENU = true;
-				GameMaster.FROZEN = true;
-				CompanionOpen = true;
-				crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
+
+			if (GameMaster.NOTEPADCOLLECTED)
+			{
+				itemsfound += 1;
+			}
+
+
+			if (itemsfound > 2)
+			{
+
+
+
+				if (!Notepad.activeSelf)
+				{
+					Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
+
+
+
+					Notepad.SetActive(true);
+					TravelCanvas.alpha = 1f;
+					TravelCanvas.blocksRaycasts = true;
+					GameMaster.INMENU = true;
+					GameMaster.FROZEN = true;
+					CompanionOpen = true;
+					crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
+
+				}
+				else
+				{
+					Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y - 1, Notepad.transform.localPosition.z);
+
+					Notepad.SetActive(false);
+
+					TravelCanvas.alpha = 0f;
+					TravelCanvas.blocksRaycasts = false;
+					GameMaster.INMENU = false;
+					GameMaster.FROZEN = false;
+					CompanionOpen = false;
+					crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
+
+				}
+
 
 			}
 			else
 			{
-				Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y - 1, Notepad.transform.localPosition.z);
-
-				Notepad.SetActive(false);
-
-				TravelCanvas.alpha = 0f;
-				TravelCanvas.blocksRaycasts = false;
-				GameMaster.INMENU = false;
-				GameMaster.FROZEN = false;
-				CompanionOpen = false;
-				crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
+				var dialogstring = "I need my phone, my torch and my notepad.";
+				Player.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 3, gameObject);
+				gameObject.GetComponent<Collider>().enabled = false;
 
 			}
-
 
 		}
 		else
 		{
-			var dialogstring = "I need my phone, my torch and my notepad.";
-			Player.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 3, gameObject);
-			gameObject.GetComponent<Collider>().enabled = false;
-
-        }
-
-
-
-
-
+			var dialogstring = "I haven't checked that I can photograph evidence with my phone yet, I should open the camera app and try on the wine bottle on my desk.";
+			Player.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
+		}
 
 	}
 

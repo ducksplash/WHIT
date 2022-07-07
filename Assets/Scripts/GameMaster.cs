@@ -40,6 +40,11 @@ public class GameMaster : MonoBehaviour
 
     public static bool GarbageRun;
 
+
+    // Have I Ever - done this?
+
+
+
     // Dialog log
     // We can use this in the phone later too for text messages etc.
     public static Dictionary<string, string> DialogueSeen = new Dictionary<string, string>();

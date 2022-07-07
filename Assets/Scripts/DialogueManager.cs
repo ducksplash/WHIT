@@ -39,13 +39,23 @@ public class DialogueManager : MonoBehaviour
 
     public void NewDialogue(string Contact, string message, float displaytimer, GameObject CallingObject)
     {
-        CreateDialogue(Contact, message, displaytimer, CallingObject);
+        if (!DialogInProgress)
+        {
+            CreateDialogue(Contact, message, displaytimer, CallingObject);
+            Debug.Log(DialogInProgress);
+        }
+        else
+        {
+            StartCoroutine(Queuer(Contact, message, displaytimer, CallingObject));
+            Debug.Log(DialogInProgress);
+        }
     }
 
 
     public IEnumerator Queuer(string Contact, string message, float displaytimer, GameObject CallingObject)
     {
-        yield return new WaitForSeconds(0.5f);
+        Debug.Log("queued");
+        yield return new WaitWhile(() => DialogInProgress);
         NewDialogue(Contact, message, displaytimer, CallingObject);
     }
 
@@ -53,40 +63,36 @@ public class DialogueManager : MonoBehaviour
 
     public void CreateDialogue(string Contact, string message, float displaytimer, GameObject CallingObject)
     {
-        if (DialogInProgress)
-        {
-            StopCoroutine(NoraTimer(displaytimer, CallingObject));
-            StopCoroutine(MessageTimer(displaytimer, CallingObject));
-        }
+       // if (DialogInProgress)
+      //  {
+       //     StopCoroutine(NoraTimer(displaytimer, CallingObject));
+      //      StopCoroutine(MessageTimer(displaytimer, CallingObject));
+      //  }
 
         if (Contact == "NORA")
         {
-
-
             if (!GameMaster.DialogueSeen.ContainsKey(message))
             {
 
-            DialogInProgress = true;
-            messagetimer = displaytimer;
+                messagetimer = displaytimer;
 
-            NoraMessage.text = "NORA: " + message;
+                DialogInProgress = true;
+                NoraMessage.text = "NORA: " + message;
 
-            StartCoroutine(NoraTimer(displaytimer, CallingObject));
+                StartCoroutine(NoraTimer(displaytimer, CallingObject));
 
-            // log me
+                // log me
                 GameMaster.DialogueSeen.Add(message, Contact);
             }
-
-
 
         }
         else
         {
             if (!GameMaster.DialogueSeen.ContainsKey(message))
             {
-                DialogInProgress = true;
                 messagetimer = displaytimer;
 
+                DialogInProgress = true;
                 ContactName.text = Contact;
                 ReceivedMessage.text = message;
                 StartCoroutine(MessageTimer(displaytimer, CallingObject));

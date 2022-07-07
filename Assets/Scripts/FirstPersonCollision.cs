@@ -96,7 +96,6 @@ public class FirstPersonCollision : MonoBehaviour
 				}
 				else
 				{
-					Debug.Log("uncrouch");
 					var up = Vector3.up;
 					RaycastHit hit;
 

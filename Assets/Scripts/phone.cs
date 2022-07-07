@@ -167,7 +167,6 @@ public class phone : MonoBehaviour
 					{
 						screen.GetComponent<TMPro.TextMeshProUGUI>().enabled = false;
 						//screen.GetComponent<CanvasGroup>().blocksRaycasts = false;	
-						Debug.Log("TMPro.TextMeshProUGUI");
 						readyForNewScreen = true;
 					}
 				}
@@ -189,18 +188,15 @@ public class phone : MonoBehaviour
 					
 					thisScreen.GetComponent<CanvasGroup>().alpha = 1.0f;
 					thisScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;	
-					Debug.Log("CanvGrp.ON");
 
 				}
 				else if (thisScreen.GetComponent<TMPro.TextMeshPro>())
 				{
 					thisScreen.GetComponent<TMPro.TextMeshPro>().enabled = true;
-					Debug.Log("TMPro.ON");
 				}
 				else if (thisScreen.GetComponent<TMPro.TextMeshProUGUI>())
 				{
 					thisScreen.GetComponent<TMPro.TextMeshProUGUI>().enabled = true;
-					Debug.Log("TMPro.ON");
 				}
 				else
 				{
@@ -437,11 +433,6 @@ public class phone : MonoBehaviour
 		PhoneCamera.GetComponent<Camera>().enabled = true;
 		CameraOpen = true;
 
-		Debug.Log("camera button");
-
-
-
-
 
 	}
 
@@ -544,10 +535,6 @@ public class phone : MonoBehaviour
 		}
 		
 
-
-		Debug.Log("gallery button");
-
-
 	}
 
 
@@ -614,7 +601,6 @@ public class phone : MonoBehaviour
 
 			PhotosInGallery = info.Length;
 
-			Debug.Log(PhotosInGallery +"Photos and "+ page + "page");
 
 			if (page < 1)
 			{
@@ -634,7 +620,6 @@ public class phone : MonoBehaviour
 				galleryNext.interactable = true;
 			}
 
-			Debug.Log(PhotosInGallery + "Photos and " + page+1 + "page");
 
 
 			MemoryStream dest = new MemoryStream();
@@ -660,14 +645,12 @@ public class phone : MonoBehaviour
 
 
 
-			galleryEvidenceName.text = lines[0];
-				galleryEvidenceDetails.text = lines[3];
+				// the script that saves these
+				// is in "Evidence.cs".
+				galleryEvidenceName.text = lines[0];
 				galleryEvidenceDate.text = lines[2];
+				galleryEvidenceDetails.text = lines[5];
 
-
-
-
-				//galleryEvidencePhoto.sprite = photopath + lines[3];
 
 		}
 
@@ -770,7 +753,7 @@ public class phone : MonoBehaviour
 		if (DialBar.text == "*#06#")
 		{
 		CallTitleText.text = "Seriously?";
-		CallText.text = "What did you expect to find?\nan IMEI number?\nFeckin eejit!";
+		CallText.text = "What did you expect?\na real IMEI number?\n\neejit.";
 		}
 		else if (DialBar.text == "999" || DialBar.text == "112" || DialBar.text == "911")
 		{
@@ -864,51 +847,28 @@ public class phone : MonoBehaviour
 	}
 
 
-	private void OnTriggerEnter(Collider other)
+	private void OnTriggerStay(Collider other)
 	{
 
 		if (CameraOpen)
 		{
-			if (other.gameObject.layer == 11)
+
+			if (other.gameObject.layer == 11 || other.gameObject.layer == 13 || other.gameObject.layer == 14)
 			{
-				if (other.gameObject.GetComponent<Evidence>().PhotographableEvidence)
+				if (other.gameObject.GetComponent<Evidence>() != null)
 				{
-					CameraReadyFrame.color = Color.green;
-					CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
-					CameraReady = true;
-					Debug.Log("photographable evidence out of view");
-					ObservedEvidence = other.gameObject;
+					if (other.gameObject.GetComponent<Evidence>().PhotographableEvidence)
+					{
+						if (!other.gameObject.GetComponent<Evidence>().EvidenceCollected)
+						{
+							CameraReadyFrame.color = Color.green;
+							CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
+							CameraReady = true;
+							ObservedEvidence = other.gameObject;
+						}
+					}
 				}
 			}
-
-
-			if (other.gameObject.layer == 13)
-			{
-				if (other.gameObject.GetComponent<Evidence>().PhotographableEvidence)
-				{
-					CameraReadyFrame.color = Color.green;
-					CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
-					CameraReady = true;
-					Debug.Log("photographable evidence out of view");
-					ObservedEvidence = other.gameObject;
-				}
-			}
-
-
-			if (other.gameObject.layer == 14)
-			{
-				if (other.gameObject.GetComponent<Evidence>().PhotographableEvidence)
-				{
-					CameraReadyFrame.color = Color.green;
-					CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
-					CameraReady = true;
-					Debug.Log("photographable evidence out of view");
-					ObservedEvidence = other.gameObject;
-				}
-			}
-
-
-
 
 		}
 
@@ -923,7 +883,6 @@ public class phone : MonoBehaviour
 				CameraReadyFrame.color = Color.black;
 				CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
 				CameraReady = false;
-				Debug.Log("photographable evidence out of view");
 				ObservedEvidence = null;
 
 			}
@@ -935,7 +894,6 @@ public class phone : MonoBehaviour
 				CameraReadyFrame.color = Color.black;
 				CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
 				CameraReady = false;
-				Debug.Log("photographable evidence out of view");
 				ObservedEvidence = null;
 
 			}
@@ -987,9 +945,8 @@ public class phone : MonoBehaviour
 
 			System.IO.File.WriteAllBytes(filenameString, bytes);
 
-			ObservedEvidence.GetComponent<Evidence>().PhotographableEvidence = false;
-			ObservedEvidence.GetComponent<Evidence>().EvidenceCollected = true;
-			ObservedEvidence.GetComponent<Evidence>().CollectEvidence(nameForEvidenceFile);
+
+			ObservedEvidence.GetComponent<Evidence>().CollectEvidence();
 
 			CameraReadyFrame.color = Color.black;
 			CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;

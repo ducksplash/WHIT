@@ -227,7 +227,7 @@ public class pickup : MonoBehaviour
 
 					GameMaster.TORCHCOLLECTED = true;
 					Destroy(hit.transform.gameObject); 
-					var dialogstring = "Ah, I need this.";
+					var dialogstring = "Found it! I can check that it works by pressing H.";
 					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
 
 				}
@@ -237,7 +237,7 @@ public class pickup : MonoBehaviour
 
 					GameMaster.NOTEPADCOLLECTED = true;
 					Destroy(hit.transform.gameObject);
-					var dialogstring = "Got some places I wanna check out written down here.";
+					var dialogstring = "Got some places I wanna check out written down here. I should take a look when I'm leaving.";
 					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
 
 				}
@@ -247,7 +247,7 @@ public class pickup : MonoBehaviour
 
 					GameMaster.PHONECOLLECTED = true;
 					Destroy(hit.transform.gameObject);
-					var dialogstring = "Naked without my phone.";
+					var dialogstring = "My phone. I shouldtest that it works by pressing P.";
 					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
 
 				}

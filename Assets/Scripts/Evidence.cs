@@ -38,42 +38,57 @@ public class Evidence : MonoBehaviour
     }
 
 
-    public void CollectEvidence(string evfilename)
+    public void CollectEvidence()
      {
 
 
-        var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
-
-        var evidencedate = System.DateTime.Now.ToString("dd/MM/yyyy, HH:mm");
-
-
-        if (gameObject.layer == 13)
+        if (!GameMaster.EvidenceFound.ContainsKey(gameObject.name))
         {
-            Debug.Log("Physical Evidence");
+
+
+
+            var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
+
+            var evidencedate = System.DateTime.Now.ToString("dd/MM/yyyy, HH:mm");
+
+
+
+            if (gameObject.layer == 5)
+            {
+                Debug.Log("Digital Evidence");
+            }
+
+
+
+            DirectoryInfo di = Directory.CreateDirectory(filepath);
+
+
+            var EvidenceFilename = transform.name + ".quack";
+            var EvidencePhotoFilename = transform.name + ".png";
+            var EvidenceSlug = EvidenceName + "\n";
+            EvidenceSlug += EvidencePhotoFilename + "\n";
+            EvidenceSlug += evidencedate + "\n";
+            EvidenceSlug += EvidenceFake + "\n";
+            EvidenceSlug += EvidenceQuality + "\n";
+            EvidenceSlug += EvidenceDetails + "\n";
+
+
+
+            System.IO.File.WriteAllText(filepath + EvidenceFilename, EvidenceSlug);
+
+            GameMaster.EvidenceFound.Add(transform.name, filepath);
+
+            gameObject.GetComponent<Evidence>().PhotographableEvidence = false;
+            gameObject.GetComponent<Evidence>().EvidenceCollected = true;
+
         }
-        if (gameObject.layer == 5)
+        else
         {
-            Debug.Log("Digital Evidence");
+            gameObject.GetComponent<Evidence>().PhotographableEvidence = false;
+            gameObject.GetComponent<Evidence>().EvidenceCollected = true;
         }
 
 
-
-        DirectoryInfo di = Directory.CreateDirectory(filepath);
-
-
-        var EvidenceFilename = transform.name + ".quack";
-        var EvidenceSlug = EvidenceName + "\n";
-        EvidenceSlug += evfilename + "\n";
-        EvidenceSlug += evidencedate + "\n";
-        EvidenceSlug += EvidenceDetails + "\n";
-
-
-
-        System.IO.File.WriteAllText(filepath + EvidenceFilename, EvidenceSlug);
-
-
-
-        System.IO.FileInfo file = new System.IO.FileInfo(filepath);
 
 
     }

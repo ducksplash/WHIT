@@ -40,24 +40,42 @@ public class GameMaster : MonoBehaviour
 
     public static bool GarbageRun;
 
+    // Dialog log
+    // We can use this in the phone later too for text messages etc.
+    public static Dictionary<string, string> DialogueSeen = new Dictionary<string, string>();
 
-    public static Dictionary<string,string> DialogueSeen = new Dictionary<string,string>();
+    // Evidence Log
+    public static Dictionary<string, string> EvidenceFound = new Dictionary<string, string>();
 
     void Awake()
     {
-        
+
         // 
 
-        foreach (var Message in DialogueSeen)
+        // Use this loop for debugging the dialog log
+        //foreach (var Message in DialogueSeen)
+        //{
+        //    Debug.Log("Message: " + Message.Key + "\n" + "Sender: " + Message.Value);
+        //}
+
+        // Use this loop for debugging the evidence log
+        foreach (var Evidence in EvidenceFound)
         {
-            Debug.Log("Message: " + Message.Key + "\n" + "Sender: " +Message.Value);
+
+            if (GameObject.Find(Evidence.Key))
+            {
+                var ThisEvidence = GameObject.Find(Evidence.Key);
+                ThisEvidence.GetComponent<Evidence>().EvidenceCollected = true;
+            }
+
         }
 
         // cleanup
         // We will use this on boot every time
-        // then copy a player's saved files back from the 'save' area.
-        // we can just copy the whole data structure for ease. 
-
+        // We then set GarbageRun to 'true' to say that it is done, and not to do it again.
+        //
+        // We'll handle saves by just copying this and then optionally restoring after GC.
+        //
         // FFR; Dir Tree is:
         // <persistent data path>/Phone/0/DCIM
         // and

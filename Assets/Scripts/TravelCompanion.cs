@@ -75,11 +75,6 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 								LaunchCompanion();
 							}
 						}
-						else
-						{
-							Debug.Log("not travel door");
-						}
-
 					}
 				}
 			}

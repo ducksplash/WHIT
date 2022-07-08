@@ -61,12 +61,12 @@ public class FirstPersonCollision : MonoBehaviour
 	
 	
 	
-	void OnCollisionEnter(Collision thisCollision)
+	void OnTriggerEnter(Collider other)
     {
-		if (thisCollision.transform.name.Contains("abbotoir"))
-		{
-			//didCollide = true;
-		}
+		
+
+
+		Debug.Log(other.transform.name);
 
 	}
 

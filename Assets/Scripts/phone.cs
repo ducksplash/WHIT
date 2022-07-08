@@ -22,6 +22,7 @@ public class phone : MonoBehaviour
 	public GameObject DiallerScreen;
 	public GameObject GalleryScreen;
 	public GameObject CallingScreen;
+	public GameObject MapsScreen;
 	public GameObject MessagesScreen;
 	public GameObject InboxPane;
 	public GameObject SentPane;
@@ -418,7 +419,19 @@ public class phone : MonoBehaviour
 
 		Debug.Log("contacts button");
 
-	}   
+	}
+
+
+
+
+	// Contacts menu incorporating CallScreen, Dialler.
+	public void MapsButton()
+	{
+		changeScreen(MapsScreen);
+
+		Debug.Log("maps button");
+
+	}
 
 
 

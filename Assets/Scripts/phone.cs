@@ -33,6 +33,7 @@ public class phone : MonoBehaviour
 	public GameObject Messagelist;
 	public GameObject Sentlist;
 	public GameObject MessageBlockPrefab;
+	public GameObject NoteBlockPrefab;
 
 	public Image CameraReadyFrame;
 	public TextMeshProUGUI CameraReadyText;
@@ -476,13 +477,26 @@ public class phone : MonoBehaviour
 
 
 
-	public void BigMessage(string Sender, string Message)
+	public void BigMessage(string Sender, string Message, string xtype="Inbox")
 	{
+
+
 		BigMessageScreen.GetComponent<CanvasGroup>().alpha = 1;
 		BigMessageScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
-		BigMessageScreen.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = Sender;
-		BigMessageScreen.transform.Find("allofMSG").GetComponent<TextMeshProUGUI>().text = Message;
+		if (xtype == "Inbox")
+		{
+			BigMessageScreen.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = Sender;
+		}
+
+		if (xtype == "Sent")
+		{
+			BigMessageScreen.transform.Find("fromPREFIX").GetComponent<TextMeshProUGUI>().text = "";
+			BigMessageScreen.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = "";
+		}
+
+
+			BigMessageScreen.transform.Find("allofMSG").GetComponent<TextMeshProUGUI>().text = Message;
 
 		Messagelist.transform.parent.parent.GetComponent<CanvasGroup>().alpha = 0f;
 		Messagelist.transform.parent.parent.GetComponent<CanvasGroup>().blocksRaycasts = false;
@@ -575,7 +589,7 @@ public class phone : MonoBehaviour
 
 				var buttonPosition = new Vector3(Sentlist.transform.localPosition.x, Sentlist.transform.localPosition.y, Sentlist.transform.localPosition.z);
 
-				GameObject messageBlock = Instantiate(MessageBlockPrefab, buttonPosition, Quaternion.identity);
+				GameObject messageBlock = Instantiate(NoteBlockPrefab, buttonPosition, Quaternion.identity);
 				messageBlock.transform.SetParent(Sentlist.transform, false);
 
 				Debug.Log(entry.Key);
@@ -597,7 +611,7 @@ public class phone : MonoBehaviour
 
 				messageBlock.GetComponent<Button>().onClick.AddListener(delegate
 				{
-					BigMessage(entry.Value, entry.Key);
+					BigMessage(entry.Value, entry.Key, "Sent");
 				});
 			}
 		}
@@ -625,6 +639,15 @@ public class phone : MonoBehaviour
 
 		CameraLeftFlash.enabled = true;
 		CameraRightFlash.enabled = true;
+
+
+		if (GameMaster.EvidenceFound.Count < 1)
+		{
+			var dialogstring = "First photo?\n\nWhen evidence is in view, the camera frame will turn green and you just have to press X.\n\nNot green? Not evidence.\n\nYou may have to crouch.";
+			var fakegameobject = new GameObject("FakeObjectPhone", typeof(BoxCollider));
+			fakegameobject.GetComponent<Collider>().enabled = false;
+			Player.GetComponent<DialogueManager>().NewDialogue("Kieron", dialogstring, 15, fakegameobject);
+		}
 
 		CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
 		CameraSavedText.GetComponent<CanvasGroup>().alpha = 0;
@@ -1063,6 +1086,7 @@ public class phone : MonoBehaviour
 					{
 						if (!other.gameObject.GetComponent<Evidence>().EvidenceCollected)
 						{
+
 							CameraReadyFrame.color = Color.green;
 							CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
 							CameraReady = true;
@@ -1079,26 +1103,14 @@ public class phone : MonoBehaviour
 	{
 		if (CameraOpen)
 		{
-			if (other.gameObject.layer == 13)
-			{
+	
 
 				CameraReadyFrame.color = Color.black;
 				CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
 				CameraReady = false;
 				ObservedEvidence = null;
 
-			}
 
-
-			if (other.gameObject.layer == 11)
-			{
-
-				CameraReadyFrame.color = Color.black;
-				CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
-				CameraReady = false;
-				ObservedEvidence = null;
-
-			}
 		}
 
 

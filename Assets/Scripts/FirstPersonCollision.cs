@@ -61,14 +61,6 @@ public class FirstPersonCollision : MonoBehaviour
 	
 	
 	
-	void OnTriggerEnter(Collider other)
-    {
-		
-
-
-		Debug.Log(other.transform.name);
-
-	}
 
 	void OnCollisionExit(Collision thisCollision)
 	{

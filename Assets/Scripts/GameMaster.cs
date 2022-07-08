@@ -200,6 +200,7 @@ void Start ()
         yield return new WaitForSeconds(5);
 
         var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
+        fakegameobject.GetComponent<Collider>().enabled = false;
 
         var msg = "Ok, I think I'm ready to go now.";
 

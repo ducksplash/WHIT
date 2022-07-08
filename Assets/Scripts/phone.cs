@@ -361,6 +361,13 @@ public class phone : MonoBehaviour
 			if (!GameMaster.INMENU && !GameMaster.HASITEM)
 			{
 
+				var dialogstring = "I see you found your phone.\n\nTake a few minutes to explore this, and if you miss anything, check \"Messages\" for my past texts and \"Notes\" for your own comments.";
+				var fakegameobject = new GameObject("FakeObjectPhone", typeof(BoxCollider));
+				fakegameobject.GetComponent<Collider>().enabled = false;
+				Player.GetComponent<DialogueManager>().NewDialogue("Kieron", dialogstring, 10, fakegameobject);
+
+
+
 
 				MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 1, MobilePhone.transform.localPosition.z);
 
@@ -486,6 +493,7 @@ public class phone : MonoBehaviour
 
 		if (xtype == "Inbox")
 		{
+			BigMessageScreen.transform.Find("fromPREFIX").GetComponent<TextMeshProUGUI>().text = "From:";
 			BigMessageScreen.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = Sender;
 		}
 
@@ -646,7 +654,7 @@ public class phone : MonoBehaviour
 			var dialogstring = "First photo?\n\nWhen evidence is in view, the camera frame will turn green and you just have to press X.\n\nNot green? Not evidence.\n\nYou may have to crouch.";
 			var fakegameobject = new GameObject("FakeObjectPhone", typeof(BoxCollider));
 			fakegameobject.GetComponent<Collider>().enabled = false;
-			Player.GetComponent<DialogueManager>().NewDialogue("Kieron", dialogstring, 15, fakegameobject);
+			Player.GetComponent<DialogueManager>().NewDialogue("Kieron", dialogstring, 10, fakegameobject);
 		}
 
 		CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
@@ -1125,12 +1133,19 @@ public class phone : MonoBehaviour
 		if (ObservedEvidence != null)
 		{
 
+			if (GameMaster.EvidenceFound.Count < 1)
+			{
+				var dialogstring = "Brilliant!\n\nYou can open the Gallery app on your phone to see all the evidence you've collected.";
+				var fakegameobject = new GameObject("FakeObjectPhone", typeof(BoxCollider));
+				fakegameobject.GetComponent<Collider>().enabled = false;
+				Player.GetComponent<DialogueManager>().NewDialogue("Kieron", dialogstring, 5, fakegameobject);
+			}
+
 
 			RenderTexture activeRenderTexture = RenderTexture.active;
 			RenderTexture.active = PhoneCamera.GetComponent<Camera>().targetTexture;
 
 			PhoneCamera.GetComponent<Camera>().Render();
-
 
 
 			Texture2D image = new Texture2D(PhoneCamera.GetComponent<Camera>().targetTexture.width, PhoneCamera.GetComponent<Camera>().targetTexture.height);

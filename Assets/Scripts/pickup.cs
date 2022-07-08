@@ -16,6 +16,10 @@ public class pickup : MonoBehaviour
 	public CanvasGroup RotationMenu;
 	public LayerMask IgnoreLayer;
 
+	public CanvasGroup phoneTick;
+	public CanvasGroup notepadTick;
+	public CanvasGroup torchTick;
+
 
 	private void Awake()
     {
@@ -229,7 +233,7 @@ public class pickup : MonoBehaviour
 					Destroy(hit.transform.gameObject); 
 					var dialogstring = "Found it! I can check that it works by pressing H.";
 					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
-
+					torchTick.alpha = 1;
 				}
 
 				if (hit.transform.name.Contains("NOTEPAD"))
@@ -239,6 +243,7 @@ public class pickup : MonoBehaviour
 					Destroy(hit.transform.gameObject);
 					var dialogstring = "Got some places I wanna check out written down here. I should take a look when I'm leaving.";
 					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
+					notepadTick.alpha = 1;
 
 				}
 
@@ -249,6 +254,7 @@ public class pickup : MonoBehaviour
 					Destroy(hit.transform.gameObject);
 					var dialogstring = "My phone. I should test that it works by pressing P.";
 					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
+					phoneTick.alpha = 1;
 
 				}
 

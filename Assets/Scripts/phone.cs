@@ -1139,6 +1139,7 @@ public class phone : MonoBehaviour
 				var fakegameobject = new GameObject("FakeObjectPhone", typeof(BoxCollider));
 				fakegameobject.GetComponent<Collider>().enabled = false;
 				Player.GetComponent<DialogueManager>().NewDialogue("Kieron", dialogstring, 5, fakegameobject);
+
 			}
 
 

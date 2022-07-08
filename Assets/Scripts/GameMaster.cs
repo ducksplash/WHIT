@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
+using UnityEngine.UI;
+using TMPro;
 
 
 public class GameMaster : MonoBehaviour
@@ -38,9 +40,16 @@ public class GameMaster : MonoBehaviour
     public GameObject notepadPickup;
     public GameObject torchPickup;
 
+    public CanvasGroup phoneTick;
+    public CanvasGroup notepadTick;
+    public CanvasGroup torchTick;
+    public CanvasGroup evidenceTick;
+
+    public RawImage MyFirstEvidence;
+    public TextMeshProUGUI EvidenceDesc;
     public static bool GarbageRun;
 
-
+    public bool checkForEvidence;
     // Have I Ever - done this?
 
 
@@ -54,6 +63,13 @@ public class GameMaster : MonoBehaviour
 
     void Awake()
     {
+
+        // clear todo list if necessary
+
+
+
+
+
 
         // 
 
@@ -73,6 +89,11 @@ public class GameMaster : MonoBehaviour
                 ThisEvidence.GetComponent<Evidence>().EvidenceCollected = true;
             }
 
+        }
+
+        if (EvidenceFound.Count > 0)
+        {
+            evidenceTick.alpha = 1;
         }
 
         // cleanup
@@ -125,6 +146,15 @@ public class GameMaster : MonoBehaviour
 
         }
 
+
+        if (THISLEVEL == "NorasFlat")
+        {
+            torchTick.alpha = 0;
+            phoneTick.alpha = 0;
+            notepadTick.alpha = 0;
+            evidenceTick.alpha = 0;
+        }
+
     }
 
 
@@ -144,16 +174,19 @@ void Start ()
             if (PHONECOLLECTED)
             {
                 Destroy(phonePickup);
+                phoneTick.alpha = 1;
             }
 
             if (TORCHCOLLECTED)
             {
                 Destroy(torchPickup);
+                torchTick.alpha = 1;
             }
 
             if (NOTEPADCOLLECTED)
             {
                 Destroy(notepadPickup);
+                notepadTick.alpha = 1;
             }
 
 
@@ -190,6 +223,52 @@ void Start ()
 
                     }
                 }
+            }
+        }
+
+
+
+        if (EvidenceFound.Count > 0 && !checkForEvidence)
+        {
+
+
+
+            // lets get the files
+            var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
+
+
+            DirectoryInfo dir = new DirectoryInfo(filepath);
+            if (dir.Exists)
+            {
+                FileInfo[] info = dir.GetFiles("*.quack");
+                var lines = System.IO.File.ReadAllLines(info[0].FullName);
+
+
+                MemoryStream dest = new MemoryStream();
+
+                var photopath = Application.persistentDataPath + "/Phone/0/DCIM/";
+
+                byte[] imageData = File.ReadAllBytes(photopath + lines[1]);
+
+                //Create new Texture2D
+                Texture2D tempTexture = new Texture2D(100, 100);
+
+                //Load the Image Byte to Texture2D
+                tempTexture.LoadImage(imageData);
+
+
+                var finaltexture = tempTexture;
+
+                //Load to Rawmage?
+
+
+                MyFirstEvidence.GetComponent<RawImage>().texture = finaltexture;
+
+
+                EvidenceDesc.text = lines[5];
+
+                evidenceTick.alpha = 1;
+                checkForEvidence = true;
             }
         }
     }

@@ -68,9 +68,6 @@ public class GameMaster : MonoBehaviour
 
 
 
-
-
-
         // 
 
         // Use this loop for debugging the dialog log
@@ -224,53 +221,52 @@ void Start ()
                     }
                 }
             }
-        }
 
-
-
-        if (EvidenceFound.Count > 0 && !checkForEvidence)
-        {
-
-
-
-            // lets get the files
-            var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
-
-
-            DirectoryInfo dir = new DirectoryInfo(filepath);
-            if (dir.Exists)
+            if (EvidenceFound.Count > 0 && !checkForEvidence)
             {
-                FileInfo[] info = dir.GetFiles("*.quack");
-                var lines = System.IO.File.ReadAllLines(info[0].FullName);
 
 
-                MemoryStream dest = new MemoryStream();
 
-                var photopath = Application.persistentDataPath + "/Phone/0/DCIM/";
-
-                byte[] imageData = File.ReadAllBytes(photopath + lines[1]);
-
-                //Create new Texture2D
-                Texture2D tempTexture = new Texture2D(100, 100);
-
-                //Load the Image Byte to Texture2D
-                tempTexture.LoadImage(imageData);
+                // lets get the files
+                var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
 
 
-                var finaltexture = tempTexture;
+                DirectoryInfo dir = new DirectoryInfo(filepath);
+                if (dir.Exists)
+                {
+                    FileInfo[] info = dir.GetFiles("*.quack");
+                    var lines = System.IO.File.ReadAllLines(info[0].FullName);
 
-                //Load to Rawmage?
+
+                    MemoryStream dest = new MemoryStream();
+
+                    var photopath = Application.persistentDataPath + "/Phone/0/DCIM/";
+
+                    byte[] imageData = File.ReadAllBytes(photopath + lines[1]);
+
+                    //Create new Texture2D
+                    Texture2D tempTexture = new Texture2D(100, 100);
+
+                    //Load the Image Byte to Texture2D
+                    tempTexture.LoadImage(imageData);
 
 
-                MyFirstEvidence.GetComponent<RawImage>().texture = finaltexture;
+                    var finaltexture = tempTexture;
+
+                    //Load to Rawmage?
 
 
-                EvidenceDesc.text = lines[5];
+                    MyFirstEvidence.GetComponent<RawImage>().texture = finaltexture;
 
-                evidenceTick.alpha = 1;
-                checkForEvidence = true;
+
+                    EvidenceDesc.text = lines[5];
+
+                    evidenceTick.alpha = 1;
+                    checkForEvidence = true;
+                }
             }
         }
+
     }
 
 

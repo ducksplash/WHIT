@@ -705,11 +705,6 @@ public class phone : MonoBehaviour
 
 
 
-
-		// set up pagination
-		// get fields
-		// an image, a date and two strings.
-
 		
 
 		// get the panels
@@ -877,6 +872,7 @@ public class phone : MonoBehaviour
 				// the script that saves these
 				// is in "Evidence.cs".
 				galleryEvidenceName.text = lines[0];
+				galleryEvidenceDate.text = lines[2];
 				galleryEvidenceDate.text = lines[2];
 				galleryEvidenceDetails.text = lines[5];
 

@@ -582,7 +582,6 @@ public class phone : MonoBehaviour
 	{
 		CloseBigMessage();
 
-
 		InboxPane.GetComponent<CanvasGroup>().alpha = 0f;
 		InboxPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
 

@@ -1099,9 +1099,7 @@ public class phone : MonoBehaviour
 					}
 				}
 			}
-
 		}
-
 	}
 	private void OnTriggerExit(Collider other)
 	{

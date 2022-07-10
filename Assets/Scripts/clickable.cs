@@ -96,6 +96,19 @@ public class clickable : MonoBehaviour
 
                 if (hit.transform.gameObject.layer == clickablelayer)
                 {
+
+
+                selectcursor.sprite = clickablesprite;
+                INFOTEXT("");
+
+
+                    if (hit.distance <= 3f)
+                    {
+                        selectcursor.sprite = clickablespritegreen;
+                        INFOTEXT("");
+                    }
+
+
                     if (hit.transform.tag.Contains("LIGHTSWITCHES"))
                     {
 
@@ -119,12 +132,6 @@ public class clickable : MonoBehaviour
                             INFOTEXT("Lights", "red");
                         }
                     }
-                    else
-                    {
-                        selectcursor.sprite = clickablesprite;
-                        INFOTEXT("");
-                    }
-
 
 
                     if (hit.transform.tag.Contains("POWERSWITCH"))
@@ -148,11 +155,6 @@ public class clickable : MonoBehaviour
                         {
                             INFOTEXT("Power", "red");
                         }
-                    }
-                    else
-                    {
-                        selectcursor.sprite = clickablesprite;
-                        INFOTEXT("");
                     }
 
 

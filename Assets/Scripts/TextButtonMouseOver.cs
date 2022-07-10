@@ -8,7 +8,7 @@ public class TextButtonMouseOver : MonoBehaviour, IPointerEnterHandler, IPointer
 
     private TextMeshProUGUI theText;
     public Color OrigColor;
-    public Color HoverColor = Color.red;
+    public Color HoverColor = Color.white;
 
     public void Start()
     {
@@ -22,7 +22,7 @@ public class TextButtonMouseOver : MonoBehaviour, IPointerEnterHandler, IPointer
         public void OnPointerEnter(PointerEventData eventData)
     {
         theText.color = HoverColor;
-        theText.fontStyle = FontStyles.Bold;
+        theText.fontStyle = FontStyles.Underline;
     }
     public void OnPointerExit(PointerEventData eventData)
     {

@@ -4,8 +4,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-
-
+using UnityEngine.EventSystems;
 
 public class ManagersPC : MonoBehaviour
 {
@@ -109,65 +108,104 @@ public class ManagersPC : MonoBehaviour
 		{
 			
 			screenCover.GetComponent<Image>().enabled = false;
-		
-        	
-			if (Input.GetMouseButtonDown(1))
-			{  
-				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);  
-				RaycastHit hit;  
-				if (Physics.Raycast(ray, out hit)) 
-				{  
-					if (hit.distance <= 10.5f)
-					{		
 
-						if (hit.transform.name.Equals(thisComputerName))
-						{  
-								
-							if (!usingComputer)
+
+
+			// this before that
+			if (usingComputer)
+			{
+
+				if (Input.GetMouseButtonUp(1) || Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.P))
+				{
+					TogglePC();
+				}
+			}
+
+			if (!usingComputer)
+			{
+
+				if (Input.GetMouseButtonUp(1))
+				{
+					Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+					RaycastHit hit;
+					if (Physics.Raycast(ray, out hit))
+					{
+						if (hit.distance <= 10.5f)
+						{
+
+							if (hit.transform.name.Equals(thisComputerName))
 							{
-								usingComputer = true;
-								
-								PlayerCamera.GetComponent<FirstPersonLook>().enabled = false;
-								//Player.GetComponent<FirstPersonCollision>().enabled = true;
-								//Player.GetComponent<Jump>().enabled = false;
-								GameMaster.FROZEN = true;
-								GameMaster.INMENU = true;
 
-								CrossHair.GetComponent<Canvas>().enabled = false;
-								Cursor.lockState = CursorLockMode.None;
-								Cursor.visible = true;	
-								
-							}
-							else
-							{
-								PlayerCamera.GetComponent<FirstPersonLook>().enabled = true;
-								//Player.GetComponent<FirstPersonCollision>().enabled = true;
-								//Player.GetComponent<Jump>().enabled = true;
-								GameMaster.FROZEN = false;
-								GameMaster.INMENU = false;
+								TogglePC();
 
-								CrossHair.GetComponent<Canvas>().enabled = true;
-								Cursor.lockState = CursorLockMode.Locked;
-								Cursor.visible = false;
-								
-								usingComputer = false;
 							}
 						}
-					}  				
-				}  
-			} 
+					}
+				}
+
+			}
 		}
 		else
 		{
-			screenCover.GetComponent<Image>().enabled = false;
+			screenCover.GetComponent<Image>().enabled = true;
 		}
 		
 		
 		
     }
-	
-	
-	
+
+
+
+
+
+
+
+
+
+
+
+
+	public void TogglePC()
+    {
+
+		if (!usingComputer)
+		{
+			usingComputer = true;
+			thisComputer.GetComponent<Collider>().enabled = false;
+
+			PlayerCamera.GetComponent<FirstPersonLook>().enabled = false;
+			//Player.GetComponent<FirstPersonCollision>().enabled = true;
+			//Player.GetComponent<Jump>().enabled = false;
+			GameMaster.FROZEN = true;
+			GameMaster.INMENU = true;
+
+			CrossHair.GetComponent<Canvas>().enabled = false;
+			Cursor.lockState = CursorLockMode.None;
+			Cursor.visible = true;
+
+		}
+		else
+		{
+			PlayerCamera.GetComponent<FirstPersonLook>().enabled = true;
+			thisComputer.GetComponent<Collider>().enabled = true;
+			//Player.GetComponent<FirstPersonCollision>().enabled = true;
+			//Player.GetComponent<Jump>().enabled = true;
+			GameMaster.FROZEN = false;
+			GameMaster.INMENU = false;
+
+			CrossHair.GetComponent<Canvas>().enabled = true;
+			Cursor.lockState = CursorLockMode.Locked;
+			Cursor.visible = false;
+
+			usingComputer = false;
+		}
+
+
+	}
+
+
+
+
 	// ChangeScreen function (screen on, screen off)
 	void ChangeScreen(GameObject onScreen, GameObject offScreen)
 	{

@@ -203,6 +203,8 @@ public class pickup : MonoBehaviour
 		if (!GameMaster.PHONEOUT)
 		{
 
+
+
 			if (!hit.transform.gameObject.tag.Equals("COLLECTABLE"))
 			{
 				var TheItem = hit;
@@ -222,6 +224,23 @@ public class pickup : MonoBehaviour
 				myHeldItem = TheItem.transform;
 				pickup.hasobject = true;
 				GameMaster.HASITEM = true;
+
+				if (TheItem.transform.GetComponent<Evidence>() != null)
+                {
+					
+
+					Debug.Log("this is evidence");
+
+					if (TheItem.transform.GetComponent<Evidence>().EvidenceQuality > 1)
+                    {
+						TheItem.transform.GetComponent<Evidence>().EvidenceQuality--;
+                    }
+
+
+					Debug.Log("evidence quality"+ TheItem.transform.GetComponent<Evidence>().EvidenceQuality);
+
+				}
+
 			}
 			else
 			{

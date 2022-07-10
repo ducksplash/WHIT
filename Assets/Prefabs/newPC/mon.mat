@@ -29,6 +29,8 @@ Material:
   - _DISABLE_SSR_TRANSPARENT
   - _DOUBLESIDED_ON
   - _MATERIAL_FEATURE_SPECULAR_COLOR
+  - _NORMALMAP
+  - _NORMALMAP_TANGENT_SPACE
   - _SPECULARCOLORMAP
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -122,7 +124,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMapOS:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: b011270e0ff45e14f89646ec743d2beb, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -236,8 +238,8 @@ Material:
     - _MetallicRemapMax: 0
     - _MetallicRemapMin: 0
     - _Mode: 0
-    - _NormalMapSpace: 1
-    - _NormalScale: 1
+    - _NormalMapSpace: 0
+    - _NormalScale: 0.1
     - _OcclusionStrength: 1
     - _OpaqueCullMode: 2
     - _PPDLodThreshold: 5

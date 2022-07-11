@@ -23,7 +23,6 @@ public class ManagersPC : MonoBehaviour
 	public GameObject LightScreen;
 	public GameObject CCTVScreen;
 	public GameObject FileScreen;
-	public GameObject FolderScreen;
 	public GameObject FileViewScreen;
 	
 	// Get the Doors
@@ -69,18 +68,7 @@ public class ManagersPC : MonoBehaviour
 	private GameObject CurrentCCTV;
 
 
-	// get "Files"
-	
-	public Texture[] theseFiles;	
-	
-	public Texture theSiteSurvey;
-	public Texture theSitePhoto1;
-	public Texture theSitePhoto2;
-	public Texture theSitePhoto3;
-	
-	public GameObject theFilesRawImage;
-	
-	
+
 	// OFF screen
 	public GameObject screenCover;
 	
@@ -209,15 +197,13 @@ public class ManagersPC : MonoBehaviour
 	// ChangeScreen function (screen on, screen off)
 	void ChangeScreen(GameObject onScreen, GameObject offScreen)
 	{
-		
-		// enable the "On Screen"
-		onScreen.GetComponent<CanvasGroup>().alpha = 1.0f;
-		onScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;	
-
 		// disable the "Off Screen"
 		offScreen.GetComponent<CanvasGroup>().alpha = 0.0f;
 		offScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;	
 		
+		// enable the "On Screen"
+		onScreen.GetComponent<CanvasGroup>().alpha = 1.0f;
+		onScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;			
 	}
 	
 	public void GoHome()
@@ -231,7 +217,6 @@ public class ManagersPC : MonoBehaviour
 		
 		ChangeScreen(HomeScreen, FileViewScreen);
 		
-		ChangeScreen(HomeScreen, FolderScreen);
 			
 	}	
 	
@@ -359,25 +344,21 @@ public class ManagersPC : MonoBehaviour
 	
 	public void FridgeG()
 	{
-		// ButtonOp takes a button (getting the image component) and a door (getting the isLocked variable		
 		buttonOp(DoorButtonFG, FridgeDoorUpper);
 	}	
 	
 	public void FridgeB()
 	{
-		// ButtonOp takes a button (getting the image component) and a door (getting the isLocked variable
 		buttonOp(DoorButtonFB, FridgeDoorLower);
 	}
 	
 	public void Canteen()
 	{
-		// ButtonOp takes a button (getting the image component) and a door (getting the isLocked variable
 		buttonOp(DoorButtonCA, StaffDoor);
 	}
 	
 	public void processingB()
 	{
-		// ButtonOp takes a button (getting the image component) and a door (getting the isLocked variable
 		buttonOp(DoorButtonKB, LowerMain);
 	}
 	
@@ -400,13 +381,7 @@ public class ManagersPC : MonoBehaviour
 	// File System
 	
 	// populate the list of files
-	public Texture[] getFilesArray()
-	{
-		Texture[] thePCFiles = {theSiteSurvey, theSitePhoto1, theSitePhoto2, theSitePhoto3};
-		
-		return thePCFiles;
-	}	
-	
+
 	
 	
 	public void FilesButton()
@@ -414,28 +389,14 @@ public class ManagersPC : MonoBehaviour
 		// screen on, off
 		ChangeScreen(FileScreen, HomeScreen);
 		ChangeScreen(FileScreen, FileViewScreen);
-		ChangeScreen(FileScreen, FolderScreen);
 	}	
 	
-	public void FileFolderButton()
-	{
-		// screen on, off
-		ChangeScreen(FolderScreen, FileScreen);
-		ChangeScreen(FolderScreen, FileViewScreen);
-		
-	}
 	
-	public void FileViewButton(int thisFile)
+	public void FileViewButton()
 	{
 		// screen on, off
 		ChangeScreen(FileViewScreen, FileScreen);
-		ChangeScreen(FileViewScreen, FolderScreen);
-		
-		Texture[] theseFiles = getFilesArray();
-		
-		theFilesRawImage.GetComponent<RawImage>().texture = theseFiles[thisFile];
-		
-		
+
 	}
 	
 	

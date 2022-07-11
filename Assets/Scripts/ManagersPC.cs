@@ -24,7 +24,8 @@ public class ManagersPC : MonoBehaviour
 	public GameObject CCTVScreen;
 	public GameObject FileScreen;
 	public GameObject FileViewScreen;
-	
+	public GameObject FileViewScreen2;
+
 	// Get the Doors
 	public GameObject StaffDoor;
 	public GameObject FridgeDoorUpper;
@@ -35,9 +36,6 @@ public class ManagersPC : MonoBehaviour
 	public GameObject DoorButtonFG;
 	public GameObject DoorButtonFB;
 	public GameObject DoorButtonCA;
-	public GameObject DoorButtonPR;
-	public GameObject DoorButtonKG;
-	public GameObject DoorButtonKB;
 		
 		
 	// Get Cameras Actual
@@ -67,7 +65,8 @@ public class ManagersPC : MonoBehaviour
 
 	private GameObject CurrentCCTV;
 
-
+	public Collider EvidenceCollider;
+	public Collider EvidenceCollider2;
 
 	// OFF screen
 	public GameObject screenCover;
@@ -80,11 +79,11 @@ public class ManagersPC : MonoBehaviour
 		TextMeshPro DoorButtonFG = GetComponent<TextMeshPro>();
 		TextMeshPro DoorButtonFB = GetComponent<TextMeshPro>();
 		TextMeshPro DoorButtonCA = GetComponent<TextMeshPro>();
-		TextMeshPro DoorButtonPR = GetComponent<TextMeshPro>();
-		TextMeshPro DoorButtonKG = GetComponent<TextMeshPro>();
-		TextMeshPro DoorButtonKB = GetComponent<TextMeshPro>();		
-			
-    }
+
+
+		EvidenceCollider.enabled = false;
+		EvidenceCollider2.enabled = false;
+	}
 
 
     // Update is called once per frame
@@ -203,7 +202,9 @@ public class ManagersPC : MonoBehaviour
 		
 		// enable the "On Screen"
 		onScreen.GetComponent<CanvasGroup>().alpha = 1.0f;
-		onScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;			
+		onScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
+
 	}
 	
 	public void GoHome()
@@ -214,10 +215,14 @@ public class ManagersPC : MonoBehaviour
 		ChangeScreen(HomeScreen, CCTVScreen);
 		
 		ChangeScreen(HomeScreen, FileScreen);
-		
+
 		ChangeScreen(HomeScreen, FileViewScreen);
-		
-			
+
+		ChangeScreen(HomeScreen, FileViewScreen2);
+
+		EvidenceCollider.enabled = false;
+		EvidenceCollider2.enabled = false;
+
 	}	
 	
 	
@@ -328,14 +333,14 @@ public class ManagersPC : MonoBehaviour
 	{
 		if (theDoor.GetComponent<innerDoors>().isLocked)
 		{
-			theButton.transform.parent.GetComponent<Image>().color = Color.green;
+			theButton.transform.GetComponent<Image>().color = Color.green;
 			theDoor.GetComponent<innerDoors>().isLocked = false;
 			theDoor.GetComponent<innerDoors>().doLockedLights();
 			
 		}
 		else
 		{
-			theButton.transform.parent.GetComponent<Image>().color = new Color32(77,76,164,100);
+			theButton.transform.GetComponent<Image>().color = new Color32(77,76,164,100);
 			theDoor.GetComponent<innerDoors>().isLocked = true;
 			theDoor.GetComponent<innerDoors>().doLockedLights();
 		}
@@ -357,10 +362,6 @@ public class ManagersPC : MonoBehaviour
 		buttonOp(DoorButtonCA, StaffDoor);
 	}
 	
-	public void processingB()
-	{
-		buttonOp(DoorButtonKB, LowerMain);
-	}
 	
 	
 	public void CCTV(int Screen)
@@ -389,13 +390,24 @@ public class ManagersPC : MonoBehaviour
 		// screen on, off
 		ChangeScreen(FileScreen, HomeScreen);
 		ChangeScreen(FileScreen, FileViewScreen);
+		ChangeScreen(FileScreen, FileViewScreen2);
+
+		EvidenceCollider.enabled = false;
 	}	
 	
 	
-	public void FileViewButton()
+	public void FileViewButton(int fileno = 0)
 	{
-		// screen on, off
-		ChangeScreen(FileViewScreen, FileScreen);
+		if (fileno == 0)
+		{
+			ChangeScreen(FileViewScreen, FileScreen);
+			EvidenceCollider.enabled = true;
+		}
+		if (fileno == 1)
+		{
+			ChangeScreen(FileViewScreen2, FileScreen);
+			EvidenceCollider2.enabled = true;
+		}
 
 	}
 	

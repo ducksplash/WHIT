@@ -131,6 +131,9 @@ public class phone : MonoBehaviour
 
 	void changeScreen(GameObject useThisScreen)
 	{
+
+
+
 		Transform[] allScreens = MobilePhone.GetComponentsInChildren<Transform>();
 		
 		Transform[] useTheseScreens = useThisScreen.GetComponentsInChildren<Transform>();
@@ -258,7 +261,9 @@ public class phone : MonoBehaviour
 
 			if (Input.GetButtonUp("Phone"))
 			{
+
 				TogglePhone();
+
 			}
 
 
@@ -355,6 +360,11 @@ public class phone : MonoBehaviour
 
 	public void TogglePhone()
 	{
+		currentpage = 0;
+
+
+
+
 		if (!GameMaster.PHONEOUT)
 		{
 
@@ -1067,11 +1077,10 @@ public class phone : MonoBehaviour
 		
 	public void BackButton()
 	{
+
+		currentpage = 0;
+
 		changeScreen(HomeScreen);
-
-
-
-
 	}
 
 

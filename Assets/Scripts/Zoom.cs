@@ -21,5 +21,10 @@ public class Zoom : MonoBehaviour
             zoomAmount = Mathf.Clamp01(zoomAmount);
             gameObject.GetComponent<Camera>().fieldOfView = Mathf.Lerp(defaultFOV, maxZoom, zoomAmount);
         }
+        else
+        {
+            gameObject.GetComponent<Camera>().fieldOfView = 70;
+            zoomAmount = 0;
+        }
     }
 }

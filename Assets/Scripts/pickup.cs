@@ -19,6 +19,8 @@ public class pickup : MonoBehaviour
 	public CanvasGroup phoneTick;
 	public CanvasGroup notepadTick;
 	public CanvasGroup torchTick;
+	public Collider theHandCollider;
+
 
 
 	private void Awake()
@@ -43,7 +45,7 @@ public class pickup : MonoBehaviour
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 				RaycastHit hit;
 
-				if (Physics.Raycast(ray, out hit, 3f, ~IgnoreLayer))
+				if (Physics.Raycast(ray, out hit, 3.5f, ~IgnoreLayer))
 				{
 
 					PickupItem(hit);
@@ -96,7 +98,7 @@ public class pickup : MonoBehaviour
 
 
 
-	void FixedUpdate()
+    void FixedUpdate()
 	{
 
 

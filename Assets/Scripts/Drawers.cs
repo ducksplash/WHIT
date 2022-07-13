@@ -8,8 +8,9 @@ public class Drawers : MonoBehaviour
 	private string thisDrawerName;
 	private Animator drawerAnimator;
 	private bool isOpen = false;
-	
-    void Start()
+	public bool isLocked = false;
+
+	void Start()
     {
 		thisDrawer = this.gameObject;
 		drawerAnimator = thisDrawer.GetComponent<Animator>();

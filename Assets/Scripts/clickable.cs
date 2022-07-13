@@ -240,7 +240,7 @@ public class clickable : MonoBehaviour
                 {
                     //Debug.Log("door");
 
-                    if (hit.transform.GetComponentInParent<innerDoors>().isLocked)
+                    if (hit.transform.GetComponentInParent<Drawers>().isLocked)
                     {
                         selectcursor.sprite = lockeddrawersprite;
                         INFOTEXT("locked", "red");

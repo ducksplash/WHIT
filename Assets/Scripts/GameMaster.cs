@@ -83,7 +83,12 @@ public class GameMaster : MonoBehaviour
             if (GameObject.Find(Evidence.Key))
             {
                 var ThisEvidence = GameObject.Find(Evidence.Key);
-                ThisEvidence.GetComponent<Evidence>().EvidenceCollected = true;
+
+
+                if (ThisEvidence.GetComponent<Evidence>() != null)
+                {
+                    ThisEvidence.GetComponent<Evidence>().EvidenceCollected = true;
+                }
             }
 
         }

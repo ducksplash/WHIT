@@ -17,7 +17,7 @@ MonoBehaviour:
     supportSSR: 0
     supportSSRTransparent: 0
     supportSSAO: 1
-    supportSSGI: 0
+    supportSSGI: 1
     supportSubsurfaceScattering: 1
     sssSampleBudget:
       m_Values: 140000002800000050000000
@@ -35,7 +35,7 @@ MonoBehaviour:
     customBufferFormat: 8
     supportedLitShaderMode: 3
     planarReflectionResolution:
-      m_Values: 000100000004000000080000
+      m_Values: 000100000004000000040000
       m_SchemaId:
         m_Id: With3Levels
     supportDecals: 1
@@ -53,16 +53,16 @@ MonoBehaviour:
     supportRayTracing: 0
     supportedRayTracingMode: 3
     lightLoopSettings:
-      cookieAtlasSize: 1024
+      cookieAtlasSize: 512
       cookieFormat: 74
       cookieAtlasLastValidMip: 0
       cookieTexArraySize: 1
       planarReflectionAtlasSize: 1024
-      reflectionProbeCacheSize: 64
-      reflectionCubemapSize: 256
+      reflectionProbeCacheSize: 32
+      reflectionCubemapSize: 128
       reflectionCacheCompressed: 0
       reflectionProbeFormat: 74
-      skyReflectionSize: 256
+      skyReflectionSize: 128
       skyLightingOverrideLayerMask:
         serializedVersion: 2
         m_Bits: 0
@@ -83,7 +83,7 @@ MonoBehaviour:
       punctualLightShadowAtlas:
         shadowAtlasResolution: 4096
         shadowAtlasDepthBits: 32
-        useDynamicViewportRescale: 1
+        useDynamicViewportRescale: 0
       areaLightShadowAtlas:
         shadowAtlasResolution: 4096
         shadowAtlasDepthBits: 32
@@ -162,7 +162,7 @@ MonoBehaviour:
       ChromaticAberrationMaxSamples: 03000000060000000c000000
     lightSettings:
       useContactShadow:
-        m_Values: 000001
+        m_Values: 010101
         m_SchemaId:
           m_Id: With3Levels
     maximumLODLevel:

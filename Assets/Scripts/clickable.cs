@@ -17,6 +17,7 @@ public class clickable : MonoBehaviour
     public Sprite doorsprite;
     public Sprite doorspritegreen;
     public Sprite drawersprite;
+    public Sprite drawerspritegreen;
     public Sprite lockeddrawersprite;
     public Sprite lockeddoorsprite; 
     public Sprite pickupsprite;
@@ -238,7 +239,28 @@ public class clickable : MonoBehaviour
 
                 if (hit.transform.gameObject.layer == drawerlayer)
                 {
-                    //Debug.Log("door");
+
+
+                    if (hit.distance <= 3f)
+                    {
+                        if (hit.transform.GetComponent<Drawers>().isLocked)
+                        {
+                            selectcursor.sprite = lockeddrawersprite;
+                            INFOTEXT("locked", "red");
+                        }
+                        else
+                        {
+                            selectcursor.sprite = drawerspritegreen;
+                            INFOTEXT("");
+                        }
+                    }
+                    else
+                    {
+                        selectcursor.sprite = drawersprite;
+                        INFOTEXT("");
+                    }
+
+
 
                     if (hit.transform.GetComponentInParent<Drawers>().isLocked)
                     {

@@ -22,7 +22,8 @@ public class FirstPersonCollision : MonoBehaviour
 	public Image stanceimg;
 	public Sprite crouchsprite;
 	public Sprite standsprite;
-
+	public bool climbing;
+	public GameObject LadderAttachedTo;
 
 
 	public TextMeshProUGUI PaperDeathText;
@@ -42,6 +43,8 @@ public class FirstPersonCollision : MonoBehaviour
 	public Vector3 SpawnPoint;
 
 
+
+
 	void Start()
 	{
 
@@ -59,16 +62,6 @@ public class FirstPersonCollision : MonoBehaviour
 
 	}
 	
-	
-	
-
-	void OnCollisionExit(Collision thisCollision)
-	{
-		//didCollide = false;
-	}
-
-
-
 
 
 
@@ -111,54 +104,91 @@ public class FirstPersonCollision : MonoBehaviour
 		if (!GameMaster.FROZEN)
 		{
 
-			if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+
+			if (climbing)
 			{
 
-				if(!crouching)
+				if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space))
                 {
-
-					if (Input.GetKey(KeyCode.Keypad0) || Input.GetKey(KeyCode.LeftShift))
-					{
-						speed = sprintspeed;
-					}
-					else
-					{
-						speed = walkspeed;
-					}
+					ExitLadder(LadderAttachedTo);
                 }
 
-				//Debug.Log("f");
-				var moveForce = transform.forward * speed * Time.smoothDeltaTime;
-				thisCharController.Move(moveForce);
+
+
+				if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+				{
+					Debug.Log("u");
+
+
+					var moveForce = transform.up * speed * Time.smoothDeltaTime;
+					thisCharController.Move(moveForce);
+
+
+
+				}
+
+				if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+				{
+					Debug.Log("d");
+
+
+					var moveForce = transform.up * speed * Time.smoothDeltaTime;
+					thisCharController.Move(-moveForce);
+				}
 			}
-
-
-			if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+			else
 			{
-				//Debug.Log("l");
-				var moveForce = transform.right * speed * Time.smoothDeltaTime;
-				thisCharController.Move(-moveForce);
+
+
+				if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+				{
+
+
+					if (!crouching)
+					{
+
+						if (Input.GetKey(KeyCode.Keypad0) || Input.GetKey(KeyCode.LeftShift))
+						{
+							speed = sprintspeed;
+						}
+						else
+						{
+							speed = walkspeed;
+						}
+					}
+
+					//Debug.Log("f");
+					var moveForce = transform.forward * speed * Time.smoothDeltaTime;
+					thisCharController.Move(moveForce);
+				}
+
+
+				if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+				{
+					//Debug.Log("b");
+					var moveForce = transform.forward * speed * Time.smoothDeltaTime;
+					thisCharController.Move(-moveForce);
+				}
+
+
+
+				if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+				{
+					//Debug.Log("l");
+					var moveForce = transform.right * speed * Time.smoothDeltaTime;
+					thisCharController.Move(-moveForce);
+				}
+
+
+
+				if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+				{
+					//Debug.Log("r");
+					var moveForce = transform.right * speed * Time.smoothDeltaTime;
+					thisCharController.Move(moveForce);
+				}
+
 			}
-
-
-
-			if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
-			{
-				//Debug.Log("r");
-				var moveForce = transform.right * speed * Time.smoothDeltaTime;
-				thisCharController.Move(moveForce);
-			}
-
-
-
-			if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
-			{
-				//Debug.Log("b");
-				var moveForce = transform.forward * speed * Time.smoothDeltaTime;
-				thisCharController.Move(-moveForce);
-			}
-
-
 
 		}
 
@@ -379,4 +409,43 @@ public class FirstPersonCollision : MonoBehaviour
 		}
 		return nuNum;
 	}
+
+
+
+
+
+	// laddering
+
+
+	private void OnTriggerEnter(Collider other)
+	{
+
+
+		if (other.tag.Equals("LADDERS") && !climbing)
+		{
+			LadderAttachedTo = other.gameObject;
+			Debug.Log(other);
+			Debug.Log("made contact");
+			gameObject.transform.parent = transform;
+			gameObject.GetComponent<Rigidbody>().useGravity = false;
+			climbing = true;
+
+		}
+
+
+	}
+
+	private void ExitLadder(GameObject WeeLadder)
+	{
+
+		Debug.Log("broke contact");
+		gameObject.transform.parent = null;
+		gameObject.GetComponent<Rigidbody>().useGravity = true;
+		climbing = false;
+
+
+	}
+
+
+
 }

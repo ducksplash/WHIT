@@ -22,6 +22,7 @@ public class GameMaster : MonoBehaviour
     public static bool POWER_SUPPLY_ENABLED;
     public static bool INCINERATOR_ENABLED;
     public static bool FROZEN;
+    public static bool ONLADDER;
     public static bool INMENU;
     public static bool HASITEM;
     public static bool PHONEOUT;

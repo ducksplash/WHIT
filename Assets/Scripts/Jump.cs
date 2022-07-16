@@ -22,16 +22,18 @@ public class Jump : MonoBehaviour
     void FixedUpdate()
     {
 
-
-        if (!GameMaster.FROZEN && groundCheck && !FirstPersonCollision.crouching && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space)))
+        if (!gameObject.GetComponent<FirstPersonCollision>().climbing)
         {
-            moveDirection.y = jumpSpeed;
-            groundCheck = false;
 
+            if (!GameMaster.FROZEN && groundCheck && !FirstPersonCollision.crouching && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space)))
+            {
+                moveDirection.y = jumpSpeed;
+                groundCheck = false;
+
+            }
+            moveDirection.y -= gravity * Time.deltaTime;
+            thisChar.Move(moveDirection * Time.deltaTime);
         }
-        moveDirection.y -= gravity * Time.deltaTime;
-        thisChar.Move(moveDirection * Time.deltaTime);
-
 
 
     }
@@ -39,6 +41,7 @@ public class Jump : MonoBehaviour
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
+
         if (hit.gameObject.layer == 30)
         {
             groundCheck = true;
@@ -47,6 +50,8 @@ public class Jump : MonoBehaviour
         {
             groundCheck = false;
         }
+
+
     }
 
 

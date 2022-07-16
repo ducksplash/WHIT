@@ -121,6 +121,9 @@ public class phone : MonoBehaviour
 
 		GalleryBigPhoto.GetComponent<CanvasGroup>().alpha = 0f;
 		GalleryBigPhoto.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+		// evidence camera collider
+		gameObject.GetComponent<CapsuleCollider>().enabled = false;
 	}
 
 
@@ -393,12 +396,14 @@ public class phone : MonoBehaviour
 
 				GameMaster.PHONEOUT = true;
 				GameMaster.INMENU = true;
+				gameObject.GetComponent<CapsuleCollider>().enabled = true;
 			}
 		}
 		else
 		{
 			GameMaster.PHONEOUT = false;
 			GameMaster.INMENU = false;
+			gameObject.GetComponent<CapsuleCollider>().enabled = false;
 			MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y - 1, MobilePhone.transform.localPosition.z);
 
 			CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;

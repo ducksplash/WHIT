@@ -193,6 +193,16 @@ public class FirstPersonCollision : MonoBehaviour
 		}
 
 
+		var xup = Vector3.up;
+		RaycastHit xhit;
+		if (Physics.Raycast(MainCam.transform.position, xup, out xhit, 3f))
+		{
+
+			crouch();
+
+		}
+
+
 	}
 
 
@@ -201,7 +211,8 @@ public class FirstPersonCollision : MonoBehaviour
     {
 
 		crouching = true;
-		thisCharController.height = croucheight;
+		//thisCharController.height = croucheight;
+		thisCharController.height = Mathf.Lerp(croucheight, standheight, 0f);
 		speed = walkspeed;
 		stanceimg.sprite = crouchsprite;
 
@@ -212,7 +223,8 @@ public class FirstPersonCollision : MonoBehaviour
     {
 		Debug.Log("uncrouch ray didnt hit");
 		crouching = false;
-		thisCharController.height = standheight;
+		//thisCharController.height = standheight;
+		thisCharController.height = Mathf.Lerp(standheight, croucheight, 0f);
 		stanceimg.sprite = standsprite;
 
 	}
@@ -235,16 +247,6 @@ public class FirstPersonCollision : MonoBehaviour
 	}
 
 
-
-	void OnControllerColliderHit(ControllerColliderHit hit)
-	{
-
-
-		if (hit.gameObject.name == "topper")
-		{
-			crouch();
-		}
-	}
 
 
 
@@ -452,7 +454,19 @@ public class FirstPersonCollision : MonoBehaviour
 
 	}
 
-	private void ExitLadder(GameObject WeeLadder)
+
+    private void OnTriggerExit(Collider other)
+    {
+		if (other.tag.Equals("LADDERS") && climbing)
+		{
+			LadderAttachedTo = other.gameObject;
+
+
+			ExitLadder(LadderAttachedTo);
+
+		}
+	}
+    private void ExitLadder(GameObject WeeLadder)
 	{
 
 		Debug.Log("broke contact");

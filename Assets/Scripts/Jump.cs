@@ -10,12 +10,13 @@ public class Jump : MonoBehaviour
     private Vector3 moveDirection = Vector3.zero;
     public float jumpSpeed = 8.0F;
     public float gravity = 1F;
-
+    public FirstPersonCollision firstPersonColscript;
 
 
     void Awake()
     {
         thisChar = GetComponent<CharacterController>();
+        firstPersonColscript = gameObject.GetComponentInParent<FirstPersonCollision>();
         groundCheck = true;
     }
 
@@ -25,7 +26,7 @@ public class Jump : MonoBehaviour
         if (!gameObject.GetComponent<FirstPersonCollision>().climbing)
         {
 
-            if (!GameMaster.FROZEN && groundCheck && !FirstPersonCollision.crouching && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space)))
+            if (!GameMaster.FROZEN && groundCheck && !firstPersonColscript.crouching && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space)))
             {
                 moveDirection.y = jumpSpeed;
                 groundCheck = false;
@@ -42,6 +43,7 @@ public class Jump : MonoBehaviour
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
 
+
         if (hit.gameObject.layer == 30)
         {
             groundCheck = true;
@@ -50,6 +52,10 @@ public class Jump : MonoBehaviour
         {
             groundCheck = false;
         }
+
+
+
+
 
 
     }

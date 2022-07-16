@@ -16,7 +16,7 @@ public class FirstPersonCollision : MonoBehaviour
 	//private bool didCollide = false;
 	private CharacterController thisCharController;
 	private Camera MainCam;
-	public static bool crouching;
+	public bool crouching;
 	public float croucheight;
 	public float standheight;
 	public Image stanceimg;
@@ -74,26 +74,26 @@ public class FirstPersonCollision : MonoBehaviour
 			{
 				if (!crouching)
 				{
-					crouching = true;
-					thisCharController.height = croucheight;
-					speed = walkspeed;
-					stanceimg.sprite = crouchsprite;
+					crouch();
 				}
 				else
 				{
 					var up = Vector3.up;
 					RaycastHit hit;
 
-					if (!Physics.Raycast(transform.position, up, out hit, 5f))
+					if (!Physics.Raycast(MainCam.transform.position, up, out hit, 3f))
 					{
-						Debug.Log("uncrouch ray didnt hit");
-						crouching = false;
-						thisCharController.height = standheight;
-						stanceimg.sprite = standsprite;
+
+						uncrouch();
+
 					}
 					else
                     {
 						Debug.Log("uncrouch ray hit?");
+
+						Debug.Log(hit.transform.name);
+
+
 					}
 
 				}
@@ -108,7 +108,7 @@ public class FirstPersonCollision : MonoBehaviour
 			if (climbing)
 			{
 
-				if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space))
+				if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.RightControl))
                 {
 					ExitLadder(LadderAttachedTo);
                 }
@@ -197,15 +197,23 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
+	public void crouch()
+    {
+
+		crouching = true;
+		thisCharController.height = croucheight;
+		speed = walkspeed;
+		stanceimg.sprite = crouchsprite;
+
+	}
+
 
 	public void uncrouch()
     {
-		// for use post mortem
-
+		Debug.Log("uncrouch ray didnt hit");
 		crouching = false;
 		thisCharController.height = standheight;
 		stanceimg.sprite = standsprite;
-
 
 	}
 
@@ -228,6 +236,15 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
+	void OnControllerColliderHit(ControllerColliderHit hit)
+	{
+
+
+		if (hit.gameObject.name == "topper")
+		{
+			crouch();
+		}
+	}
 
 
 

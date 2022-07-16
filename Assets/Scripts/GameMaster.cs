@@ -29,7 +29,7 @@ public class GameMaster : MonoBehaviour
     public static string THISLEVEL;
     public Scene ThisScene;
     public bool WaitingForTrinity;
-
+    public CanvasGroup DevModeIcon;
     // COLLECTED ITEMS
     public static bool TORCHCOLLECTED;
     public static bool NOTEPADCOLLECTED;
@@ -146,6 +146,7 @@ public class GameMaster : MonoBehaviour
             TORCHCOLLECTED = true;
             NOTEPADCOLLECTED = true;
             PHONECOLLECTED = true;
+            DevModeIcon.alpha = 1;
 
         }
 

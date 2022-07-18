@@ -121,7 +121,7 @@ public class LIGHTS : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-		if (GameMaster.POWER_SUPPLY_ENABLED)
+		if (GameMaster.POWER_SUPPLY_ENABLED || GameMaster.THISLEVEL == "NorasFlat")
 		{
 			if (Input.GetMouseButtonDown(1))
 			{  

@@ -190,6 +190,21 @@ public class FirstPersonCollision : MonoBehaviour
 
 			}
 
+
+
+			var xup = Vector3.up;
+			RaycastHit xhit;
+			if (Physics.Raycast(MainCam.transform.position, xup, out xhit, 3f))
+			{
+
+				crouch();
+
+			}
+
+
+
+
+
 		}
 
 	}

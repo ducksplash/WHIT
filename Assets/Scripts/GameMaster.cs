@@ -173,7 +173,6 @@ void Start ()
 
         if (THISLEVEL == "NorasFlat")
         {
-            POWER_SUPPLY_ENABLED = true;
 
             if (PHONECOLLECTED)
             {
@@ -195,16 +194,12 @@ void Start ()
 
 
         }
-        else
-        {
-            POWER_SUPPLY_ENABLED = false;
-        }
 
         // 1; Tawley Meats
-        if (THISLEVEL == "1")
-        {
-            INCINERATOR_ENABLED = true;
-        }
+      //  if (THISLEVEL == "1")
+      //  {
+      //      INCINERATOR_ENABLED = true;
+      //  }
 
     }
 

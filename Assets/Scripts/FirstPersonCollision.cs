@@ -483,4 +483,7 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
+
+
+
 }

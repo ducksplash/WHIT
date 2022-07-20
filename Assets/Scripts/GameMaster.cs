@@ -167,7 +167,8 @@ void Start ()
     {
 
 
-
+            Application.targetFrameRate = 60;
+        
 
 
 

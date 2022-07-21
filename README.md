@@ -21,8 +21,8 @@ W.H.I.T is a one-man-band production and as such, probably won't be a finished g
 
 Demo? No demo soz.
 
-Very early video:
-https://www.youtube.com/watch?v=TsR3HLeFK40
+<a href="https://www.youtube.com/watch?v=TsR3HLeFK40">Very Early Video</a>
+
 
 Some early screens:
 

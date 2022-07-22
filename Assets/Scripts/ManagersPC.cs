@@ -31,13 +31,22 @@ public class ManagersPC : MonoBehaviour
 	public GameObject FridgeDoorUpper;
 	public GameObject FridgeDoorLower;
 	public GameObject LowerMain;
-	
+
+	// Get door map icons
+
+	public Image FridgeDoorImg;
+	public Image CanteenDoorImg;
+	public Image MaintenanceDoorImg;
+	public Image Processing2DoorImg;
+	public TextMeshProUGUI DoorFeedbackText;
+
 	// Get DoorScreen Buttons
 	public GameObject DoorButtonFG;
 	public GameObject DoorButtonFB;
 	public GameObject DoorButtonCA;
-		
-		
+	public GameObject DoorButtonPR;
+
+
 	// Get Cameras Actual
 	public Camera CAM0;
 	public Camera CAM1;
@@ -73,7 +82,13 @@ public class ManagersPC : MonoBehaviour
 	
 	void Start()
     {
-        thisComputerName = thisComputer.name;
+
+		FridgeDoorImg.color = Color.red;
+		CanteenDoorImg.color = Color.red;
+		MaintenanceDoorImg.color = Color.red;
+		Processing2DoorImg.color = Color.red;
+
+		thisComputerName = thisComputer.name;
 		
 		// Add cctv screens to list
 		TextMeshPro DoorButtonFG = GetComponent<TextMeshPro>();
@@ -91,8 +106,8 @@ public class ManagersPC : MonoBehaviour
     {
 		
 		
-		if (GameMaster.POWER_SUPPLY_ENABLED)
-		{
+		//if (GameMaster.POWER_SUPPLY_ENABLED)
+		//{
 			
 			screenCover.GetComponent<Image>().enabled = false;
 
@@ -131,11 +146,11 @@ public class ManagersPC : MonoBehaviour
 				}
 
 			}
-		}
-		else
-		{
-			screenCover.GetComponent<Image>().enabled = true;
-		}
+		//}
+		//else
+		//{
+		//	screenCover.GetComponent<Image>().enabled = true;
+		//}
 		
 		
 		
@@ -329,13 +344,14 @@ public class ManagersPC : MonoBehaviour
 	
 	
 	// I belong to the four functions below
-	private void buttonOp(GameObject theButton, GameObject theDoor)
+	private void buttonOp(GameObject theButton, GameObject theDoor, Image dooricon)
 	{
 		if (theDoor.GetComponent<innerDoors>().isLocked)
 		{
 			theButton.transform.GetComponent<Image>().color = Color.green;
 			theDoor.GetComponent<innerDoors>().isLocked = false;
 			theDoor.GetComponent<innerDoors>().doLockedLights();
+			dooricon.color = Color.green;
 			
 		}
 		else
@@ -343,26 +359,32 @@ public class ManagersPC : MonoBehaviour
 			theButton.transform.GetComponent<Image>().color = new Color32(77,76,164,100);
 			theDoor.GetComponent<innerDoors>().isLocked = true;
 			theDoor.GetComponent<innerDoors>().doLockedLights();
+			dooricon.color = Color.red;
 		}
 	}
 	
 	
 	public void FridgeG()
 	{
-		buttonOp(DoorButtonFG, FridgeDoorUpper);
+		buttonOp(DoorButtonFG, FridgeDoorUpper, FridgeDoorImg);
 	}	
 	
 	public void FridgeB()
 	{
-		buttonOp(DoorButtonFB, FridgeDoorLower);
+		buttonOp(DoorButtonFB, FridgeDoorLower, MaintenanceDoorImg);
 	}
-	
+
 	public void Canteen()
 	{
-		buttonOp(DoorButtonCA, StaffDoor);
+		Processing2DoorImg.color = Color.red;
+		buttonOp(DoorButtonCA, StaffDoor, CanteenDoorImg);
 	}
-	
-	
+
+
+	public void Processing()
+	{
+		buttonOp(DoorButtonPR, LowerMain, Processing2DoorImg);
+	}
 	
 	public void CCTV(int Screen)
 	{	

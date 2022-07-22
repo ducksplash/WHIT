@@ -1,0 +1,40 @@
+// Business System X1 // UI // DoorControl
+
+import system.ui.buttons;
+import system.ui.events;
+import system.hardware.doorlocks;
+
+// Get Door Buttons
+
+$fridgeButton = get[system.ui.buttons(0)];
+$canteenButton = get[system.ui.buttons(1)];
+$Processing1Button = get[system.ui.buttons(2)];
+$Processing2Button = get[system.ui.buttons(3)];
+$maintenanceButton = get[system.ui.buttons(4)];
+$powerRoomButton = get[system.ui.buttons(5)];
+
+// Get Door Lock Interface
+
+$doorController = get[system.hardware.doorlocks];
+
+
+// Handle button clicks
+
+main action OperateDoors[Event $OnClickEvent]
+{
+	if [$OnClickEvent is $powerRoomButton.clicked()]
+	{
+		// Ignore
+		// Door lock is broken, a bolt & padlock have been installed.
+	}
+	elseif [$OnClickEvent is $Processing1Button.clicked()]
+	{
+		// Ignore
+		// Door is missing
+	}
+	else
+	{
+		// lock or unlock door
+		$doorController.action($OnClickEvent.getDoor().locked ? true : false);
+	}
+}

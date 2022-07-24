@@ -145,8 +145,8 @@ public class ManagersPC : MonoBehaviour
     {
 		
 		
-		//if (GameMaster.POWER_SUPPLY_ENABLED)
-		//{
+		if (GameMaster.POWER_SUPPLY_ENABLED)
+		{
 			
 			screenCover.GetComponent<Image>().enabled = false;
 
@@ -185,11 +185,11 @@ public class ManagersPC : MonoBehaviour
 				}
 
 			}
-		//}
-		//else
-		//{
-		//	screenCover.GetComponent<Image>().enabled = true;
-		//}
+		}
+		else
+		{
+			screenCover.GetComponent<Image>().enabled = true;
+		}
 		
 		
 		
@@ -541,14 +541,6 @@ public class ManagersPC : MonoBehaviour
 
 	}
 
-
-	public IEnumerator TimedClose()
-    {
-		yield return new WaitForSeconds(3f);
-
-
-
-    }
 
 
 	public void EmailsButton()

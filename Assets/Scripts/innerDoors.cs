@@ -10,7 +10,7 @@ public class innerDoors : MonoBehaviour
 	public GameObject thisDoorHinge;
 	public string doorLockTag;
 	public string doorUnlockTag;
-	private Animator doorAnimator;
+	public Animator doorAnimator;
 	public bool isOpen = false;
 	public bool isLocked = false;
 	private Material[] theLightMats;

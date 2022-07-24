@@ -26,6 +26,7 @@ public class GameMaster : MonoBehaviour
     public static bool INMENU;
     public static bool HASITEM;
     public static bool PHONEOUT;
+    public static bool  ISWRITING;
     public static string THISLEVEL;
     public Scene ThisScene;
     public bool WaitingForTrinity;

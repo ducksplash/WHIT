@@ -371,7 +371,7 @@ public class phone : MonoBehaviour
 		if (!GameMaster.PHONEOUT)
 		{
 
-			if (!GameMaster.INMENU && !GameMaster.HASITEM)
+			if (!GameMaster.INMENU && !GameMaster.HASITEM && !GameMaster.ISWRITING)
 			{
 
 				var dialogstring = "I see you found your phone.\n\nTake a few minutes to explore this, and if you miss anything, check \"Messages\" for my past texts and \"Notes\" for your own comments.";

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.IO;
 
 public class ManagersPC : MonoBehaviour
 {
@@ -23,8 +24,10 @@ public class ManagersPC : MonoBehaviour
 	public GameObject LightScreen;
 	public GameObject CCTVScreen;
 	public GameObject FileScreen;
-	public GameObject FileViewScreen;
-	public GameObject FileViewScreen2;
+	public GameObject FileEditScreen;
+	public GameObject EmailScreen;
+	public GameObject EmailViewScreen;
+	public GameObject EmailViewScreen2;
 
 	// Get the Doors
 	public GameObject StaffDoor;
@@ -79,9 +82,43 @@ public class ManagersPC : MonoBehaviour
 
 	// OFF screen
 	public GameObject screenCover;
-	
+
+
+
+
+	public string existingCode;
+	public string newCode;
+
+	public TextAsset brokenCode;
+	public TextAsset fixedCode;
+
+	public TMP_InputField UserEnteredCode;
+
+	public Button SaveFileButton;
+	public Button ResetFileButton;
+	public Button CancelButton;
+	public CanvasGroup CompileFailedScreen;
+
 	void Start()
     {
+
+
+
+
+
+		existingCode = brokenCode.text;
+
+		newCode = fixedCode.text;
+
+
+		//var printOldCode = existingCode.Replace("\r", "").Replace("\n", "").Replace("\n", "");
+		//var printNewCode = newCode.Replace("\r", "").Replace("\n", "").Replace("\n", "");
+
+
+		//Debug.Log(printOldCode);
+
+
+
 
 		FridgeDoorImg.color = Color.red;
 		CanteenDoorImg.color = Color.red;
@@ -228,12 +265,18 @@ public class ManagersPC : MonoBehaviour
 		ChangeScreen(HomeScreen, DoorScreen);
 		
 		ChangeScreen(HomeScreen, CCTVScreen);
-		
+
+
+
 		ChangeScreen(HomeScreen, FileScreen);
 
-		ChangeScreen(HomeScreen, FileViewScreen);
 
-		ChangeScreen(HomeScreen, FileViewScreen2);
+
+		ChangeScreen(HomeScreen, EmailScreen);
+
+		ChangeScreen(HomeScreen, EmailViewScreen);
+
+		ChangeScreen(HomeScreen, EmailViewScreen2);
 
 		EvidenceCollider.enabled = false;
 		EvidenceCollider2.enabled = false;
@@ -399,40 +442,118 @@ public class ManagersPC : MonoBehaviour
 		ChangeScreen(CurrentCCTV,CCTVScreen);
 	
 	}
-	
-	
+
+
 	// File System
-	
+
 	// populate the list of files
 
-	
-	
+
+
 	public void FilesButton()
 	{
 		// screen on, off
 		ChangeScreen(FileScreen, HomeScreen);
-		ChangeScreen(FileScreen, FileViewScreen);
-		ChangeScreen(FileScreen, FileViewScreen2);
+		ChangeScreen(FileScreen, FileEditScreen);
 
 		EvidenceCollider.enabled = false;
-	}	
-	
-	
-	public void FileViewButton(int fileno = 0)
+		EvidenceCollider2.enabled = false;
+
+		CompileFailedScreen.alpha = 0f;
+		CompileFailedScreen.blocksRaycasts = false;
+
+	}
+
+
+
+	public void EditFile()
 	{
-		if (fileno == 0)
+		GameMaster.ISWRITING = true;
+		ChangeScreen(FileEditScreen, FileScreen);
+
+		CompileFailedScreen.alpha = 0f;
+		CompileFailedScreen.blocksRaycasts = false;
+
+		SaveFileButton.interactable = true;
+		ResetFileButton.interactable = true;
+		CancelButton.interactable = true;
+
+	}
+
+
+	public void ResetFile()
+	{
+		UserEnteredCode.text = brokenCode.text;
+	}
+
+
+	public void SaveCode()
+	{
+
+		GameMaster.ISWRITING = false;
+
+		var printNewCode = newCode.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace(" ", "").Replace("\r\n", "").Trim().ToString();
+		var printUserCode = UserEnteredCode.text.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace(" ", "").Replace("\r\n", "").Trim().ToString();
+
+		if (String.Equals(printUserCode, printNewCode, StringComparison.InvariantCultureIgnoreCase))
+        {
+
+			Debug.Log("match");
+		ChangeScreen(FileScreen, FileEditScreen);
+        }
+		else
 		{
-			ChangeScreen(FileViewScreen, FileScreen);
-			EvidenceCollider.enabled = true;
+			Debug.Log("no match");
+
+			CompileFailedScreen.alpha = 1f;
+			CompileFailedScreen.blocksRaycasts = true;
+
+			SaveFileButton.interactable = false;
+			ResetFileButton.interactable = false;
+			CancelButton.interactable = false;
+
+
+
 		}
-		if (fileno == 1)
+
+
+
+
+	}
+
+
+
+
+
+	public void EmailsButton()
+	{
+		// screen on, off
+		ChangeScreen(EmailScreen, HomeScreen);
+		ChangeScreen(EmailScreen, EmailViewScreen);
+		ChangeScreen(EmailScreen, EmailViewScreen2);
+
+		EvidenceCollider.enabled = false;
+		EvidenceCollider2.enabled = false;
+	}
+	public void EmailViewButton(int emailno = 0)
+	{
+		if (emailno == 0)
 		{
-			ChangeScreen(FileViewScreen2, FileScreen);
+			ChangeScreen(EmailViewScreen, EmailScreen);
+			EvidenceCollider.enabled = true;
+			EvidenceCollider2.enabled = false;
+		}
+		if (emailno == 1)
+		{
+			ChangeScreen(EmailViewScreen2, EmailScreen);
 			EvidenceCollider2.enabled = true;
+			EvidenceCollider.enabled = false;
 		}
 
 	}
-	
-	
+
+
+
+
 
 }

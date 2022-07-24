@@ -98,6 +98,8 @@ public class ManagersPC : MonoBehaviour
 	public Button ResetFileButton;
 	public Button CancelButton;
 	public CanvasGroup CompileFailedScreen;
+	public CanvasGroup CompileSucceededScreen;
+
 
 	void Start()
     {
@@ -387,7 +389,7 @@ public class ManagersPC : MonoBehaviour
 	
 	
 	// I belong to the four functions below
-	private void buttonOp(GameObject theButton, GameObject theDoor, Image dooricon)
+	private void buttonOp(GameObject theButton, GameObject theDoor, Image dooricon, string FeedbackName)
 	{
 		if (theDoor.GetComponent<innerDoors>().isLocked)
 		{
@@ -395,7 +397,9 @@ public class ManagersPC : MonoBehaviour
 			theDoor.GetComponent<innerDoors>().isLocked = false;
 			theDoor.GetComponent<innerDoors>().doLockedLights();
 			dooricon.color = Color.green;
-			
+
+			DoorFeedbackText.text = "** " +FeedbackName+" Door Unlocked"+" **";
+
 		}
 		else
 		{
@@ -403,30 +407,30 @@ public class ManagersPC : MonoBehaviour
 			theDoor.GetComponent<innerDoors>().isLocked = true;
 			theDoor.GetComponent<innerDoors>().doLockedLights();
 			dooricon.color = Color.red;
+			DoorFeedbackText.text = "** " + FeedbackName + " Door Locked" + " **";
 		}
 	}
 	
 	
 	public void FridgeG()
 	{
-		buttonOp(DoorButtonFG, FridgeDoorUpper, FridgeDoorImg);
+		buttonOp(DoorButtonFG, FridgeDoorUpper, FridgeDoorImg, "Fridge");
 	}	
 	
 	public void FridgeB()
 	{
-		buttonOp(DoorButtonFB, FridgeDoorLower, MaintenanceDoorImg);
+		buttonOp(DoorButtonFB, FridgeDoorLower, MaintenanceDoorImg, "Maintenance");
 	}
 
 	public void Canteen()
 	{
-		Processing2DoorImg.color = Color.red;
-		buttonOp(DoorButtonCA, StaffDoor, CanteenDoorImg);
+		buttonOp(DoorButtonCA, StaffDoor, CanteenDoorImg, "Canteen");
 	}
 
 
 	public void Processing()
 	{
-		buttonOp(DoorButtonPR, LowerMain, Processing2DoorImg);
+		buttonOp(DoorButtonPR, LowerMain, Processing2DoorImg, "Processing 2");
 	}
 	
 	public void CCTV(int Screen)
@@ -462,6 +466,9 @@ public class ManagersPC : MonoBehaviour
 		CompileFailedScreen.alpha = 0f;
 		CompileFailedScreen.blocksRaycasts = false;
 
+		CompileSucceededScreen.alpha = 0f;
+		CompileSucceededScreen.blocksRaycasts = false;
+
 	}
 
 
@@ -473,6 +480,9 @@ public class ManagersPC : MonoBehaviour
 
 		CompileFailedScreen.alpha = 0f;
 		CompileFailedScreen.blocksRaycasts = false;
+
+		CompileSucceededScreen.alpha = 0f;
+		CompileSucceededScreen.blocksRaycasts = false;
 
 		SaveFileButton.interactable = true;
 		ResetFileButton.interactable = true;
@@ -499,14 +509,24 @@ public class ManagersPC : MonoBehaviour
         {
 
 			Debug.Log("match");
-		ChangeScreen(FileScreen, FileEditScreen);
-        }
+
+			DoorButtonPR.GetComponent<Button>().interactable = true;
+
+			CompileSucceededScreen.alpha = 1f;
+			CompileSucceededScreen.blocksRaycasts = true;
+
+			SaveFileButton.interactable = false;
+			ResetFileButton.interactable = false;
+			CancelButton.interactable = false;
+		}
 		else
 		{
 			Debug.Log("no match");
 
 			CompileFailedScreen.alpha = 1f;
 			CompileFailedScreen.blocksRaycasts = true;
+
+			DoorButtonPR.GetComponent<Button>().interactable = false;
 
 			SaveFileButton.interactable = false;
 			ResetFileButton.interactable = false;
@@ -522,7 +542,13 @@ public class ManagersPC : MonoBehaviour
 	}
 
 
+	public IEnumerator TimedClose()
+    {
+		yield return new WaitForSeconds(3f);
 
+
+
+    }
 
 
 	public void EmailsButton()

@@ -69,7 +69,17 @@ public class fridgedeath : MonoBehaviour
 
     IEnumerator DoDeath(GameObject theplayer)
     {
-        yield return new WaitForSeconds(3f);
+
+        yield return new WaitForSeconds(1f);
+
+        var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
+        fakegameobject.GetComponent<Collider>().enabled = false;
+
+        var msg = "Ah f***.";
+
+        gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
+
+        yield return new WaitForSeconds(2f);
 
         theplayer.GetComponent<FirstPersonCollision>().CauseDeath("being flash frozen");
 

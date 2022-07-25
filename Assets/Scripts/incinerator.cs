@@ -21,21 +21,20 @@ public class incinerator : MonoBehaviour
         }
 
 
-        foreach (ParticleSystem flame in flames)
-        {
+
 
             if (GameMaster.POWER_SUPPLY_ENABLED && GameMaster.INCINERATOR_ENABLED)
             {
 
-                FlameControl(flame, true);
+                FlameControl(true);
 
 
             }
             else
             {
-                FlameControl(flame, false);
+                FlameControl(false);
             }
-        }
+        
     }
 
 
@@ -85,10 +84,22 @@ public class incinerator : MonoBehaviour
 
 
 
-    public void FlameControl(ParticleSystem phlame, bool command)
+    public void FlameControl(bool command)
     {
-        var em = phlame.emission;
-        em.enabled = command;
+
+        foreach (ParticleSystem flame in flames)
+        {
+            var em = flame.emission;
+            em.enabled = command;
+
+            if (!command)
+            {
+                var main = flame.main;
+                main.startSize = origsize;
+            }
+
+        }
+
     }
 
 
@@ -96,10 +107,9 @@ public class incinerator : MonoBehaviour
     public void UseFurnace()
     {
         Debug.Log("button use happen");
-        foreach (ParticleSystem flame in flames)
-        {
-            FlameControl(flame, true);
-        }
+
+            FlameControl(true);
+        
 
         var emitColor = new Color(0f, 0.8f, 0, 1f);
         gobuttonrim.material.SetColor("_Color", emitColor);
@@ -124,10 +134,9 @@ public class incinerator : MonoBehaviour
     {
         Debug.Log("button stop happen");
 
-        foreach (ParticleSystem flame in flames)
-        {
-            FlameControl(flame, false);
-        }
+
+            FlameControl( false);
+        
 
         foreach (Light singlight in redlights)
         {
@@ -171,10 +180,9 @@ public class incinerator : MonoBehaviour
 
                     GameMaster.FROZEN = true;
 
-                    foreach (ParticleSystem flame in flames)
-                    {
-                        FlameControl(flame, true);
-                    }
+
+                        FlameControl(true);
+                    
 
 
                     foreach (Light singlight in redlights)
@@ -230,13 +238,11 @@ public class incinerator : MonoBehaviour
     {
         yield return new WaitForSeconds(0.2f);
         flametriggered = false;
-        foreach (ParticleSystem flame in flames)
-        {
-            FlameControl(flame, false);
-            var main = flame.main;
-            main.startSize = origsize;
 
-        }
+            FlameControl(false);
+
+
+        
         GetComponentInChildren<innerDoors>().isLocked = false;
 
         foreach (Light singlight in redlights)

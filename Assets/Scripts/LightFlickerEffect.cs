@@ -28,11 +28,11 @@ public class LightFlickerEffect : MonoBehaviour {
          smoothQueue = new Queue<float>(smoothing);
     }
 
-    void Update()
+    void FixedUpdate()
 	{
 
 
-		if (GameMaster.POWER_SUPPLY_ENABLED && thelight.enabled)
+		if (thelight.enabled)
 		{
 
 			while (smoothQueue.Count >= smoothing) {

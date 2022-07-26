@@ -30,7 +30,8 @@ public class SwitchBox : MonoBehaviour
 	public GameObject[] doorLockedLights;
 	public GameObject[] doorUnlockedLights;
 	public GameObject IncineratorDoor;
-	
+
+
 		
 	void Awake()
 	{

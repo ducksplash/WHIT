@@ -15,15 +15,41 @@ public class fridgedeath : MonoBehaviour
     public Image FridgeDoorImg;
     public Fog fridgeFog;
     public bool FogAvailable;
+    public ParticleSystem FridgeParte;
+    public bool FridgePower;
 
     void Start()
     {
+
+        FridgeParte = GetComponentInChildren<ParticleSystem>();
+
+        FridgeParte.gameObject.SetActive(false);
+        FridgeVol.gameObject.SetActive(false);
+
         if (FridgeVol.profile.TryGet<Fog>(out fridgeFog))
         {
             FogAvailable = true;
         }
+
+
+
+
     }
 
+
+    private void Update()
+    {
+        if (!FridgePower)
+        {
+            if (GameMaster.POWER_SUPPLY_ENABLED)
+            {
+                FridgeParte.gameObject.SetActive(true);
+                FridgeVol.gameObject.SetActive(true);
+
+                FridgePower = true;
+            }
+        }
+    }
 
 
 
@@ -77,7 +103,7 @@ public class fridgedeath : MonoBehaviour
 
         var msg = "Ah f***.";
 
-        gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
+        theplayer.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
 
         yield return new WaitForSeconds(2f);
 

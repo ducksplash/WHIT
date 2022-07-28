@@ -67,7 +67,6 @@ public class fridgedeath : MonoBehaviour
     public IEnumerator TrapPlayer(GameObject Playa)
     {
 
-        yield return new WaitForSeconds(1f);
 
         Debug.Log("playa fridgin' yo");
         FridgeDoor.GetComponent<innerDoors>().isLocked = true;
@@ -78,7 +77,7 @@ public class fridgedeath : MonoBehaviour
         FridgeDoorImg.color = Color.red;
 
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
 
         if (FogAvailable)
         {

@@ -207,6 +207,17 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
+
+
+			//devmode
+
+
+				if (Input.GetKey(KeyCode.Home))
+                {
+					transform.position = SpawnPoint;
+                }
+
+
 		}
 
 	}
@@ -410,6 +421,13 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 	}
+
+
+
+
+
+
+
 
 
 

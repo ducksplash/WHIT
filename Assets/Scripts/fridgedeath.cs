@@ -71,6 +71,7 @@ public class fridgedeath : MonoBehaviour
 
         Debug.Log("playa fridgin' yo");
         FridgeDoor.GetComponent<innerDoors>().isLocked = true;
+        FridgeDoor.GetComponent<innerDoors>().isOpen = false;
         FridgeDoor.GetComponent<innerDoors>().doorAnimator.SetTrigger("closed");
         FridgeDoor.GetComponent<innerDoors>().doorAnimator.SetTrigger("idle");
         FridgeDoor.GetComponent<innerDoors>().doLockedLights();

@@ -63,6 +63,8 @@ public class phone : MonoBehaviour
 	public bool WaitingForPhone;
 
 
+	public GameObject MiniMapCam;
+
 
 
 	public bool gotfiles;
@@ -123,7 +125,12 @@ public class phone : MonoBehaviour
 		GalleryBigPhoto.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
 		// evidence camera collider
-		gameObject.GetComponent<CapsuleCollider>().enabled = false;
+		gameObject.GetComponent<CapsuleCollider>().enabled = false; 
+		
+		
+		PhoneCamera.GetComponent<Camera>().enabled = false;
+		MiniMapCam.SetActive(false);
+
 	}
 
 
@@ -142,6 +149,8 @@ public class phone : MonoBehaviour
 		Transform[] useTheseScreens = useThisScreen.GetComponentsInChildren<Transform>();
 
 		PhoneCamera.GetComponent<Camera>().enabled = false;
+
+		MiniMapCam.SetActive(false);
 		CameraOpen = false;
 
 
@@ -401,6 +410,8 @@ public class phone : MonoBehaviour
 		}
 		else
 		{
+			changeScreen(HomeScreen);
+
 			GameMaster.PHONEOUT = false;
 			GameMaster.INMENU = false;
 			gameObject.GetComponent<CapsuleCollider>().enabled = false;
@@ -421,8 +432,6 @@ public class phone : MonoBehaviour
 
 			CameraLeftFlash.enabled = false;
 			CameraRightFlash.enabled = false;
-
-			changeScreen(HomeScreen);
 
 			//Cursor.lockState = CursorLockMode.Locked;
 			//Cursor.visible = false;
@@ -451,6 +460,7 @@ public class phone : MonoBehaviour
 	public void MapsButton()
 	{
 		changeScreen(MapsScreen);
+		MiniMapCam.SetActive(true);
 
 		Debug.Log("maps button");
 

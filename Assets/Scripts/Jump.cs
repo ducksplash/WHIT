@@ -45,8 +45,6 @@ public class Jump : MonoBehaviour
 
 
 
-
-
         if (hit.gameObject.layer == 30)
         {
             groundCheck = true;

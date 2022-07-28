@@ -5,10 +5,10 @@ using UnityEngine;
 public class WarningLight : MonoBehaviour
 {
 
-	public float lightspeed = 300;
+	public float lightspeed = 10;
 
     void FixedUpdate()
 	{
-		gameObject.transform.Rotate(new Vector3(0, 0, 1) * (Time.fixedDeltaTime * lightspeed));
+		gameObject.transform.Rotate(new Vector3(0, 0, 30) * (Time.fixedDeltaTime * lightspeed));
 	}
 }

@@ -108,7 +108,7 @@ public class FirstPersonCollision : MonoBehaviour
 			if (climbing)
 			{
 
-				if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.RightControl))
+				if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.RightControl))
                 {
 					ExitLadder(LadderAttachedTo);
                 }
@@ -192,15 +192,17 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
-			//var xup = Vector3.up;
-			//RaycastHit xhit;
-			//if (Physics.Raycast(MainCam.transform.position, xup, out xhit, 3f))
-			//{
+			if (climbing)
+			{
+				var xup = Vector3.up;
+				RaycastHit xhit;
+				if (Physics.Raycast(MainCam.transform.position, xup, out xhit, 3f))
+				{
 
-			//	crouch();
+					crouch();
 
-			//}
-
+				}
+			}
 
 
 
@@ -465,6 +467,7 @@ public class FirstPersonCollision : MonoBehaviour
 		{
 			LadderAttachedTo = other.gameObject;
 
+			speed = walkspeed;
 
 			ExitLadder(LadderAttachedTo);
 

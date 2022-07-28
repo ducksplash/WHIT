@@ -31,6 +31,7 @@ public class DetectAndUnlock : MonoBehaviour
             {
                 if (ObjectType == "door")
                 {
+                    other.gameObject.GetComponent<FirstPersonCollision>().uncrouch();
                     LinkedObject.GetComponentInChildren<innerDoors>().isLocked = false;
                     JobDone = true;
                 }

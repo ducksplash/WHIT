@@ -17,6 +17,8 @@ public class fridgedeath : MonoBehaviour
     public bool FogAvailable;
     public ParticleSystem FridgeParte;
     public bool FridgePower;
+    public bool CoolDown;
+
 
     void Start()
     {
@@ -55,12 +57,15 @@ public class fridgedeath : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-
-        if (other.name.Contains("Player"))
+        if (!CoolDown)
         {
+            if (other.name.Contains("Player"))
+            {
 
-            StartCoroutine(TrapPlayer(other.gameObject));
+                StartCoroutine(TrapPlayer(other.gameObject));
+                gameObject.GetComponent<Collider>().enabled = false;
 
+            }
         }
     }
     
@@ -108,8 +113,19 @@ public class fridgedeath : MonoBehaviour
         yield return new WaitForSeconds(2f);
 
         theplayer.GetComponent<FirstPersonCollision>().CauseDeath("being flash frozen");
-
+        StartCoroutine(DoCooldown());
 
     }
+
+
+
+
+    IEnumerator DoCooldown()
+    {
+        yield return new WaitForSeconds(5f);
+
+        gameObject.GetComponent<Collider>().enabled = true;
+    }
+
 
 }

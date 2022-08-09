@@ -7,11 +7,15 @@ public class electroshock : MonoBehaviour
     private Vector3 orignalCameraPos;
 
 
+    public GameObject shockParticles;
+
     public float ShakeDuration = 2f;
     public float ShakeIntensity = 1.4f;
 
     private bool canShake = false;
     private float ShakinTime;
+
+    public bool WaitingForPower;
 
 
     void Start()
@@ -19,6 +23,15 @@ public class electroshock : MonoBehaviour
         cameraTransform = Camera.main.transform;
 
         orignalCameraPos = cameraTransform.localPosition;
+
+        shockParticles = transform.GetChild(0).gameObject;
+
+
+        if (!GameMaster.POWER_SUPPLY_ENABLED)
+        {
+            shockParticles.SetActive(false);
+        }
+
     }
 
     // Update is called once per frame
@@ -29,6 +42,17 @@ public class electroshock : MonoBehaviour
         {
             StartCameraShakeEffect();
         }
+
+        if (!WaitingForPower)
+        {
+            if (GameMaster.POWER_SUPPLY_ENABLED)
+            {
+                shockParticles.SetActive(true);
+                WaitingForPower = true;
+            }
+        }
+
+
     }
 
     public void ShakeCamera()
@@ -87,10 +111,6 @@ public class electroshock : MonoBehaviour
 
 
     }
-
-
-
-
 
 
 }

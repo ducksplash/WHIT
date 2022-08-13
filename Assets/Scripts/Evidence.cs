@@ -38,7 +38,7 @@ public class Evidence : MonoBehaviour
     }
 
 
-    public void CollectEvidence()
+    public void CollectEvidence(GameObject Player)
      {
 
 
@@ -83,6 +83,18 @@ public class Evidence : MonoBehaviour
             gameObject.GetComponent<Evidence>().PhotographableEvidence = false;
             gameObject.GetComponent<Evidence>().EvidenceCollected = true;
 
+
+
+
+            GiveFeedback(EvidenceName, Player);
+
+
+
+
+
+
+
+
         }
         else
         {
@@ -94,6 +106,28 @@ public class Evidence : MonoBehaviour
 
 
     }
+
+
+
+
+
+    public void GiveFeedback(string ObjectName, GameObject Player)
+    {
+
+        if (ObjectName.Equals("Blood"))
+        {
+            var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
+            fakegameobject.GetComponent<Collider>().enabled = false;
+
+            var msg = "Who's blood is this...?";
+
+            Player.gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
+        }
+
+
+
+    }
+
 
 
 

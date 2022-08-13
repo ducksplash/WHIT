@@ -1193,7 +1193,7 @@ public class phone : MonoBehaviour
 			System.IO.File.WriteAllBytes(filenameString, bytes);
 
 
-			ObservedEvidence.GetComponent<Evidence>().CollectEvidence();
+			ObservedEvidence.GetComponent<Evidence>().CollectEvidence(Player);
 
 			CameraReadyFrame.color = Color.black;
 			CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;

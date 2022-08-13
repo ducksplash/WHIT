@@ -34,6 +34,16 @@ public class DetectAndUnlock : MonoBehaviour
                     other.gameObject.GetComponent<FirstPersonCollision>().uncrouch();
                     LinkedObject.GetComponentInChildren<innerDoors>().isLocked = false;
                     JobDone = true;
+
+
+                    var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
+                    fakegameobject.GetComponent<Collider>().enabled = false;
+
+                    var msg = "Someone made the effort to lock this room from the inside...";
+
+                    other.gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
+
+
                 }
             }
         }

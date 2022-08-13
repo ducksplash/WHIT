@@ -109,17 +109,38 @@ public class Evidence : MonoBehaviour
 
 
 
+    // 
 
-
-    public void GiveFeedback(string ObjectName, GameObject Player)
+    public void GiveFeedback(string EvidenceName, GameObject Player)
     {
 
-        if (ObjectName.Equals("Blood"))
+        if (EvidenceName.Contains("Blood"))
         {
             var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
             fakegameobject.GetComponent<Collider>().enabled = false;
 
             var msg = "Who's blood is this...?";
+
+            Player.gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
+        }
+
+        if (EvidenceName.Contains("Email"))
+        {
+            var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
+            fakegameobject.GetComponent<Collider>().enabled = false;
+
+            var msg = "Is he talking about Eimear??";
+
+            Player.gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
+        }
+
+
+        if (EvidenceName.Contains("Skull"))
+        {
+            var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
+            fakegameobject.GetComponent<Collider>().enabled = false;
+
+            var msg = "Oh my... This one looks real...";
 
             Player.gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
         }

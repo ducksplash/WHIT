@@ -31,6 +31,8 @@ public class GameMaster : MonoBehaviour
     public Scene ThisScene;
     public bool WaitingForTrinity;
     public CanvasGroup DevModeIcon;
+
+
     // COLLECTED ITEMS
     public static bool TORCHCOLLECTED;
     public static bool NOTEPADCOLLECTED;
@@ -52,25 +54,47 @@ public class GameMaster : MonoBehaviour
     public static bool GarbageRun;
 
     public bool checkForEvidence;
-    // Have I Ever - done this?
+
+
+    // Evidence Quotient
+
+    public static int TotalEQ;
+    public static int EQThisLevel;
+
+
+    // EQ Expected
+    public int ExpectedEQ_Level0 = 0;
+    public int ExpectedEQ_Level1 = 0;
+    public int ExpectedEQ_Level2 = 0;
+
+    // Evidence Expected
+
+
+
+
+    // Have I Ever - done this? - We'll set up per-level persistence shortly.
 
 
 
     // Dialog log
-    // We can use this in the phone later too for text messages etc.
+
+    // The main purpose is to prevent duplicates.
+    // A secondary use is within the phone, as a message log.
+    // The main dictionary is split into NoraSpeak - The player dialogue, and 'Messages' (from others)
+    // 
+
     public static Dictionary<string, string> DialogueSeen = new Dictionary<string, string>();
 
     // Evidence Log
+    // Again, mainly preventing duplication
+    // With the secondary use being in the phone again, as an "Evidence Log" in the "Gallery App"
+
     public static Dictionary<string, string> EvidenceFound = new Dictionary<string, string>();
 
     void Awake()
     {
 
-        // clear todo list if necessary
 
-
-
-        // 
 
         // Use this loop for debugging the dialog log
         //foreach (var Message in DialogueSeen)
@@ -78,7 +102,9 @@ public class GameMaster : MonoBehaviour
         //    Debug.Log("Message: " + Message.Key + "\n" + "Sender: " + Message.Value);
         //}
 
-        // Use this loop for debugging the evidence log
+        // Use this loop to pre-mark collected evidence (the primary use of the evidence log)
+        // The Gallery usage is all handled in phone.cs
+
         foreach (var Evidence in EvidenceFound)
         {
 
@@ -197,7 +223,7 @@ void Start ()
 
         }
 
-        // 1; Tawley Meats
+      // 1; Tawley Meats
       //  if (THISLEVEL == "1")
       //  {
       //      INCINERATOR_ENABLED = true;

@@ -55,7 +55,7 @@ public class LightFlickerEffect : MonoBehaviour {
 			for (int i = 0; i < theLightMats.Length; i++)
 			{
 			
-				if (theLightMats[i].name.Contains("bulb"))
+				if (theLightMats[i].name.Contains("bulb") || theLightMats[i].name.Contains("cable"))
 				{
 					theLightMats[i].SetColor("_Color", litLiteCol);
 					theLightMats[i].SetColor("_EmissiveColor", litLiteCol * (lastSum / (float)smoothQueue.Count));

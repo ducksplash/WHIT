@@ -122,7 +122,7 @@ public class fridgedeath : MonoBehaviour
 
     IEnumerator DoCooldown()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(15f);
 
         gameObject.GetComponent<Collider>().enabled = true;
     }

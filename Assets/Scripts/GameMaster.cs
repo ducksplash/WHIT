@@ -66,7 +66,7 @@ public class GameMaster : MonoBehaviour
 
 
     // EQ Expected
-    public static int ExpectedEQ_Level0 = 0;
+    public static int ExpectedEQ_Level0 = 1;
     public static int ExpectedEQ_Level1 = 18;
     public static int ExpectedEQ_Level2 = 0;
 
@@ -126,10 +126,6 @@ public class GameMaster : MonoBehaviour
 
         }
 
-        if (EvidenceFound.Count > 0)
-        {
-            evidenceTick.alpha = 1;
-        }
 
         // cleanup
         // We will use this on boot every time
@@ -170,6 +166,9 @@ public class GameMaster : MonoBehaviour
 
         THISLEVEL = ThisScene.name;
 
+
+
+
         WaitingForTrinity = true;
 
         if (DEBUGGERY)
@@ -189,6 +188,7 @@ public class GameMaster : MonoBehaviour
             phoneTick.alpha = 0;
             notepadTick.alpha = 0;
             evidenceTick.alpha = 0;
+
         }
 
     }
@@ -199,9 +199,7 @@ void Start ()
     {
 
 
-            Application.targetFrameRate = 60;
-
-
+        Application.targetFrameRate = 60;
 
 
         if (THISLEVEL == "NorasFlat")
@@ -225,6 +223,12 @@ void Start ()
                 notepadTick.alpha = 1;
             }
 
+            if (EvidenceFound.Count > 0)
+            {
+                evidenceTick.alpha = 1;
+            }
+
+            ExpectedEQThisLevel = ExpectedEQ_Level0;
 
         }
 

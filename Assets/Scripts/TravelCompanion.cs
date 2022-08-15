@@ -13,6 +13,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 	public bool CompanionOpen;
 	public GameObject Notepad;
 	public CanvasGroup crosshair;
+	public CanvasGroup evidencecompanion;
 	public GameObject Player;
 	public CanvasGroup loadingpanel;
 	public Image loadingbar;
@@ -137,6 +138,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 					GameMaster.INMENU = true;
 					GameMaster.FROZEN = true;
 					CompanionOpen = true;
+					evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.0f;
 					crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
 
 				}
@@ -151,6 +153,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 					GameMaster.INMENU = false;
 					GameMaster.FROZEN = false;
 					CompanionOpen = false;
+					evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.9f;
 					crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
 
 				}

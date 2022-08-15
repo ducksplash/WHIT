@@ -20,12 +20,18 @@ public class Evidence : MonoBehaviour
 
 
 
+    [Header("LevelFrom")]
+    public string LevelFrom;
+
+
     [Header("Debug Stuff (ignore)")]
     public bool EvidenceCollected;
     public bool PlayerSeen;
     public Transform EvidenceTransform;
     public Rigidbody EvidenceRigidbody;
     public Renderer EvidenceRenderer;
+
+
 
 
     private void Start()
@@ -83,9 +89,17 @@ public class Evidence : MonoBehaviour
             gameObject.GetComponent<Evidence>().PhotographableEvidence = false;
             gameObject.GetComponent<Evidence>().EvidenceCollected = true;
 
+
+
             // if evidence definitely collected, increment Evidence Quotient
 
             GameMaster.EQThisLevel += EvidenceQuality;
+
+
+            PlayerPrefs.SetInt("EQLevel"+GameMaster.THISLEVEL, GameMaster.EQThisLevel);
+
+
+            EvidenceBar.EQReadout();
 
 
 

@@ -39,6 +39,7 @@ public class FirstPersonCollision : MonoBehaviour
 	public CanvasGroup CrossHair;
 	public CanvasGroup CrouchIndicator;
 	public CanvasGroup TorchIndicator;
+	public CanvasGroup EvidenceCompanion;
 
 	public Vector3 SpawnPoint;
 
@@ -252,6 +253,7 @@ public class FirstPersonCollision : MonoBehaviour
 		CrossHair.alpha = 0f;
 		CrouchIndicator.alpha = 0f;
 		TorchIndicator.alpha = 0f;
+		EvidenceCompanion.alpha = 0f;
 		PaperScreenFader.alpha = 0f;
 		DeathScreenMain.alpha = 0f;
 		DeathScreenMain.blocksRaycasts = false;
@@ -308,6 +310,7 @@ public class FirstPersonCollision : MonoBehaviour
 
 		CrouchIndicator.alpha = 1;
 		CrossHair.alpha = 1;
+		EvidenceCompanion.alpha = 1;
 		if (GameMaster.TORCHCOLLECTED)
 		{
 			TorchIndicator.alpha = 1;

@@ -18,8 +18,25 @@ public class EvidenceBar : MonoBehaviour
     public Slider EQ_Slider;
 
 
+    public static TextMeshProUGUI EVThresholdBGS;
+    public static TextMeshProUGUI EVThresholdFGS;
+    public static Image FillColourS;
+    public static Slider EQ_SliderS;
+
+
     private void Start()
     {
+
+
+
+        EVThresholdBGS = EVThresholdBG;
+        EVThresholdFGS = EVThresholdFG;
+        FillColourS = FillColour;
+        EQ_SliderS = EQ_Slider;
+
+
+
+
 
 
         EVThresholdBG.text = "Nothing found yet";
@@ -33,26 +50,31 @@ public class EvidenceBar : MonoBehaviour
     {
 
  
-            EQReadout();
+          //  EQReadout();
         
 
 
     }
 
 
-    public void EQReadout()
+
+
+    public static void EQReadout()
     {
 
-        int EQPercent = Convert.ToInt32(Math.Round(((decimal)GameMaster.EQThisLevel / GameMaster.ExpectedEQThisLevel) * 100, 0));
+        var ThisLevelsEQ = PlayerPrefs.GetInt("EQLevel" + GameMaster.THISLEVEL);
+
+
+        int EQPercent = Convert.ToInt32(Math.Round(((decimal)ThisLevelsEQ / GameMaster.ExpectedEQThisLevel) * 100, 0));
 
 
         if (EQPercent > 0 && EQPercent < 25)
         {
 
-            FillColour.color = Color.white;
+            FillColourS.color = Color.white;
 
-            EVThresholdBG.text = "Not much to go on";
-            EVThresholdFG.text = "Not much to go on";
+            EVThresholdBGS.text = "Not much to go on";
+            EVThresholdFGS.text = "Not much to go on";
         }
 
 
@@ -62,10 +84,10 @@ public class EvidenceBar : MonoBehaviour
 
 
 
-            FillColour.color = new Color(1, 0.5f, 0, 1);
+            FillColourS.color = new Color(1, 0.5f, 0, 1);
 
-            EVThresholdBG.text = "Still need more";
-            EVThresholdFG.text = "Still need more";
+            EVThresholdBGS.text = "Still need more";
+            EVThresholdFGS.text = "Still need more";
 
 
         }
@@ -74,10 +96,10 @@ public class EvidenceBar : MonoBehaviour
         if (EQPercent > 50 && EQPercent < 75)
         {
 
-            FillColour.color = new Color(1, 1, 0, 1);
+            FillColourS.color = new Color(1, 1, 0, 1);
 
-            EVThresholdBG.text = "Need a little more";
-            EVThresholdFG.text = "Need a little more";
+            EVThresholdBGS.text = "Need a little more";
+            EVThresholdFGS.text = "Need a little more";
 
 
         }
@@ -87,10 +109,10 @@ public class EvidenceBar : MonoBehaviour
         {
 
 
-            EVThresholdBG.text = "Enough for a story";
-            EVThresholdFG.text = "Enough for a story";
+            EVThresholdBGS.text = "Enough for a story";
+            EVThresholdFGS.text = "Enough for a story";
 
-            FillColour.color = Color.green;
+            FillColourS.color = Color.green;
 
 
 
@@ -100,10 +122,10 @@ public class EvidenceBar : MonoBehaviour
         if (EQPercent >= 100)
         {
 
-            EVThresholdBG.text = "100%";
-            EVThresholdFG.text = "100%";
+            EVThresholdBGS.text = "100%";
+            EVThresholdFGS.text = "100%";
 
-            FillColour.color = new Color(0, 0.5f, 0, 1);
+            FillColourS.color = new Color(0, 0.5f, 0, 1);
 
 
 
@@ -113,7 +135,7 @@ public class EvidenceBar : MonoBehaviour
 
 
 
-        EQ_Slider.value = EQPercent;
+        EQ_SliderS.value = EQPercent;
 
 
 

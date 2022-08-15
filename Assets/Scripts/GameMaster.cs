@@ -153,6 +153,12 @@ public class GameMaster : MonoBehaviour
 
             // then just make the root folder back up; the phone will create the rest when needed.
             Directory.CreateDirectory(filepath);
+
+            // Clear out Evidence Quotient Player Prefs
+
+            PlayerPrefs.SetInt("EQLevelNorasFlat", GameMaster.EQThisLevel);
+            PlayerPrefs.SetInt("EQLevel1", GameMaster.EQThisLevel);
+
             GarbageRun = true;
         }
 
@@ -237,6 +243,7 @@ void Start ()
         if (THISLEVEL == "1")
         {
 
+            ExpectedEQThisLevel = ExpectedEQ_Level1;
             ExpectedEQThisLevel = ExpectedEQ_Level1;
 
 

@@ -21,6 +21,8 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 
 	private void Start()
     {
+
+		
 		Notepad.SetActive(false);
 		loadingbar.fillAmount = 0;
 

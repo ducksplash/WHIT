@@ -59,13 +59,18 @@ public class GameMaster : MonoBehaviour
     // Evidence Quotient
 
     public static int TotalEQ;
+
+
     public static int EQThisLevel;
+    public static int ExpectedEQThisLevel;
 
 
     // EQ Expected
-    public int ExpectedEQ_Level0 = 0;
-    public int ExpectedEQ_Level1 = 0;
-    public int ExpectedEQ_Level2 = 0;
+    public static int ExpectedEQ_Level0 = 0;
+    public static int ExpectedEQ_Level1 = 18;
+    public static int ExpectedEQ_Level2 = 0;
+
+
 
     // Evidence Expected
 
@@ -195,7 +200,7 @@ void Start ()
 
 
             Application.targetFrameRate = 60;
-        
+
 
 
 
@@ -223,11 +228,22 @@ void Start ()
 
         }
 
-      // 1; Tawley Meats
-      //  if (THISLEVEL == "1")
-      //  {
-      //      INCINERATOR_ENABLED = true;
-      //  }
+
+
+        if (THISLEVEL == "1")
+        {
+
+            ExpectedEQThisLevel = ExpectedEQ_Level1;
+
+
+
+        }
+
+        // 1; Tawley Meats
+        //  if (THISLEVEL == "1")
+        //  {
+        //      INCINERATOR_ENABLED = true;
+        //  }
 
     }
 
@@ -244,10 +260,8 @@ void Start ()
                 {
                     if (TORCHCOLLECTED && NOTEPADCOLLECTED && PHONECOLLECTED)
                     {
-
                         StartCoroutine(NoraReady());
                         WaitingForTrinity = false;
-
                     }
                 }
             }

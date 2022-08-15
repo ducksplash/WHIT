@@ -85,20 +85,9 @@ public class electroshock : MonoBehaviour
 
         if (other.name.Contains("Player"))
         {
-
-            Debug.Log(other.name);
-
-
             ShakeCamera();
-
             StartCoroutine(DoDeath(other));
-
-
-
-
         }
-
-
     }
 
 

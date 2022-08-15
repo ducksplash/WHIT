@@ -83,6 +83,9 @@ public class Evidence : MonoBehaviour
             gameObject.GetComponent<Evidence>().PhotographableEvidence = false;
             gameObject.GetComponent<Evidence>().EvidenceCollected = true;
 
+            // if evidence definitely collected, increment Evidence Quotient
+
+            GameMaster.EQThisLevel += EvidenceQuality;
 
 
 

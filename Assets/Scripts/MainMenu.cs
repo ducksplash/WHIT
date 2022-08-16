@@ -6,16 +6,13 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
 
-	public TextMeshProUGUI PaperDate;
-	public TextMeshProUGUI PaperDate2;
-
 	public CanvasGroup MainMenuFurniture;
 
 	public GameObject PaperMenuParent;
 
 	public GameObject IdlePaper;
 	public GameObject NewGamePaper;
-	public GameObject PrologueGamePaper;
+	public GameObject ProloguePaper;
 	public GameObject ContinuePaper;
 	public GameObject HelpPaper;
 	public GameObject SettingsPaper;
@@ -26,20 +23,6 @@ public class MainMenu : MonoBehaviour
 	public void Start()
     {
 
-		// put date on the paper
-
-		var buildDate = "";
-
-		buildDate += System.DateTime.Now.ToString("dddd");
-		buildDate += ", ";
-		buildDate += System.DateTime.Now.ToString("MMMM d");
-		buildDate += MonthDay(System.DateTime.Now.ToString("dd").ToString());
-		buildDate += ", ";
-		buildDate += System.DateTime.Now.ToString("yyyy");
-
-
-		PaperDate.text = buildDate;
-		PaperDate2.text = buildDate;
 	}
 
 
@@ -149,21 +132,29 @@ public class MainMenu : MonoBehaviour
 		}
 	}
 
-    public void StartNewGame()
-    {
+	public void StartNewGame()
+	{
 
 		DoPaperMenu();
 
+		ChangeScreen(NewGamePaper);
 
+	}
 
-    }
+	public void Prologue()
+	{
+
+		DoPaperMenu();
+
+		ChangeScreen(ProloguePaper);
+
+	}
 
 
 	public void DoPaperMenu()
 	{
 
 
-		ChangeScreen(NewGamePaper);
 
 		MainMenuFurniture.GetComponent<CanvasGroup>().alpha = 0.01f;
 		MainMenuFurniture.GetComponent<CanvasGroup>().blocksRaycasts = false;
@@ -183,30 +174,6 @@ public class MainMenu : MonoBehaviour
 
 
 
-
-
-
-	public string MonthDay(string day)
-	{
-		string nuNum = "th";
-		if (int.Parse(day) < 11 || int.Parse(day) > 20)
-		{
-			day = day.ToCharArray()[^1].ToString();
-			switch (day)
-			{
-				case "1":
-					nuNum = "st";
-					break;
-				case "2":
-					nuNum = "nd";
-					break;
-				case "3":
-					nuNum = "rd";
-					break;
-			}
-		}
-		return nuNum;
-	}
 
 }
 

@@ -13,15 +13,24 @@ public class MainMenu : MonoBehaviour
 	public GameObject IdlePaper;
 	public GameObject NewGamePaper;
 	public GameObject ProloguePaper;
-	public GameObject ContinuePaper;
+	public GameObject KeyboardPaper;
 	public GameObject HelpPaper;
-	public GameObject SettingsPaper;
+	public GameObject OptionsPaper;
+	public GameObject CreditsPaper;
 	public GameObject QuitPaper;
+	public Slider MusicSlider;
+	public Slider SFXSlider;
+
+	public TextMeshProUGUI MusicPercent;
+	public TextMeshProUGUI SFXPercent;
 
 
 
 	public void Start()
     {
+
+		MusicPercent.text = "0%";
+		SFXPercent.text = "0%";
 
 	}
 
@@ -150,6 +159,75 @@ public class MainMenu : MonoBehaviour
 
 	}
 
+	public void Help()
+	{
+
+		DoPaperMenu();
+
+		ChangeScreen(HelpPaper);
+
+	}
+
+	public void Credits()
+	{
+
+		DoPaperMenu();
+
+		ChangeScreen(CreditsPaper);
+
+	}
+
+
+	public void Options()
+	{
+
+		DoPaperMenu();
+
+		ChangeScreen(OptionsPaper);
+
+
+		MusicSlider.GetComponentInChildren<Image>().color = Color.black;
+		SFXSlider.GetComponentInChildren<Image>().color = Color.black;
+
+
+
+
+	}
+
+
+	public void Keyboard()
+	{
+
+		DoPaperMenu();
+
+		ChangeScreen(KeyboardPaper);
+
+
+		MusicSlider.GetComponentInChildren<Image>().color = Color.black;
+		SFXSlider.GetComponentInChildren<Image>().color = Color.black;
+
+
+
+
+	}
+
+	public void UpdateMusicSlider()
+	{
+		//Displays the value of the slider in the console.
+		Debug.Log(MusicSlider.value);
+
+		MusicPercent.text = MusicSlider.value.ToString("#0") + "%";
+
+
+	}
+
+	public void UpdateSFXSlider()
+	{
+		//Displays the value of the slider in the console.
+		Debug.Log(SFXSlider.value);
+
+		SFXPercent.text = SFXSlider.value.ToString("#0") + "%";
+	}
 
 	public void DoPaperMenu()
 	{

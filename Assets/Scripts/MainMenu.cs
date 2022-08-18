@@ -17,6 +17,7 @@ public class MainMenu : MonoBehaviour
 	public GameObject HelpPaper;
 	public GameObject OptionsPaper;
 	public GameObject CreditsPaper;
+	public GameObject GameDataPaper;
 	public GameObject QuitPaper;
 	public Slider MusicSlider;
 	public Slider SFXSlider;
@@ -174,6 +175,15 @@ public class MainMenu : MonoBehaviour
 		DoPaperMenu();
 
 		ChangeScreen(CreditsPaper);
+
+	}
+
+	public void GameData()
+	{
+
+		DoPaperMenu();
+
+		ChangeScreen(GameDataPaper);
 
 	}
 

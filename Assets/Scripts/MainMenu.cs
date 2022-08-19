@@ -1,6 +1,9 @@
 ﻿using TMPro;
 using UnityEditor.Events;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using System;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -21,6 +24,7 @@ public class MainMenu : MonoBehaviour
 	public GameObject GameDataPaper;
 	public GameObject DatafileDetailsPane;
 	public GameObject DatafileDeletePane;
+	public GameObject FileButtonParent;
 	public GameObject LoadFileButton;
 	public GameObject DeleteFileButton;
 	public GameObject DeleteSureButton;
@@ -28,10 +32,27 @@ public class MainMenu : MonoBehaviour
 	public GameObject QuitPaper;
 	public Slider MusicSlider;
 	public Slider SFXSlider;
-
 	public TextMeshProUGUI MusicPercent;
 	public TextMeshProUGUI SFXPercent;
 
+
+	public TextMeshProUGUI PlayerForwardKeyText1;
+	public TextMeshProUGUI PlayerForwardKeyText2;
+
+	public TextMeshProUGUI PlayerBackwardKeyText1;
+	public TextMeshProUGUI PlayerBackwardKeyText2;
+
+	public TextMeshProUGUI PlayerLeftKeyText1;
+	public TextMeshProUGUI PlayerLeftKeyText2;
+
+	public TextMeshProUGUI PlayerRightKeyText1;
+	public TextMeshProUGUI PlayerRightKeyText2;
+
+
+	public bool WaitingForKey;
+
+
+	public List<string> AcceptableKeys;
 
 
 	public void Start()
@@ -39,6 +60,10 @@ public class MainMenu : MonoBehaviour
 
 		MusicPercent.text = "0%";
 		SFXPercent.text = "0%";
+
+		SetAcceptableKeys();
+
+		SetDefaultKeys();
 
 	}
 
@@ -142,13 +167,58 @@ public class MainMenu : MonoBehaviour
 		}
 	}
 
+
+
+
+
+
+
+
+
+
+
+
     private void Update()
     {
 		if (Input.GetKeyUp(KeyCode.Escape))
 		{
 			ExitToMain();
 		}
+
+
+		if (WaitingForKey)
+		{
+
+			if (!Input.GetKey(KeyCode.Escape))
+			{
+
+				if (Input.anyKey)
+				{
+					Debug.Log("A key or mouse click has been detected");
+				}
+
+			}
+
+		}
+
+
+
+
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	public void StartNewGame()
 	{
@@ -193,7 +263,7 @@ public class MainMenu : MonoBehaviour
 
 		ChangeScreen(GameDataPaper);
 
-
+		FileButtonParent.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
 		DatafileDetailsPane.GetComponent<CanvasGroup>().alpha = 0f;
 		DatafileDetailsPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
@@ -207,6 +277,7 @@ public class MainMenu : MonoBehaviour
 
 	public void SelectFile(int FileNumber)
 	{
+		FileButtonParent.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
 		Debug.Log(FileNumber);
 
@@ -236,11 +307,7 @@ public class MainMenu : MonoBehaviour
 	{
 
 
-		DatafileDetailsPane.GetComponent<CanvasGroup>().alpha = 0f;
-		DatafileDetailsPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
-
-
-		Debug.Log("File "+ FileNumber + " Loaded");
+		GameData();
 
 	}
 
@@ -318,6 +385,7 @@ public class MainMenu : MonoBehaviour
 		ChangeScreen(KeyboardPaper);
 
 
+
 		MusicSlider.GetComponentInChildren<Image>().color = Color.black;
 		SFXSlider.GetComponentInChildren<Image>().color = Color.black;
 
@@ -325,6 +393,18 @@ public class MainMenu : MonoBehaviour
 
 
 	}
+
+
+
+	public void StartKeyboardListening(string GameFunction)
+	{
+
+		Debug.Log(GameFunction);
+
+
+	}
+
+
 
 	public void UpdateMusicSlider()
 	{
@@ -368,6 +448,187 @@ public class MainMenu : MonoBehaviour
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+	void SetDefaultKeys()
+	{
+
+		if (PlayerPrefs.GetString("PlayerForwardKey1") == "")
+		{
+			PlayerForwardKeyText1.text = "W";
+		}
+
+		if (PlayerPrefs.GetString("PlayerForwardKey2") == "")
+		{
+			char upArrow = '\u2191';
+			PlayerForwardKeyText2.text = upArrow.ToString();
+		}
+
+
+
+
+		if (PlayerPrefs.GetString("PlayerBackwardKey1") == "")
+		{
+			PlayerBackwardKeyText1.text = "S";
+		}
+
+		if (PlayerPrefs.GetString("PlayerBackwardKey2") == "")
+		{
+			char upArrow = '\u2193';
+			PlayerBackwardKeyText2.text = upArrow.ToString();
+		}
+
+
+
+
+
+		if (PlayerPrefs.GetString("PlayerLeftKey1") == "")
+		{
+			PlayerLeftKeyText1.text = "A";
+		}
+
+		if (PlayerPrefs.GetString("PlayerLeftKey2") == "")
+		{
+			char upArrow = '\u2190';
+			PlayerLeftKeyText2.text = upArrow.ToString();
+		}
+
+
+
+
+
+
+		if (PlayerPrefs.GetString("PlayerRightKey1") == "")
+		{
+			PlayerRightKeyText1.text = "D";
+		}
+
+		if (PlayerPrefs.GetString("PlayerRightKey2") == "")
+		{
+			char upArrow = '\u2192';
+			PlayerRightKeyText2.text = upArrow.ToString();
+		}
+
+
+
+
+
+
+
+	}
+
+
+	void SetAcceptableKeys()
+	{
+		AcceptableKeys.Add("A");
+		AcceptableKeys.Add("B");
+		AcceptableKeys.Add("C");
+		AcceptableKeys.Add("D");
+		AcceptableKeys.Add("E");
+		AcceptableKeys.Add("F");
+		AcceptableKeys.Add("G");
+		AcceptableKeys.Add("H");
+		AcceptableKeys.Add("I");
+		AcceptableKeys.Add("J");
+		AcceptableKeys.Add("K");
+		AcceptableKeys.Add("L");
+		AcceptableKeys.Add("M");
+		AcceptableKeys.Add("N");
+		AcceptableKeys.Add("O");
+		AcceptableKeys.Add("P");
+		AcceptableKeys.Add("Q");
+		AcceptableKeys.Add("R");
+		AcceptableKeys.Add("S");
+		AcceptableKeys.Add("T");
+		AcceptableKeys.Add("U");
+		AcceptableKeys.Add("V");
+		AcceptableKeys.Add("W");
+		AcceptableKeys.Add("X");
+		AcceptableKeys.Add("Y");
+		AcceptableKeys.Add("Z");
+
+		AcceptableKeys.Add("Backspace");
+		AcceptableKeys.Add("Delete");
+		AcceptableKeys.Add("Tab");
+		AcceptableKeys.Add("Clear");
+		AcceptableKeys.Add("Return");
+		AcceptableKeys.Add("Pause");
+		AcceptableKeys.Add("Space");
+
+		AcceptableKeys.Add("UpArrow");
+		AcceptableKeys.Add("DownArrow");
+		AcceptableKeys.Add("LeftArrow");
+		AcceptableKeys.Add("RightArrow");
+		AcceptableKeys.Add("Insert");
+		AcceptableKeys.Add("Home");
+		AcceptableKeys.Add("End");
+		AcceptableKeys.Add("PageUp");
+		AcceptableKeys.Add("PageDown");
+
+		AcceptableKeys.Add("Alpha0");
+		AcceptableKeys.Add("Alpha1");
+		AcceptableKeys.Add("Alpha2");
+		AcceptableKeys.Add("Alpha3");
+		AcceptableKeys.Add("Alpha4");
+		AcceptableKeys.Add("Alpha5");
+		AcceptableKeys.Add("Alpha6");
+		AcceptableKeys.Add("Alpha7");
+		AcceptableKeys.Add("Alpha8");
+		AcceptableKeys.Add("Alpha9");
+
+		AcceptableKeys.Add("Exclaim");
+		AcceptableKeys.Add("DoubleQuote");
+		AcceptableKeys.Add("Hash");
+		AcceptableKeys.Add("Dollar");
+		AcceptableKeys.Add("Percent");
+		AcceptableKeys.Add("Ampersand");
+		AcceptableKeys.Add("Quote");
+		AcceptableKeys.Add("LeftParen");
+		AcceptableKeys.Add("RightParen");
+		AcceptableKeys.Add("Asterisk");
+
+		AcceptableKeys.Add("Plus");
+		AcceptableKeys.Add("Comma");
+		AcceptableKeys.Add("Minus");
+		AcceptableKeys.Add("Period");
+		AcceptableKeys.Add("Slash");
+		AcceptableKeys.Add("Colon");
+		AcceptableKeys.Add("Semicolon");
+		AcceptableKeys.Add("Less");
+		AcceptableKeys.Add("Equals");
+		AcceptableKeys.Add("Greater");
+
+		AcceptableKeys.Add("Question");
+		AcceptableKeys.Add("At");
+		AcceptableKeys.Add("LeftBracket");
+		AcceptableKeys.Add("Backslash");
+		AcceptableKeys.Add("RightBracket");
+		AcceptableKeys.Add("Caret");
+		AcceptableKeys.Add("Underscore");
+		AcceptableKeys.Add("BackQuote");
+		AcceptableKeys.Add("LeftCurlyBracket");
+		AcceptableKeys.Add("RightCurlyBracket");
+		AcceptableKeys.Add("Pipe");
+
+		AcceptableKeys.Add("RightShift");
+		AcceptableKeys.Add("LeftShift");
+		AcceptableKeys.Add("RightControl");
+		AcceptableKeys.Add("LeftControl");
+		AcceptableKeys.Add("RightAlt");
+		AcceptableKeys.Add("LeftAlt");
+		AcceptableKeys.Add("AltGr");
+
+	}
 }
 
 

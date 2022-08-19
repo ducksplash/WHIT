@@ -1,4 +1,5 @@
 ﻿using TMPro;
+using UnityEditor.Events;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -18,6 +19,12 @@ public class MainMenu : MonoBehaviour
 	public GameObject OptionsPaper;
 	public GameObject CreditsPaper;
 	public GameObject GameDataPaper;
+	public GameObject DatafileDetailsPane;
+	public GameObject DatafileDeletePane;
+	public GameObject LoadFileButton;
+	public GameObject DeleteFileButton;
+	public GameObject DeleteSureButton;
+	public TextMeshProUGUI FileDateText;
 	public GameObject QuitPaper;
 	public Slider MusicSlider;
 	public Slider SFXSlider;
@@ -186,7 +193,104 @@ public class MainMenu : MonoBehaviour
 
 		ChangeScreen(GameDataPaper);
 
+
+
+		DatafileDetailsPane.GetComponent<CanvasGroup>().alpha = 0f;
+		DatafileDetailsPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+
+		DatafileDeletePane.GetComponent<CanvasGroup>().alpha = 0f;
+		DatafileDeletePane.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
 	}
+
+
+	public void SelectFile(int FileNumber)
+	{
+
+		Debug.Log(FileNumber);
+
+		// Get date of file (we need to do this later when Save Games is made)
+		// This is just a dummy setup to get all the methods ready so that SaveGame can be tested as it's developed.
+		// Jam tomorrow etc
+
+		var FileDate = "27/01/97";
+
+
+		FileDateText.text = FileDate;
+		DatafileDetailsPane.GetComponent<CanvasGroup>().alpha = 1f;
+		DatafileDetailsPane.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
+		LoadFileButton.GetComponent<Button>().onClick.RemoveAllListeners();
+		DeleteFileButton.GetComponent<Button>().onClick.RemoveAllListeners();
+
+
+		LoadFileButton.GetComponent<Button>().onClick.AddListener(() => { LoadFile(FileNumber); });
+		DeleteFileButton.GetComponent<Button>().onClick.AddListener(() => { DeleteFile(FileNumber); });
+
+
+
+	}
+
+	public void LoadFile(int FileNumber)
+	{
+
+
+		DatafileDetailsPane.GetComponent<CanvasGroup>().alpha = 0f;
+		DatafileDetailsPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+
+		Debug.Log("File "+ FileNumber + " Loaded");
+
+	}
+
+	public void DeleteFile(int FileNumber)
+	{
+
+
+
+		DatafileDetailsPane.GetComponent<CanvasGroup>().alpha = 0f;
+		DatafileDetailsPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+		DatafileDeletePane.GetComponent<CanvasGroup>().alpha = 1f;
+		DatafileDeletePane.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
+
+
+		DeleteSureButton.GetComponent<Button>().onClick.RemoveAllListeners();
+		DeleteSureButton.GetComponent<Button>().onClick.AddListener(() => { DeleteFileSure(FileNumber); });
+
+
+
+
+		Debug.Log("File " + FileNumber + " Soon");
+
+	}
+
+	public void DeleteFileSure(int FileNumber)
+	{
+
+
+
+		DatafileDetailsPane.GetComponent<CanvasGroup>().alpha = 0f;
+		DatafileDetailsPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+		DatafileDeletePane.GetComponent<CanvasGroup>().alpha = 0f;
+		DatafileDeletePane.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+
+
+		Debug.Log("File " + FileNumber + " Deleted");
+
+	}
+
+
+
+
+
+
+
+
 
 
 	public void Options()

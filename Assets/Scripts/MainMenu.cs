@@ -169,57 +169,6 @@ public class MainMenu : MonoBehaviour
 
 
 
-
-
-
-
-
-
-
-
-
-    private void Update()
-    {
-		if (Input.GetKeyUp(KeyCode.Escape))
-		{
-			ExitToMain();
-		}
-
-
-		if (WaitingForKey)
-		{
-
-			if (!Input.GetKey(KeyCode.Escape))
-			{
-
-				if (Input.anyKey)
-				{
-					Debug.Log("A key or mouse click has been detected");
-				}
-
-			}
-
-		}
-
-
-
-
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	public void StartNewGame()
 	{
 
@@ -377,33 +326,6 @@ public class MainMenu : MonoBehaviour
 	}
 
 
-	public void Keyboard()
-	{
-
-		DoPaperMenu();
-
-		ChangeScreen(KeyboardPaper);
-
-
-
-		MusicSlider.GetComponentInChildren<Image>().color = Color.black;
-		SFXSlider.GetComponentInChildren<Image>().color = Color.black;
-
-
-
-
-	}
-
-
-
-	public void StartKeyboardListening(string GameFunction)
-	{
-
-		Debug.Log(GameFunction);
-
-
-	}
-
 
 
 	public void UpdateMusicSlider()
@@ -453,10 +375,64 @@ public class MainMenu : MonoBehaviour
 
 
 
+	public void Keyboard()
+	{
+
+		DoPaperMenu();
+
+		ChangeScreen(KeyboardPaper);
+
+
+
+		MusicSlider.GetComponentInChildren<Image>().color = Color.black;
+		SFXSlider.GetComponentInChildren<Image>().color = Color.black;
 
 
 
 
+	}
+
+
+
+	public void StartKeyboardListening(string GameFunction)
+	{
+
+		Debug.Log(GameFunction);
+
+
+
+	}
+
+
+
+
+	private void Update()
+	{
+		if (Input.GetKeyUp(KeyCode.Escape))
+		{
+			ExitToMain();
+		}
+
+
+		if (WaitingForKey)
+		{
+
+			if (!Input.GetKey(KeyCode.Escape))
+			{
+
+				if (Input.anyKey)
+				{
+					Debug.Log("A key or mouse click has been detected");
+				}
+
+			}
+
+		}
+
+
+
+
+	}
 
 
 
@@ -466,12 +442,18 @@ public class MainMenu : MonoBehaviour
 		if (PlayerPrefs.GetString("PlayerForwardKey1") == "")
 		{
 			PlayerForwardKeyText1.text = "W";
+
+			// these, but not yet.
+			//PlayerPrefs.SetString("PlayerForwardKey1", "W");
 		}
 
 		if (PlayerPrefs.GetString("PlayerForwardKey2") == "")
 		{
 			char upArrow = '\u2191';
 			PlayerForwardKeyText2.text = upArrow.ToString();
+
+			// these, but not yet.
+			//PlayerPrefs.SetString("PlayerForwardKey2", "UpArrow");
 		}
 
 
@@ -480,12 +462,17 @@ public class MainMenu : MonoBehaviour
 		if (PlayerPrefs.GetString("PlayerBackwardKey1") == "")
 		{
 			PlayerBackwardKeyText1.text = "S";
+			// these, but not yet.
+			//PlayerPrefs.SetString("PlayerBackwardKey1", "S");
 		}
 
 		if (PlayerPrefs.GetString("PlayerBackwardKey2") == "")
 		{
 			char upArrow = '\u2193';
 			PlayerBackwardKeyText2.text = upArrow.ToString();
+
+			// these, but not yet.
+			//PlayerPrefs.SetString("PlayerBackwardKey2", "DownArrow");
 		}
 
 
@@ -495,12 +482,18 @@ public class MainMenu : MonoBehaviour
 		if (PlayerPrefs.GetString("PlayerLeftKey1") == "")
 		{
 			PlayerLeftKeyText1.text = "A";
+
+			// these, but not yet.
+			//PlayerPrefs.SetString("PlayerLeftKey1", "A");
 		}
 
 		if (PlayerPrefs.GetString("PlayerLeftKey2") == "")
 		{
 			char upArrow = '\u2190';
 			PlayerLeftKeyText2.text = upArrow.ToString();
+
+			// these, but not yet.
+			//PlayerPrefs.SetString("PlayerLeftKey2", "LeftArrow");
 		}
 
 
@@ -511,12 +504,18 @@ public class MainMenu : MonoBehaviour
 		if (PlayerPrefs.GetString("PlayerRightKey1") == "")
 		{
 			PlayerRightKeyText1.text = "D";
+
+			// these, but not yet.
+			//PlayerPrefs.SetString("PlayerRightKey1", "D");
 		}
 
 		if (PlayerPrefs.GetString("PlayerRightKey2") == "")
 		{
 			char upArrow = '\u2192';
 			PlayerRightKeyText2.text = upArrow.ToString();
+
+			// these, but not yet.
+			//PlayerPrefs.SetString("PlayerRightKey2", "RightArrow");
 		}
 
 

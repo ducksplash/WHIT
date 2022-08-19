@@ -56,27 +56,28 @@ public class MainMenu : MonoBehaviour
 		{
 
 
-				if (screen.GetComponent<CanvasGroup>())
-				{
+			if (screen.GetComponent<CanvasGroup>())
+			{
 
 
-					screen.GetComponent<CanvasGroup>().alpha = 0.0f;
-					screen.GetComponent<CanvasGroup>().blocksRaycasts = false;
+				screen.GetComponent<CanvasGroup>().alpha = 0.0f;
+				screen.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+
 
 					if (screen.GetComponent<Image>())
 					{
-
 						if (screen.name.ToLower().Contains("idle"))
 						{
 							Debug.Log("got idle");
-							screen.GetComponent<Image>().color = new Color(234,234,181,255);
+							screen.GetComponent<Image>().color = new Color(234, 234, 181, 255);
 						}
 						else
 						{
 							screen.GetComponent<Image>().color = Color.white;
 						}
-
 					}
+				
 
 
 				readyForNewScreen = true;

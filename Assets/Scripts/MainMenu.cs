@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class MainMenu : MonoBehaviour
 {
@@ -36,6 +37,10 @@ public class MainMenu : MonoBehaviour
 	public TextMeshProUGUI SFXPercent;
 
 
+
+	public GameObject KeyBindingDialog;
+	public GameObject KeyBindingKeysParent;
+
 	public TextMeshProUGUI PlayerForwardKeyText1;
 	public TextMeshProUGUI PlayerForwardKeyText2;
 
@@ -54,6 +59,12 @@ public class MainMenu : MonoBehaviour
 
 	public List<string> AcceptableKeys;
 
+	public CanvasGroup BadKeyMsg;
+
+	public UnityEvent KeyWait;
+
+
+	public string KeySetFunction;
 
 	public void Start()
     {
@@ -295,7 +306,7 @@ public class MainMenu : MonoBehaviour
 		DatafileDeletePane.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
 
-
+		// replace me with the actial action later 
 		Debug.Log("File " + FileNumber + " Deleted");
 
 	}
@@ -382,11 +393,14 @@ public class MainMenu : MonoBehaviour
 
 		ChangeScreen(KeyboardPaper);
 
-
+		BadKeyMsg.alpha = 0;
 
 		MusicSlider.GetComponentInChildren<Image>().color = Color.black;
 		SFXSlider.GetComponentInChildren<Image>().color = Color.black;
 
+
+		KeyBindingDialog.GetComponent<CanvasGroup>().alpha = 0f;
+		KeyBindingDialog.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
 
 
@@ -400,6 +414,15 @@ public class MainMenu : MonoBehaviour
 		Debug.Log(GameFunction);
 
 
+		KeyBindingKeysParent.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+		KeyBindingDialog.GetComponent<CanvasGroup>().alpha = 1f;
+		KeyBindingDialog.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
+		KeySetFunction = GameFunction;
+
+
+		WaitingForKey = true;
 
 	}
 
@@ -422,19 +445,59 @@ public class MainMenu : MonoBehaviour
 
 				if (Input.anyKey)
 				{
-					Debug.Log("A key or mouse click has been detected");
+
+					Debug.Log("saving");
+
+					foreach (KeyCode kcode in Enum.GetValues(typeof(KeyCode)))
+					{
+						if (Input.GetKey(kcode))
+                        {
+							SaveKey(kcode, KeySetFunction);
+
+                        }
+
+					}
+
 				}
 
 			}
 
 		}
 
-
-
-
 	}
 
 
+
+	public void SaveKey(KeyCode thisKey, string GameFunction)
+	{
+		if (WaitingForKey)
+		{
+
+			if (AcceptableKeys.Contains(thisKey.ToString()))
+			{
+
+				KeyBindingKeysParent.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
+				KeyBindingDialog.GetComponent<CanvasGroup>().alpha = 0f;
+				KeyBindingDialog.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+
+				Debug.Log("saved " + thisKey + " for " + GameFunction);
+
+				WaitingForKey = false;
+
+			}
+			else
+            {
+				BadKeyMsg.alpha = 1;
+
+				Debug.Log("This key cannot be used, try another.");
+			}
+
+
+		}
+
+	}
 
 	void SetDefaultKeys()
 	{

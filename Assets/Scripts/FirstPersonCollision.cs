@@ -69,7 +69,7 @@ public class FirstPersonCollision : MonoBehaviour
 
     void Update()
 	{
-		if (Input.GetKeyUp(KeyCode.RightControl))
+		if (InputManager.GetKeyUp("crouch"))
 		{
 			if (!GameMaster.FROZEN)
 			{
@@ -109,14 +109,14 @@ public class FirstPersonCollision : MonoBehaviour
 			if (climbing)
 			{
 
-				if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.RightControl))
+				if (InputManager.GetKey("jump"))
                 {
 					ExitLadder(LadderAttachedTo);
                 }
 
 
 
-				if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+				if (InputManager.GetKey("up") || Input.GetKey(KeyCode.UpArrow))
 				{
 					Debug.Log("u");
 
@@ -128,7 +128,7 @@ public class FirstPersonCollision : MonoBehaviour
 
 				}
 
-				if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+				if (InputManager.GetKey("down") || Input.GetKey(KeyCode.DownArrow))
 				{
 					Debug.Log("d");
 
@@ -141,14 +141,14 @@ public class FirstPersonCollision : MonoBehaviour
 			{
 
 
-				if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+				if (InputManager.GetKey("up") || Input.GetKey(KeyCode.UpArrow))
 				{
 
 
 					if (!crouching)
 					{
 
-						if (Input.GetKey(KeyCode.Keypad0) || Input.GetKey(KeyCode.LeftShift))
+						if (Input.GetKey(KeyCode.Keypad0) || InputManager.GetKey("sprint"))
 						{
 							speed = sprintspeed;
 						}
@@ -164,7 +164,7 @@ public class FirstPersonCollision : MonoBehaviour
 				}
 
 
-				if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+				if (InputManager.GetKey("down") || Input.GetKey(KeyCode.DownArrow))
 				{
 					//Debug.Log("b");
 					var moveForce = transform.forward * speed * Time.smoothDeltaTime;
@@ -173,7 +173,7 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
-				if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+				if (InputManager.GetKey("left") || Input.GetKey(KeyCode.LeftArrow))
 				{
 					//Debug.Log("l");
 					var moveForce = transform.right * speed * Time.smoothDeltaTime;
@@ -182,7 +182,7 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
-				if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+				if (InputManager.GetKey("right") || Input.GetKey(KeyCode.RightArrow))
 				{
 					//Debug.Log("r");
 					var moveForce = transform.right * speed * Time.smoothDeltaTime;
@@ -213,7 +213,7 @@ public class FirstPersonCollision : MonoBehaviour
 			//devmode
 
 
-				if (Input.GetKey(KeyCode.Home))
+				if (InputManager.GetKey("respawn"))
                 {
 					transform.position = SpawnPoint;
                 }

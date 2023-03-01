@@ -35,6 +35,7 @@ public class MainMenu : MonoBehaviour
 	public Slider SFXSlider;
 	public TextMeshProUGUI MusicPercent;
 	public TextMeshProUGUI SFXPercent;
+	public string KeyboardButtonName;
 
 
 
@@ -414,6 +415,10 @@ public class MainMenu : MonoBehaviour
 		Debug.Log(GameFunction);
 
 
+
+	    KeyboardButtonName = EventSystem.current.currentSelectedGameObject.name;
+
+
 		KeyBindingKeysParent.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
 		KeyBindingDialog.GetComponent<CanvasGroup>().alpha = 1f;
@@ -446,14 +451,11 @@ public class MainMenu : MonoBehaviour
 				if (Input.anyKey)
 				{
 
-					Debug.Log("saving");
-
 					foreach (KeyCode kcode in Enum.GetValues(typeof(KeyCode)))
 					{
 						if (Input.GetKey(kcode))
                         {
 							SaveKey(kcode, KeySetFunction);
-
                         }
 
 					}
@@ -465,6 +467,26 @@ public class MainMenu : MonoBehaviour
 		}
 
 	}
+
+
+
+	public void SaveKeyHelper(KeyCode keycode, string action)
+	{
+		
+
+
+
+		// Save the key mapping to player prefs
+		PlayerPrefs.SetInt(action, (int)keycode);
+
+		// Update the input manager with the new key mapping
+		InputManager.SetKey(action, keycode);
+
+
+
+
+	}
+
 
 
 
@@ -482,7 +504,53 @@ public class MainMenu : MonoBehaviour
 				KeyBindingDialog.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
 
-				Debug.Log("saved " + thisKey + " for " + GameFunction);
+				//Debug.Log(GameFunction);
+
+							//Debug.Log(KeyboardButtonName);
+
+				// check which button it's for and update button text accordingly
+				if (GameFunction.ToLower().Contains("forward".ToLower()))
+				{
+
+
+
+					SaveKeyHelper(thisKey, "up");
+
+
+					PlayerForwardKeyText1.text = thisKey.ToString();
+				}
+
+
+				if (GameFunction.ToLower().Contains("backward".ToLower()))
+				{
+					
+					SaveKeyHelper(thisKey, "down");
+
+					PlayerBackwardKeyText1.text = thisKey.ToString();
+				}
+
+
+				if (GameFunction.ToLower().Contains("left".ToLower()))
+				{
+
+					
+					SaveKeyHelper(thisKey, "left");
+
+					PlayerLeftKeyText1.text = thisKey.ToString();
+				}
+
+
+				if (GameFunction.ToLower().Contains("right".ToLower()))
+				{
+
+					
+					SaveKeyHelper(thisKey, "right");
+					PlayerRightKeyText1.text = thisKey.ToString();
+				}
+
+
+				Debug.Log("i triggered again? "+WaitingForKey+" btn: "+KeyboardButtonName);
+
 
 				WaitingForKey = false;
 
@@ -502,83 +570,93 @@ public class MainMenu : MonoBehaviour
 	void SetDefaultKeys()
 	{
 
-		if (PlayerPrefs.GetString("PlayerForwardKey1") == "")
+		if (PlayerPrefs.HasKey("up"))
+		{
+			KeyCode upKeyCode = (KeyCode)PlayerPrefs.GetInt("up");
+			PlayerForwardKeyText1.text = upKeyCode.ToString();
+		}
+		else
 		{
 			PlayerForwardKeyText1.text = "W";
-
-			// these, but not yet.
-			//PlayerPrefs.SetString("PlayerForwardKey1", "W");
 		}
+		
 
 		if (PlayerPrefs.GetString("PlayerForwardKey2") == "")
 		{
 			char upArrow = '\u2191';
 			PlayerForwardKeyText2.text = upArrow.ToString();
 
-			// these, but not yet.
-			//PlayerPrefs.SetString("PlayerForwardKey2", "UpArrow");
+
 		}
 
 
 
-
-		if (PlayerPrefs.GetString("PlayerBackwardKey1") == "")
+		if (PlayerPrefs.HasKey("down"))
+		{
+			KeyCode dnKeyCode = (KeyCode)PlayerPrefs.GetInt("down");
+			PlayerBackwardKeyText1.text = dnKeyCode.ToString();
+		}
+		else
 		{
 			PlayerBackwardKeyText1.text = "S";
-			// these, but not yet.
-			//PlayerPrefs.SetString("PlayerBackwardKey1", "S");
 		}
+
+
 
 		if (PlayerPrefs.GetString("PlayerBackwardKey2") == "")
 		{
 			char upArrow = '\u2193';
 			PlayerBackwardKeyText2.text = upArrow.ToString();
 
-			// these, but not yet.
-			//PlayerPrefs.SetString("PlayerBackwardKey2", "DownArrow");
+
 		}
 
 
 
 
 
-		if (PlayerPrefs.GetString("PlayerLeftKey1") == "")
+		if (PlayerPrefs.HasKey("left"))
+		{
+			KeyCode leKeyCode = (KeyCode)PlayerPrefs.GetInt("left");
+			PlayerLeftKeyText1.text = leKeyCode.ToString();
+		}
+		else
 		{
 			PlayerLeftKeyText1.text = "A";
-
-			// these, but not yet.
-			//PlayerPrefs.SetString("PlayerLeftKey1", "A");
 		}
+
 
 		if (PlayerPrefs.GetString("PlayerLeftKey2") == "")
 		{
 			char upArrow = '\u2190';
 			PlayerLeftKeyText2.text = upArrow.ToString();
 
-			// these, but not yet.
-			//PlayerPrefs.SetString("PlayerLeftKey2", "LeftArrow");
+
 		}
 
 
 
 
 
-
-		if (PlayerPrefs.GetString("PlayerRightKey1") == "")
+		if (PlayerPrefs.HasKey("right"))
 		{
-			PlayerRightKeyText1.text = "D";
-
-			// these, but not yet.
-			//PlayerPrefs.SetString("PlayerRightKey1", "D");
+			KeyCode riKeyCode = (KeyCode)PlayerPrefs.GetInt("right");
+			PlayerRightKeyText1.text = riKeyCode.ToString();
 		}
+		else
+		{
+			PlayerRightKeyText1.text = "A";
+		}
+
+
+
 
 		if (PlayerPrefs.GetString("PlayerRightKey2") == "")
 		{
 			char upArrow = '\u2192';
 			PlayerRightKeyText2.text = upArrow.ToString();
 
-			// these, but not yet.
-			//PlayerPrefs.SetString("PlayerRightKey2", "RightArrow");
+
 		}
 
 
@@ -623,14 +701,9 @@ public class MainMenu : MonoBehaviour
 		AcceptableKeys.Add("Delete");
 		AcceptableKeys.Add("Tab");
 		AcceptableKeys.Add("Clear");
-		AcceptableKeys.Add("Return");
 		AcceptableKeys.Add("Pause");
 		AcceptableKeys.Add("Space");
 
-		AcceptableKeys.Add("UpArrow");
-		AcceptableKeys.Add("DownArrow");
-		AcceptableKeys.Add("LeftArrow");
-		AcceptableKeys.Add("RightArrow");
 		AcceptableKeys.Add("Insert");
 		AcceptableKeys.Add("Home");
 		AcceptableKeys.Add("End");

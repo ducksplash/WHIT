@@ -8556,6 +8556,7 @@ MonoBehaviour:
   taaMotionVectorRejection: 0
   taaAntiHistoryRinging: 0
   taaBaseBlendFactor: 0.875
+  taaJitterScale: 1
   physicalParameters:
     m_Iso: 200
     m_ShutterSpeed: 0.005
@@ -9409,6 +9410,7 @@ GameObject:
   - component: {fileID: 902006132}
   - component: {fileID: 902006134}
   - component: {fileID: 902006135}
+  - component: {fileID: 902006136}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -9466,6 +9468,7 @@ MonoBehaviour:
   SFXSlider: {fileID: 1609168877}
   MusicPercent: {fileID: 2122746517}
   SFXPercent: {fileID: 85512774}
+  KeyboardButtonName: 
   KeyBindingDialog: {fileID: 772634167}
   KeyBindingKeysParent: {fileID: 1728890892}
   PlayerForwardKeyText1: {fileID: 1215787821}
@@ -9505,6 +9508,18 @@ MonoBehaviour:
   - {fileID: 419049156}
   JustTheYear: 0
   NewspaperFormat: 1
+--- !u!114 &902006136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 902006131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7e3db8c70edffd4eb5717804c1c4673, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &909678428
 GameObject:
   m_ObjectHideFlags: 0
@@ -19566,6 +19581,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
   m_HorizontalAxis: Horizontal
   m_VerticalAxis: Vertical
   m_SubmitButton: Submit

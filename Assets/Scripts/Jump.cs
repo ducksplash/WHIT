@@ -26,7 +26,7 @@ public class Jump : MonoBehaviour
         if (!gameObject.GetComponent<FirstPersonCollision>().climbing)
         {
 
-            if (!GameMaster.FROZEN && groundCheck && !firstPersonColscript.crouching && (Input.GetButton("jump")))
+            if (!GameMaster.FROZEN && groundCheck && !firstPersonColscript.crouching && (InputManager.GetKey("jump")))
             {
                 moveDirection.y = jumpSpeed;
                 groundCheck = false;

@@ -271,7 +271,7 @@ public class phone : MonoBehaviour
 			}
 
 
-			if (Input.GetButtonUp("Phone"))
+			if (InputManager.GetKeyUp("phone"))
 			{
 
 				TogglePhone();
@@ -287,7 +287,7 @@ public class phone : MonoBehaviour
 
 			// take photos
 
-			if (Input.GetKey(KeyCode.X) && CameraReady)
+			if (InputManager.GetKeyUp("camera") && CameraReady)
 			{
 
 				TakePhoto();

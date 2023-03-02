@@ -43,16 +43,20 @@ public class MainMenu : MonoBehaviour
 	public GameObject KeyBindingKeysParent;
 
 	public TextMeshProUGUI PlayerForwardKeyText1;
-	public TextMeshProUGUI PlayerForwardKeyText2;
 
 	public TextMeshProUGUI PlayerBackwardKeyText1;
-	public TextMeshProUGUI PlayerBackwardKeyText2;
 
 	public TextMeshProUGUI PlayerLeftKeyText1;
-	public TextMeshProUGUI PlayerLeftKeyText2;
 
 	public TextMeshProUGUI PlayerRightKeyText1;
-	public TextMeshProUGUI PlayerRightKeyText2;
+
+	public TextMeshProUGUI PlayerJumpKeyText;
+	public TextMeshProUGUI PlayerCrouchKeyText;
+	public TextMeshProUGUI PlayerSprintKeyText;
+	public TextMeshProUGUI PlayerRespawnKeyText;
+	public TextMeshProUGUI PlayerPhoneKeyText;
+	public TextMeshProUGUI PlayerCameraKeyText;
+	public TextMeshProUGUI PlayerTorchKeyText;
 
 
 	public bool WaitingForKey;
@@ -470,202 +474,105 @@ public class MainMenu : MonoBehaviour
 
 
 
-	public void SaveKeyHelper(KeyCode keycode, string action)
-	{
-		
-
-
-
-		// Save the key mapping to player prefs
-		PlayerPrefs.SetInt(action, (int)keycode);
-
-		// Update the input manager with the new key mapping
-		InputManager.SetKey(action, keycode);
-
-
-
-
-	}
-
-
-
-
 	public void SaveKey(KeyCode thisKey, string GameFunction)
 	{
-		if (WaitingForKey)
+		if (!WaitingForKey)
 		{
-
-			if (AcceptableKeys.Contains(thisKey.ToString()))
-			{
-
-				KeyBindingKeysParent.GetComponent<CanvasGroup>().blocksRaycasts = true;
-
-				KeyBindingDialog.GetComponent<CanvasGroup>().alpha = 0f;
-				KeyBindingDialog.GetComponent<CanvasGroup>().blocksRaycasts = false;
-
-
-				//Debug.Log(GameFunction);
-
-							//Debug.Log(KeyboardButtonName);
-
-				// check which button it's for and update button text accordingly
-				if (GameFunction.ToLower().Contains("forward".ToLower()))
-				{
-
-
-
-					SaveKeyHelper(thisKey, "up");
-
-
-					PlayerForwardKeyText1.text = thisKey.ToString();
-				}
-
-
-				if (GameFunction.ToLower().Contains("backward".ToLower()))
-				{
-					
-					SaveKeyHelper(thisKey, "down");
-
-					PlayerBackwardKeyText1.text = thisKey.ToString();
-				}
-
-
-				if (GameFunction.ToLower().Contains("left".ToLower()))
-				{
-
-					
-					SaveKeyHelper(thisKey, "left");
-
-					PlayerLeftKeyText1.text = thisKey.ToString();
-				}
-
-
-				if (GameFunction.ToLower().Contains("right".ToLower()))
-				{
-
-					
-					SaveKeyHelper(thisKey, "right");
-					PlayerRightKeyText1.text = thisKey.ToString();
-				}
-
-
-				Debug.Log("i triggered again? "+WaitingForKey+" btn: "+KeyboardButtonName);
-
-
-				WaitingForKey = false;
-
-			}
-			else
-            {
-				BadKeyMsg.alpha = 1;
-
-				Debug.Log("This key cannot be used, try another.");
-			}
-
-
+			return;
 		}
 
+		if (!AcceptableKeys.Contains(thisKey.ToString()))
+		{
+			BadKeyMsg.alpha = 1;
+			Debug.Log("This key cannot be used, try another.");
+			return;
+		}
+
+		bool success;
+		switch (GameFunction.ToLower())
+		{
+			case "forward":
+				success = InputManager.SetKey("up", thisKey, BadKeyMsg);
+				PlayerForwardKeyText1.text = success ? thisKey.ToString() : PlayerForwardKeyText1.text;
+				break;
+			case "backward":
+				success = InputManager.SetKey("down", thisKey, BadKeyMsg);
+				PlayerBackwardKeyText1.text = success ? thisKey.ToString() : PlayerBackwardKeyText1.text;
+				break;
+			case "left":
+				success = InputManager.SetKey("left", thisKey, BadKeyMsg);
+				PlayerLeftKeyText1.text = success ? thisKey.ToString() : PlayerLeftKeyText1.text;
+				break;
+			case "right":
+				success = InputManager.SetKey("right", thisKey, BadKeyMsg);
+				PlayerRightKeyText1.text = success ? thisKey.ToString() : PlayerRightKeyText1.text;
+				break;
+			case "jump":
+				success = InputManager.SetKey("jump", thisKey, BadKeyMsg);
+				PlayerJumpKeyText.text = success ? thisKey.ToString() : PlayerJumpKeyText.text;
+				break;
+			case "crouch":
+				success = InputManager.SetKey("crouch", thisKey, BadKeyMsg);
+				PlayerCrouchKeyText.text = success ? thisKey.ToString() : PlayerCrouchKeyText.text;
+				break;
+			case "sprint":
+				success = InputManager.SetKey("sprint", thisKey, BadKeyMsg);
+				PlayerSprintKeyText.text = success ? thisKey.ToString() : PlayerSprintKeyText.text;
+				break;
+			case "respawn":
+				success = InputManager.SetKey("respawn", thisKey, BadKeyMsg);
+				PlayerRespawnKeyText.text = success ? thisKey.ToString() : PlayerRespawnKeyText.text;
+				break;
+			case "phone":
+				success = InputManager.SetKey("phone", thisKey, BadKeyMsg);
+				PlayerPhoneKeyText.text = success ? thisKey.ToString() : PlayerPhoneKeyText.text;
+				break;
+			case "camera":
+				success = InputManager.SetKey("camera", thisKey, BadKeyMsg);
+				PlayerCameraKeyText.text = success ? thisKey.ToString() : PlayerCameraKeyText.text;
+				break;
+			case "torch":
+				success = InputManager.SetKey("torch", thisKey, BadKeyMsg);
+				PlayerTorchKeyText.text = success ? thisKey.ToString() : PlayerTorchKeyText.text;
+				break;
+			default:
+				Debug.LogError("Unknown game function: " + GameFunction);
+				return;
+		}
+
+		if (success)
+		{
+			BadKeyMsg.alpha = 0;
+			KeyBindingKeysParent.GetComponent<CanvasGroup>().blocksRaycasts = true;
+			KeyBindingDialog.GetComponent<CanvasGroup>().alpha = 0f;
+			KeyBindingDialog.GetComponent<CanvasGroup>().blocksRaycasts = false;
+			WaitingForKey = false;
+		}
+		else
+		{
+			BadKeyMsg.alpha = 1;
+		}
 	}
 
 	void SetDefaultKeys()
 	{
+		// sets key label for menu/settings/keyboard setup
 
-		if (PlayerPrefs.HasKey("up"))
-		{
-			KeyCode upKeyCode = (KeyCode)PlayerPrefs.GetInt("up");
-			PlayerForwardKeyText1.text = upKeyCode.ToString();
-		}
-		else
-		{
-			PlayerForwardKeyText1.text = "W";
-		}
-		
-
-		if (PlayerPrefs.GetString("PlayerForwardKey2") == "")
-		{
-			char upArrow = '\u2191';
-			PlayerForwardKeyText2.text = upArrow.ToString();
-
-
-		}
-
-
-
-		if (PlayerPrefs.HasKey("down"))
-		{
-			KeyCode dnKeyCode = (KeyCode)PlayerPrefs.GetInt("down");
-			PlayerBackwardKeyText1.text = dnKeyCode.ToString();
-		}
-		else
-		{
-			PlayerBackwardKeyText1.text = "S";
-		}
-
-
-
-		if (PlayerPrefs.GetString("PlayerBackwardKey2") == "")
-		{
-			char upArrow = '\u2193';
-			PlayerBackwardKeyText2.text = upArrow.ToString();
-
-
-		}
-
-
-
-
-
-		if (PlayerPrefs.HasKey("left"))
-		{
-			KeyCode leKeyCode = (KeyCode)PlayerPrefs.GetInt("left");
-			PlayerLeftKeyText1.text = leKeyCode.ToString();
-		}
-		else
-		{
-			PlayerLeftKeyText1.text = "A";
-		}
-
-
-		if (PlayerPrefs.GetString("PlayerLeftKey2") == "")
-		{
-			char upArrow = '\u2190';
-			PlayerLeftKeyText2.text = upArrow.ToString();
-
-
-		}
-
-
-
-
-
-		if (PlayerPrefs.HasKey("right"))
-		{
-			KeyCode riKeyCode = (KeyCode)PlayerPrefs.GetInt("right");
-			PlayerRightKeyText1.text = riKeyCode.ToString();
-		}
-		else
-		{
-			PlayerRightKeyText1.text = "A";
-		}
-
-
-
-
-		if (PlayerPrefs.GetString("PlayerRightKey2") == "")
-		{
-			char upArrow = '\u2192';
-			PlayerRightKeyText2.text = upArrow.ToString();
-
-
-		}
-
-
-
-
-
-
-
+		PlayerForwardKeyText1.text = PlayerPrefs.HasKey("up") ? ((KeyCode)PlayerPrefs.GetInt("up")).ToString() : "W";
+		PlayerBackwardKeyText1.text = PlayerPrefs.HasKey("down") ? ((KeyCode)PlayerPrefs.GetInt("down")).ToString() : "S";
+		PlayerLeftKeyText1.text = PlayerPrefs.HasKey("left") ? ((KeyCode)PlayerPrefs.GetInt("left")).ToString() : "A";
+		PlayerRightKeyText1.text = PlayerPrefs.HasKey("right") ? ((KeyCode)PlayerPrefs.GetInt("right")).ToString() : "D";
+		PlayerJumpKeyText.text = PlayerPrefs.HasKey("jump") ? ((KeyCode)PlayerPrefs.GetInt("jump")).ToString() : "SPACE";
+		PlayerCrouchKeyText.text = PlayerPrefs.HasKey("crouch") ? ((KeyCode)PlayerPrefs.GetInt("crouch")).ToString() : "LEFT CTRL";
+		PlayerSprintKeyText.text = PlayerPrefs.HasKey("sprint") ? ((KeyCode)PlayerPrefs.GetInt("sprint")).ToString() : "LEFT SHIFT";
+		PlayerRespawnKeyText.text = PlayerPrefs.HasKey("respawn") ? ((KeyCode)PlayerPrefs.GetInt("respawn")).ToString() : "R";
+		PlayerPhoneKeyText.text = PlayerPrefs.HasKey("phone") ? ((KeyCode)PlayerPrefs.GetInt("phone")).ToString() : "P";
+		PlayerCameraKeyText.text = PlayerPrefs.HasKey("camera") ? ((KeyCode)PlayerPrefs.GetInt("camera")).ToString() : "X";
+		PlayerTorchKeyText.text = PlayerPrefs.HasKey("torch") ? ((KeyCode)PlayerPrefs.GetInt("torch")).ToString() : "H";
 	}
+
+
+
 
 
 	void SetAcceptableKeys()

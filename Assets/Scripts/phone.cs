@@ -673,9 +673,11 @@ public class phone : MonoBehaviour
 		CameraRightFlash.enabled = true;
 
 
+		string camerakey = InputManager.GetKeyName("camera");
+
 		if (GameMaster.EvidenceFound.Count < 1)
 		{
-			var dialogstring = "First photo?\n\nWhen evidence is in view, the camera frame will turn green and you just have to press X.\n\nNot green? Not evidence.\n\nYou may have to crouch.";
+			var dialogstring = "First photo?\n\nWhen evidence is in view, the camera frame will turn green and you just have to press "+camerakey+".\n\nNot green? Not evidence.\n\nYou may have to crouch.";
 			var fakegameobject = new GameObject("FakeObjectPhone", typeof(BoxCollider));
 			fakegameobject.GetComponent<Collider>().enabled = false;
 			Player.GetComponent<DialogueManager>().NewDialogue("Kieron", dialogstring, 10, fakegameobject);
@@ -1116,6 +1118,11 @@ public class phone : MonoBehaviour
 
 							CameraReadyFrame.color = Color.green;
 							CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
+
+
+							string camerakey = InputManager.GetKeyName("camera");
+
+							CameraReadyText.text = "press "+camerakey+" to photograph evidence";
 							CameraReady = true;
 							ObservedEvidence = other.gameObject;
 						}

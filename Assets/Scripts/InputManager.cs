@@ -125,4 +125,41 @@ public class InputManager : MonoBehaviour
             return false;
         }
     }
+
+    public static string GetKeyName(string actionName)
+    {
+        if (keys.TryGetValue(actionName, out KeyCode keyCode))
+        {
+            return keyCode.ToString();
+        }
+        return null;
+    }
+
+    public static void SetDefault()
+    {
+        Dictionary<string, KeyCode> defaultKeys = new Dictionary<string, KeyCode>()
+        {
+            {"jump", KeyCode.Space},
+            {"up", KeyCode.W},
+            {"down", KeyCode.S},
+            {"left", KeyCode.A},
+            {"right", KeyCode.D},
+            {"crouch", KeyCode.LeftControl},
+            {"sprint", KeyCode.LeftShift},
+            {"respawn", KeyCode.R},
+            {"phone", KeyCode.P},
+            {"camera", KeyCode.X},
+            {"torch", KeyCode.H}
+        };
+
+        // Loop through each key and assign the default keycode to the input manager
+        foreach (KeyValuePair<string, KeyCode> pair in defaultKeys)
+        {
+            // Set the keycode for the input manager
+            keys[pair.Key] = pair.Value;
+            PlayerPrefs.SetInt(pair.Key, (int)pair.Value);
+        }
+
+        PlayerPrefs.SetString("InputKeys", string.Join(",", keys.Keys));
+    }
 }

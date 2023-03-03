@@ -252,7 +252,11 @@ public class pickup : MonoBehaviour
 
 					GameMaster.TORCHCOLLECTED = true;
 					Destroy(hit.transform.gameObject); 
-					var dialogstring = "Found it! I can check that it works by pressing H.";
+
+					string torchkey = InputManager.GetKeyName("torch");
+
+
+					var dialogstring = "Found it! I can check that it works by pressing "+torchkey+".";
 					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
 					torchTick.alpha = 1;
 				}
@@ -273,7 +277,10 @@ public class pickup : MonoBehaviour
 
 					GameMaster.PHONECOLLECTED = true;
 					Destroy(hit.transform.gameObject);
-					var dialogstring = "My phone. I should test that it works by pressing P.";
+
+					string phonekey = InputManager.GetKeyName("phone");
+
+					var dialogstring = "My phone. I should test that it works by pressing "+phonekey+".";
 					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
 					phoneTick.alpha = 1;
 

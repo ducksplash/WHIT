@@ -69,7 +69,7 @@ public class FirstPersonCollision : MonoBehaviour
 
     void Update()
 	{
-		if (InputManager.GetKeyUp("crouch"))
+		if (InputManager.GetKeyUp("crouch") || Input.GetKey(KeyCode.RightControl))
 		{
 			if (!GameMaster.FROZEN)
 			{

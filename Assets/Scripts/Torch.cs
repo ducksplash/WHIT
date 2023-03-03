@@ -56,7 +56,7 @@ public class Torch : MonoBehaviour
 				if (!GameMaster.FROZEN)
 				{
 
-					if (Input.GetMouseButtonUp(2) || Input.GetButtonUp("Flashlight"))
+					if (Input.GetMouseButtonUp(2) || InputManager.GetKeyUp("torch"))
 					{
 						if (!torchToggle)
 						{

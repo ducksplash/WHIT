@@ -40,6 +40,8 @@ public class MainMenu : MonoBehaviour
 
 
 	public GameObject KeyBindingDialog;
+	public GameObject RestoreDefaultsDialog;
+	public GameObject ReservedKeysDialog;
 	public GameObject KeyBindingKeysParent;
 
 	public TextMeshProUGUI PlayerForwardKeyText1;
@@ -79,7 +81,7 @@ public class MainMenu : MonoBehaviour
 
 		SetAcceptableKeys();
 
-		SetDefaultKeys();
+		LoadSavedKeys();
 
 	}
 
@@ -394,18 +396,27 @@ public class MainMenu : MonoBehaviour
 	public void Keyboard()
 	{
 
+		WaitingForKey = false;
+		BadKeyMsg.alpha = 0;
+
 		DoPaperMenu();
 
 		ChangeScreen(KeyboardPaper);
 
-		BadKeyMsg.alpha = 0;
 
 		MusicSlider.GetComponentInChildren<Image>().color = Color.black;
 		SFXSlider.GetComponentInChildren<Image>().color = Color.black;
 
+		// i keep forgetting to put these in.
 
 		KeyBindingDialog.GetComponent<CanvasGroup>().alpha = 0f;
 		KeyBindingDialog.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+		RestoreDefaultsDialog.GetComponent<CanvasGroup>().alpha = 0f;
+		RestoreDefaultsDialog.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+		ReservedKeysDialog.GetComponent<CanvasGroup>().alpha = 0f;
+		ReservedKeysDialog.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
 
 
@@ -418,6 +429,7 @@ public class MainMenu : MonoBehaviour
 
 		Debug.Log(GameFunction);
 
+			BadKeyMsg.alpha = 0;
 
 
 	    KeyboardButtonName = EventSystem.current.currentSelectedGameObject.name;
@@ -554,7 +566,7 @@ public class MainMenu : MonoBehaviour
 		}
 	}
 
-	void SetDefaultKeys()
+	void LoadSavedKeys()
 	{
 		// sets key label for menu/settings/keyboard setup
 
@@ -572,6 +584,34 @@ public class MainMenu : MonoBehaviour
 	}
 
 
+	public void SetDefaultKeys()
+	{
+			KeyBindingKeysParent.GetComponent<CanvasGroup>().blocksRaycasts = false;
+			RestoreDefaultsDialog.GetComponent<CanvasGroup>().alpha = 1f;
+			RestoreDefaultsDialog.GetComponent<CanvasGroup>().blocksRaycasts = true;
+	}
+
+
+	public void ReservedKeys()
+	{
+			KeyBindingKeysParent.GetComponent<CanvasGroup>().blocksRaycasts = false;
+			ReservedKeysDialog.GetComponent<CanvasGroup>().alpha = 1f;
+			ReservedKeysDialog.GetComponent<CanvasGroup>().blocksRaycasts = true;
+	}
+
+
+	public void SetDefaultConfirm()
+	{
+
+
+			KeyBindingKeysParent.GetComponent<CanvasGroup>().blocksRaycasts = true;
+			RestoreDefaultsDialog.GetComponent<CanvasGroup>().alpha = 0f;
+			RestoreDefaultsDialog.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+			InputManager.SetDefault();
+			LoadSavedKeys();
+
+	}
 
 
 
@@ -662,9 +702,7 @@ public class MainMenu : MonoBehaviour
 		AcceptableKeys.Add("RightCurlyBracket");
 		AcceptableKeys.Add("Pipe");
 
-		AcceptableKeys.Add("RightShift");
 		AcceptableKeys.Add("LeftShift");
-		AcceptableKeys.Add("RightControl");
 		AcceptableKeys.Add("LeftControl");
 		AcceptableKeys.Add("RightAlt");
 		AcceptableKeys.Add("LeftAlt");

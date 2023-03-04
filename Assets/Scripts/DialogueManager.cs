@@ -16,15 +16,23 @@ public class DialogueManager : MonoBehaviour
     public Image ContactPhoto;
     public TextMeshProUGUI ReceivedMessage;
     public TextMeshProUGUI NoraMessage;
+    public TextMeshProUGUI SystemMessage;
     public bool DialogInProgress;
     public Image timebar;
     public float messagetimer = 0f;
+
+
+
+
     void Start()
     {
         DialogManagerCanvas = DialogManager.GetComponent<CanvasGroup>();
 
         NoraMessage.text = "";
+        SystemMessage.text = "";
     }
+
+
 
     private void Update()
     {
@@ -32,10 +40,9 @@ public class DialogueManager : MonoBehaviour
         { 
             timebar.fillAmount -= 1.0f / messagetimer * Time.deltaTime;
         }
-
-
-
     }
+
+
 
     public void NewDialogue(string Contact, string message, float displaytimer, GameObject CallingObject)
     {
@@ -52,6 +59,8 @@ public class DialogueManager : MonoBehaviour
     }
 
 
+
+
     public IEnumerator Queuer(string Contact, string message, float displaytimer, GameObject CallingObject)
     {
         Debug.Log("queued");
@@ -61,15 +70,29 @@ public class DialogueManager : MonoBehaviour
 
 
 
+
+
     public void CreateDialogue(string Contact, string message, float displaytimer, GameObject CallingObject)
     {
-       // if (DialogInProgress)
-      //  {
-       //     StopCoroutine(NoraTimer(displaytimer, CallingObject));
-      //      StopCoroutine(MessageTimer(displaytimer, CallingObject));
-      //  }
 
-        if (Contact == "NORA")
+        if (Contact == "SYSTEM")
+        {
+            if (!GameMaster.DialogueSeen.ContainsKey(message))
+            {
+
+                messagetimer = displaytimer;
+
+                DialogInProgress = true;
+                SystemMessage.text = message;
+
+                StartCoroutine(SystemTimer(displaytimer, CallingObject));
+
+                // log me
+                GameMaster.DialogueSeen.Add(message, Contact);
+            }
+
+        }
+        else if (Contact == "NORA")
         {
             if (!GameMaster.DialogueSeen.ContainsKey(message))
             {
@@ -183,6 +206,25 @@ public class DialogueManager : MonoBehaviour
         NoraMessage.text = "";
         yield return new WaitForSeconds(0.5f);
         DialogInProgress = false;
+    }
+
+
+
+
+    public IEnumerator SystemTimer(float timevalue, GameObject CalledBy)
+    {
+
+        yield return new WaitForSeconds(timevalue);
+
+        if (CalledBy != null)
+        {
+            CalledBy.GetComponent<Collider>().enabled = true;
+        }
+
+        SystemMessage.text = "";
+        yield return new WaitForSeconds(0.5f);
+        DialogInProgress = false;        
+
     }
 
 

@@ -14,7 +14,9 @@ public class cutscene : MonoBehaviour
     public Camera mainCamera;
     public GameObject cutsceneBars;
     public string message;
+    public bool ZoomToTarget;
     private bool isZooming;
+
 
     // Variables to store the original player and camera positions
     private Vector3 originalPlayerPos;
@@ -82,19 +84,13 @@ public class cutscene : MonoBehaviour
                 mainCamera.GetComponent<FirstPersonLook>().enabled = true;
 
 
-
                 // Reset the elapsed cutscene time
                 elapsedCutsceneTime = 0.0f;
 
                 // Deactivate the cutscene
                 isCutsceneActive = false;
 
-                // Reset the camera aspect ratio and field of view
-                mainCamera.aspect = originalAspectRatio;
-                mainCamera.fieldOfView = originalFieldOfView;
 
-                // Fade out the cutscene bars     
-                   
                 mainCamera.GetComponent<Zoom>().enabled = true;
                 StartCoroutine(FadeOutCutsceneBars());
             }
@@ -116,7 +112,7 @@ public class cutscene : MonoBehaviour
             // Calculate the angle between the camera and the target object
 
 
-                if (angle < 5f && !isZooming)
+                if (angle < 5f && !isZooming && ZoomToTarget)
                 {
                     StartCoroutine(DoZoom());
                     isZooming = true;
@@ -176,7 +172,7 @@ public class cutscene : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.fixedDeltaTime / (panTime / 2);
+            t += Time.fixedDeltaTime;
             cutsceneBars.GetComponent<CanvasGroup>().alpha = Mathf.Lerp(1f, 0f, t);
             yield return null;
         }
@@ -186,31 +182,31 @@ public class cutscene : MonoBehaviour
     }
 
 
-private IEnumerator DoZoom()
-{
-    float duration = 2.0f; // The duration of the zoom in seconds
-    float startTime = Time.time; // The start time of the zoom
-    float startFOV = 70.0f; // The starting field of view
-    float endFOV = 40.0f; // The ending field of view
-
-    mainCamera.GetComponent<Zoom>().enabled = false;
-
-    // Zoom in over time
-    for (float t = 0.0f; t < duration; t += Time.deltaTime)
+    private IEnumerator DoZoom()
     {
-        // Interpolate the field of view using Mathf.Lerp
-        float fov = Mathf.Lerp(startFOV, endFOV, t / duration);
+        float duration = 2.0f; // The duration of the zoom in seconds
+        float startTime = Time.time; // The start time of the zoom
+        float startFOV = 70.0f; // The starting field of view
+        float endFOV = 40.0f; // The ending field of view
 
-        // Set the camera's field of view
-        mainCamera.fieldOfView = fov;
+        mainCamera.GetComponent<Zoom>().enabled = false;
 
-        // Wait for the end of the frame
-        yield return new WaitForEndOfFrame();
+        // Zoom in over time
+        for (float t = 0.0f; t < duration; t += Time.deltaTime)
+        {
+            // Interpolate the field of view using Mathf.Lerp
+            float fov = Mathf.Lerp(startFOV, endFOV, t / duration);
+
+            // Set the camera's field of view
+            mainCamera.fieldOfView = fov;
+
+            // Wait for the end of the frame
+            yield return new WaitForEndOfFrame();
+        }
+
+        // Set the final field of view to ensure accuracy
+        mainCamera.fieldOfView = endFOV;
     }
-
-    // Set the final field of view to ensure accuracy
-    mainCamera.fieldOfView = endFOV;
-}
 
     private void cleanup()
     {

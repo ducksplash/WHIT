@@ -110,7 +110,7 @@ public class battery : MonoBehaviour
         {
             yield return new WaitForSeconds(0.2f);
 
-            fillLevel = fillLevel + 0.5f;
+            fillLevel = fillLevel + 0.01f;
 
             fillBG.text = "<mspace=1.5em>" + fillLevel.ToString("#0") + "%</mspace>";
             fillFG.text = "<mspace=1.5em>" + fillLevel.ToString("#0") + "%</mspace>";

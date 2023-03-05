@@ -256,7 +256,7 @@ public class pickup : MonoBehaviour
 					string torchkey = InputManager.GetKeyName("torch");
 
 
-					var dialogstring = "Found it! I can check that it works by pressing "+torchkey+".";
+					var dialogstring = "Found my torch, I can check that it works by pressing "+torchkey+". and I can swing it if I left click.";
 					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
 					torchTick.alpha = 1;
 				}

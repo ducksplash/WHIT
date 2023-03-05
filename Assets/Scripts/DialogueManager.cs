@@ -11,7 +11,7 @@ using UnityEngine.EventSystems;
 public class DialogueManager : MonoBehaviour
 {
     public GameObject DialogManager;
-    public CanvasGroup DialogManagerCanvas;
+    private CanvasGroup DialogManagerCanvas;
     public TextMeshProUGUI ContactName;
     public Image ContactPhoto;
     public TextMeshProUGUI ReceivedMessage;

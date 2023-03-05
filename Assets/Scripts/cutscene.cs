@@ -13,9 +13,14 @@ public class cutscene : MonoBehaviour
     public GameObject targetObject;
     public Camera mainCamera;
     public GameObject cutsceneBars;
+    public GameObject ColliderCube;
+
+    [TextArea(3, 10)]
     public string message;
+    
     public bool ZoomToTarget;
-    private bool isZooming;
+    private bool isZooming;    
+
 
 
     // Variables to store the original player and camera positions
@@ -35,6 +40,9 @@ public class cutscene : MonoBehaviour
     // Start is called before the first frame update
     void Start() 
     {
+
+        ColliderCube.SetActive(false);
+
         // Get references to the player and camera
         mainCamera = Camera.main;
 
@@ -49,6 +57,7 @@ public class cutscene : MonoBehaviour
         // Disable the black bars initially
         cutsceneBars.GetComponent<CanvasGroup>().alpha = 0;
     }
+
 
     private void OnTriggerEnter(Collider other) {
         if (other.gameObject.layer == 3) 

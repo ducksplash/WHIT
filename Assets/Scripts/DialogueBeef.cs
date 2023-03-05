@@ -11,6 +11,11 @@ using UnityEngine.EventSystems;
 public class DialogueBeef : MonoBehaviour
 {
 
+
+
+    [Header("Dev Placeholder Cube")]
+    public GameObject ColliderCube;
+
     [Header("Message from:")]
     public string ContactName;
     [Header("Message contents:")]
@@ -34,6 +39,16 @@ public class DialogueBeef : MonoBehaviour
 
     [Header("Debug (ignore)")]
     public float forhowlong;
+
+
+
+
+void Start() 
+    {
+
+        ColliderCube.SetActive(false);
+
+    }
 
 
 

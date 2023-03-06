@@ -26,13 +26,15 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 		Notepad.SetActive(false);
 		loadingbar.fillAmount = 0;
 
+
+
 	}
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
 
 
-		Debug.Log("anything??");
+
 		if (eventData.button == PointerEventData.InputButton.Right)
 		{
 			if (CompanionOpen)

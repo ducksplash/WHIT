@@ -68,7 +68,7 @@ public class GameMaster : MonoBehaviour
     // EQ Expected
     public static int ExpectedEQ_Level0 = 1;
     public static int ExpectedEQ_Level1 = 18;
-    public static int ExpectedEQ_Level2 = 0;
+    public static int ExpectedEQ_Level2 = 19;
 
 
 
@@ -158,6 +158,7 @@ public class GameMaster : MonoBehaviour
 
             PlayerPrefs.SetInt("EQLevelNorasFlat", GameMaster.EQThisLevel);
             PlayerPrefs.SetInt("EQLevel1", GameMaster.EQThisLevel);
+            PlayerPrefs.SetInt("EQLevel2", GameMaster.EQThisLevel);
 
             GarbageRun = true;
         }
@@ -245,6 +246,18 @@ void Start ()
 
             ExpectedEQThisLevel = ExpectedEQ_Level1;
             ExpectedEQThisLevel = ExpectedEQ_Level1;
+
+
+
+        }
+
+
+
+        if (THISLEVEL == "2")
+        {
+
+            ExpectedEQThisLevel = ExpectedEQ_Level2;
+            ExpectedEQThisLevel = ExpectedEQ_Level2;
 
 
 

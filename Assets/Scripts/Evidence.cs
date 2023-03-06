@@ -74,6 +74,7 @@ public class Evidence : MonoBehaviour
             var EvidenceFilename = transform.name + ".quack";
             var EvidencePhotoFilename = transform.name + ".png";
             var EvidenceSlug = EvidenceName + "\n";
+            
             EvidenceSlug += EvidencePhotoFilename + "\n";
             EvidenceSlug += evidencedate + "\n";
             EvidenceSlug += EvidenceFake + "\n";

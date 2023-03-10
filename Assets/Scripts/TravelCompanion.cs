@@ -23,6 +23,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
     {
 
 		
+        GameMaster.FROZEN = false;
 		Notepad.SetActive(false);
 		loadingbar.fillAmount = 0;
 

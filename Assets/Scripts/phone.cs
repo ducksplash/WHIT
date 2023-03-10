@@ -271,19 +271,21 @@ public class phone : MonoBehaviour
 			}
 
 
-			if (InputManager.GetKeyUp("phone"))
+			if (!GameMaster.FROZEN)
 			{
+				if (InputManager.GetKeyUp("phone"))
+				{
 
-				TogglePhone();
+					TogglePhone();
 
+				}
+
+
+				if (GameMaster.PHONEOUT && Input.GetKeyUp(KeyCode.Escape))
+				{
+					TogglePhone();
+				}
 			}
-
-
-			if (GameMaster.PHONEOUT && Input.GetKeyUp(KeyCode.Escape))
-			{
-				TogglePhone();
-			}
-
 
 			// take photos
 

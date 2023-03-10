@@ -74,11 +74,7 @@ public class cutscene : MonoBehaviour
     {
         if (isCutsceneActive)
         {
-            // Disable player controls
-            // player.GetComponent<FirstPersonCollision>().enabled = false;
-
-            // // Disable camera controls
-            // mainCamera.GetComponent<FirstPersonLook>().enabled = false;
+            
 
             GameMaster.FROZEN = true;
 
@@ -88,15 +84,6 @@ public class cutscene : MonoBehaviour
             // Check if the cutscene is over
             if (elapsedCutsceneTime >= duration)
             {
-                // // Restore player controls
-                // player.GetComponent<FirstPersonCollision>().enabled = true;
-
-                // // Restore camera controls
-                // mainCamera.GetComponent<FirstPersonLook>().enabled = true;
-
-                
-                GameMaster.FROZEN = false;
-
 
                 // Reset the elapsed cutscene time
                 elapsedCutsceneTime = 0.0f;
@@ -104,8 +91,6 @@ public class cutscene : MonoBehaviour
                 // Deactivate the cutscene
                 isCutsceneActive = false;
 
-
-                mainCamera.GetComponent<Zoom>().enabled = true;
                 StartCoroutine(FadeOutCutsceneBars());
             }
             else
@@ -226,7 +211,9 @@ public class cutscene : MonoBehaviour
     {
         
         GameMaster.FROZEN = false;
-
+        mainCamera.fieldOfView = 70.0f;
+        mainCamera.GetComponent<Zoom>().enabled = true;
+        cutsceneBars.GetComponent<CanvasGroup>().alpha = 0;
         Destroy(gameObject);
     }
 

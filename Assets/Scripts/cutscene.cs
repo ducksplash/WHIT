@@ -75,10 +75,12 @@ public class cutscene : MonoBehaviour
         if (isCutsceneActive)
         {
             // Disable player controls
-            player.GetComponent<FirstPersonCollision>().enabled = false;
+            // player.GetComponent<FirstPersonCollision>().enabled = false;
 
-            // Disable camera controls
-            mainCamera.GetComponent<FirstPersonLook>().enabled = false;
+            // // Disable camera controls
+            // mainCamera.GetComponent<FirstPersonLook>().enabled = false;
+
+            GameMaster.FROZEN = true;
 
             // Calculate the elapsed cutscene time
             elapsedCutsceneTime += Time.deltaTime;
@@ -86,11 +88,14 @@ public class cutscene : MonoBehaviour
             // Check if the cutscene is over
             if (elapsedCutsceneTime >= duration)
             {
-                // Restore player controls
-                player.GetComponent<FirstPersonCollision>().enabled = true;
+                // // Restore player controls
+                // player.GetComponent<FirstPersonCollision>().enabled = true;
 
-                // Restore camera controls
-                mainCamera.GetComponent<FirstPersonLook>().enabled = true;
+                // // Restore camera controls
+                // mainCamera.GetComponent<FirstPersonLook>().enabled = true;
+
+                
+                GameMaster.FROZEN = false;
 
 
                 // Reset the elapsed cutscene time
@@ -220,11 +225,8 @@ public class cutscene : MonoBehaviour
     private void cleanup()
     {
         
-        // Restore player controls if the cutscene is accidentally re-triggered
-        player.GetComponent<FirstPersonCollision>().enabled = true;
+        GameMaster.FROZEN = false;
 
-        // Restore camera controls if the cutscene is accidentally re-triggered
-        mainCamera.GetComponent<FirstPersonLook>().enabled = true;
         Destroy(gameObject);
     }
 

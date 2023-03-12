@@ -59,6 +59,7 @@ public class MainMenu : MonoBehaviour
 	public TextMeshProUGUI PlayerPhoneKeyText;
 	public TextMeshProUGUI PlayerCameraKeyText;
 	public TextMeshProUGUI PlayerTorchKeyText;
+	public TextMeshProUGUI PlayerSpecialKeyText;
 
 
 	public bool WaitingForKey;
@@ -547,6 +548,10 @@ public class MainMenu : MonoBehaviour
 				success = InputManager.SetKey("torch", thisKey, BadKeyMsg);
 				PlayerTorchKeyText.text = success ? thisKey.ToString() : PlayerTorchKeyText.text;
 				break;
+			case "special":
+				success = InputManager.SetKey("special", thisKey, BadKeyMsg);
+				PlayerSpecialKeyText.text = success ? thisKey.ToString() : PlayerSpecialKeyText.text;
+				break;
 			default:
 				Debug.LogError("Unknown game function: " + GameFunction);
 				return;
@@ -581,6 +586,7 @@ public class MainMenu : MonoBehaviour
 		PlayerPhoneKeyText.text = PlayerPrefs.HasKey("phone") ? ((KeyCode)PlayerPrefs.GetInt("phone")).ToString() : "P";
 		PlayerCameraKeyText.text = PlayerPrefs.HasKey("camera") ? ((KeyCode)PlayerPrefs.GetInt("camera")).ToString() : "X";
 		PlayerTorchKeyText.text = PlayerPrefs.HasKey("torch") ? ((KeyCode)PlayerPrefs.GetInt("torch")).ToString() : "H";
+		PlayerSpecialKeyText.text = PlayerPrefs.HasKey("special") ? ((KeyCode)PlayerPrefs.GetInt("special")).ToString() : "Z";
 	}
 
 

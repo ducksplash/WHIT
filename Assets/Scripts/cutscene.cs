@@ -62,11 +62,13 @@ public class cutscene : MonoBehaviour
     private void OnTriggerEnter(Collider other) {
         if (other.gameObject.layer == 3) 
         {
-            ActivateCutscene();
-            SendALetter(other);
 
-
-
+            if (!GameMaster.CutSceneSeen.ContainsKey(message))
+            {
+                ActivateCutscene();
+                SendALetter(other);
+                GameMaster.CutSceneSeen.Add(message, "SYSTEM");
+            }
         }
     }
 
@@ -146,8 +148,6 @@ public class cutscene : MonoBehaviour
 
 
             var TheCallingObject = gameObject;
-
-
 
             other.gameObject.GetComponent<DialogueManager>().NewDialogue("SYSTEM", message, duration, TheCallingObject);
 

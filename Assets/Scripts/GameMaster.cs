@@ -90,6 +90,10 @@ public class GameMaster : MonoBehaviour
 
     public static Dictionary<string, string> DialogueSeen = new Dictionary<string, string>();
 
+    // now again for cutscenes
+
+    public static Dictionary<string, string> CutSceneSeen = new Dictionary<string, string>();
+
     // Evidence Log
     // Again, mainly preventing duplication
     // With the secondary use being in the phone again, as an "Evidence Log" in the "Gallery App"

@@ -16,7 +16,8 @@ public class InputManager : MonoBehaviour
         {"respawn", KeyCode.R},
         {"phone", KeyCode.P},
         {"camera", KeyCode.X},
-        {"torch", KeyCode.H}
+        {"torch", KeyCode.H},
+        {"special", KeyCode.Z}
     };
 
     void Start()
@@ -149,7 +150,8 @@ public class InputManager : MonoBehaviour
             {"respawn", KeyCode.R},
             {"phone", KeyCode.P},
             {"camera", KeyCode.X},
-            {"torch", KeyCode.H}
+            {"torch", KeyCode.H},
+            {"special", KeyCode.Z}
         };
 
         // Loop through each key and assign the default keycode to the input manager

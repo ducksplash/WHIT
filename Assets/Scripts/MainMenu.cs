@@ -1,5 +1,4 @@
 ﻿using TMPro;
-using UnityEditor.Events;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
@@ -15,6 +15,7 @@ public class MainMenu : MonoBehaviour
 
 	public GameObject PaperMenuParent;
 
+	public CanvasGroup MainMenuRoot;
 	public GameObject IdlePaper;
 	public GameObject NewGamePaper;
 	public GameObject ProloguePaper;
@@ -62,6 +63,11 @@ public class MainMenu : MonoBehaviour
 	public TextMeshProUGUI PlayerSpecialKeyText;
 
 
+	public CanvasGroup loadingpanel;
+	public Image loadingbar;
+	public TextMeshProUGUI loadingclock;
+
+	
 	public bool WaitingForKey;
 
 
@@ -663,17 +669,6 @@ public class MainMenu : MonoBehaviour
 		AcceptableKeys.Add("PageUp");
 		AcceptableKeys.Add("PageDown");
 
-		AcceptableKeys.Add("Alpha0");
-		AcceptableKeys.Add("Alpha1");
-		AcceptableKeys.Add("Alpha2");
-		AcceptableKeys.Add("Alpha3");
-		AcceptableKeys.Add("Alpha4");
-		AcceptableKeys.Add("Alpha5");
-		AcceptableKeys.Add("Alpha6");
-		AcceptableKeys.Add("Alpha7");
-		AcceptableKeys.Add("Alpha8");
-		AcceptableKeys.Add("Alpha9");
-
 		AcceptableKeys.Add("Exclaim");
 		AcceptableKeys.Add("DoubleQuote");
 		AcceptableKeys.Add("Hash");
@@ -715,6 +710,91 @@ public class MainMenu : MonoBehaviour
 		AcceptableKeys.Add("AltGr");
 
 	}
+
+
+
+
+
+
+
+
+
+//// start game
+
+
+
+    public void StartGame()
+	{
+		GameMaster.INMENU = false;
+		GameMaster.FROZEN = false;
+		loadingpanel.alpha = 1;
+		MainMenuRoot.alpha = 0;
+		StartCoroutine(ChangeSceneAsync("NorasFlat"));
+	}
+
+
+
+
+	IEnumerator ChangeSceneAsync(string levelName)
+	{
+
+
+		AsyncOperation op = SceneManager.LoadSceneAsync(levelName);
+
+
+		var buildDate = "";
+
+		buildDate += System.DateTime.Now.ToString("dddd");
+		buildDate += ", ";
+		buildDate += System.DateTime.Now.ToString("MMMM d");
+		buildDate += MonthDay(System.DateTime.Now.ToString("dd").ToString());
+		buildDate += ", ";
+		buildDate += System.DateTime.Now.ToString("yyyy");
+
+
+		loadingclock.text = buildDate;
+
+
+		while (!op.isDone)
+		{
+			loadingbar.fillAmount = Mathf.Clamp01(op.progress / .9f);
+
+
+			yield return null;
+		}
+	}
+
+
+
+
+
+	public string MonthDay(string day)
+	{
+		string nuNum = "th";
+		if (int.Parse(day) < 11 || int.Parse(day) > 20)
+		{
+			day = day.ToCharArray()[^1].ToString();
+			switch (day)
+			{
+				case "1":
+					nuNum = "st";
+					break;
+				case "2":
+					nuNum = "nd";
+					break;
+				case "3":
+					nuNum = "rd";
+					break;
+			}
+		}
+		return nuNum;
+	}
+
+
+
+
+
+
 }
 
 

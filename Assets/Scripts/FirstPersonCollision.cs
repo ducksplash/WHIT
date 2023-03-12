@@ -148,7 +148,7 @@ public class FirstPersonCollision : MonoBehaviour
 					if (!crouching)
 					{
 
-						if (Input.GetKey(KeyCode.Keypad0) || InputManager.GetKey("sprint"))
+						if (Input.GetKey(KeyCode.Keypad0) ||Input.GetKey(KeyCode.Alpha0) || InputManager.GetKey("sprint"))
 						{
 							speed = sprintspeed;
 						}

@@ -108,7 +108,7 @@ public class pickup : MonoBehaviour
 		if (pickup.hasobject == true && myHeldItem != null)
 		{
 
-			if (Input.GetKey(KeyCode.Keypad1))
+			if (Input.GetKey(KeyCode.Keypad1) || Input.GetKey(KeyCode.Alpha1))
 			{
 
 				myHeldItem.Rotate(new Vector3(-5, 5, 0) * (Time.smoothDeltaTime * 20));
@@ -116,7 +116,7 @@ public class pickup : MonoBehaviour
 			}
 
 
-			if (Input.GetKey(KeyCode.Keypad2))
+			if (Input.GetKey(KeyCode.Keypad2) || Input.GetKey(KeyCode.Alpha2))
 			{
 
 				myHeldItem.Rotate(new Vector3(-5, 0, 0) * (Time.smoothDeltaTime * 20));
@@ -124,7 +124,7 @@ public class pickup : MonoBehaviour
 			}
 
 
-			if (Input.GetKey(KeyCode.Keypad3))
+			if (Input.GetKey(KeyCode.Keypad3) || Input.GetKey(KeyCode.Alpha3))
 			{
 
 				myHeldItem.Rotate(new Vector3(-5, -5, 0) * (Time.smoothDeltaTime * 20));
@@ -135,7 +135,7 @@ public class pickup : MonoBehaviour
 
 
 
-			if (Input.GetKey(KeyCode.Keypad4))
+			if (Input.GetKey(KeyCode.Keypad4) || Input.GetKey(KeyCode.Alpha4))
 			{
 
 				myHeldItem.Rotate(new Vector3(0, 5, 0) * (Time.smoothDeltaTime * 20));
@@ -143,13 +143,10 @@ public class pickup : MonoBehaviour
 			}
 
 
-			if (Input.GetKeyUp(KeyCode.Keypad5))
+			if (Input.GetKeyUp(KeyCode.Keypad5) || Input.GetKey(KeyCode.Alpha5))
 			{
 
 				Debug.Log("focus");
-
-				//handTransform.LookAt(transform, -transform.forward);
-
 
 				myHeldItem.transform.localEulerAngles = transform.forward * -1;
 			}
@@ -157,14 +154,14 @@ public class pickup : MonoBehaviour
 
 
 
-			if (Input.GetKey(KeyCode.Keypad6))
+			if (Input.GetKey(KeyCode.Keypad6) || Input.GetKey(KeyCode.Alpha6))
 			{
 
 				myHeldItem.Rotate(new Vector3(0, -5, 0) * (Time.smoothDeltaTime * 20));
 
 			}
 
-			if (Input.GetKey(KeyCode.Keypad7))
+			if (Input.GetKey(KeyCode.Keypad7) || Input.GetKey(KeyCode.Alpha7))
 			{
 
 				myHeldItem.Rotate(new Vector3(5, -5, 0) * (Time.smoothDeltaTime * 20));
@@ -173,9 +170,7 @@ public class pickup : MonoBehaviour
 
 
 
-
-
-			if (Input.GetKey(KeyCode.Keypad8))
+			if (Input.GetKey(KeyCode.Keypad8) || Input.GetKey(KeyCode.Alpha8))
 			{
 
 				myHeldItem.Rotate(new Vector3(5, 0, 0) * (Time.smoothDeltaTime * 20));
@@ -184,7 +179,7 @@ public class pickup : MonoBehaviour
 
 
 
-			if (Input.GetKey(KeyCode.Keypad9))
+			if (Input.GetKey(KeyCode.Keypad9) || Input.GetKey(KeyCode.Alpha9))
 			{
 
 				myHeldItem.Rotate(new Vector3(5, 5, 0) * (Time.smoothDeltaTime * 20));

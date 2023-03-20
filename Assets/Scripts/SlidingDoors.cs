@@ -15,6 +15,8 @@ public class SlidingDoors : MonoBehaviour
     private enum DoorState { Closed, Opening, Opened, Closing }
     private DoorState doorState;
 	public GameObject thedoor;
+	public bool isLocked = false;
+	
 
     private void Start()
     {
@@ -31,7 +33,7 @@ public class SlidingDoors : MonoBehaviour
 
 
 
-		if (other.GetComponent<CharacterController>() != null && doorState == DoorState.Closed)
+		if (other.GetComponent<CharacterController>() != null && doorState == DoorState.Closed && !isLocked)
         {
 			Debug.Log("sliding door");
 
@@ -51,12 +53,6 @@ public class SlidingDoors : MonoBehaviour
     }
 
 
-
-
-    private void Update()
-    {
-		
-    }
 
     private IEnumerator OpenDoor()
     {

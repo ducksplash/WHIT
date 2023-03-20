@@ -64,6 +64,7 @@ public class clickable : MonoBehaviour
             int pickuplayer = LayerMask.NameToLayer("pickupable");
             int evidencelayer = LayerMask.NameToLayer("evidence");
             int staticevidencelayer = LayerMask.NameToLayer("staticevidence");
+            int slidingdoorlayer = LayerMask.NameToLayer("slidingdoor");
 
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -215,6 +216,34 @@ public class clickable : MonoBehaviour
                     if (hit.distance <= 3f)
                     {
                         if (hit.transform.parent.parent.GetComponent<innerDoors>().isLocked)
+                        {
+                            selectcursor.sprite = lockeddoorsprite;
+                            INFOTEXT("locked", "red");
+                        }
+                        else
+                        {
+                            selectcursor.sprite = doorspritegreen;
+                            INFOTEXT("");
+                        }
+                    }
+                    else
+                    {
+                        selectcursor.sprite = doorsprite;
+                        INFOTEXT("");
+                    }
+
+
+
+                }
+
+
+
+                if (hit.transform.gameObject.layer == slidingdoorlayer)
+                {
+                    //Debug.Log("door");
+                    if (hit.distance <= 3f)
+                    {
+                        if (hit.transform.GetComponent<SlidingDoors>().isLocked)
                         {
                             selectcursor.sprite = lockeddoorsprite;
                             INFOTEXT("locked", "red");

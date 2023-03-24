@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class LiftDoors : MonoBehaviour
 {
@@ -13,18 +15,56 @@ public class LiftDoors : MonoBehaviour
 
     }
 
+
+
+
+
+
+
     private void Update()
     {
-        // No need to check if door is fully open in Update method
+        if (Input.GetMouseButtonDown(1))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+            {
+                if (hit.distance <= 5.5f)
+                {
+                    Debug.Log(hit.transform.name);
+                    if (hit.transform.name.Contains("liftcallbutton"))
+                    {
+                    Debug.Log("klik");
+                        char floorchar = hit.transform.name[hit.transform.name.Length - 1];
+                        CallTheLift(floorchar);
+                    }
+                }
+            }
+        }
     }
 
-    private void OnTriggerEnter(Collider other)
+
+
+
+
+
+
+
+
+
+
+
+    public void CallTheLift(char calledfrom)
     {
-        if (other.GetComponent<CharacterController>() != null && !isDoorOpen)
+        Debug.Log(calledfrom);
+
+
+        if (!isDoorOpen)
         {
             door_animator.Play("opened");     
             isDoorOpen = true;
-        }
+        } 
+
     }
 
     private IEnumerator OnTriggerExit(Collider other)
@@ -37,7 +77,7 @@ public class LiftDoors : MonoBehaviour
             yield return null;
         }
 
-        if (other.GetComponent<CharacterController>() != null && isDoorOpen)
+        if (isDoorOpen)
         {
             door_animator.Play("closed");
             isDoorOpen = false;

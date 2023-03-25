@@ -6,7 +6,8 @@ using TMPro;
 public class LiftController : MonoBehaviour
 {
     private bool isDoorOpen = false;
-    public Animator door_animator;
+    public Animator inner_door_animator;
+    public Animator outer_door_animator;
     public string currentfloor = "G";
     public bool liftismoving;
 
@@ -38,9 +39,7 @@ public class LiftController : MonoBehaviour
             {
                 if (!isDoorOpen)
                 {
-
                     OpenLiftDoors();
-
                     Debug.Log("lift called from outside [X] or same as current floor");
                 } 
             }
@@ -56,8 +55,31 @@ public class LiftController : MonoBehaviour
 
     public void OpenLiftDoors()
     {
-        door_animator.Play("opened");     
+        inner_door_animator.Play("opened");     
+        outer_door_animator.Play("opened");     
         isDoorOpen = true;
+    }
+
+
+
+
+    public IEnumerator CloseLiftDoors()
+    {
+
+        Debug.Log("close em");
+        // Wait until the animation is finished
+        while (inner_door_animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f)
+        {
+            // Do nothing, just wait
+            yield return null;
+        }
+
+        if (isDoorOpen)
+        {
+            inner_door_animator.Play("closed");
+            outer_door_animator.Play("closed");
+            isDoorOpen = false;
+        }
     }
 
 
@@ -75,23 +97,13 @@ public class LiftController : MonoBehaviour
     }
 
 
-    private IEnumerator OnTriggerExit(Collider other)
+    private void OnTriggerExit(Collider other)
     {       
         if (other.gameObject.GetComponent<CharacterController>() != null)
         {
-            Debug.Log("close em");
-            // Wait until the animation is finished
-            while (door_animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f)
-            {
-                // Do nothing, just wait
-                yield return null;
-            }
+            
+            StartCoroutine(CloseLiftDoors());
 
-            if (isDoorOpen)
-            {
-                door_animator.Play("closed");
-                isDoorOpen = false;
-            }
         }
     }
 

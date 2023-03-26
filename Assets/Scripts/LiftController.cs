@@ -1,183 +1,148 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 
 public class LiftController : MonoBehaviour
 {
     private bool isDoorOpen = false;
-    public Animator inner_door_animator;
-    public Animator outer_door_animator;
-    public string currentfloor = "G";
-    public bool liftismoving;
-    public bool doorsmoving;
+    private bool isLiftMoving = false;
+    private bool areDoorsMoving = false;
 
-    public Transform FloorStopG;
-    public Transform FloorStop1;
-    public Transform FloorStopB1;
-    public Transform FloorStopB2;
-    public Transform CARRIAGE;
+    public Animator innerDoorAnimator;
+    public Animator outerDoorAnimator;
 
-    public GameObject Player;
+    public Transform floorStopG;
+    public Transform floorStop1;
+    public Transform floorStopB1;
+    public Transform floorStopB2;
+    public Transform carriage;
+    public bool controlsenabled = true;
 
+    public GameObject player;
 
     private void Update()
     {
         if (Input.GetMouseButtonDown(1))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
-            {
-                if (hit.transform.name == "X" || hit.transform.name == "G" || hit.transform.name == "1" || hit.transform.name == "B1" || hit.transform.name == "B2")
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 2.5f) &&
+                (hit.transform.name == "X" || hit.transform.name == "G" || hit.transform.name == "1" ||
+                 hit.transform.name == "B1" || hit.transform.name == "B2"))
                 {
-                    if (hit.distance <= 2.5f)
+                    if (!isLiftMoving && !areDoorsMoving)
                     {
-                        if (!liftismoving && !doorsmoving)
-                        {
-                            CallTheLift(hit.transform.name);
-                        }
+                        CallTheLift(hit.transform.name);
                     }
                 }
-
-            }
         }
     }
 
-
-
-    public void CallTheLift(string calledfrom)
+    private void CallTheLift(string calledFrom)
     {
-
-
-        if (calledfrom == "X")
+        if (calledFrom == "X")
         {
             if (!isDoorOpen)
             {
                 OpenLiftDoors();
-            } 
+            }
         }
         else
         {
-            StartCoroutine(GoToFloor(calledfrom));
+            StartCoroutine(GoToFloor(calledFrom));
         }
-        
     }
 
-
-
-    public void OpenLiftDoors()
+    private void OpenLiftDoors()
     {
-        doorsmoving = true;
-        inner_door_animator.Play("opened");     
-        outer_door_animator.Play("opened");     
+        areDoorsMoving = true;
+        innerDoorAnimator.Play("opened");
+        outerDoorAnimator.Play("opened");
         isDoorOpen = true;
-        doorsmoving = false;
+        areDoorsMoving = false;
     }
 
-
-
-    public IEnumerator CloseLiftDoors()
+    private IEnumerator CloseLiftDoors()
     {
-
-        Debug.Log("close em");
-        // Wait until the animation is finished
-        while (inner_door_animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f)
+        while (innerDoorAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f)
         {
-            // Do nothing, just wait
             yield return null;
         }
 
         if (isDoorOpen)
         {
-            doorsmoving = true;
-            inner_door_animator.Play("closed");
-            outer_door_animator.Play("closed");
+            areDoorsMoving = true;
+            innerDoorAnimator.Play("closed");
+            outerDoorAnimator.Play("closed");
             isDoorOpen = false;
-            doorsmoving = false;
+            areDoorsMoving = false;
         }
     }
 
-
-
-
-
-
-    public IEnumerator GoToFloor(string floorselected)
+    private IEnumerator GoToFloor(string floorSelected)
     {
-
-        GameMaster.FROZEN = true;
+        // wait for doors to close...
+        StartCoroutine(CloseLiftDoors());
         
-        // close doors
-        yield return StartCoroutine(CloseLiftDoors());
+        controlsenabled = false;
 
-        // move lift
-        liftismoving = true;
+        yield return new WaitForSeconds(3f);
 
+        // ...then move the lift
 
+        // set lift to moving
+        isLiftMoving = true;
 
-        Player.transform.SetParent(CARRIAGE);
-        Vector3 startPosition = CARRIAGE.position;
-        Vector3 targetPos = CARRIAGE.position;
-        
-        if (floorselected == "G")
+        // parent player to lift carriage
+        player.transform.SetParent(carriage);
+
+        // set destination
+        Vector3 startPosition = carriage.position;
+        Vector3 targetPosition = startPosition;
+        switch (floorSelected)
         {
-            targetPos.y = FloorStopG.position.y;
-        }
-        else if (floorselected == "1")
-        {
-            targetPos.y = FloorStop1.position.y;
-        }
-        else if (floorselected == "B1")
-        {
-            targetPos.y = FloorStopB1.position.y;
-        }
-        else if (floorselected == "B2")
-        {
-            targetPos.y = FloorStopB2.position.y;
+            case "G":
+                targetPosition.y = floorStopG.position.y;
+                break;
+            case "1":
+                targetPosition.y = floorStop1.position.y;
+                break;
+            case "B1":
+                targetPosition.y = floorStopB1.position.y;
+                break;
+            case "B2":
+                targetPosition.y = floorStopB2.position.y;
+                break;
         }
 
+        // move over time
         float startTime = Time.time;
         float duration = 5.0f;
 
-        while (Time.time - startTime < duration)
+        while (carriage.position != targetPosition)
         {
-            float timeFraction = (Time.time - startTime) / duration;
-            CARRIAGE.position = Vector3.Lerp(startPosition, targetPos, timeFraction);
+            float timeFraction = Mathf.Clamp01((Time.time - startTime) / duration);
+            carriage.position = Vector3.Lerp(startPosition, targetPosition, timeFraction);
             yield return null;
         }
 
-        CARRIAGE.position = targetPos;
+        // de-parent player from carriage
+        player.transform.SetParent(null);
 
-        currentfloor = floorselected;
-
-        Debug.Log("lift called from inside, "+floorselected+" floor");            
-        Player.transform.SetParent(null);
-
-        liftismoving = false;
+        // set lift to not moving
+        isLiftMoving = false;
 
         // open doors
         OpenLiftDoors();
+        controlsenabled = true;
 
-
-        GameMaster.FROZEN = false;
-
+        yield break;
     }
-
-
 
 
 
     private void OnTriggerExit(Collider other)
-    {       
+    {
         if (other.gameObject.GetComponent<CharacterController>() != null)
         {
-            
             StartCoroutine(CloseLiftDoors());
-
         }
     }
-
-
-
 }

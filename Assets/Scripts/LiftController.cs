@@ -1,5 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
 
 public class LiftController : MonoBehaviour
 {
@@ -17,14 +21,35 @@ public class LiftController : MonoBehaviour
     public Transform carriage;
     public bool controlsenabled = true;
 
+    public string currentfloor = "G";
+    // display floor name/num
+
+    public TextMeshProUGUI floorTextOutsideG;
+    public TextMeshProUGUI floorTextOutside1;
+    //public TextMeshProUGUI floorTextOutsideB1;
+    //public TextMeshProUGUI floorTextOutsideB2;
+    public TextMeshProUGUI floorTextInside;
+
+
+
     public GameObject player;
+
+
+    private void Start()
+    {
+        floorTextInside.text = currentfloor;
+        floorTextOutsideG.text = currentfloor;
+        floorTextOutside1.text = currentfloor;
+        //floorTextOutsideB1.text = currentfloor;
+        //floorTextOutsideB2.text = currentfloor;
+    }
 
     private void Update()
     {
         if (Input.GetMouseButtonDown(1))
         {
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 2.5f) &&
-                (hit.transform.name == "X" || hit.transform.name == "G" || hit.transform.name == "1" ||
+                (hit.transform.name.Contains("X") || hit.transform.name == "G" || hit.transform.name == "1" ||
                  hit.transform.name == "B1" || hit.transform.name == "B2"))
                 {
                     if (!isLiftMoving && !areDoorsMoving)
@@ -35,13 +60,29 @@ public class LiftController : MonoBehaviour
         }
     }
 
+
+
+
     private void CallTheLift(string calledFrom)
     {
-        if (calledFrom == "X")
+        // if called from outside
+        if (calledFrom == "X1" || calledFrom == "XG" || calledFrom == "XB1" || calledFrom == "XB2")
         {
             if (!isDoorOpen)
             {
-                OpenLiftDoors();
+
+                if (calledFrom == "X"+currentfloor)
+                {
+                    OpenLiftDoors();
+                    Debug.Log("same floor");
+                }
+                else
+                {
+                    StartCoroutine(CallToFloor(calledFrom));
+                    Debug.Log("diff floor");
+                }
+
+
             }
         }
         else
@@ -49,6 +90,8 @@ public class LiftController : MonoBehaviour
             StartCoroutine(GoToFloor(calledFrom));
         }
     }
+
+
 
     private void OpenLiftDoors()
     {
@@ -58,6 +101,8 @@ public class LiftController : MonoBehaviour
         isDoorOpen = true;
         areDoorsMoving = false;
     }
+
+
 
     private IEnumerator CloseLiftDoors()
     {
@@ -76,14 +121,74 @@ public class LiftController : MonoBehaviour
         }
     }
 
+
+
+
+    private IEnumerator CallToFloor(string floorSelected)
+    {
+        Debug.Log("called: "+floorSelected);
+        Vector3 startPosition = carriage.position;
+        Vector3 targetPosition = startPosition;
+        switch (floorSelected)
+        {
+            case "XG":
+                targetPosition.y = floorStopG.position.y;
+                break;
+            case "X1":
+                targetPosition.y = floorStop1.position.y;
+                break;
+            case "XB1":
+                targetPosition.y = floorStopB1.position.y;
+                break;
+            case "XB2":
+                targetPosition.y = floorStopB2.position.y;
+                break;
+        }
+
+        // move over time
+        float startTime = Time.time;
+        float duration = 5.0f;
+
+        while (carriage.position != targetPosition)
+        {
+            float timeFraction = Mathf.Clamp01((Time.time - startTime) / duration);
+            carriage.position = Vector3.Lerp(startPosition, targetPosition, timeFraction);
+            yield return null;
+        }
+
+        OpenLiftDoors();
+
+        floorTextInside.text = floorSelected;
+        floorTextOutside1.text = GetFloorDirection(currentfloor,floorSelected);
+        floorTextOutsideG.text = GetFloorDirection(currentfloor,floorSelected);
+        //floorTextOutsideB1.text = GetFloorDirection(currentfloor,floorSelected);
+        //floorTextOutsideB2.text = GetFloorDirection(currentfloor,floorSelected);
+    }
+
+
+
+
+
+
+
     private IEnumerator GoToFloor(string floorSelected)
     {
-        // wait for doors to close...
-        StartCoroutine(CloseLiftDoors());
-        
+        // disable controls
         controlsenabled = false;
 
-        yield return new WaitForSeconds(3f);
+        // if doors open then close
+
+
+
+        if (isDoorOpen)
+        {
+            StartCoroutine(CloseLiftDoors());
+            yield return new WaitForSeconds(3f);
+        }
+
+        floorTextInside.text = GetFloorDirection(currentfloor,floorSelected);
+
+
 
         // ...then move the lift
 
@@ -128,9 +233,12 @@ public class LiftController : MonoBehaviour
 
         // set lift to not moving
         isLiftMoving = false;
+        currentfloor = floorSelected;
+        floorTextInside.text = floorSelected;
 
         // open doors
         OpenLiftDoors();
+
         controlsenabled = true;
 
         yield break;
@@ -145,4 +253,34 @@ public class LiftController : MonoBehaviour
             StartCoroutine(CloseLiftDoors());
         }
     }
+
+
+
+
+
+
+    public string GetFloorDirection(string currentFloor, string selectedFloor)
+    {
+        // Define the order of the floors
+        string[] floorOrder = { "B2", "B1", "G", "1" };
+
+        // Get the indices of the current and selected floors
+        int currentFloorIndex = Array.IndexOf(floorOrder, currentFloor);
+        int selectedFloorIndex = Array.IndexOf(floorOrder, selectedFloor);
+
+        // Compare the indices to determine direction
+        if (selectedFloorIndex > currentFloorIndex)
+        {
+            return "\u2191";
+        }
+        else if (selectedFloorIndex < currentFloorIndex)
+        {
+            return "\u2193";
+        }
+        else
+        {
+            return currentFloor;
+        }
+    }
+
 }

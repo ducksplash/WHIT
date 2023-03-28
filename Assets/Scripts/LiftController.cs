@@ -20,13 +20,15 @@ public class LiftController : MonoBehaviour
     public Transform floorStopB2;
     public Transform carriage;
     public bool controlsenabled = true;
+    
+    public float liftduration = 7.0f;
 
     public string currentfloor = "G";
     // display floor name/num
 
     public TextMeshProUGUI floorTextOutsideG;
     public TextMeshProUGUI floorTextOutside1;
-    //public TextMeshProUGUI floorTextOutsideB1;
+    public TextMeshProUGUI floorTextOutsideB1;
     //public TextMeshProUGUI floorTextOutsideB2;
     public TextMeshProUGUI floorTextInside;
 
@@ -40,7 +42,7 @@ public class LiftController : MonoBehaviour
         floorTextInside.text = currentfloor;
         floorTextOutsideG.text = currentfloor;
         floorTextOutside1.text = currentfloor;
-        //floorTextOutsideB1.text = currentfloor;
+        floorTextOutsideB1.text = currentfloor;
         //floorTextOutsideB2.text = currentfloor;
     }
 
@@ -147,22 +149,26 @@ public class LiftController : MonoBehaviour
 
         // move over time
         float startTime = Time.time;
-        float duration = 5.0f;
+
+        
+        floorTextOutside1.text = GetFloorDirection(currentfloor,floorSelected.Substring(1));
+        floorTextOutsideG.text = GetFloorDirection(currentfloor,floorSelected.Substring(1));
+        floorTextOutsideB1.text = GetFloorDirection(currentfloor,floorSelected.Substring(1));
 
         while (carriage.position != targetPosition)
         {
-            float timeFraction = Mathf.Clamp01((Time.time - startTime) / duration);
+            float timeFraction = Mathf.Clamp01((Time.time - startTime) / liftduration);
             carriage.position = Vector3.Lerp(startPosition, targetPosition, timeFraction);
             yield return null;
         }
 
         OpenLiftDoors();
 
-        floorTextInside.text = floorSelected;
-        floorTextOutside1.text = GetFloorDirection(currentfloor,floorSelected);
-        floorTextOutsideG.text = GetFloorDirection(currentfloor,floorSelected);
-        //floorTextOutsideB1.text = GetFloorDirection(currentfloor,floorSelected);
-        //floorTextOutsideB2.text = GetFloorDirection(currentfloor,floorSelected);
+        floorTextInside.text = floorSelected.Substring(1);
+        floorTextOutside1.text = floorSelected.Substring(1);
+        floorTextOutsideG.text = floorSelected.Substring(1);   
+        floorTextOutsideB1.text = floorSelected.Substring(1);        
+        currentfloor = floorSelected.Substring(1);
     }
 
 
@@ -219,11 +225,10 @@ public class LiftController : MonoBehaviour
 
         // move over time
         float startTime = Time.time;
-        float duration = 5.0f;
 
         while (carriage.position != targetPosition)
         {
-            float timeFraction = Mathf.Clamp01((Time.time - startTime) / duration);
+            float timeFraction = Mathf.Clamp01((Time.time - startTime) / liftduration);
             carriage.position = Vector3.Lerp(startPosition, targetPosition, timeFraction);
             yield return null;
         }
@@ -235,6 +240,9 @@ public class LiftController : MonoBehaviour
         isLiftMoving = false;
         currentfloor = floorSelected;
         floorTextInside.text = floorSelected;
+        floorTextOutside1.text = floorSelected;
+        floorTextOutsideG.text = floorSelected;    
+        floorTextOutsideB1.text = floorSelected;    
 
         // open doors
         OpenLiftDoors();

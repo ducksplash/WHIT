@@ -82,7 +82,7 @@ public class FirstPersonCollision : MonoBehaviour
 					var up = Vector3.up;
 					RaycastHit hit;
 
-					if (!Physics.Raycast(MainCam.transform.position, up, out hit, 3f))
+					if (!Physics.Raycast(MainCam.transform.position, up, out hit, 2.5f))
 					{
 
 						uncrouch();

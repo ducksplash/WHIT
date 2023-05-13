@@ -20,7 +20,7 @@ public class LiftController : MonoBehaviour
     public Transform floorStopB2;
     public Transform carriage;
     public bool controlsenabled = true;
-    
+
     public float liftduration = 7.0f;
 
     public string currentfloor = "G";
@@ -53,12 +53,12 @@ public class LiftController : MonoBehaviour
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 2.5f) &&
                 (hit.transform.name.Contains("X") || hit.transform.name == "G" || hit.transform.name == "1" ||
                  hit.transform.name == "B1" || hit.transform.name == "B2"))
+            {
+                if (!isLiftMoving && !areDoorsMoving)
                 {
-                    if (!isLiftMoving && !areDoorsMoving)
-                    {
-                        CallTheLift(hit.transform.name);
-                    }
+                    CallTheLift(hit.transform.name);
                 }
+            }
         }
     }
 
@@ -73,7 +73,7 @@ public class LiftController : MonoBehaviour
             if (!isDoorOpen)
             {
 
-                if (calledFrom == "X"+currentfloor)
+                if (calledFrom == "X" + currentfloor)
                 {
                     OpenLiftDoors();
                     Debug.Log("same floor");
@@ -128,7 +128,7 @@ public class LiftController : MonoBehaviour
 
     private IEnumerator CallToFloor(string floorSelected)
     {
-        Debug.Log("called: "+floorSelected);
+        Debug.Log("called: " + floorSelected);
         Vector3 startPosition = carriage.position;
         Vector3 targetPosition = startPosition;
         switch (floorSelected)
@@ -150,10 +150,10 @@ public class LiftController : MonoBehaviour
         // move over time
         float startTime = Time.time;
 
-        
-        floorTextOutside1.text = GetFloorDirection(currentfloor,floorSelected.Substring(1));
-        floorTextOutsideG.text = GetFloorDirection(currentfloor,floorSelected.Substring(1));
-        floorTextOutsideB1.text = GetFloorDirection(currentfloor,floorSelected.Substring(1));
+
+        floorTextOutside1.text = GetFloorDirection(currentfloor, floorSelected.Substring(1));
+        floorTextOutsideG.text = GetFloorDirection(currentfloor, floorSelected.Substring(1));
+        floorTextOutsideB1.text = GetFloorDirection(currentfloor, floorSelected.Substring(1));
 
         while (carriage.position != targetPosition)
         {
@@ -166,8 +166,8 @@ public class LiftController : MonoBehaviour
 
         floorTextInside.text = floorSelected.Substring(1);
         floorTextOutside1.text = floorSelected.Substring(1);
-        floorTextOutsideG.text = floorSelected.Substring(1);   
-        floorTextOutsideB1.text = floorSelected.Substring(1);        
+        floorTextOutsideG.text = floorSelected.Substring(1);
+        floorTextOutsideB1.text = floorSelected.Substring(1);
         currentfloor = floorSelected.Substring(1);
     }
 
@@ -192,7 +192,7 @@ public class LiftController : MonoBehaviour
             yield return new WaitForSeconds(3f);
         }
 
-        floorTextInside.text = GetFloorDirection(currentfloor,floorSelected);
+        floorTextInside.text = GetFloorDirection(currentfloor, floorSelected);
 
 
 
@@ -241,8 +241,8 @@ public class LiftController : MonoBehaviour
         currentfloor = floorSelected;
         floorTextInside.text = floorSelected;
         floorTextOutside1.text = floorSelected;
-        floorTextOutsideG.text = floorSelected;    
-        floorTextOutsideB1.text = floorSelected;    
+        floorTextOutsideG.text = floorSelected;
+        floorTextOutsideB1.text = floorSelected;
 
         // open doors
         OpenLiftDoors();
@@ -261,9 +261,6 @@ public class LiftController : MonoBehaviour
             StartCoroutine(CloseLiftDoors());
         }
     }
-
-
-
 
 
 

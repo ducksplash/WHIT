@@ -37,9 +37,7 @@ public class MainMenu : MonoBehaviour
 	public TextMeshProUGUI MusicPercent;
 	public TextMeshProUGUI SFXPercent;
 	public string KeyboardButtonName;
-
-
-
+	
 	public GameObject KeyBindingDialog;
 	public GameObject RestoreDefaultsDialog;
 	public GameObject ReservedKeysDialog;

@@ -64,7 +64,7 @@ public class InputManager : MonoBehaviour
             string existingKey = keys.FirstOrDefault(x => x.Value == keyCode).Key;
             Debug.LogWarning("KeyCode " + keyCode + " is already assigned to the " + existingKey + " action. Using default value instead.");
             keyCode = keys[key];
-            
+
             return false;
         }
 
@@ -81,7 +81,7 @@ public class InputManager : MonoBehaviour
         string savedKeysString = string.Join(",", savedKeys);
         PlayerPrefs.SetString("InputKeys", savedKeysString);
 
-		BadKeyMsg.alpha = 0;
+        BadKeyMsg.alpha = 0;
         // Print out the PlayerPrefs data for debugging purposes
         Debug.Log("PlayerPrefs data: " + PlayerPrefs.GetString("InputKeys", ""));
         return true;

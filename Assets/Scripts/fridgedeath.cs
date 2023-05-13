@@ -33,9 +33,6 @@ public class fridgedeath : MonoBehaviour
             FogAvailable = true;
         }
 
-
-
-
     }
 
 
@@ -52,7 +49,6 @@ public class fridgedeath : MonoBehaviour
             }
         }
     }
-
 
 
     public void OnTriggerEnter(Collider other)
@@ -96,8 +92,6 @@ public class fridgedeath : MonoBehaviour
     }
 
 
-
-
     IEnumerator DoDeath(GameObject theplayer)
     {
 
@@ -118,14 +112,11 @@ public class fridgedeath : MonoBehaviour
     }
 
 
-
-
     IEnumerator DoCooldown()
     {
         yield return new WaitForSeconds(15f);
 
         gameObject.GetComponent<Collider>().enabled = true;
     }
-
 
 }

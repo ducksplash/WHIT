@@ -45,28 +45,19 @@ public class Evidence : MonoBehaviour
 
 
     public void CollectEvidence(GameObject Player)
-     {
+    {
 
 
         if (!GameMaster.EvidenceFound.ContainsKey(gameObject.name))
         {
 
-
-
             var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
-
-
-
             var evidencedate = System.DateTime.Now.ToString("dd/MM/yyyy, HH:mm");
-
-
 
             if (gameObject.layer == 5)
             {
                 Debug.Log("Digital Evidence");
             }
-
-
 
             DirectoryInfo di = Directory.CreateDirectory(filepath);
 
@@ -74,7 +65,7 @@ public class Evidence : MonoBehaviour
             var EvidenceFilename = transform.name + ".quack";
             var EvidencePhotoFilename = transform.name + ".png";
             var EvidenceSlug = EvidenceName + "\n";
-            
+
             EvidenceSlug += EvidencePhotoFilename + "\n";
             EvidenceSlug += evidencedate + "\n";
             EvidenceSlug += EvidenceFake + "\n";
@@ -95,39 +86,23 @@ public class Evidence : MonoBehaviour
             // if evidence definitely collected, increment Evidence Quotient
 
             GameMaster.EQThisLevel += EvidenceQuality;
-
-
-            PlayerPrefs.SetInt("EQLevel"+GameMaster.THISLEVEL, GameMaster.EQThisLevel);
-
-
+            PlayerPrefs.SetInt("EQLevel" + GameMaster.THISLEVEL, GameMaster.EQThisLevel);
             EvidenceBar.EQReadout();
 
-
-
+            // output notification to player
             GiveFeedback(EvidenceName, Player);
-
-
-
-
-
-
-
 
         }
         else
         {
+            // if the evidence has already been found before, silence it.
             gameObject.GetComponent<Evidence>().PhotographableEvidence = false;
             gameObject.GetComponent<Evidence>().EvidenceCollected = true;
         }
-
-
-
-
     }
 
 
-
-    // 
+    // todo: dialogue database 
 
     public void GiveFeedback(string EvidenceName, GameObject Player)
     {
@@ -162,13 +137,7 @@ public class Evidence : MonoBehaviour
 
             Player.gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
         }
-
-
-
     }
-
-
-
 
 
 }

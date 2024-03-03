@@ -59,7 +59,8 @@ public class cutscene : MonoBehaviour
     }
 
 
-    private void OnTriggerEnter(Collider other) {
+    private void OnTriggerEnter(Collider other) 
+    {
         if (other.gameObject.layer == 3) 
         {
 
@@ -74,34 +75,67 @@ public class cutscene : MonoBehaviour
 
     void Update()
     {
-        if (isCutsceneActive)
-        {
+        // if (isCutsceneActive)
+        // {
+        //     
+        //
+        //     GameMaster.FROZEN = true;
+        //
+        //     // Calculate the elapsed cutscene time
+        //     elapsedCutsceneTime += Time.deltaTime;
+        //
+        //     // Check if the cutscene is over
+        //     if (elapsedCutsceneTime >= duration)
+        //     {
+        //
+        //         // Reset the elapsed cutscene time
+        //         elapsedCutsceneTime = 0.0f;
+        //
+        //         // Deactivate the cutscene
+        //         isCutsceneActive = false;
+        //
+        //         StartCoroutine(FadeOutCutsceneBars());
+        //     }
+        //     else
+        //     {
+        //     // Calculate the interpolation factor based on the remaining time
+        //
+        //         // Calculate the rotation speed based on panTime
+        //         float rotationSpeed = 3.0f / panTime;
+        //
+        //         // Calculate the angle between the camera and the target object
+        //         Vector3 targetDirection = targetObject.transform.position - mainCamera.transform.position;
+        //         float angle = Vector3.Angle(mainCamera.transform.forward, targetDirection);
+        //
+        //         // Rotate the camera towards the target object
+        //         Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+        //         mainCamera.transform.rotation = Quaternion.Lerp(mainCamera.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        //         // Calculate the angle between the camera and the target object
+        //
+        //
+        //             if (angle < 5f && !isZooming && ZoomToTarget)
+        //             {
+        //                 StartCoroutine(DoZoom());
+        //                 isZooming = true;
+        //             }
+        //     }
+        // }
+    }
+
+
+
+    private IEnumerator ExecuteCutscene()
+    {
+
+        StartCoroutine(FadeInCutsceneBars());
+        
+        GameMaster.FROZEN = true;
             
-
-            GameMaster.FROZEN = true;
-
-            // Calculate the elapsed cutscene time
-            elapsedCutsceneTime += Time.deltaTime;
-
-            // Check if the cutscene is over
-            if (elapsedCutsceneTime >= duration)
-            {
-
-                // Reset the elapsed cutscene time
-                elapsedCutsceneTime = 0.0f;
-
-                // Deactivate the cutscene
-                isCutsceneActive = false;
-
-                StartCoroutine(FadeOutCutsceneBars());
-            }
-            else
-            {
-            // Calculate the interpolation factor based on the remaining time
-            float t = Mathf.Clamp01(elapsedCutsceneTime / panTime);
+        while (elapsedCutsceneTime < duration)
+        {
 
             // Calculate the rotation speed based on panTime
-            float rotationSpeed = 3.0f / panTime;
+            float rotationSpeed = 2.0f / panTime;
 
             // Calculate the angle between the camera and the target object
             Vector3 targetDirection = targetObject.transform.position - mainCamera.transform.position;
@@ -109,22 +143,28 @@ public class cutscene : MonoBehaviour
 
             // Rotate the camera towards the target object
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-            mainCamera.transform.rotation = Quaternion.Lerp(mainCamera.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            // Calculate the angle between the camera and the target object
+            mainCamera.transform.rotation = Quaternion.Lerp(mainCamera.transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
 
-
-                if (angle < 5f && !isZooming && ZoomToTarget)
-                {
-                    StartCoroutine(DoZoom());
-                    isZooming = true;
-                }
+            // Check if it's time to zoom
+            if (angle < 5f && !isZooming && ZoomToTarget)
+            {
+                StartCoroutine(DoZoom());
+                isZooming = true;
             }
+
+            // Increment elapsed cutscene time
+            elapsedCutsceneTime += Time.fixedDeltaTime;
+
+            yield return null; // Wait for the next frame
         }
+
+        // Cutscene is over
+        isCutsceneActive = false;
+
+        // Fade out cutscene bars
+        yield return StartCoroutine(FadeOutCutsceneBars());
     }
-
-
-
-
+    
 
 
     // Method to activate the cutscene
@@ -136,7 +176,9 @@ public class cutscene : MonoBehaviour
         // Reset the elapsed cutscene time
         elapsedCutsceneTime = 0.0f;
 
-        StartCoroutine(FadeInCutsceneBars());
+        StartCoroutine(ExecuteCutscene());
+        
+        
     }
 
 

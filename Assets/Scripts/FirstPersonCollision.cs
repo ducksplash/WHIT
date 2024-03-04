@@ -84,19 +84,14 @@ public class FirstPersonCollision : MonoBehaviour
 
 					if (!Physics.Raycast(MainCam.transform.position, up, out hit, 2.5f))
 					{
-
 						uncrouch();
-
 					}
 					else
                     {
 						Debug.Log("uncrouch ray hit?");
 
 						Debug.Log(hit.transform.name);
-
-
 					}
-
 				}
 			}
 		}
@@ -239,12 +234,10 @@ public class FirstPersonCollision : MonoBehaviour
 
 	public void uncrouch()
     {
-		Debug.Log("uncrouch ray didnt hit");
+		Debug.Log("uncrouch");
 		crouching = false;
-		//thisCharController.height = standheight;
 		thisCharController.height = Mathf.Lerp(standheight, croucheight, 0f);
 		stanceimg.sprite = standsprite;
-
 	}
 
 
@@ -264,20 +257,16 @@ public class FirstPersonCollision : MonoBehaviour
 		ButtonFaderContinue.blocksRaycasts = false;
 		ButtonFaderLeave.blocksRaycasts = false;
 	}
-
-
-
-
-
+    
 
 	public void QuitToMainmenu()
 	{
-
 		GameMaster.INMENU = false;
 		GameMaster.FROZEN = false;
-
-
+		
 		DisableAllScreens();
+
+		Debug.Log("quit after death");
 
 		CrouchIndicator.alpha = 1;
 		CrossHair.alpha = 1;
@@ -285,7 +274,6 @@ public class FirstPersonCollision : MonoBehaviour
         {
 			TorchIndicator.alpha = 1;
         }
-
 	}
 
 
@@ -332,14 +320,13 @@ public class FirstPersonCollision : MonoBehaviour
 	IEnumerator SlowDeath(string CauseString)
     {
 		DisableAllScreens();
-
-
+		
 		var buildDate = "";
 
 		buildDate += System.DateTime.Now.ToString("dddd");
 		buildDate += ", ";
 		buildDate += System.DateTime.Now.ToString("MMMM d");
-		buildDate += MonthDay(System.DateTime.Now.ToString("dd").ToString());
+		buildDate += MonthDay(System.DateTime.Now.ToString("dd"));
 		buildDate += ", ";
 		buildDate += System.DateTime.Now.ToString("yyyy");
 
@@ -348,19 +335,15 @@ public class FirstPersonCollision : MonoBehaviour
 		PaperDeathText.text = CauseString + ".";
 		PaperDateText.text = buildDate;
 
-
 		Debug.Log(CauseString);
 
 		// death screen first
 		DeathScreenMain.alpha = 1f;
 		DeathScreenMain.blocksRaycasts = true;
-
-
-
+		
 		Cursor.lockState = CursorLockMode.None;
 		Cursor.visible = true;
-
-
+		
 		var diedduration = 50;
 		var duration = 100;
 		var paperduration = 50;
@@ -376,7 +359,6 @@ public class FirstPersonCollision : MonoBehaviour
 
 		if (duration == 0)
 		{
-
 			while (diedduration > 0)
 			{
 				DiedTextFader.alpha += 0.02f;
@@ -384,14 +366,8 @@ public class FirstPersonCollision : MonoBehaviour
 				diedduration--;
 				Debug.Log(diedduration);
 			}
-
-		}
-
-
-		if (duration == 0)
-		{
-
-
+			
+			
 			while (paperduration > 0)
 			{
 				PaperScreenFader.alpha += 0.02f;
@@ -399,12 +375,7 @@ public class FirstPersonCollision : MonoBehaviour
 				paperduration--;
 				Debug.Log(paperduration);
 			}
-
-		}
-
-		if (duration == 0)
-		{
-
+			
 
 			while (buttonduration > 0)
 			{
@@ -417,19 +388,11 @@ public class FirstPersonCollision : MonoBehaviour
 				buttonduration--;
 				Debug.Log(buttonduration);
 			}
-
 		}
-
+		
 		uncrouch();
-
-
+		
 	}
-
-
-
-
-
-
 
 
 
@@ -458,14 +421,8 @@ public class FirstPersonCollision : MonoBehaviour
 
 
 
-
-
-	// laddering
-
-
 	private void OnTriggerEnter(Collider other)
 	{
-
 
 		if (other.tag.Equals("LADDERS") && !climbing)
 		{
@@ -477,8 +434,6 @@ public class FirstPersonCollision : MonoBehaviour
 			climbing = true;
 
 		}
-
-
 	}
 
 
@@ -496,13 +451,10 @@ public class FirstPersonCollision : MonoBehaviour
 	}
     private void ExitLadder(GameObject WeeLadder)
 	{
-
 		Debug.Log("broke contact");
 		gameObject.transform.parent = null;
 		gameObject.GetComponent<Rigidbody>().useGravity = true;
 		climbing = false;
-
-
 	}
 
 

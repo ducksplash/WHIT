@@ -21957,7 +21957,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &455555697
 Transform:
   m_ObjectHideFlags: 0
@@ -48849,13 +48849,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   panTime: 3
   duration: 7
-  player: {fileID: 1773623358626660}
   targetObject: {fileID: 527408825}
   mainCamera: {fileID: 20437472684584574}
+  mainCameraTransform: {fileID: 0}
   cutsceneBars: {fileID: 1456155532}
   ColliderCube: {fileID: 415010947}
   message: Enter Roark Microtechnologies
   ZoomToTarget: 1
+  originalFieldOfView: 70
+  targetFieldOfView: 40
 --- !u!1001 &1576843018
 PrefabInstance:
   m_ObjectHideFlags: 0

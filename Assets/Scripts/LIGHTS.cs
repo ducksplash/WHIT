@@ -11,6 +11,7 @@ public class LIGHTS : MonoBehaviour
 	private Material[] thatSwitchMats;
 	private Material[] thisSwitchMats;
 	public Light[] theseLights;
+	public Light[] theseEmissives;
 	public string lightTag;
 	public float LightSwitchEmissionStrength = 5f;
 	private Material[] theLightMats;
@@ -127,16 +128,15 @@ public class LIGHTS : MonoBehaviour
 			{  
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);  
 				RaycastHit hit;  
-				if (Physics.Raycast(ray, out hit)) {  
+				if (Physics.Raycast(ray, out hit)) 
+				{  
 	  
 					if (hit.distance <= 3f)
 					{				
 						if (hit.transform.name.Equals(thisSwitchName) || hit.transform.name.Equals(thatSwitchName))
 						{
 							ToggleLights();
-
-
-
+							
 							// is this a rotating switch?
 							if (SwitchType == "ROTATE")
 							{
@@ -147,9 +147,7 @@ public class LIGHTS : MonoBehaviour
 								{
 									RotateSwitch(thatSwitch);
 								}
-
 							}
-
 						}	
 					}  				
 				}  

@@ -44,7 +44,7 @@ public class Evidence : MonoBehaviour
     }
 
 
-    public async void CollectEvidence(GameObject Player)
+    public void CollectEvidence(GameObject Player)
     {
 
 
@@ -74,7 +74,7 @@ public class Evidence : MonoBehaviour
 
 
 
-            await System.IO.File.WriteAllTextAsync(filepath + EvidenceFilename, EvidenceSlug);
+            System.IO.File.WriteAllText(filepath + EvidenceFilename, EvidenceSlug);
 
             GameMaster.EvidenceFound.Add(transform.name, filepath);
 

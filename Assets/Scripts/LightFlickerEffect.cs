@@ -1,56 +1,70 @@
-﻿using System.Collections;
+﻿using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class LightFlickerEffect : MonoBehaviour
-{
-    [SerializeField] Light theLight;
-    [SerializeField] int smoothing = 10;
-    [SerializeField] float minIntensity = 0.5f;
-    [SerializeField] float maxIntensity = 1.5f;
-
-    private Queue<float> smoothQueue = new Queue<float>();
-    private float lastSum = 0.0f;
+public class LightFlickerEffect : MonoBehaviour {
+	
+    public Light thelight;
     private Material[] theLightMats;
-    private static readonly int EmissiveColor = Shader.PropertyToID("_EmissiveColor");
-    private static readonly int Color1 = Shader.PropertyToID("_Color");
+	
+    public float minIntensity = 0f;
+	
+    public float maxIntensity = 1f;
+	
+	
+    public int smoothing = 5;
 
-    void Start()
-    {
-        var thisLightParent = theLight.transform.parent.gameObject;
-        theLightMats = thisLightParent.GetComponent<Renderer>().materials;
-        StartCoroutine(FlickeringEffect());
+    Queue<float> smoothQueue;
+    float lastSum = 0;
+
+    public void Reset() {
+        smoothQueue.Clear();
+        lastSum = 0;
     }
 
-    IEnumerator FlickeringEffect()
-    {
-        while (true)
-        {
-            if (theLight.enabled)
-            {
-                while (smoothQueue.Count >= smoothing)
-                {
-                    lastSum -= (float)smoothQueue.Dequeue();
-                }
-                var litLiteCol = theLight.color;
+    void Start() {
 
-                float newVal = Random.Range(minIntensity, maxIntensity);
-                smoothQueue.Enqueue(newVal);
-                lastSum += newVal;
-
-                theLight.intensity = lastSum / (float)smoothQueue.Count;
-
-                for (int i = 0; i < theLightMats.Length; i++)
-                {
-                    if (theLightMats[i].name.Contains("bulb") || theLightMats[i].name.Contains("cable"))
-                    {
-                        theLightMats[i].SetColor(Color1, litLiteCol);
-                        theLightMats[i].SetColor(EmissiveColor, litLiteCol * (lastSum / (float)smoothQueue.Count));
-                    }
-                }
-            }
-
-            yield return null; // Wait for the next frame
-        }
+		thelight = gameObject.GetComponent<Light>();
+		
+         smoothQueue = new Queue<float>(smoothing);
     }
+
+    void FixedUpdate()
+	{
+
+
+		if (thelight.enabled)
+		{
+
+			while (smoothQueue.Count >= smoothing) {
+				lastSum -= smoothQueue.Dequeue();
+			}
+
+			var thisLightParent = thelight.transform.parent.gameObject;
+				
+			theLightMats = thisLightParent.GetComponent<Renderer>().materials;
+
+
+			var litLiteCol = thelight.color;
+
+			float newVal = Random.Range(minIntensity, maxIntensity);
+			smoothQueue.Enqueue(newVal);
+			lastSum += newVal;
+
+			thelight.intensity = lastSum / (float)smoothQueue.Count;
+			
+			for (int i = 0; i < theLightMats.Length; i++)
+			{
+			
+				if (theLightMats[i].name.Contains("bulb") || theLightMats[i].name.Contains("cable"))
+				{
+					theLightMats[i].SetColor("_Color", litLiteCol);
+					theLightMats[i].SetColor("_EmissiveColor", litLiteCol * (lastSum / (float)smoothQueue.Count));
+				}
+			}
+		
+		}
+		
+		
+    }
+
 }

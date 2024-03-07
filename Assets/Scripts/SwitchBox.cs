@@ -174,7 +174,7 @@ public class SwitchBox : MonoBehaviour
 								foreach (Light aLight in allTheLights)
 								{
 
-									if (!aLight.CompareTag("TORCH") && !aLight.CompareTag("STREETLAMP") && !aLight.CompareTag("HOUSELIGHTS"))
+									if (aLight.tag != "TORCH" && aLight.tag != "STREETLAMP" && aLight.tag != "HOUSELIGHTS")
 									{
 
 										aLight.enabled = false;
@@ -185,7 +185,10 @@ public class SwitchBox : MonoBehaviour
 						}
 
 
-						
+
+
+
+
 						if (hit.transform.name.Equals(thatSwitchName))
 						{
 

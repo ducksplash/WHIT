@@ -103,6 +103,8 @@ public class GameMaster : MonoBehaviour
     void Awake()
     {
 
+
+
         // Use this loop for debugging the dialog log
         //foreach (var Message in DialogueSeen)
         //{
@@ -127,6 +129,7 @@ public class GameMaster : MonoBehaviour
             }
 
         }
+
 
         // cleanup
         // We will use this on boot every time
@@ -157,9 +160,9 @@ public class GameMaster : MonoBehaviour
 
             // Clear out Evidence Quotient Player Prefs
 
-            PlayerPrefs.SetInt("EQLevelNorasFlat", EQThisLevel);
-            PlayerPrefs.SetInt("EQLevel1", EQThisLevel);
-            PlayerPrefs.SetInt("EQLevel2", EQThisLevel);
+            PlayerPrefs.SetInt("EQLevelNorasFlat", GameMaster.EQThisLevel);
+            PlayerPrefs.SetInt("EQLevel1", GameMaster.EQThisLevel);
+            PlayerPrefs.SetInt("EQLevel2", GameMaster.EQThisLevel);
 
             GarbageRun = true;
         }

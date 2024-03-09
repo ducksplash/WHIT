@@ -16,6 +16,7 @@ public class innerDoors : MonoBehaviour
 	private Material[] theLightMats;
 	private Transform[] doorLights;
 	private Collider theDoorCollider;
+	public bool isExteriorDoor;
 
 	public bool PlayerClicked;
 	
@@ -93,13 +94,20 @@ public class innerDoors : MonoBehaviour
 				RaycastHit hit;
 				if (Physics.Raycast(ray, out hit, 4f))
 				{
-					if (!isLocked)
+					if (isExteriorDoor)
 					{
-
-						if (hit.transform.name.Equals(thisDoorName))
+						Debug.Log("Travel!");
+						TravelCompanion.Instance.LaunchCompanion();
+					}
+					else
+					{
+						if (!isLocked)
 						{
-							DoDoor(hit);
-							PlayerClicked = true;
+							if (hit.transform.name.Equals(thisDoorName))
+							{
+								DoDoor(hit);
+								PlayerClicked = true;
+							}
 						}
 					}
 				}
@@ -112,7 +120,6 @@ public class innerDoors : MonoBehaviour
 
 		public void DoDoor(RaycastHit hit)
 		{
-
 			var thisDoorCollider = hit.transform.GetComponent<Collider>();
 
 			if (!isOpen)
@@ -130,11 +137,5 @@ public class innerDoors : MonoBehaviour
 				StartCoroutine(DisableColliderMomentarily(0.5f, thisDoorCollider));
 				doorAnimator.SetTrigger("idle");
 			}
-
 		}
-
-
-
-
-
 	}

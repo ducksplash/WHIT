@@ -1,166 +1,151 @@
 ﻿using System.Collections;
+using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class cutscene : MonoBehaviour 
 {
     // Variables to control the cutscene timing
+    [Header("Time to rotate to face object")]
     public float panTime = 5.0f;     // How long it takes to pan to the object
+    [Header("Time to linger looking at object")]
     public float duration = 10.0f;   // How long the cutscene lasts in total
+    [Header("Time to zoom & unzoom; set zero to disable")]
+    public float zoomDuration = 2f;
+    public float unZoomDuration = 0.75f;
 
-    // Variables to store references to the player and camera
-    public GameObject player;
-    public GameObject targetObject;
-    public Camera mainCamera;
-    public GameObject cutsceneBars;
-    public GameObject ColliderCube;
-
+    [Header("Optional Dialogue")]
+    [SerializeField]
+    public Contacts ContactName;
     [TextArea(3, 10)]
     public string message;
     
-    public bool ZoomToTarget;
-    private bool isZooming;    
+    // Variables to store references to the player and camera
+    public GameObject targetObject;
+    public Camera mainCamera;
+    public Transform mainCameraTransform;
+    public GameObject cutsceneBars;
+    private CanvasGroup cutsceneBarsCanvas;
+    public GameObject ColliderCube;
+    
+    private bool isZooming;
+    private Zoom cameraZoom;
 
-
-
-    // Variables to store the original player and camera positions
-    private Vector3 originalPlayerPos;
-    private Vector3 originalCameraPos;
 
     // Variable to store the original camera aspect ratio and field of view
-    private float originalAspectRatio;
-    private float originalFieldOfView;
+    [SerializeField] private float originalFieldOfView = 70;
+    [SerializeField] private float targetFieldOfView = 40;
 
     // Variable to keep track of the elapsed cutscene time
-    private float elapsedCutsceneTime = 0.0f;
+    private float elapsedCutsceneTime;
 
-    // Flag to indicate whether the cutscene is active
-    private bool isCutsceneActive = false;
+
+    private void Awake()
+    {
+        mainCamera = Camera.main;
+        cutsceneBars = UInstance.Instance.BlackCutsceneBars;
+        cutsceneBarsCanvas = cutsceneBars.GetComponent<CanvasGroup>();
+    }
+
 
     // Start is called before the first frame update
     void Start() 
     {
-
+        // stop the visible collider cube from rendering in-game
         ColliderCube.SetActive(false);
 
         // Get references to the player and camera
-        mainCamera = Camera.main;
+        mainCameraTransform = mainCamera.transform;
+        cameraZoom = mainCamera.GetComponent<Zoom>();
 
-        // Store the original player and camera positions
-        originalPlayerPos = player.transform.position;
-        originalCameraPos = mainCamera.transform.position;
-
-        // Store the original camera aspect ratio and field of view
-        originalAspectRatio = mainCamera.aspect;
         originalFieldOfView = mainCamera.fieldOfView;
 
         // Disable the black bars initially
-        cutsceneBars.GetComponent<CanvasGroup>().alpha = 0;
+        cutsceneBarsCanvas.alpha = 0;
     }
 
 
-    private void OnTriggerEnter(Collider other) {
+    private void OnTriggerEnter(Collider other) 
+    {
         if (other.gameObject.layer == 3) 
         {
-
             if (!GameMaster.CutSceneSeen.ContainsKey(message))
             {
-                ActivateCutscene();
-                SendALetter(other);
-                GameMaster.CutSceneSeen.Add(message, "SYSTEM");
+                cameraZoom.enabled = false;
+                elapsedCutsceneTime = 0.0f;
+                CreateDialogue();
+                GameMaster.CutSceneSeen.TryAdd(message, "SYSTEM");
+                StartCoroutine(ExecuteCutscene());
             }
         }
     }
 
-    void Update()
+    
+
+
+    private IEnumerator ExecuteCutscene()
     {
-        if (isCutsceneActive)
+
+        GameMaster.FROZEN = true;
+        
+        StartCoroutine(FadeInCutsceneBars());
+        
+        yield return new WaitForSeconds(1f);
+        
+        
+        while (elapsedCutsceneTime < duration)
         {
-            
-
-            GameMaster.FROZEN = true;
-
-            // Calculate the elapsed cutscene time
-            elapsedCutsceneTime += Time.deltaTime;
-
-            // Check if the cutscene is over
-            if (elapsedCutsceneTime >= duration)
-            {
-
-                // Reset the elapsed cutscene time
-                elapsedCutsceneTime = 0.0f;
-
-                // Deactivate the cutscene
-                isCutsceneActive = false;
-
-                StartCoroutine(FadeOutCutsceneBars());
-            }
-            else
-            {
-            // Calculate the interpolation factor based on the remaining time
-            float t = Mathf.Clamp01(elapsedCutsceneTime / panTime);
 
             // Calculate the rotation speed based on panTime
-            float rotationSpeed = 3.0f / panTime;
+            float rotationSpeed = panTime;
 
             // Calculate the angle between the camera and the target object
-            Vector3 targetDirection = targetObject.transform.position - mainCamera.transform.position;
-            float angle = Vector3.Angle(mainCamera.transform.forward, targetDirection);
+            Vector3 targetDirection = targetObject.transform.position - mainCameraTransform.position;
+            float angle = Vector3.Angle(mainCameraTransform.forward, targetDirection);
 
             // Rotate the camera towards the target object
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-            mainCamera.transform.rotation = Quaternion.Lerp(mainCamera.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            // Calculate the angle between the camera and the target object
+            mainCameraTransform.rotation = Quaternion.Lerp(mainCameraTransform.rotation, targetRotation, rotationSpeed * Time.smoothDeltaTime);
 
-
-                if (angle < 5f && !isZooming && ZoomToTarget)
-                {
-                    StartCoroutine(DoZoom());
-                    isZooming = true;
-                }
+            
+            // Check if it's time to zoom
+            if (angle < 5f && !isZooming)
+            {
+                StartCoroutine(DoZoom());
+                isZooming = true;
             }
+
+            // Increment elapsed cutscene time
+            elapsedCutsceneTime += Time.smoothDeltaTime;
+
+            FirstPersonLook.Instance.SetPlayerRotation(new Vector3(targetDirection.x, targetDirection.y, targetDirection.z));
+            yield return new WaitForEndOfFrame(); 
         }
+
+
+        // Fade out cutscene bars
+
+        yield return StartCoroutine(UndoZoom());
+        
     }
+    
 
-
-
-
-
-
-    // Method to activate the cutscene
-    public void ActivateCutscene()
+    public async Task CreateDialogue()
     {
-        // Activate the cutscene
-        isCutsceneActive = true;
-
-        // Reset the elapsed cutscene time
-        elapsedCutsceneTime = 0.0f;
-
-        StartCoroutine(FadeInCutsceneBars());
+        Debug.Log(ContactName.ToString());
+        await DialogueManager.Instance.NewDialogue(ContactName.ToString(), message, duration, true);
     }
 
-
-
-
-    // Method to activate the cutscene
-    public void SendALetter(Collider other)
-    {
-
-
-            var TheCallingObject = gameObject;
-
-            other.gameObject.GetComponent<DialogueManager>().NewDialogue("SYSTEM", message, duration, TheCallingObject);
-
-    }
     // Coroutine to fade out the cutscene bars
     private IEnumerator FadeInCutsceneBars()
     {
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.fixedDeltaTime /  (panTime / 2);
-            cutsceneBars.GetComponent<CanvasGroup>().alpha = Mathf.Lerp(0f, 1f, t);
-            yield return null;
+            t += Time.smoothDeltaTime /  (panTime / 2);
+            cutsceneBarsCanvas.alpha = Mathf.Lerp(0f, 1f, t);
+            yield return new WaitForEndOfFrame();
+            
         }
 
     }
@@ -171,51 +156,96 @@ public class cutscene : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.fixedDeltaTime;
-            cutsceneBars.GetComponent<CanvasGroup>().alpha = Mathf.Lerp(1f, 0f, t);
-            yield return null;
+            t += Time.smoothDeltaTime;
+            cutsceneBarsCanvas.alpha = Mathf.Lerp(1f, 0f, t);
+            yield return new WaitForEndOfFrame();
+            
         }
-
-        cleanup();
-
     }
 
 
     private IEnumerator DoZoom()
     {
-        float duration = 2.0f; // The duration of the zoom in seconds
-        float startTime = Time.time; // The start time of the zoom
-        float startFOV = 70.0f; // The starting field of view
-        float endFOV = 40.0f; // The ending field of view
-
-        mainCamera.GetComponent<Zoom>().enabled = false;
-
         // Zoom in over time
-        for (float t = 0.0f; t < duration; t += Time.deltaTime)
+        float elapsedTime = 0.0f;
+
+        if (zoomDuration > 0)
         {
-            // Interpolate the field of view using Mathf.Lerp
-            float fov = Mathf.Lerp(startFOV, endFOV, t / duration);
+            while (elapsedTime < zoomDuration)
+            {
+                // Calculate the interpolation factor using SmoothStep for smoother interpolation
+                float t = Mathf.SmoothStep(0.0f, 1.0f, elapsedTime / zoomDuration);
 
-            // Set the camera's field of view
-            mainCamera.fieldOfView = fov;
+                // Interpolate the field of view using Mathf.Lerp
+                float fov = Mathf.Lerp(originalFieldOfView, targetFieldOfView, t);
 
-            // Wait for the end of the frame
-            yield return new WaitForEndOfFrame();
+                // Set the camera's field of view
+                mainCamera.fieldOfView = fov;
+
+                // Increment elapsed time using deltaTime for smoother animation
+                elapsedTime += Time.deltaTime;
+
+                yield return null; // Wait for the next frame
+            }
+            mainCamera.fieldOfView = targetFieldOfView;
+        }
+        else
+        {
+            yield return new WaitForSeconds(zoomDuration);
+        }
+        
+        // Set the final field of view to ensure accuracy
+    }
+
+    private IEnumerator UndoZoom()
+    {
+    
+        StartCoroutine(FadeOutCutsceneBars());
+        if (zoomDuration > 0)
+        {
+            // Zoom out over time (opposite of zooming in)
+            float elapsedTime = 0.0f;
+            while (elapsedTime < unZoomDuration)
+            {
+                // Calculate the interpolation factor using SmoothStep for smoother interpolation
+                float t = Mathf.SmoothStep(0.0f, 1.0f, elapsedTime / unZoomDuration);
+
+                // Interpolate the field of view using Mathf.Lerp (reversed start and end values)
+                float fov = Mathf.Lerp(targetFieldOfView, originalFieldOfView, t);
+
+                // Set the camera's field of view
+                mainCamera.fieldOfView = fov;
+
+                // Increment elapsed time using deltaTime for smoother animation
+                elapsedTime += Time.deltaTime;
+
+                yield return null; // Wait for the next frame
+            }
+            mainCamera.fieldOfView = originalFieldOfView;
+        }
+        else
+        {
+            yield return new WaitForSeconds(unZoomDuration);
         }
 
         // Set the final field of view to ensure accuracy
-        mainCamera.fieldOfView = endFOV;
-    }
-
-    private void cleanup()
-    {
-        
+        cameraZoom.enabled = true;
         GameMaster.FROZEN = false;
-        mainCamera.fieldOfView = 70.0f;
-        mainCamera.GetComponent<Zoom>().enabled = true;
-        cutsceneBars.GetComponent<CanvasGroup>().alpha = 0;
-        Destroy(gameObject);
     }
+    
+}
 
 
+[CustomPropertyDrawer(typeof(cutscene))]
+public class ContactDrawerCutscene : PropertyDrawer
+{
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        EditorGUI.BeginProperty(position, label, property);
+
+        // Draw the enum dropdown field
+        property.enumValueIndex = EditorGUI.Popup(position, label.text, property.enumValueIndex, property.enumDisplayNames);
+
+        EditorGUI.EndProperty();
+    }
 }

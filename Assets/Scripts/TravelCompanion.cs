@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 
-public class TravelCompanion : MonoBehaviour, IPointerClickHandler
+public class TravelCompanion : Singleton<TravelCompanion>, IPointerClickHandler
 {
     public CanvasGroup TravelCanvas;
 
@@ -14,28 +14,20 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 	public GameObject Notepad;
 	public CanvasGroup crosshair;
 	public CanvasGroup evidencecompanion;
-	public GameObject Player;
 	public CanvasGroup loadingpanel;
 	public Image loadingbar;
 	public TextMeshProUGUI loadingclock;
 
 	private void Start()
     {
-
-		
         GameMaster.FROZEN = false;
 		Notepad.SetActive(false);
 		loadingbar.fillAmount = 0;
-
-
-
 	}
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
-
-
-
+		
 		if (eventData.button == PointerEventData.InputButton.Right)
 		{
 			if (CompanionOpen)
@@ -49,61 +41,27 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 
 	void Update()
 	{
-
-
-
-
 			// this first
-
-			if (CompanionOpen)
+		if (CompanionOpen)
+		{
+			if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.P))
 			{
-				if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.P))
-				{
 
-					LaunchCompanion();
-
-				}
+				LaunchCompanion();
 			}
-
-			// then this
-
-			if (!CompanionOpen)
-			{
-				if (Input.GetMouseButtonDown(1))
-				{
-
-
-					Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-					RaycastHit hit;
-					if (Physics.Raycast(ray, out hit))
-					{
-						if (hit.transform.gameObject == gameObject)
-						{
-							if (hit.distance <= 3f && hit.distance > 1.2f)
-							{
-								LaunchCompanion();
-							}
-						}
-					}
-				}
-			}
-
-		
-
-
-
-
-
+		}
 	}
 
-	void LaunchCompanion()
+	public void LaunchCompanion()
     {
-
-
+	    
 		if (GameMaster.THISLEVEL == "NorasFlat")
 		{
 
-			if (GameMaster.EvidenceFound.Count > 0)
+			// if debuggery, override
+			int evidenceOverride = GameMaster.Instance.DEBUGGERY ? 100 : GameMaster.EvidenceFound.Count;
+			
+			if (evidenceOverride > 0)
 			{
 
 				Debug.Log(GameMaster.THISLEVEL);
@@ -174,7 +132,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 				else
 				{
 					var dialogstring = "I need my phone, my torch and my notepad.";
-					Player.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 3, gameObject);
+					DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 					gameObject.GetComponent<Collider>().enabled = false;
 
 				}
@@ -183,7 +141,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 			else
 			{
 				var dialogstring = "I haven't checked that I can photograph evidence with my phone yet, I should open the camera app and try on the wine bottle on my desk.";
-				Player.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
+				DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 			}
 
 		}
@@ -192,9 +150,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 			if (!Notepad.activeSelf)
 			{
 				Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
-
-
-
+				
 				Notepad.SetActive(true);
 				TravelCanvas.alpha = 1f;
 				TravelCanvas.blocksRaycasts = true;
@@ -203,7 +159,6 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 				CompanionOpen = true;
 				evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.0f;
 				crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
-
 			}
 			else
 			{
@@ -221,21 +176,29 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 
 			}
 		}
-	
-
-
 		
-
 	}
 
 
 	public void ChangeScene(string SceneName)
 	{
+		Rigidbody rb = PlayerInstance.Instance.gameObject.GetComponentInParent<Rigidbody>();
+		rb.isKinematic = true;
+		rb.useGravity = false;
 		GameMaster.INMENU = false;
-		GameMaster.FROZEN = false;
+		GameMaster.FROZEN = true;
+		
 		StartCoroutine(ChangeSceneAsync(SceneName));
 	}
 
+
+	public void ChangeSceneOffTheBooks(string SceneName)
+	{
+		
+		GameMaster.INMENU = false;
+		GameMaster.FROZEN = true;
+		StartCoroutine(ChangeSceneAsync(SceneName));
+	}
 
 
 
@@ -244,6 +207,7 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 
 		loadingpanel.alpha = 1;
 
+		
 		AsyncOperation op = SceneManager.LoadSceneAsync(levelName);
 
 
@@ -259,12 +223,43 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 
 		loadingclock.text = buildDate;
 
+		Transform PlayerTransform = PlayerInstance.Instance.gameObject.GetComponentInParent<Transform>();
+		
+		
+		
+
+		if (levelName.Equals(GameScene.NorasFlat.ToString()))
+		{	
+			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTNORASFLAT;
+			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;
+		}
+
+		if (levelName.Equals(GameScene.TawleyMeats.ToString()))
+		{	
+			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
+			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
+		}
+
+		if (levelName.Equals(GameScene.RoarkInside.ToString()))
+		{	
+			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
+			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
+		}
+
+		if (levelName.Equals(GameScene.RoarkOutside.ToString()))
+		{	
+			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
+			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
+		}
+
+
+		Rigidbody rb = PlayerInstance.Instance.gameObject.GetComponentInParent<Rigidbody>();
+		// rb.isKinematic = false;
+		// rb.useGravity = true;
 
 		while (!op.isDone)
 		{
 			loadingbar.fillAmount = Mathf.Clamp01(op.progress / .9f);
-
-
 			yield return null;
 		}
 	}
@@ -294,7 +289,15 @@ public class TravelCompanion : MonoBehaviour, IPointerClickHandler
 	}
 
 
-
-
-
+	public enum GameScene
+	{
+		MainMenu,
+		NorasFlat,
+		TawleyMeats,
+		RoarkOutside,
+		RoarkInside
+	}
+	
+	
+	
 }

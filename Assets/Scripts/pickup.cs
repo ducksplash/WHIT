@@ -252,7 +252,7 @@ public class pickup : MonoBehaviour
 
 
 					var dialogstring = "Found my torch, I can check that it works by pressing "+torchkey+". and I can swing it if I left click.";
-					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
+					DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 					torchTick.alpha = 1;
 				}
 
@@ -262,7 +262,7 @@ public class pickup : MonoBehaviour
 					GameMaster.NOTEPADCOLLECTED = true;
 					Destroy(hit.transform.gameObject);
 					var dialogstring = "Got some places I wanna check out written down here. I should take a look when I'm leaving.";
-					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
+					DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 					notepadTick.alpha = 1;
 
 				}
@@ -276,7 +276,7 @@ public class pickup : MonoBehaviour
 					string phonekey = InputManager.GetKeyName("phone");
 
 					var dialogstring = "My phone. I should test that it works by pressing "+phonekey+".";
-					gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", dialogstring, 4, gameObject);
+					DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 					phoneTick.alpha = 1;
 
 				}

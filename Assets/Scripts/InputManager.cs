@@ -32,7 +32,7 @@ public class InputManager : MonoBehaviour
         foreach (string savedKey in savedKeys)
         {
             int savedKeyCode = PlayerPrefs.GetInt(savedKey.ToLower(), (int)keys[savedKey]);
-            Debug.Log("Saved key: " + savedKey.ToLower() + " - KeyCode: " + (KeyCode)savedKeyCode);
+            //Debug.Log("Saved key: " + savedKey.ToLower() + " - KeyCode: " + (KeyCode)savedKeyCode);
         }
 
         // Loop through each key and assign the saved keycode to the input manager
@@ -51,7 +51,7 @@ public class InputManager : MonoBehaviour
             // Set the keycode for the input manager
             keys[savedKey] = keyCode;
 
-            Debug.Log(keys[savedKey]);
+            //Debug.Log(keys[savedKey]);
         }
     }
 

@@ -96,13 +96,10 @@ public class fridgedeath : MonoBehaviour
     {
 
         yield return new WaitForSeconds(1f);
-
-        var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
-        fakegameobject.GetComponent<Collider>().enabled = false;
-
+        
         var msg = "Ah f***.";
 
-        theplayer.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
+        DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), msg, 5);
 
         yield return new WaitForSeconds(2f);
 

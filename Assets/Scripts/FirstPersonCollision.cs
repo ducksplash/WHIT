@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
-public class FirstPersonCollision : MonoBehaviour
+public class FirstPersonCollision : Singleton<FirstPersonCollision>
 {
 	
 	

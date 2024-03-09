@@ -46,7 +46,7 @@ public class clickable : MonoBehaviour
         RaycastInterval = StartRaycastInterval;
     }
 
-    void FixedUpdate()
+    void Update()
     {
 
 
@@ -264,12 +264,10 @@ public class clickable : MonoBehaviour
 
                 }
 
-
-
+                
                 if (hit.transform.gameObject.layer == drawerlayer)
                 {
-
-
+                    
                     if (hit.distance <= 3f)
                     {
                         if (hit.transform.GetComponent<Drawers>().isLocked)
@@ -313,7 +311,7 @@ public class clickable : MonoBehaviour
                     selectcursor.sprite = doorsprite;
                     INFOTEXT("");
 
-                    if (hit.transform.GetComponent<TravelCompanion>() != null)
+                    if (hit.transform.gameObject.tag.Equals("ExteriorDoor"))
                     {
 
                         if (hit.distance < 3f && hit.distance > 1.2f)

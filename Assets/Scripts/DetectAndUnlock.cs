@@ -9,16 +9,12 @@ public class DetectAndUnlock : MonoBehaviour
 
     private void Start()
     {
-
         ObjectType = "default";
 
         if (LinkedObject.GetComponentInChildren<innerDoors>() != null)
         {
             ObjectType = "door";
         }
-
-
-
     }
 
 
@@ -35,15 +31,8 @@ public class DetectAndUnlock : MonoBehaviour
                     LinkedObject.GetComponentInChildren<innerDoors>().isLocked = false;
                     JobDone = true;
 
-
-                    var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
-                    fakegameobject.GetComponent<Collider>().enabled = false;
-
                     var msg = "Someone made the effort to lock this room from the inside...";
-
-                    other.gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
-
-
+                    DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), msg, 5);
                 }
             }
         }

@@ -1,14 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering.HighDefinition;
 
 
-
-public class DialogueManager : MonoBehaviour
+public class DialogueManager : Singleton<DialogueManager>
 {
     public GameObject DialogManager;
     private CanvasGroup DialogManagerCanvas;
@@ -20,14 +21,15 @@ public class DialogueManager : MonoBehaviour
     public bool DialogInProgress;
     public Image timebar;
     public float messagetimer = 0f;
-
+    public bool currentDialogueIsCutscene;
 
 
 
     void Start()
     {
         DialogManagerCanvas = DialogManager.GetComponent<CanvasGroup>();
-
+        DialogInProgress = false;
+        currentDialogueIsCutscene = false;
         NoraMessage.text = "";
         SystemMessage.text = "";
     }
@@ -42,72 +44,85 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-
-
-    public void NewDialogue(string Contact, string message, float displaytimer, GameObject CallingObject)
+    public async Task NewDialogue(string Contact, string message, float displaytimer, bool isCutSceneDialogue = false)
     {
-        if (!DialogInProgress)
+        // NOT currently cutscene dialogue
+        if (!currentDialogueIsCutscene)
         {
-            CreateDialogue(Contact, message, displaytimer, CallingObject);
-            Debug.Log(DialogInProgress);
+            // if dialogue NOT already in progress, OR incoming dialogue is cutscene, show cutscene
+            if (!DialogInProgress || isCutSceneDialogue)
+            {
+                await CreateDialogue(Contact, message, displaytimer);
+                Debug.Log(DialogInProgress);
+            }
+            else // incoming dialogue is NOT cutscene, queue it
+            {
+                await Queuer(Contact, message, displaytimer);
+                Debug.Log(DialogInProgress);
+            }
         }
-        else
+        else // IS currently cutscene dialogue
         {
-            StartCoroutine(Queuer(Contact, message, displaytimer, CallingObject));
-            Debug.Log(DialogInProgress);
+            // if incoming dialogue is not cutscene, show dialogue
+            if (!isCutSceneDialogue)
+            {
+                await CreateDialogue(Contact, message, displaytimer);
+                Debug.Log(DialogInProgress);
+            }
+            else // incoming dialogue IS cutscene, queue it.
+            {
+                await Queuer(Contact, message, displaytimer);
+                Debug.Log(DialogInProgress);
+            }
         }
     }
 
-
-
-
-    public IEnumerator Queuer(string Contact, string message, float displaytimer, GameObject CallingObject)
+    public Task Queuer(string Contact, string message, float displaytimer)
     {
         Debug.Log("queued");
-        yield return new WaitWhile(() => DialogInProgress);
-        NewDialogue(Contact, message, displaytimer, CallingObject);
+        var tcs = new TaskCompletionSource<bool>();
+        StartCoroutine(QueuerCoroutine(Contact, message, displaytimer, tcs));
+        return tcs.Task;
     }
 
-
-
-
-
-    public void CreateDialogue(string Contact, string message, float displaytimer, GameObject CallingObject)
+    private IEnumerator QueuerCoroutine(string Contact, string message, float displaytimer, TaskCompletionSource<bool> tcs)
     {
+        yield return new WaitWhile(() => DialogInProgress);
+        NewDialogue(Contact, message, displaytimer);
+        tcs.SetResult(true);
+    }
 
-        if (Contact == "SYSTEM")
+    public async Task CreateDialogue(string Contact, string message, float displaytimer)
+    {
+        if (Contact.Equals(Contacts.System.ToString()))
         {
             if (!GameMaster.DialogueSeen.ContainsKey(message))
             {
-
                 messagetimer = displaytimer;
 
                 DialogInProgress = true;
                 SystemMessage.text = message;
 
-                StartCoroutine(SystemTimer(displaytimer, CallingObject));
+                await SystemTimer(displaytimer); // Wait asynchronously for the timer to complete
 
                 // log me
                 GameMaster.DialogueSeen.Add(message, Contact);
             }
-
         }
-        else if (Contact == "NORA")
+        else if (Contact.Equals(Contacts.Nora.ToString()))
         {
             if (!GameMaster.DialogueSeen.ContainsKey(message))
             {
-
                 messagetimer = displaytimer;
 
                 DialogInProgress = true;
                 NoraMessage.text = "NORA: " + message;
 
-                StartCoroutine(NoraTimer(displaytimer, CallingObject));
+                await NoraTimer(displaytimer); // Wait asynchronously for the timer to complete
 
                 // log me
                 GameMaster.DialogueSeen.Add(message, Contact);
             }
-
         }
         else
         {
@@ -118,18 +133,14 @@ public class DialogueManager : MonoBehaviour
                 DialogInProgress = true;
                 ContactName.text = Contact;
                 ReceivedMessage.text = message;
-                StartCoroutine(MessageTimer(displaytimer, CallingObject));
+
+                await MessageTimer(displaytimer); // Wait asynchronously for the timer to complete
 
                 // log me
                 GameMaster.DialogueSeen.Add(message, Contact);
             }
         }
-
     }
-
-
- 
-
 
 
     public IEnumerator Fader(CanvasGroup ThisCanvas, int direction)
@@ -173,60 +184,37 @@ public class DialogueManager : MonoBehaviour
 
 
 
-
-
-    public IEnumerator MessageTimer(float timevalue, GameObject CalledBy)
+    public async Task MessageTimer(float timevalue)
     {
         timebar.fillAmount = 1.0f;
         StartCoroutine(Fader(DialogManagerCanvas, 1));
 
-        yield return new WaitForSeconds(timevalue);
+        await Task.Delay((int)(timevalue * 1000)); // Delay asynchronously for the specified time in milliseconds
 
         StartCoroutine(Fader(DialogManagerCanvas, 0));
         ContactName.text = "";
         ReceivedMessage.text = "";
-        yield return new WaitForSeconds(0.5f);
+        await Task.Delay(500); // Delay asynchronously for 500 milliseconds
         DialogInProgress = false;
-        Destroy(CalledBy);
     }
 
-
-
-
-    public IEnumerator NoraTimer(float timevalue, GameObject CalledBy)
+    public async Task NoraTimer(float timevalue)
     {
-
-        yield return new WaitForSeconds(timevalue);
-
-        if (CalledBy != null)
-        {
-            CalledBy.GetComponent<Collider>().enabled = true;
-        }
+        await Task.Delay((int)(timevalue * 1000)); // Delay asynchronously for the specified time in milliseconds
 
         NoraMessage.text = "";
-        yield return new WaitForSeconds(0.5f);
+        await Task.Delay(500); // Delay asynchronously for 500 milliseconds
         DialogInProgress = false;
     }
 
-
-
-
-    public IEnumerator SystemTimer(float timevalue, GameObject CalledBy)
+    public async Task SystemTimer(float timevalue)
     {
-
-        yield return new WaitForSeconds(timevalue);
-
-        if (CalledBy != null)
-        {
-            CalledBy.GetComponent<Collider>().enabled = true;
-        }
-
+        await Task.Delay((int)(timevalue * 1000)); // Delay asynchronously for the specified time in milliseconds
+        
         SystemMessage.text = "";
-        yield return new WaitForSeconds(0.5f);
-        DialogInProgress = false;        
-
+        await Task.Delay(500); // Delay asynchronously for 500 milliseconds
+        DialogInProgress = false;
     }
-
 
 
 }

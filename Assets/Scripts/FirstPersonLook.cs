@@ -1,16 +1,14 @@
 ﻿using UnityEngine;
 
-public class FirstPersonLook : MonoBehaviour
+public class FirstPersonLook : Singleton<FirstPersonLook>
 {
-    [SerializeField]
-    Transform character;
+    [SerializeField] Transform character;
     Vector2 currentMouseLook;
     Vector2 appliedMouseDelta;
     public phone thephonescript;
     public FirstPersonCollision playerhandler;
     public float sensitivity = 1;
     public float smoothing = 2;
-
 
     void Reset()
     {
@@ -24,7 +22,6 @@ public class FirstPersonLook : MonoBehaviour
 
     void FixedUpdate()
     {
-
         if (GameMaster.INMENU)
         {
             Cursor.lockState = CursorLockMode.None;
@@ -37,20 +34,12 @@ public class FirstPersonLook : MonoBehaviour
             Cursor.visible = false;
         }
 
-
-
         if (!GameMaster.FROZEN)
         {
-
-
-        // Rotate camera and controller.
-        transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
-        character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
+            // Rotate camera and controller.
+            transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
+            character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
         }
-
-
-
-
     }
 
     private void LateUpdate()
@@ -65,7 +54,9 @@ public class FirstPersonLook : MonoBehaviour
         }
     }
 
-
-
-
+    // Public method to set the player's rotation value
+    public void SetPlayerRotation(Vector2 rotation)
+    {
+        currentMouseLook = rotation;
+    }
 }

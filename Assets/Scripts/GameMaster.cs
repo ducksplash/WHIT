@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using TMPro;
 
 
-public class GameMaster : MonoBehaviour
+public class GameMaster : Singleton<GameMaster>
 {
   GameData saveData = new GameData();
 
@@ -32,6 +32,11 @@ public class GameMaster : MonoBehaviour
     public bool WaitingForTrinity;
     public CanvasGroup DevModeIcon;
 
+    // spawn points
+    public Vector3 SPAWNPOINTNORASFLAT;
+    public Vector3 SPAWNPOINTTAWLEYMEATS;
+    public Vector3 SPAWNPOINTROARKOUTSIDE;
+    public Vector3 SPAWNPOINTROARKINSIDE;
 
     // COLLECTED ITEMS
     public static bool TORCHCOLLECTED;
@@ -102,6 +107,11 @@ public class GameMaster : MonoBehaviour
 
     void Awake()
     {
+
+        SPAWNPOINTNORASFLAT = new Vector3(65, 2, 486);
+        SPAWNPOINTTAWLEYMEATS = new Vector3(71.50f, 12, 282);
+        SPAWNPOINTROARKOUTSIDE = new Vector3(36, 2, 12);
+        SPAWNPOINTROARKINSIDE = new Vector3(69, 16, 310);
 
 
 
@@ -345,13 +355,9 @@ void Start ()
     IEnumerator NoraReady()
     {
         yield return new WaitForSeconds(5);
-
-        var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
-        fakegameobject.GetComponent<Collider>().enabled = false;
-
         var msg = "Ok, I think I'm ready to go now.";
 
-        gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
+        DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), msg, 5);
 
 
     }

@@ -1,10 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
-using UnityEngine.SceneManagement;
-using UnityEngine.EventSystems;
 
 
 
@@ -17,7 +13,8 @@ public class DialogueBeef : MonoBehaviour
     public GameObject ColliderCube;
 
     [Header("Message from:")]
-    public string ContactName;
+    [SerializeField]
+    public Contacts ContactName;
     [Header("Message contents:")]
     [TextArea(5, 10)]
     public string MessageBody;
@@ -39,18 +36,14 @@ public class DialogueBeef : MonoBehaviour
 
     [Header("Debug (ignore)")]
     public float forhowlong;
-
-
-
-
-void Start() 
+    
+    
+    void Start() 
     {
 
         ColliderCube.SetActive(false);
 
     }
-
-
 
     private void OnTriggerEnter(Collider other)
     {
@@ -63,7 +56,7 @@ void Start()
             var TheCallingObject = gameObject;
             forhowlong = DisplayTimer;
 
-            other.gameObject.GetComponent<DialogueManager>().NewDialogue(ContactName, MessageBody, DisplayTimer, TheCallingObject);
+            DialogueManager.Instance.NewDialogue(ContactName.ToString(), MessageBody, DisplayTimer);
            
 
             if (Noraply)
@@ -72,9 +65,6 @@ void Start()
                 StartCoroutine(Norasponse(other.gameObject));
 
             }
-
-
-
         }
     }
 
@@ -85,11 +75,25 @@ void Start()
     {
         yield return new WaitForSeconds(Noradelay);
 
-        ThePlayer.gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", NoraplyBody, 4, gameObject);
+        DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), NoraplyBody, 4);
 
 
     }
 
 
 
+}
+
+[CustomPropertyDrawer(typeof(DialogueBeef))]
+public class ContactDrawerDialogueBeef : PropertyDrawer
+{
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        EditorGUI.BeginProperty(position, label, property);
+
+        // Draw the enum dropdown field
+        property.enumValueIndex = EditorGUI.Popup(position, label.text, property.enumValueIndex, property.enumDisplayNames);
+
+        EditorGUI.EndProperty();
+    }
 }

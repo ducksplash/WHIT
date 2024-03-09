@@ -109,33 +109,21 @@ public class Evidence : MonoBehaviour
 
         if (EvidenceName.Contains("Blood"))
         {
-            var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
-            fakegameobject.GetComponent<Collider>().enabled = false;
-
             var msg = "Who's blood is this...?";
-
-            Player.gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
+            DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), msg, 5);
         }
 
         if (EvidenceName.Contains("Email"))
         {
-            var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
-            fakegameobject.GetComponent<Collider>().enabled = false;
-
             var msg = "Is he talking about Eimear??";
-
-            Player.gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
+            DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), msg, 5);
         }
 
 
         if (EvidenceName.Contains("Skull"))
         {
-            var fakegameobject = new GameObject("FakeObject", typeof(BoxCollider));
-            fakegameobject.GetComponent<Collider>().enabled = false;
-
             var msg = "Oh my... This one looks real...";
-
-            Player.gameObject.GetComponent<DialogueManager>().NewDialogue("NORA", msg, 5, fakegameobject);
+            DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), msg, 5);
         }
     }
 

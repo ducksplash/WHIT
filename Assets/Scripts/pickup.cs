@@ -252,7 +252,7 @@ public class pickup : Singleton<pickup>
 
 					var dialogstring = "Found my torch, I can check that it works by pressing "+torchkey+". and I can swing it if I left click.";
 					DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
-					torchTick.alpha = 1;
+					if (torchTick) torchTick.alpha = 1;
 				}
 
 				if (hit.transform.name.Contains("NOTEPAD"))
@@ -262,7 +262,7 @@ public class pickup : Singleton<pickup>
 					Destroy(hit.transform.gameObject);
 					var dialogstring = "Got some places I wanna check out written down here. I should take a look when I'm leaving.";
 					DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
-					notepadTick.alpha = 1;
+					if (notepadTick) notepadTick.alpha = 1;
 
 				}
 
@@ -276,7 +276,7 @@ public class pickup : Singleton<pickup>
 
 					var dialogstring = "My phone. I should test that it works by pressing "+phonekey+".";
 					DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
-					phoneTick.alpha = 1;
+					if (phoneTick) phoneTick.alpha = 1;
 
 				}
 

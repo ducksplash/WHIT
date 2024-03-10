@@ -10,88 +10,114 @@ public class innerDoors : MonoBehaviour
     public string doorLockTag;
     public string doorUnlockTag;
     public Animator doorAnimator;
-    public bool isOpen;
-    public bool isLocked;
+    public bool isOpen = false;
+    public bool isLocked = false;
+    private Material[] theLightMats;
+    private Transform[] doorLights;
     private Collider theDoorCollider;
-
-    private bool PlayerClicked;
-    private TravelCompanion travelCompanion;
+    public bool isExteriorDoor;
+    [SerializeField] private bool PlayerClicked; // Cooldown duration in seconds
     private float clickCooldown = 0.5f; // Cooldown duration in seconds
-    private bool clickAvailable = true;
-    
+
 
     void Start()
     {
         doorAnimator = thisDoorHinge.GetComponent<Animator>();
         thisDoorName = thisDoor.name;
         PlayerClicked = false;
-
-        // Get reference to TravelCompanion instance
-        travelCompanion = FindObjectOfType<TravelCompanion>();
-        if (travelCompanion == null)
-        {
-            Debug.LogError("TravelCompanion instance not found!");
-        }
     }
 
     public void doLockedLights()
     {
-        // Implementation of doLockedLights method remains unchanged
+        doorLights = thisDoorHinge.transform.parent.GetComponentsInChildren<Transform>();
+		
+        foreach (Transform lightpart in doorLights)
+        {
+            Debug.Log(lightpart.name);
+
+            if (lightpart.GetComponentInChildren<Renderer>().material.name.Contains("bulb"))
+            {
+                Debug.Log(lightpart.name);
+
+                if (!isLocked)
+                {
+                    var litLiteCol = new Color(0,0.5f,0,1);
+                    lightpart.GetComponent<Renderer>().material.SetColor("_Color", litLiteCol);
+                    lightpart.GetComponent<Renderer>().material.SetColor("_EmissiveColor", litLiteCol * 20f);
+                    Debug.Log(lightpart.name);
+
+
+                }
+                else
+                {
+                    var litLiteCol = new Color(0.5f, 0, 0, 1);
+                    lightpart.GetComponent<Renderer>().material.SetColor("_Color", litLiteCol);
+                    lightpart.GetComponent<Renderer>().material.SetColor("_EmissiveColor", litLiteCol * 20f);
+                    Debug.Log(lightpart.name);
+                }
+
+            }
+			
+        }	
+		
     }
 
     IEnumerator DisableColliderMomentarily(float aWeeSecond, Collider theCollider)
     {
         theCollider.enabled = false;
         yield return new WaitForSeconds(aWeeSecond);
-        PlayerClicked = false;
         theCollider.enabled = true;
     }
 
     void Update()
     {
         // Check if click is available
-        if (clickAvailable)
+        if (!PlayerClicked)
         {
             if (Input.GetMouseButtonUp(1))
             {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;
-                if (Physics.Raycast(ray, out hit, 4f))
-                {
-                    if (hit.transform.gameObject.CompareTag("ExteriorDoor"))
-                    {
-                        Debug.Log("Travel!");
-                        // Launch companion if the player clicks on an exterior door
-                        if (travelCompanion != null)
-                        {
-                            travelCompanion.LaunchCompanion();
-                        }
-                    }
-                    else
-                    {
-                        if (!isLocked && hit.transform.name.Equals(thisDoorName))
-                        {
-                            DoDoor(hit);
-                        }
-                    }
-                }
-
-                // Start cooldown
-                StartCoroutine(ClickCooldown());
+                PlayerClicked = true;
+                ShootRay();
             }
         }
     }
 
+    private void ShootRay()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        
+        if (Physics.Raycast(ray, out hit, 3f))
+        {
+            if (hit.transform.gameObject.CompareTag("ExteriorDoor"))
+            {
+                Debug.Log("Travel!");
+                // Launch companion if the player clicks on an exterior door
+
+                TravelCompanion.Instance.LaunchCompanion();
+                        
+            }
+            else
+            {
+                Debug.Log("Open!");
+                if (!isLocked && hit.transform.name.Equals(thisDoorName))
+                {
+                    DoDoor(hit);
+                }
+            }
+        }
+        
+        StartCoroutine(ClickCooldown());
+    }
+    
+    
+
     IEnumerator ClickCooldown()
     {
-        // Disable click availability
-        clickAvailable = false;
-        
         // Wait for cooldown duration
         yield return new WaitForSeconds(clickCooldown);
         
-        // Enable click availability
-        clickAvailable = true;
+        PlayerClicked = false;
     }
 
     public void DoDoor(RaycastHit hit)

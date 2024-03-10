@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 
-public class clickable : MonoBehaviour
+public class clickable : Singleton<clickable>
 {
     public Image selectcursor;
     public Sprite clickablesprite;
@@ -188,19 +188,11 @@ public class clickable : MonoBehaviour
                     }
                 }
                 
-
-
-
+                
                 if (hit.transform.gameObject.layer == enemylayer)
                 {
-                    //Debug.Log("enemy");
                     selectcursor.sprite = enemysprite;
                 }
-
-
-
-
-
 
 
                 if (hit.transform.gameObject.layer == unknownlayer)
@@ -259,9 +251,6 @@ public class clickable : MonoBehaviour
                         selectcursor.sprite = doorsprite;
                         INFOTEXT("");
                     }
-
-
-
                 }
 
                 

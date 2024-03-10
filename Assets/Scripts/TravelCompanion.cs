@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
+using Image = UnityEngine.UI.Image;
 
 public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandler
 {
@@ -16,37 +17,79 @@ public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandle
 	public CanvasGroup evidencecompanion;
 	public CanvasGroup loadingpanel;
 	public Image loadingbar;
+	public Dictionary<GameScene, string> AvailableLocations = new Dictionary<GameScene, string>();
 	public TextMeshProUGUI loadingclock;
 	public bool TravelClicked;
 	private bool launchAvailable = true; // Flag to track if launch is available
-	private float launchCooldown = 0.5f; 
-	
+	private float launchCooldown = 0.5f;
+	public GameObject notepadButtonPrefab;
+	public RectTransform scrollViewContent;	
 	private void Start()
     {
 	    SceneManager.sceneLoaded += OnSceneLoaded;
         GameMaster.FROZEN = false;
         Notepad = PlayerInstance.Instance.TravelNotepad;
+
+        
 		//Notepad.SetActive(false);
 		//TravelClicked = false;
 		//loadingbar.fillAmount = 0;
+
+		InitialiseLocations();
+    }
+
+
+	private void InitialiseLocations()
+	{
+		
+		foreach (Transform child in scrollViewContent.transform)
+		{
+			Destroy(child.gameObject);
+		}
+		
+		AvailableLocations.Clear();
+		
+		
+		AvailableLocations.Add(GameScene.RoarkOutside, "Roark Microtech");
+		AvailableLocations.Add(GameScene.TawleyMeats, "Tawley Meats");
+		AvailableLocations.Add(GameScene.NorasFlat, "...just go home");
+		
+		
+		
+		float verticalSpacing = 30f; // Adjust this value to change vertical spacing
+
+		float contentHeight = scrollViewContent.rect.height; // Height of the content area
+		float firstButtonHeight = notepadButtonPrefab.GetComponent<RectTransform>().rect.height; // Height of the first button
+
+		// Calculate the initial Y position to start at the top
+		float initialYPosition = contentHeight / 2f - firstButtonHeight / 2f;
+
+		float currentYPosition = initialYPosition; // Initial Y position of the first button
+
+		foreach (var availableLocation in AvailableLocations)
+		{
+			if (!availableLocation.Key.ToString().Equals(GameMaster.THISLEVEL))
+			{
+				GameObject notePadButtonPrefabInstance = Instantiate(notepadButtonPrefab, scrollViewContent);
+
+				RectTransform buttonTransform = notePadButtonPrefabInstance.GetComponent<RectTransform>();
+
+				// Set the position of the button based on the current Y position
+				buttonTransform.anchoredPosition = new Vector2(buttonTransform.anchoredPosition.x, currentYPosition);
+
+				// Increment the Y position for the next button
+				currentYPosition -= verticalSpacing;
+
+				NotepadButton newButton = notePadButtonPrefabInstance.GetComponent<NotepadButton>();
+
+				newButton.buttonText = availableLocation.Value;
+				newButton.buttonTextElement.text = availableLocation.Value;
+				newButton.targetScene = availableLocation.Key;
+
+				Debug.Log(availableLocation.Key);
+			}
+		}
 	}
-
-	// opens every time, need to filer to just ExteriorDoors.
-	// public void OnPointerClick(PointerEventData eventData)
-	// {
-	// 	Debug.Log("clicked "+eventData.ToString());
-	// 	
-	// 	if (eventData.button == PointerEventData.InputButton.Right)
-	// 	{
-	// 		// Check if the clicked object has the tag "ExteriorDoor"
-	// 		if (gameObject.CompareTag("ExteriorDoor"))
-	// 		{
-	// 			// Call LaunchCompanion() only if the clicked object has the correct tag
-	// 			//LaunchCompanion();
-	// 		}
-	// 	}
-	// }
-
 
 	private void OnDestroy()
 	{
@@ -71,7 +114,7 @@ public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandle
 		if (launchAvailable)
 		{
 			Debug.Log("launch companion");
-			if (GameMaster.THISLEVEL == "NorasFlat")
+			if (GameMaster.THISLEVEL.Equals(GameScene.NorasFlat.ToString()))
 			{
 
 				// if debuggery, override
@@ -80,7 +123,6 @@ public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandle
 				if (evidenceOverride > 0)
 				{
 
-					Debug.Log(GameMaster.THISLEVEL);
 
 					var itemsfound = 0;
 
@@ -304,11 +346,8 @@ public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandle
 			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
 		}
 
-		Time.timeScale = 0;
-
-		// Rigidbody rb = PlayerInstance.Instance.gameObject.GetComponentInParent<Rigidbody>();
-		// rb.isKinematic = false;
-		// rb.useGravity = true;
+		Time.timeScale = 0; // or the player falls out the world
+		
 
 		while (!op.isDone)
 		{
@@ -320,6 +359,7 @@ public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandle
 		DialogueManager.Instance.queueDropFlag = true;
 		loadingpanel.alpha = 0;
 		Time.timeScale = 1;
+		InitialiseLocations();
 	}
 
 	private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

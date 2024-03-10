@@ -110,7 +110,7 @@ public class GameMaster : Singleton<GameMaster>
 
         SPAWNPOINTNORASFLAT = new Vector3(65, 2, 486);
         SPAWNPOINTTAWLEYMEATS = new Vector3(71.50f, 12, 282);
-        SPAWNPOINTROARKOUTSIDE = new Vector3(36, 2, 12);
+        SPAWNPOINTROARKOUTSIDE = new Vector3(90, 5, 252);
         SPAWNPOINTROARKINSIDE = new Vector3(69, 16, 310);
 
 
@@ -296,9 +296,14 @@ void Start ()
             {
                 if (WaitingForTrinity)
                 {
-                    if (TORCHCOLLECTED && NOTEPADCOLLECTED && PHONECOLLECTED)
+                    if (TORCHCOLLECTED && NOTEPADCOLLECTED && PHONECOLLECTED && !DEBUGGERY)
                     {
                         StartCoroutine(NoraReady());
+                        WaitingForTrinity = false;
+                    }
+
+                    if (DEBUGGERY)
+                    {
                         WaitingForTrinity = false;
                     }
                 }

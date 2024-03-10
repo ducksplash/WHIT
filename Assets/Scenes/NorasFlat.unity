@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.10986552, g: 0.101168916, b: 0.09386091, a: 1}
+  m_IndirectSpecularColor: {r: 0.10928798, g: 0.100725725, b: 0.09354654, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2766,7 +2766,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &74907363
 GameObject:
@@ -9058,7 +9058,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!1 &292085139
 GameObject:
   m_ObjectHideFlags: 0
@@ -9588,7 +9588,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!1 &321979157
 GameObject:
   m_ObjectHideFlags: 0
@@ -10626,7 +10626,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!1 &370539868
 GameObject:
   m_ObjectHideFlags: 0
@@ -10694,7 +10694,7 @@ Transform:
   - {fileID: 426085471}
   - {fileID: 1892797959}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &372382559
 GameObject:
@@ -16170,7 +16170,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!95 &562253576
 Animator:
   serializedVersion: 5
@@ -19797,7 +19797,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!1 &719460288
 GameObject:
   m_ObjectHideFlags: 0
@@ -19986,7 +19986,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!95 &722174270
 Animator:
   serializedVersion: 5
@@ -22330,7 +22330,7 @@ Transform:
   m_Children:
   - {fileID: 1973899176}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &810165792
 GameObject:
@@ -23541,7 +23541,7 @@ Transform:
   - {fileID: 508636403}
   - {fileID: 1108621349}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &864403792
 GameObject:
@@ -24513,7 +24513,7 @@ Transform:
   - {fileID: 1719697645}
   - {fileID: 298087809}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &902006133
 MonoBehaviour:
@@ -24528,6 +24528,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BlackCutsceneBars: {fileID: 397022771}
+  CrossHair: {fileID: 0}
 --- !u!1 &902377878
 GameObject:
   m_ObjectHideFlags: 0
@@ -24680,7 +24681,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!224 &907155672
 RectTransform:
@@ -28733,7 +28734,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!95 &1024028309
 Animator:
   serializedVersion: 5
@@ -29146,7 +29147,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!224 &1035288222
 RectTransform:
@@ -30570,7 +30571,7 @@ Transform:
   m_Children:
   - {fileID: 990157390}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1103252657
 GameObject:
@@ -32561,7 +32562,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!224 &1188931720
 RectTransform:
@@ -32714,7 +32715,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1190585087
 GameObject:
@@ -35455,7 +35456,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1284103683
 GameObject:
@@ -41429,7 +41430,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!224 &1505752341
 RectTransform:
@@ -42381,12 +42382,13 @@ GameObject:
   - component: {fileID: 1525618387}
   - component: {fileID: 1525618388}
   - component: {fileID: 1525618389}
+  - component: {fileID: 1525618390}
   m_Layer: 0
   m_Name: GameManagers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1525618386
 Transform:
@@ -42401,7 +42403,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1525618387
 MonoBehaviour:
@@ -42471,12 +42473,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TravelCanvas: {fileID: 1812886710}
   CompanionOpen: 0
-  Notepad: {fileID: 1313147390979019811}
   crosshair: {fileID: 388548396}
   evidencecompanion: {fileID: 1485339867}
   loadingpanel: {fileID: 519996078}
   loadingbar: {fileID: 2015940266}
   loadingclock: {fileID: 1285893595}
+  TravelClicked: 0
+--- !u!114 &1525618390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1525618384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f0906b500d32214b836bdb62a3e1c03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myHeldItem: {fileID: 0}
+  heldItemParent: {fileID: 0}
+  handTransform: {fileID: 266904843}
+  hasobjectshown: 0
+  StartRotation: {x: 0, y: 0, z: 0}
+  RotationMenu: {fileID: 1377051232}
+  IgnoreLayer:
+    serializedVersion: 2
+    m_Bits: 3507539967
+  phoneTick: {fileID: 44149770}
+  notepadTick: {fileID: 1182946668}
+  torchTick: {fileID: 1951482238}
+  theHandCollider: {fileID: 0}
 --- !u!1 &1533260994
 GameObject:
   m_ObjectHideFlags: 0
@@ -44623,7 +44650,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!224 &1627724180
 RectTransform:
@@ -47846,7 +47873,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!95 &1768136387
 Animator:
   serializedVersion: 5
@@ -49520,7 +49547,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!224 &1812886705
 RectTransform:
@@ -52759,7 +52786,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!95 &1906245480
 Animator:
   serializedVersion: 5
@@ -58186,7 +58213,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4207293390389452}
   - component: {fileID: 114963311883893501}
-  - component: {fileID: 114963311883893498}
   - component: {fileID: 114963311883893496}
   - component: {fileID: 114497868229672704}
   - component: {fileID: 1773623358626661}
@@ -58243,7 +58269,7 @@ Transform:
   - {fileID: 1678379519}
   - {fileID: 4490257324156716}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: -73.055, z: 0}
 --- !u!4 &4490257324156716
 Transform:
@@ -58667,31 +58693,6 @@ CharacterController:
   m_SkinWidth: 0.2
   m_MinMoveDistance: 0.0001
   m_Center: {x: 0.47, y: 1.2, z: 0.52}
---- !u!114 &114963311883893498
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773623358626660}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f0906b500d32214b836bdb62a3e1c03, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  myHeldItem: {fileID: 0}
-  heldItemParent: {fileID: 0}
-  handTransform: {fileID: 266904843}
-  hasobjectshown: 0
-  StartRotation: {x: 0, y: 0, z: 0}
-  RotationMenu: {fileID: 1377051232}
-  IgnoreLayer:
-    serializedVersion: 2
-    m_Bits: 3507539967
-  phoneTick: {fileID: 44149770}
-  notepadTick: {fileID: 1182946668}
-  torchTick: {fileID: 1951482238}
-  theHandCollider: {fileID: 0}
 --- !u!114 &114963311883893500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58716,6 +58717,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecfb427b861aacf4dbaa9c1c632db9ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TravelNotepad: {fileID: 1313147390979019811}
 --- !u!124 &124991110453114072
 Behaviour:
   m_ObjectHideFlags: 0
@@ -61292,7 +61294,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!1 &919132148751517738
 GameObject:
   m_ObjectHideFlags: 0
@@ -61416,7 +61418,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!33 &924856147105174096
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -62222,7 +62224,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!33 &1313345438175818453
 MeshFilter:
@@ -68417,7 +68419,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!1 &4039306734682862920
 GameObject:
   m_ObjectHideFlags: 0
@@ -70841,7 +70843,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!1 &4961710063379962182
 GameObject:
@@ -80417,7 +80419,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
-  PlayerClicked: 0
+  CrossHair: {fileID: 0}
 --- !u!136 &8636278061132364346
 CapsuleCollider:
   m_ObjectHideFlags: 0

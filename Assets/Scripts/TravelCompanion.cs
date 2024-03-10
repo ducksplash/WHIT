@@ -25,18 +25,22 @@ public class TravelCompanion : Singleton<TravelCompanion>, IPointerClickHandler
 		loadingbar.fillAmount = 0;
 	}
 
+	// opens every time, need to filer to just ExteriorDoors.
 	public void OnPointerClick(PointerEventData eventData)
 	{
+		Debug.Log("clicked "+eventData.ToString());
 		
 		if (eventData.button == PointerEventData.InputButton.Right)
 		{
-			if (CompanionOpen)
+			// Check if the clicked object has the tag "ExteriorDoor"
+			if (gameObject.CompareTag("ExteriorDoor"))
 			{
-				LaunchCompanion();
+				// Call LaunchCompanion() only if the clicked object has the correct tag
+				//LaunchCompanion();
 			}
 		}
-
 	}
+
 
 
 	void Update()
@@ -183,17 +187,21 @@ public class TravelCompanion : Singleton<TravelCompanion>, IPointerClickHandler
 	public void ChangeScene(string SceneName)
 	{
 		Rigidbody rb = PlayerInstance.Instance.gameObject.GetComponentInParent<Rigidbody>();
-		rb.isKinematic = true;
-		rb.useGravity = false;
+		// rb.isKinematic = false;
+		// rb.useGravity = false;
+		
 		GameMaster.INMENU = false;
 		GameMaster.FROZEN = true;
-		
 		StartCoroutine(ChangeSceneAsync(SceneName));
 	}
 
 
 	public void ChangeSceneOffTheBooks(string SceneName)
 	{
+		Rigidbody rb = PlayerInstance.Instance.gameObject.GetComponentInParent<Rigidbody>();
+		
+		// rb.isKinematic = false;
+		// rb.useGravity = false;
 		
 		GameMaster.INMENU = false;
 		GameMaster.FROZEN = true;
@@ -207,6 +215,7 @@ public class TravelCompanion : Singleton<TravelCompanion>, IPointerClickHandler
 
 		loadingpanel.alpha = 1;
 
+		Debug.Log("Loading: "+levelName);
 		
 		AsyncOperation op = SceneManager.LoadSceneAsync(levelName);
 
@@ -224,8 +233,9 @@ public class TravelCompanion : Singleton<TravelCompanion>, IPointerClickHandler
 		loadingclock.text = buildDate;
 
 		Transform PlayerTransform = PlayerInstance.Instance.gameObject.GetComponentInParent<Transform>();
-		
-		
+
+
+		Debug.Log("setting pos now");
 		
 
 		if (levelName.Equals(GameScene.NorasFlat.ToString()))
@@ -252,8 +262,9 @@ public class TravelCompanion : Singleton<TravelCompanion>, IPointerClickHandler
 			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
 		}
 
+		Time.timeScale = 0;
 
-		Rigidbody rb = PlayerInstance.Instance.gameObject.GetComponentInParent<Rigidbody>();
+		// Rigidbody rb = PlayerInstance.Instance.gameObject.GetComponentInParent<Rigidbody>();
 		// rb.isKinematic = false;
 		// rb.useGravity = true;
 
@@ -262,6 +273,11 @@ public class TravelCompanion : Singleton<TravelCompanion>, IPointerClickHandler
 			loadingbar.fillAmount = Mathf.Clamp01(op.progress / .9f);
 			yield return null;
 		}
+
+		DialogueManager.Instance.queueDropFlag = true;
+		LaunchCompanion();
+		loadingpanel.alpha = 0;
+		Time.timeScale = 1;
 	}
 
 

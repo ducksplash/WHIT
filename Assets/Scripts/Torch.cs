@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using VLB;
 
 public class Torch : MonoBehaviour
 {
@@ -18,7 +19,10 @@ public class Torch : MonoBehaviour
 	public Image torchimg;
 	public Sprite litsprite;
 	public Sprite unlitsprite;
+	public VolumetricLightBeamSD SpotlightBeam;
 
+	
+	
 	public bool WaitingForTorch;
 
 	// Start is called before the first frame update
@@ -63,12 +67,14 @@ public class Torch : MonoBehaviour
 							lightBeam.enabled = true;
 							torchimg.sprite = litsprite;
 							torchToggle = true;
+							SpotlightBeam.enabled = true;
 						}
 						else
 						{
 							lightBeam.enabled = false;
 							torchimg.sprite = unlitsprite;
 
+							SpotlightBeam.enabled = false;
 							torchToggle = false;
 							//Debug.Log("off");
 						}

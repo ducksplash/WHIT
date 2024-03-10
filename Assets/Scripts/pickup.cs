@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using VLB;
 
-public class pickup : MonoBehaviour
+public class pickup : Singleton<pickup>
 {
 
 
 	public static bool hasobject;
-	public Transform defaultparent;
+	private Transform defaultparent;
 	public Transform myHeldItem;
 	public Transform heldItemParent;
 	public Transform handTransform;
@@ -15,7 +16,6 @@ public class pickup : MonoBehaviour
 	public Vector3 StartRotation;
 	public CanvasGroup RotationMenu;
 	public LayerMask IgnoreLayer;
-
 	public CanvasGroup phoneTick;
 	public CanvasGroup notepadTick;
 	public CanvasGroup torchTick;
@@ -25,20 +25,20 @@ public class pickup : MonoBehaviour
 
 	private void Awake()
     {
-		pickup.hasobject = false;
+		hasobject = false;
 		StartRotation = handTransform.parent.eulerAngles;
-
-	}
+		defaultparent = null;
+    }
 
 
 
     void Update()
 	{
-		hasobjectshown = pickup.hasobject;
+		hasobjectshown = hasobject;
 		if (Input.GetMouseButtonDown(1))
 		{
 
-			if (!pickup.hasobject)
+			if (!hasobject)
 			{
 
 
@@ -54,30 +54,24 @@ public class pickup : MonoBehaviour
 			}
 			else
 			{
-
 				DropItem();
-
 			}
 		}
 
 
 		if (Input.GetMouseButtonUp(0))
 		{
-
-
-			if (pickup.hasobject)
+			if (hasobject)
 			{
 				ThrowItem();
 			}
-
-			
 		}
 
 
 
 
 		// if focus broken for a reason other than dropping and throwing
-		if (!pickup.hasobject)
+		if (!hasobject)
 		{
 			myHeldItem = null;
 			RotationMenu.alpha = 0f;
@@ -85,7 +79,7 @@ public class pickup : MonoBehaviour
 		}
 
 
-		if (handTransform.childCount > 0 && !pickup.hasobject)
+		if (handTransform.childCount > 0 && !hasobject)
 		{
 			myHeldItem = null;
 			RotationMenu.alpha = 0f;
@@ -100,12 +94,8 @@ public class pickup : MonoBehaviour
 
     void FixedUpdate()
 	{
-
-
-
-
-
-		if (pickup.hasobject == true && myHeldItem != null)
+		
+		if (hasobject && myHeldItem != null)
 		{
 
 			if (Input.GetKey(KeyCode.Keypad1) || Input.GetKey(KeyCode.Alpha1))
@@ -199,9 +189,7 @@ public class pickup : MonoBehaviour
     {
 		if (!GameMaster.PHONEOUT)
 		{
-
-
-
+			
 			if (!hit.transform.gameObject.tag.Equals("COLLECTABLE"))
 			{
 				var TheItem = hit;
@@ -210,6 +198,9 @@ public class pickup : MonoBehaviour
 
 				TheItem.transform.SetParent(handTransform, true);
 
+				TheItem.transform.gameObject.AddComponent<GetHeldObjectCollisions>();
+				
+				
 				//handTransform.Rotate(new Vector3(0,0,0), Space.Self);
 				TheItem.transform.localPosition = new Vector3(0, 0, 0);
 
@@ -219,8 +210,16 @@ public class pickup : MonoBehaviour
 				TheItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
 				myHeldItem = TheItem.transform;
-				pickup.hasobject = true;
+
+				Collider myItemCollider = myHeldItem.GetComponent<Collider>();
+				if (myItemCollider)
+				{
+					ResizeCollider(myItemCollider, 0.85f);
+				}
+				
+				hasobject = true;
 				GameMaster.HASITEM = true;
+				
 
 				if (TheItem.transform.GetComponent<Evidence>() != null)
                 {
@@ -286,15 +285,48 @@ public class pickup : MonoBehaviour
 		}
 	}
 
+	
+
+	// Function to resize the collider by a specified factor
+	public void ResizeCollider(Collider collider, float scaleFactor)
+	{
+		
+		// Get the Collider component attached to this GameObject
+
+		if (collider is BoxCollider)
+		{
+			BoxCollider boxCollider = (BoxCollider)collider;
+			Vector3 originalSize = boxCollider.size;
+			boxCollider.size = originalSize * scaleFactor;
+		}
+		else if (collider is SphereCollider)
+		{
+			SphereCollider sphereCollider = (SphereCollider)collider;
+			sphereCollider.radius *= scaleFactor;
+		}
+		// Add support for other collider types as needed (e.g., CapsuleCollider, MeshCollider)
+	}
+	
 
 	public void DropItem()
 	{
 
 		RotationMenu.alpha = 0f;
+		Collider myItemCollider = myHeldItem.GetComponent<Collider>();
+		if (myItemCollider)
+		{
+			ResizeCollider(myItemCollider, 1f);
+		}
 		myHeldItem.SetParent(defaultparent);
+		GetHeldObjectCollisions component = myHeldItem.transform.gameObject.GetComponent<GetHeldObjectCollisions>();
+		if (component != null)
+		{
+			// Remove the component from the GameObject
+			Destroy(component);
+		}
 		myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 		myHeldItem = null;
-		pickup.hasobject = false;
+		hasobject = false;
 		GameMaster.HASITEM = false;
 	}
 
@@ -302,13 +334,23 @@ public class pickup : MonoBehaviour
 	{
 		
 		RotationMenu.alpha = 0f;
+		Collider myItemCollider = myHeldItem.GetComponent<Collider>();
+		if (myItemCollider)
+		{
+			ResizeCollider(myItemCollider, 1f);
+		}
 		myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 		myHeldItem.transform.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward * 200f);
 		myHeldItem.SetParent(defaultparent);
-
+		GetHeldObjectCollisions component = myHeldItem.transform.gameObject.GetComponent<GetHeldObjectCollisions>();
+		if (component != null)
+		{
+			// Remove the component from the GameObject
+			Destroy(component);
+		}
 		if (myHeldItem.parent == defaultparent)
         {
-			pickup.hasobject = false;
+			hasobject = false;
 			GameMaster.HASITEM = false;
 			myHeldItem = null;
         }

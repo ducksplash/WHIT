@@ -16,7 +16,6 @@ public class innerDoors : MonoBehaviour
 	private Material[] theLightMats;
 	private Transform[] doorLights;
 	private Collider theDoorCollider;
-	public bool isExteriorDoor;
 
 	public bool PlayerClicked;
 	
@@ -94,7 +93,7 @@ public class innerDoors : MonoBehaviour
 				RaycastHit hit;
 				if (Physics.Raycast(ray, out hit, 4f))
 				{
-					if (isExteriorDoor)
+					if (hit.transform.gameObject.CompareTag("ExteriorDoor"))
 					{
 						Debug.Log("Travel!");
 						TravelCompanion.Instance.LaunchCompanion();

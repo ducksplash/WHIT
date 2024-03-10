@@ -23,13 +23,14 @@ public class DialogueManager : Singleton<DialogueManager>
     public float messagetimer = 0f;
     public bool currentDialogueIsCutscene;
 
-
+    public bool queueDropFlag;
 
     void Start()
     {
         DialogManagerCanvas = DialogManager.GetComponent<CanvasGroup>();
         DialogInProgress = false;
         currentDialogueIsCutscene = false;
+        queueDropFlag = false;
         NoraMessage.text = "";
         SystemMessage.text = "";
     }
@@ -88,7 +89,17 @@ public class DialogueManager : Singleton<DialogueManager>
     private IEnumerator QueuerCoroutine(string Contact, string message, float displaytimer, TaskCompletionSource<bool> tcs)
     {
         yield return new WaitWhile(() => DialogInProgress);
-        NewDialogue(Contact, message, displaytimer);
+        if (!queueDropFlag)
+        {
+            NewDialogue(Contact, message, displaytimer);
+        }
+        else
+        {
+            // record silently
+            GameMaster.DialogueSeen.Add(message, Contact);
+            queueDropFlag = false;
+        }
+
         tcs.SetResult(true);
     }
 

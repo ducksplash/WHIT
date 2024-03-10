@@ -1,6 +1,7 @@
 ﻿using System.Collections;  
 using System.Collections.Generic;  
-using UnityEngine;  
+using UnityEngine;
+using VLB;
 
 public class LIGHTS : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class LIGHTS : MonoBehaviour
 	public string lightTag;
 	public float LightSwitchEmissionStrength = 5f;
 	private Material[] theLightMats;
+	public VolumetricLightBeamSD[] SpotlightBeams;
 	private GameObject theLightBulb;
 
 	[Header("Switch Type: PANEL or ROTATE")]
@@ -32,15 +34,15 @@ public class LIGHTS : MonoBehaviour
 		
 		if (thatSwitch)
 		{
-		thatSwitchName = thatSwitch.name;
-		
-		thatSwitchMats = thatSwitch.GetComponent<Renderer>().materials;
-		
+			thatSwitchName = thatSwitch.name;
+			
+			thatSwitchMats = thatSwitch.GetComponent<Renderer>().materials;
+			
 		
 		}
 		else
 		{
-		thatSwitchName = null;	
+			thatSwitchName = null;	
 		}
 	}
 
@@ -57,7 +59,7 @@ public class LIGHTS : MonoBehaviour
 		}
 		else
 		{
-			lightEmissionColour = new Color(0.5f,0,0,1);
+			lightEmissionColour = new Color(0.8f,0,0,1);
 		}
 
 		for (int i = 0; i < switchMats.Length; i++)
@@ -159,42 +161,30 @@ public class LIGHTS : MonoBehaviour
 
 	void ToggleLights()
     {
-		foreach (Light thisLight in theseLights)
-		{
-			if (thisLight.enabled == false)
-			{
-				// turn lights on
-				changeLights(thisLight, true);
+	    foreach (Light thisLight in theseLights)
+	    {
+		    bool enableLight = !thisLight.enabled; // Toggle the state of the light
 
-				// change appearance of switch
-				changeSwitch(thisSwitchMats, true);
+		    // Toggle the light
+		    changeLights(thisLight, enableLight);
 
-				// check if it's a rotatable switch
+		    // Toggle the appearance of the switch
+		    changeSwitch(thisSwitchMats, enableLight);
 
-					// Change Second Switch
-				if (thatSwitch != null)
-				{
-					// change appearance of switch
-					changeSwitch(thatSwitchMats, true);
-				}
-			}
+		    // Toggle the appearance of the second switch if available
+		    if (thatSwitch != null)
+		    {
+			    changeSwitch(thatSwitchMats, enableLight);
+		    }
+	    }
 
-			else if (thisLight.enabled == true)
-			{
-				// turn lights on
-				changeLights(thisLight, false);
+	    foreach (VolumetricLightBeamSD VLBSD in SpotlightBeams)
+	    {
+		    VLBSD.enabled = !VLBSD.enabled;
+	    }
 
-				// change appearance of switch
-				changeSwitch(thisSwitchMats, false);
-
-				// Change Second Switch
-				if (thatSwitch != null)
-				{
-					// change appearance of switch
-					changeSwitch(thatSwitchMats, false);
-				}
-			}
-		}
+	    
+		
 	}
 
 

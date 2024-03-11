@@ -2823,6 +2823,7 @@ MonoBehaviour:
   HoverColor: {r: 1, g: 0, b: 0, a: 1}
   normalMaterial: {fileID: 0}
   hoverMaterial: {fileID: 0}
+  usingFormatting: 1
 --- !u!114 &74907366
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7138,7 +7139,7 @@ GameObject:
   - component: {fileID: 233594117}
   - component: {fileID: 233594119}
   - component: {fileID: 233594118}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Roundcube.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9134,7 +9135,7 @@ MonoBehaviour:
   thatSwitch: {fileID: 0}
   theseLights:
   - {fileID: 227296734}
-  theseEmissives: []
+  theseEmissives: {fileID: 0}
   lightTag: 
   LightSwitchEmissionStrength: 5
   SpotlightBeams: []
@@ -15059,7 +15060,7 @@ MonoBehaviour:
   - {fileID: 1427585358}
   - {fileID: 1508080717}
   - {fileID: 1293138394}
-  theseEmissives: []
+  theseEmissives: {fileID: 0}
   lightTag: 
   LightSwitchEmissionStrength: 5
   SpotlightBeams:
@@ -21266,7 +21267,7 @@ GameObject:
   - component: {fileID: 781036903}
   - component: {fileID: 781036905}
   - component: {fileID: 781036904}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Roundcube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21896,7 +21897,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114963311883893496}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: FirstPersonCollision, Assembly-CSharp
         m_MethodName: ContinueGame
         m_Mode: 1
@@ -30283,7 +30284,7 @@ MonoBehaviour:
   - {fileID: 1858244330}
   - {fileID: 1319135754}
   - {fileID: 0}
-  theseEmissives: []
+  theseEmissives: {fileID: 0}
   lightTag: 
   LightSwitchEmissionStrength: 5
   SpotlightBeams: []
@@ -35281,7 +35282,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114963311883893496}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: FirstPersonCollision, Assembly-CSharp
         m_MethodName: ContinueGame
         m_Mode: 1
@@ -37959,7 +37960,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114963311883893496}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: FirstPersonCollision, Assembly-CSharp
         m_MethodName: QuitToMainmenu
         m_Mode: 1
@@ -40967,17 +40968,17 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 27.3
-  m_fontSizeBase: 27.3
+  m_fontSize: 25
+  m_fontSizeBase: 25
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 1024
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: -10
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -42234,7 +42235,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1539384908}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.354, y: 0, z: 0}
   m_LocalScale: {x: 6.752307, y: 5.748076, z: 9.013245}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -53976,10 +53977,10 @@ MonoBehaviour:
   ColliderCube: {fileID: 1539384908}
   ContactName: 1
   MessageBody: Have you left yet?
-  DisplayTimer: 5
+  DisplayTimer: 4
   Noraply: 1
   NoraplyBody: ..this guy really needs to chill...
-  Noradelay: 5
+  Noradelay: 4
   forhowlong: 0
 --- !u!65 &1973899178
 BoxCollider:
@@ -55048,7 +55049,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114963311883893496}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: FirstPersonCollision, Assembly-CSharp
         m_MethodName: QuitToMainmenu
         m_Mode: 1
@@ -57938,7 +57939,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   character: {fileID: 4207293390389452}
   thephonescript: {fileID: 5148817236368904745}
-  playerhandler: {fileID: 114963311883893496}
+  playerhandler: {fileID: 0}
   sensitivity: 0.5
   smoothing: 3
 --- !u!114 &114963311883893496
@@ -72378,7 +72379,7 @@ GameObject:
   - component: {fileID: 7439086737334864528}
   - component: {fileID: 598998307779651699}
   - component: {fileID: 9207082929597117438}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: bath
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -74179,7 +74180,7 @@ GameObject:
   - component: {fileID: 6736184664251357394}
   - component: {fileID: 7356683404399518565}
   - component: {fileID: 451073453364874409}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Roundcube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75230,7 +75231,7 @@ GameObject:
   - component: {fileID: 3572750890285232864}
   - component: {fileID: 2599676779785460645}
   - component: {fileID: 3501657575760868791}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Roundcube.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75267,7 +75268,7 @@ GameObject:
   - component: {fileID: 3659580720906093349}
   - component: {fileID: 7952976158967197386}
   - component: {fileID: 7952976158967197387}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: bedsheet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79179,7 +79180,7 @@ GameObject:
   - component: {fileID: 3010172807501092948}
   - component: {fileID: 8544783546886525001}
   - component: {fileID: 8544783546886525002}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Cube.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}

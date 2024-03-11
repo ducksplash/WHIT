@@ -38,6 +38,11 @@ public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandle
 		InitialiseLocations();
     }
 
+	public bool CompanionIsOpen
+	{
+		get => CompanionOpen;
+		set => CompanionOpen = value;
+	}
 
 	private void InitialiseLocations()
 	{
@@ -49,10 +54,12 @@ public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandle
 		
 		AvailableLocations.Clear();
 		
+        // order matters.
+		AvailableLocations.Add(GameScene.TawleyMeats, "Tawley Meats");
 		
 		AvailableLocations.Add(GameScene.RoarkOutside, "Roark Microtech");
-		AvailableLocations.Add(GameScene.TawleyMeats, "Tawley Meats");
-		AvailableLocations.Add(GameScene.NorasFlat, "...just go home");
+		
+		AvailableLocations.Add(GameScene.NorasFlat, "\n...just go home");
 		
 		
 		

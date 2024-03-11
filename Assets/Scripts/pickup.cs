@@ -310,24 +310,29 @@ public class pickup : Singleton<pickup>
 
 	public void DropItem()
 	{
-
 		RotationMenu.alpha = 0f;
-		Collider myItemCollider = myHeldItem.GetComponent<Collider>();
-		if (myItemCollider)
+		
+		if (myHeldItem != null)
 		{
-			ResizeCollider(myItemCollider, 1f);
+			Collider myItemCollider = myHeldItem.GetComponent<Collider>();
+			if (myItemCollider)
+			{
+				ResizeCollider(myItemCollider, 1f);
+			}
+
+			myHeldItem.SetParent(defaultparent);
+			GetHeldObjectCollisions component = myHeldItem.transform.gameObject.GetComponent<GetHeldObjectCollisions>();
+			if (component != null)
+			{
+				// Remove the component from the GameObject
+				Destroy(component);
+			}
+
+			myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+			myHeldItem = null;
+			hasobject = false;
+			GameMaster.HASITEM = false;
 		}
-		myHeldItem.SetParent(defaultparent);
-		GetHeldObjectCollisions component = myHeldItem.transform.gameObject.GetComponent<GetHeldObjectCollisions>();
-		if (component != null)
-		{
-			// Remove the component from the GameObject
-			Destroy(component);
-		}
-		myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-		myHeldItem = null;
-		hasobject = false;
-		GameMaster.HASITEM = false;
 	}
 
 	public void ThrowItem()

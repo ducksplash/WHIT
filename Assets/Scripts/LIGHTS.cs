@@ -12,10 +12,10 @@ public class LIGHTS : MonoBehaviour
 	private Material[] thatSwitchMats;
 	private Material[] thisSwitchMats;
 	public Light[] theseLights;
-	public Light[] theseEmissives;
+	public GameObject theseEmissives;
 	public string lightTag;
 	public float LightSwitchEmissionStrength = 5f;
-	private Material[] theLightMats;
+	//private Material[] theLightMats;
 	public VolumetricLightBeamSD[] SpotlightBeams;
 	private GameObject theLightBulb;
 
@@ -71,12 +71,7 @@ public class LIGHTS : MonoBehaviour
 			}	
 
 		}
-
-
-
-
-
-
+		
 	}
 	
 
@@ -96,8 +91,7 @@ public class LIGHTS : MonoBehaviour
 		// Read Colour
 		var litLiteCol = myLight.color;
 		
-
-		theLightMats = myLight.transform.parent.GetComponent<Renderer>().materials;
+		Material[] theLightMats = myLight.transform.parent.GetComponent<Renderer>().materials;
 
 		
 		for (int i = 0; i < theLightMats.Length; i++)
@@ -116,6 +110,33 @@ public class LIGHTS : MonoBehaviour
 					theLightMats[i].SetColor("_Color", offColour);
 					theLightMats[i].SetColor("_EmissiveColor", offColour);
 				}
+			}
+		}
+	}
+
+
+	void changeEmissives(GameObject myEmissive, bool powerState)
+	{
+		// Read Colour
+		Material[] theMats = myEmissive.transform.parent.GetComponent<Renderer>().materials;
+
+		
+		
+		for (int i = 0; i < theMats.Length; i++)
+		{
+			
+			var litLiteCol = theMats[0].GetColor("_Color");
+			
+			if (powerState)
+			{
+				theMats[i].SetColor("_Color", litLiteCol);
+				theMats[i].SetColor("_EmissiveColor", litLiteCol * 5f);
+			}	
+			else
+			{
+				var offColour = new Color(0,0,0,1f);
+				theMats[i].SetColor("_Color", offColour);
+				theMats[i].SetColor("_EmissiveColor", offColour);
 			}
 		}
 	}

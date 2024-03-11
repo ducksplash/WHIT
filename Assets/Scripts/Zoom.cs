@@ -15,7 +15,7 @@ public class Zoom : MonoBehaviour
 
     void Update()
     {
-        if (!GameMaster.PHONEOUT)
+        if (!GameMaster.PHONEOUT && !TravelCompanion.Instance.CompanionIsOpen)
         {
             zoomAmount += Input.mouseScrollDelta.y * sensitivity * .05f;
             zoomAmount = Mathf.Clamp01(zoomAmount);

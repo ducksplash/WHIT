@@ -13,6 +13,7 @@ public class TextButtonMouseOver : MonoBehaviour, IPointerEnterHandler, IPointer
     public Material normalMaterial;
     public Material hoverMaterial;
 
+    [SerializeField] private bool usingFormatting = true;
 
     public void Start()
     {
@@ -27,14 +28,23 @@ public class TextButtonMouseOver : MonoBehaviour, IPointerEnterHandler, IPointer
     public void OnPointerEnter(PointerEventData eventData)
     {
         theText.color = HoverColor;
-        theText.fontStyle = FontStyles.Underline;
+
+        if (usingFormatting)
+        {
+            theText.fontStyle = FontStyles.Underline;
+        }
 
         theText.fontSharedMaterial = hoverMaterial;
     }
     public void OnPointerExit(PointerEventData eventData)
     {
         theText.color = OrigColor;
-        theText.fontStyle = FontStyles.Normal;
+        
+        if (usingFormatting)
+        {
+            theText.fontStyle = FontStyles.Normal;
+        }
+
         theText.fontSharedMaterial = normalMaterial;
     }
 }

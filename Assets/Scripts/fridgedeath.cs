@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.UI;
 
 public class fridgedeath : MonoBehaviour
@@ -28,10 +29,10 @@ public class fridgedeath : MonoBehaviour
         FridgeParte.gameObject.SetActive(false);
         FridgeVol.gameObject.SetActive(false);
 
-        if (FridgeVol.profile.TryGet<Fog>(out fridgeFog))
-        {
-            FogAvailable = true;
-        }
+        // if (FridgeVol.profile.TryGet<Fog>(out fridgeFog))
+        // {
+        //     FogAvailable = true;
+        // }
 
     }
 
@@ -82,7 +83,7 @@ public class fridgedeath : MonoBehaviour
 
         if (FogAvailable)
         {
-            fridgeFog.color.value = Color.cyan;
+           // fridgeFog.color.value = Color.cyan;
 
         }
 

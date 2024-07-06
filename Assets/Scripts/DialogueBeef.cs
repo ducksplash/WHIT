@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿#if UNITY_EDITOR
 using UnityEditor;
+#endif
+using System.Collections;
 using UnityEngine;
+
 
 
 
@@ -84,6 +87,11 @@ public class DialogueBeef : MonoBehaviour
 
 }
 
+
+
+
+#if UNITY_EDITOR
+
 [CustomPropertyDrawer(typeof(DialogueBeef))]
 public class ContactDrawerDialogueBeef : PropertyDrawer
 {
@@ -97,3 +105,4 @@ public class ContactDrawerDialogueBeef : PropertyDrawer
         EditorGUI.EndProperty();
     }
 }
+#endif

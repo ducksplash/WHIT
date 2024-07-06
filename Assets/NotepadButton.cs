@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -18,6 +16,6 @@ public class NotepadButton : MonoBehaviour
 
     public void ClickToChangeScene()
     {
-        TravelCompanion.Instance.ChangeScene(targetScene.ToString());
+    //    TravelCompanion.Instance.ChangeScene(targetScene.ToString());
     }
 }

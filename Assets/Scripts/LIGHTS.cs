@@ -1,6 +1,4 @@
-﻿using System.Collections;  
-using System.Collections.Generic;  
-using UnityEngine;
+﻿using UnityEngine;
 using VLB;
 
 public class LIGHTS : MonoBehaviour
@@ -147,34 +145,34 @@ public class LIGHTS : MonoBehaviour
     {
 		if (GameMaster.POWER_SUPPLY_ENABLED || GameMaster.THISLEVEL == "NorasFlat")
 		{
-			if (Input.GetMouseButtonDown(1))
-			{  
-				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);  
-				RaycastHit hit;  
-				if (Physics.Raycast(ray, out hit)) 
-				{  
-	  
-					if (hit.distance <= 3f)
-					{				
-						if (hit.transform.name.Equals(thisSwitchName) || hit.transform.name.Equals(thatSwitchName))
-						{
-							ToggleLights();
-							
-							// is this a rotating switch?
-							if (SwitchType == "ROTATE")
-							{
-								Debug.Log(SwitchType);
-								RotateSwitch(thisSwitch);
-
-								if (thatSwitch)
-								{
-									RotateSwitch(thatSwitch);
-								}
-							}
-						}	
-					}  				
-				}  
-			} 
+			// if (Input.GetMouseButtonDown(1))
+			// {  
+			// 	Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);  
+			// 	RaycastHit hit;  
+			// 	if (Physics.Raycast(ray, out hit)) 
+			// 	{  
+	  //
+			// 		if (hit.distance <= 3f)
+			// 		{				
+			// 			if (hit.transform.name.Equals(thisSwitchName) || hit.transform.name.Equals(thatSwitchName))
+			// 			{
+			// 				ToggleLights();
+			// 				
+			// 				// is this a rotating switch?
+			// 				if (SwitchType == "ROTATE")
+			// 				{
+			// 					Debug.Log(SwitchType);
+			// 					RotateSwitch(thisSwitch);
+			//
+			// 					if (thatSwitch)
+			// 					{
+			// 						RotateSwitch(thatSwitch);
+			// 					}
+			// 				}
+			// 			}	
+			// 		}  				
+			// 	}  
+			// } 
 		}		
     }
 

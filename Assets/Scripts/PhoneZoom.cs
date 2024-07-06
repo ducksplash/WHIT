@@ -14,11 +14,11 @@ public class PhoneZoom : MonoBehaviour
 
     void Update()
     {
-        if (GameMaster.PHONEOUT && gameObject.GetComponentInParent<phone>().CameraOpen)
-        {
-            zoomAmount += Input.mouseScrollDelta.y * sensitivity * .05f;
-            zoomAmount = Mathf.Clamp01(zoomAmount);
-            gameObject.GetComponent<Camera>().fieldOfView = Mathf.Lerp(defaultFOV, maxZoom, zoomAmount);
-        }
+        // if (GameMaster.PHONEOUT && gameObject.GetComponentInParent<phone>().CameraOpen)
+        // {
+        //     zoomAmount += Input.mouseScrollDelta.y * sensitivity * .05f;
+        //     zoomAmount = Mathf.Clamp01(zoomAmount);
+        //     gameObject.GetComponent<Camera>().fieldOfView = Mathf.Lerp(defaultFOV, maxZoom, zoomAmount);
+        // }
     }
 }

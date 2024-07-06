@@ -14,7 +14,6 @@ using CallbackType = System.Action<UnityEngine.Camera>;
 #endif // UNITY_2019_1_OR_NEWER
 #endif // VLB_SRP_SUPPORT
 
-using UnityEngine;
 using System.Collections.Generic;
 
 #if UNITY_EDITOR

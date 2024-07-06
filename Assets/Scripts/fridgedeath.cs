@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.UI;
 
@@ -104,7 +101,7 @@ public class fridgedeath : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
-        theplayer.GetComponent<FirstPersonCollision>().CauseDeath("being flash frozen");
+      //  theplayer.GetComponent<FirstPersonCollision>().CauseDeath("being flash frozen");
         StartCoroutine(DoCooldown());
 
     }

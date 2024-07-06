@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class innerDoors : MonoBehaviour
@@ -74,40 +73,40 @@ public class innerDoors : MonoBehaviour
         // Check if click is available
         if (!PlayerClicked)
         {
-            if (Input.GetMouseButtonUp(1))
-            {
-                PlayerClicked = true;
-                ShootRay();
-            }
+            // if (Input.GetMouseButtonUp(1))
+            // {
+            //     PlayerClicked = true;
+            //     ShootRay();
+            // }
         }
     }
 
     private void ShootRay()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        
-        if (Physics.Raycast(ray, out hit, 3f))
-        {
-            if (hit.transform.gameObject.CompareTag("ExteriorDoor"))
-            {
-                Debug.Log("Travel!");
-                // Launch companion if the player clicks on an exterior door
-
-                TravelCompanion.Instance.LaunchCompanion();
-                        
-            }
-            else
-            {
-                Debug.Log("Open!");
-                if (!isLocked && hit.transform.name.Equals(thisDoorName))
-                {
-                    DoDoor(hit);
-                }
-            }
-        }
-        
-        StartCoroutine(ClickCooldown());
+        // Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        // RaycastHit hit;
+        //
+        // if (Physics.Raycast(ray, out hit, 3f))
+        // {
+        //     if (hit.transform.gameObject.CompareTag("ExteriorDoor"))
+        //     {
+        //         Debug.Log("Travel!");
+        //         // Launch companion if the player clicks on an exterior door
+        //
+        //    //     TravelCompanion.Instance.LaunchCompanion();
+        //                 
+        //     }
+        //     else
+        //     {
+        //         Debug.Log("Open!");
+        //         if (!isLocked && hit.transform.name.Equals(thisDoorName))
+        //         {
+        //             DoDoor(hit);
+        //         }
+        //     }
+        // }
+        //
+        // StartCoroutine(ClickCooldown());
     }
     
     

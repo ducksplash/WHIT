@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using UnityEditor;
-using UnityEngine;
-
-public enum Contacts
+﻿public enum Contacts
 {
     Nora,
     Kieron,

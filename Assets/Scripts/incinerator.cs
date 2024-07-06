@@ -219,7 +219,7 @@ public class incinerator : MonoBehaviour
 
         yield return new WaitForSeconds(3f);
 
-        Player.GetComponent<FirstPersonCollision>().CauseDeath("incineration");
+    //    Player.GetComponent<FirstPersonCollision>().CauseDeath("incineration");
 
         StartCoroutine(cleanup());
     }

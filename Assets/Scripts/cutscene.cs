@@ -1,6 +1,8 @@
-﻿using System.Collections;
-using System.Threading.Tasks;
+﻿#if UNITY_EDITOR
 using UnityEditor;
+#endif
+using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class cutscene : MonoBehaviour 
@@ -236,6 +238,9 @@ public class cutscene : MonoBehaviour
 }
 
 
+
+#if UNITY_EDITOR
+
 [CustomPropertyDrawer(typeof(cutscene))]
 public class ContactDrawerCutscene : PropertyDrawer
 {
@@ -249,3 +254,5 @@ public class ContactDrawerCutscene : PropertyDrawer
         EditorGUI.EndProperty();
     }
 }
+
+#endif

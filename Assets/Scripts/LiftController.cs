@@ -17,11 +17,11 @@ public class LiftController : MonoBehaviour
     public Transform floorStopG;
     public Transform floorStop1;
     public Transform floorStopB1;
-    public Transform floorStopB2;
+    //public Transform floorStopB2;
     public Transform carriage;
     public bool controlsenabled = true;
 
-    public float liftduration = 7.0f;
+    private float liftduration = 0.2f;
 
     public string currentfloor = "G";
     // display floor name/num
@@ -44,6 +44,10 @@ public class LiftController : MonoBehaviour
         floorTextOutside1.text = currentfloor;
         floorTextOutsideB1.text = currentfloor;
         //floorTextOutsideB2.text = currentfloor;
+        
+        
+        player = GameObject.FindGameObjectWithTag("Player");
+        
     }
 
     private void Update()
@@ -142,9 +146,9 @@ public class LiftController : MonoBehaviour
             case "XB1":
                 targetPosition.y = floorStopB1.position.y;
                 break;
-            case "XB2":
-                targetPosition.y = floorStopB2.position.y;
-                break;
+            // case "XB2":
+            //     targetPosition.y = floorStopB2.position.y;
+            //    break;
         }
 
         // move over time
@@ -175,26 +179,20 @@ public class LiftController : MonoBehaviour
 
 
 
-
-
     private IEnumerator GoToFloor(string floorSelected)
     {
         // disable controls
         controlsenabled = false;
 
         // if doors open then close
-
-
-
         if (isDoorOpen)
         {
             StartCoroutine(CloseLiftDoors());
             yield return new WaitForSeconds(3f);
         }
 
+        
         floorTextInside.text = GetFloorDirection(currentfloor, floorSelected);
-
-
 
         // ...then move the lift
 
@@ -203,6 +201,7 @@ public class LiftController : MonoBehaviour
 
         // parent player to lift carriage
         player.transform.SetParent(carriage);
+        player.GetComponent<Rigidbody>().isKinematic = true;
 
         // set destination
         Vector3 startPosition = carriage.position;
@@ -218,23 +217,24 @@ public class LiftController : MonoBehaviour
             case "B1":
                 targetPosition.y = floorStopB1.position.y;
                 break;
-            case "B2":
-                targetPosition.y = floorStopB2.position.y;
-                break;
+            // case "B2":
+            //     targetPosition.y = floorStopB2.position.y;
+            //     break;
         }
 
         // move over time
         float startTime = Time.time;
+        float tolerance = 0.01f;
 
-        while (carriage.position != targetPosition)
+        while (Vector3.Distance(carriage.position, targetPosition) > tolerance)
         {
-            float timeFraction = Mathf.Clamp01((Time.time - startTime) / liftduration);
-            carriage.position = Vector3.Lerp(startPosition, targetPosition, timeFraction);
+            float timeFraction = (Time.time - startTime) / liftduration;
+            carriage.position = Vector3.MoveTowards(startPosition, targetPosition, timeFraction);
             yield return null;
         }
 
-        // de-parent player from carriage
-        player.transform.SetParent(null);
+        // Ensure final position is exactly the target position
+        carriage.position = targetPosition;
 
         // set lift to not moving
         isLiftMoving = false;
@@ -246,10 +246,11 @@ public class LiftController : MonoBehaviour
 
         // open doors
         OpenLiftDoors();
+        // de-parent player from carriage
+        player.GetComponent<Rigidbody>().isKinematic = false;
+        player.transform.SetParent(null);
 
         controlsenabled = true;
-
-        yield break;
     }
 
 

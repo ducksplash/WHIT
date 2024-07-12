@@ -4,7 +4,6 @@ using TMPro;
 
 public class manhole : MonoBehaviour
 {
-    public GameObject manholeobject;
     public CanvasGroup actioncanvas;
     public GameObject actionobject;
     private Transform playerTransform;
@@ -20,9 +19,6 @@ public class manhole : MonoBehaviour
     
     private void Start()
     {
-        manholeobject = gameObject;
-        Debug.Log(manholeobject.name);
-
         actioncanvas.alpha = 0;
         actionprogress.fillAmount = 0.0f;
     }

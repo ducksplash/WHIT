@@ -301,8 +301,8 @@ public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandle
 	{
 
 		
-		LaunchCompanion();
-		CompanionOpen = false;
+		//LaunchCompanion();
+		//CompanionOpen = false;
 		
 		loadingpanel.alpha = 1;
 
@@ -376,6 +376,10 @@ public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandle
 		{
 			LaunchCompanion(); // Launch companion if
 		}
+		
+		
+		GameMaster.INMENU = false;
+		GameMaster.FROZEN = false;
 	}
 
 	public string MonthDay(string day)

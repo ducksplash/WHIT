@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.10954416, g: 0.10085851, b: 0.09361404, a: 1}
+  m_IndirectSpecularColor: {r: 0.10996908, g: 0.10122593, b: 0.09392482, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -20148,37 +20148,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1654913413}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1011913715
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1011913716}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1011913716
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1011913715}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 90, y: 5, z: 252.75}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 24
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1018986930
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24172,6 +24141,8 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   isOpen: 0
   isLocked: 0
+  isExteriorDoor: 0
+  PlayerClicked: 0
 --- !u!1001 &1429128591
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34078,13 +34049,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 050f96d4bad505643935bef31be9853d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manholeobject: {fileID: 0}
   actioncanvas: {fileID: 654347941}
   actionobject: {fileID: 184283274}
   visibilityDelay: 0.5
   actiontext: {fileID: 418190828}
   actionprogress: {fileID: 1492341684}
-  NextScene: Roark
+  NextScene: RoarkInside
   holdTime: 3
 --- !u!65 &1100256176000375423
 BoxCollider:

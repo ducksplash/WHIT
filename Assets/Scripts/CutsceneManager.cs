@@ -44,7 +44,7 @@ public class CutsceneManager : MonoBehaviour
     
     
     
-    public IEnumerator ExecuteCutscene(float duration, float panTime, GameObject targetObject)
+    public IEnumerator ExecuteCutscene(float duration, float panTime, GameObject targetObject, Contacts ContactName, DialogueSelectorTemp selectedMessage)
     {
 
         GameMaster.FROZEN = true;
@@ -53,6 +53,9 @@ public class CutsceneManager : MonoBehaviour
         
         yield return new WaitForSeconds(1f);
         
+        
+        solo.Instance.CutsceneManager.CutsceneDialogue(duration, ContactName, selectedMessage);
+
         
         while (elapsedCutsceneTime < duration)
         {

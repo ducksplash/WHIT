@@ -10,8 +10,7 @@ using TMPro;
 public class GameMaster : Singleton<GameMaster>
 {
   GameData saveData = new GameData();
-
-
+  
     // Debuggery
     [Header("Debug Mode Toggle")]
     public bool DEBUGGERY;

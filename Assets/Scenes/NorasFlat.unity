@@ -35763,7 +35763,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 2147483647
+    m_Bits: 1896939519
 --- !u!114 &1246387523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43748,6 +43748,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1525618386}
   - component: {fileID: 1525618387}
+  - component: {fileID: 1525618388}
   m_Layer: 0
   m_Name: Game Managers
   m_TagString: Untagged
@@ -43790,6 +43791,37 @@ MonoBehaviour:
   CutsceneManager: {fileID: 485578790}
   TravelCompanion: {fileID: 659293020}
   Pickup: {fileID: 728985366}
+--- !u!114 &1525618388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1525618384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efe593edd77f6f344b2bab4e10d5dede, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameMaster
+  DEBUGGERY: 0
+  ThisScene:
+    m_Handle: 0
+  WaitingForTrinity: 0
+  DevModeIcon: {fileID: 1505729776}
+  SPAWNPOINTNORASFLAT: {x: 0, y: 0, z: 0}
+  SPAWNPOINTTAWLEYMEATS: {x: 0, y: 0, z: 0}
+  SPAWNPOINTROARKOUTSIDE: {x: 0, y: 0, z: 0}
+  SPAWNPOINTROARKINSIDE: {x: 0, y: 0, z: 0}
+  phonePickup: {fileID: 1700466224}
+  notepadPickup: {fileID: 2060321446}
+  torchPickup: {fileID: 5272723185499140592}
+  phoneTick: {fileID: 44149770}
+  notepadTick: {fileID: 1182946668}
+  torchTick: {fileID: 1951482238}
+  evidenceTick: {fileID: 391458662}
+  MyFirstEvidence: {fileID: 1012224469}
+  EvidenceDesc: {fileID: 31528216}
+  checkForEvidence: 0
 --- !u!1 &1533260994
 GameObject:
   m_ObjectHideFlags: 0
@@ -51006,7 +51038,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 2147483647
+    m_Bits: 1896939519
 --- !u!114 &1812886708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -51051,7 +51083,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 31
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!225 &1812886710
 CanvasGroup:

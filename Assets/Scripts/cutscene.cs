@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Threading.Tasks;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 public class cutscene : MonoBehaviour 
@@ -43,14 +41,12 @@ public class cutscene : MonoBehaviour
                 solo.Instance.CutsceneManager.elapsedCutsceneTime = 0.0f;
                 
                 // we don't want to await, that's why we're not awaiting. ignore this 'hint' 
-                solo.Instance.CutsceneManager.CutsceneDialogue(duration, ContactName, selectedMessage);
                 
                 
-                GameMaster.CutSceneSeen.TryAdd(selectedMessage.ToString(), "SYSTEM");
+                StartCoroutine(solo.Instance.CutsceneManager.ExecuteCutscene(duration, panTime, targetObject, ContactName, selectedMessage));
                 
                 
-                StartCoroutine(solo.Instance.CutsceneManager.ExecuteCutscene(duration, panTime, targetObject));
-                
+                GameMaster.CutSceneSeen.TryAdd(selectedMessage.ToString(), ContactName.ToString());
             }
         }
     }

@@ -94,7 +94,7 @@ public class innerDoors : MonoBehaviour
                 Debug.Log("Travel!");
                 // Launch companion if the player clicks on an exterior door
 
-                TravelCompanion.Instance.LaunchCompanion();
+                solo.Instance.TravelCompanion.LaunchCompanion();
                         
             }
             else

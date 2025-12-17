@@ -122,9 +122,7 @@ public class incinerator : MonoBehaviour
 
         foreach (Light singlight in redlights)
         {
-
-            singlight.enabled = true;
-
+            if (singlight) { singlight.enabled = true;}
         }
 
     }

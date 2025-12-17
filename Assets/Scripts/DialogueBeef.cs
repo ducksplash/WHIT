@@ -56,7 +56,7 @@ public class DialogueBeef : MonoBehaviour
             var TheCallingObject = gameObject;
             forhowlong = DisplayTimer;
 
-            DialogueManager.Instance.NewDialogue(ContactName.ToString(), MessageBody, DisplayTimer);
+            solo.Instance.DialogueManager.NewDialogue(ContactName.ToString(), MessageBody, DisplayTimer);
            
 
             if (Noraply)
@@ -75,7 +75,7 @@ public class DialogueBeef : MonoBehaviour
     {
         yield return new WaitForSeconds(Noradelay);
 
-        DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), NoraplyBody, 4);
+        solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), NoraplyBody, 4);
 
 
     }

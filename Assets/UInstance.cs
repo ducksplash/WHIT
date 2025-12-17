@@ -4,6 +4,51 @@ using UnityEngine;
 
 public class UInstance : Singleton<UInstance>
 {
-    public GameObject BlackCutsceneBars;
     public GameObject CrossHair;
+    
+    
+    public GameObject cutsceneBars;
+    public CanvasGroup cutsceneBarsCanvas;
+
+
+    public void Start()
+    {    
+        Debug.Log("UInstance Start");
+        
+        cutsceneBarsCanvas.alpha = 0;  
+        
+    }
+    
+    
+
+    
+    // Coroutine to fade out the cutscene bars
+    public IEnumerator FadeInCutsceneBars(float panTime)
+    {
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.smoothDeltaTime /  (panTime / 2);
+            cutsceneBarsCanvas.alpha = Mathf.Lerp(0f, 1f, t);
+            yield return new WaitForEndOfFrame();
+            
+        }
+
+    }
+
+    // Coroutine to fade out the cutscene bars
+    public IEnumerator FadeOutCutsceneBars()
+    {
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.smoothDeltaTime;
+            cutsceneBarsCanvas.alpha = Mathf.Lerp(1f, 0f, t);
+            yield return new WaitForEndOfFrame();
+            
+        }
+    }
+
+    
+    
 }

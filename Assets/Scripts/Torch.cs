@@ -82,7 +82,7 @@ public class Torch : MonoBehaviour
 
 					if (Input.GetMouseButtonUp(0))
 					{
-						if (!pickup.hasobject)
+						if (!Pickup.hasobject)
 						{
 							torchAnimator.SetTrigger("swing");
 						}

@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Rendering.HighDefinition;
 
 
-public class DialogueManager : Singleton<DialogueManager>
+public class DialogueManager : MonoBehaviour
 {
     public GameObject DialogManager;
     private CanvasGroup DialogManagerCanvas;

@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
 
-public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandler
+public class TravelCompanion : MonoBehaviour
 {
     public CanvasGroup TravelCanvas;
 
@@ -199,7 +199,7 @@ public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandle
 					else
 					{
 						var dialogstring = "I need my phone, my torch and my notepad.";
-						DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+						solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 						gameObject.GetComponent<Collider>().enabled = false;
 
 					}
@@ -209,7 +209,7 @@ public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandle
 				{
 					var dialogstring =
 						"I haven't checked that I can photograph evidence with my phone yet, I should open the camera app and try on the wine bottle on my desk.";
-					DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+					solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 				}
 
 			}
@@ -363,7 +363,7 @@ public class TravelCompanion : Singleton<TravelCompanion>//, IPointerClickHandle
 		}
 
 		GameMaster.THISLEVEL = levelName;
-		DialogueManager.Instance.queueDropFlag = true;
+		solo.Instance.DialogueManager.queueDropFlag = true;
 		loadingpanel.alpha = 0;
 		Time.timeScale = 1;
 		InitialiseLocations();

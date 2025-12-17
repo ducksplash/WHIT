@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VLB;
 
-public class pickup : Singleton<pickup>
+public class Pickup : MonoBehaviour
 {
 
 
@@ -70,11 +70,14 @@ public class pickup : Singleton<pickup>
 
 
 
-		// if focus broken for a reason other than dropping and throwing
+
+
+
+
 		if (!hasobject)
 		{
 			myHeldItem = null;
-			RotationMenu.alpha = 0f;
+			if (RotationMenu) RotationMenu.alpha = 0f;
 			hasobjectshown = false;
 		}
 
@@ -82,11 +85,12 @@ public class pickup : Singleton<pickup>
 		if (handTransform.childCount > 0 && !hasobject)
 		{
 			myHeldItem = null;
-			RotationMenu.alpha = 0f;
+			if (RotationMenu) RotationMenu.alpha = 0f;
 			hasobjectshown = false;
 			handTransform.GetChild(0).parent = defaultparent;
 		}
 
+		
 	}
 
 
@@ -251,7 +255,7 @@ public class pickup : Singleton<pickup>
 
 
 					var dialogstring = "Found my torch, I can check that it works by pressing "+torchkey+". and I can swing it if I left click.";
-					DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+					solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 					if (torchTick) torchTick.alpha = 1;
 				}
 
@@ -261,7 +265,7 @@ public class pickup : Singleton<pickup>
 					GameMaster.NOTEPADCOLLECTED = true;
 					Destroy(hit.transform.gameObject);
 					var dialogstring = "Got some places I wanna check out written down here. I should take a look when I'm leaving.";
-					DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+					solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 					if (notepadTick) notepadTick.alpha = 1;
 
 				}
@@ -275,7 +279,7 @@ public class pickup : Singleton<pickup>
 					string phonekey = InputManager.GetKeyName("phone");
 
 					var dialogstring = "My phone. I should test that it works by pressing "+phonekey+".";
-					DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+					solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 					if (phoneTick) phoneTick.alpha = 1;
 
 				}

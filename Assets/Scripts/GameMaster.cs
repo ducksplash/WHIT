@@ -108,6 +108,10 @@ public class GameMaster : Singleton<GameMaster>
     void Awake()
     {
 
+
+            Debug.Log($"This script is active in scene: {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
+        
+        
         SPAWNPOINTNORASFLAT = new Vector3(65, 2, 486);
         SPAWNPOINTTAWLEYMEATS = new Vector3(71.50f, 12, 282);
         SPAWNPOINTROARKOUTSIDE = new Vector3(90, 5, 252);
@@ -362,7 +366,7 @@ void Start ()
         yield return new WaitForSeconds(5);
         var msg = "Ok, I think I'm ready to go now.";
 
-        DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), msg, 5);
+        solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
 
 
     }

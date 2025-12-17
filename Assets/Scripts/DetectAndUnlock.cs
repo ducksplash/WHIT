@@ -32,7 +32,7 @@ public class DetectAndUnlock : MonoBehaviour
                     JobDone = true;
 
                     var msg = "Someone made the effort to lock this room from the inside...";
-                    DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), msg, 5);
+                    solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
                 }
             }
         }

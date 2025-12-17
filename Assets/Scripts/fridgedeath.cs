@@ -99,7 +99,7 @@ public class fridgedeath : MonoBehaviour
         
         var msg = "Ah f***.";
 
-        DialogueManager.Instance.NewDialogue(Contacts.Nora.ToString(), msg, 5);
+        solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
 
         yield return new WaitForSeconds(2f);
 

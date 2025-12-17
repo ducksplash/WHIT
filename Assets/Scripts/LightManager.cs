@@ -3,32 +3,43 @@ using UnityEngine;
 
 public class LightManager : MonoBehaviour
 {
-    public List<ActiveLight> lightBulbList;
-    
+    [Header("Nora's Flat")]
+    public List<ActiveLight> lightBulbsNorasFlat = new List<ActiveLight>();
+    [Header("Tawley Meats")]
+    public List<ActiveLight> lightBulbsTawleyMeats = new List<ActiveLight>();
+    [Header("Roark Inside")]
+    public List<ActiveLight> lightBulbsRoarkInside = new List<ActiveLight>();
     
     void Start()
     {
-        // Select appropriate light set
+        EventManager.OnLightSwitchClick += ClickedSwitch;
+    }
+
+    private void ClickedSwitch(LightBulbID LightBulbID)
+    {
+        Debug.Log("Clicked "+LightBulbID);
     }
 
 
-
-
-    // public SelectAppropriateLights()
-    // {
-    //     switch (GameMaster.THISLEVEL)
-    //     {
-    //         case N :
-    //         nuNum = "st";
-    //         break;
-    //         case "2":
-    //         nuNum = "nd";
-    //         break;
-    //         case "3":
-    //         nuNum = "rd";
-    //         break;
-    //     }
-    // }
+    public void SelectAppropriateLights()
+    {
+        switch (GameMaster.Instance.THISLEVEL)
+        {
+            case GameMaster.GAMELEVEL.MainMenu:
+                // na - no lights
+                break;
+            case GameMaster.GAMELEVEL.NorasFlat:
+                // na - no lights
+                lightBulbsNorasFlat = new List<ActiveLight>();
+                break;
+            case GameMaster.GAMELEVEL.TawleyMeats:
+                // na - no lights
+                break;
+            case GameMaster.GAMELEVEL.RoarkInside:
+                // na - no lights
+                break;
+        }
+    }
     
 
 }

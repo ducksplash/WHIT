@@ -9414,7 +9414,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 292085140}
-  - component: {fileID: 292085141}
   m_Layer: 0
   m_Name: kitchen
   m_TagString: Untagged
@@ -9463,27 +9462,6 @@ Transform:
   - {fileID: 510094809}
   m_Father: {fileID: 863794502}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &292085141
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 292085139}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5403a63b6ab65b45a4b3eccdb7b18b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisSwitch: {fileID: 747260012}
-  thatSwitch: {fileID: 0}
-  theseLights:
-  - {fileID: 227296734}
-  theseEmissives: {fileID: 0}
-  lightTag: 
-  LightSwitchEmissionStrength: 5
-  SpotlightBeams: []
-  SwitchType: ROTATE
 --- !u!1 &298087808
 GameObject:
   m_ObjectHideFlags: 0
@@ -12896,7 +12874,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e91903034eac14542b0b6ec493e17233, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  lightBulbList: []
+  lightBulbsNorasFlat: []
+  lightBulbsTawleyMeats: []
+  lightBulbsRoarkInside: []
 --- !u!1 &418209913
 GameObject:
   m_ObjectHideFlags: 0
@@ -15567,7 +15547,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 508636403}
-  - component: {fileID: 508636404}
   m_Layer: 0
   m_Name: LivingRoom
   m_TagString: Untagged
@@ -15607,34 +15586,6 @@ Transform:
   - {fileID: 1646618096}
   m_Father: {fileID: 863794502}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &508636404
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 508636401}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5403a63b6ab65b45a4b3eccdb7b18b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisSwitch: {fileID: 5091784680771305785}
-  thatSwitch: {fileID: 1774351817}
-  theseLights:
-  - {fileID: 1519298803}
-  - {fileID: 280656181}
-  - {fileID: 121739092}
-  - {fileID: 1427585358}
-  - {fileID: 1508080717}
-  - {fileID: 1293138394}
-  theseEmissives: {fileID: 0}
-  lightTag: 
-  LightSwitchEmissionStrength: 5
-  SpotlightBeams:
-  - {fileID: 1427585359}
-  - {fileID: 280656182}
-  SwitchType: ROTATE
 --- !u!1 &510094808
 GameObject:
   m_ObjectHideFlags: 0
@@ -31184,7 +31135,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1108621349}
-  - component: {fileID: 1108621350}
   m_Layer: 0
   m_Name: bathroom
   m_TagString: Untagged
@@ -31219,29 +31169,6 @@ Transform:
   - {fileID: 543450651979254594}
   m_Father: {fileID: 863794502}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1108621350
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1108621348}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5403a63b6ab65b45a4b3eccdb7b18b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisSwitch: {fileID: 919132147520754168}
-  thatSwitch: {fileID: 0}
-  theseLights:
-  - {fileID: 1858244330}
-  - {fileID: 1319135754}
-  - {fileID: 0}
-  theseEmissives: {fileID: 0}
-  lightTag: 
-  LightSwitchEmissionStrength: 5
-  SpotlightBeams: []
-  SwitchType: PANEL
 --- !u!1 &1109690378
 GameObject:
   m_ObjectHideFlags: 0
@@ -43039,6 +42966,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1525618386}
   - component: {fileID: 1525618388}
+  - component: {fileID: 1525618389}
   m_Layer: 0
   m_Name: Game Managers
   m_TagString: Untagged
@@ -43084,6 +43012,7 @@ MonoBehaviour:
   TravelCompanion: {fileID: 659293020}
   Pickup: {fileID: 728985366}
   LightManager: {fileID: 410637409}
+  EventManager: {fileID: 1525618389}
   THISLEVEL: 0
   ThisScene:
     m_Handle: 0
@@ -43103,6 +43032,18 @@ MonoBehaviour:
   MyFirstEvidence: {fileID: 1012224469}
   EvidenceDesc: {fileID: 31528216}
   checkForEvidence: 0
+--- !u!114 &1525618389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1525618384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceea85bad773498498b8beb954c37a69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &1528924404
 GameObject:
   m_ObjectHideFlags: 0
@@ -73234,6 +73175,7 @@ GameObject:
   - component: {fileID: 8812889201807266854}
   - component: {fileID: 6749025849787932908}
   - component: {fileID: 8812889201807266855}
+  - component: {fileID: 8812889201807266856}
   m_Layer: 10
   m_Name: lightswitch
   m_TagString: LIGHTSWITCHES
@@ -83662,6 +83604,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0006440973, y: 0.0030961875, z: 0.0028800198}
   m_Center: {x: -0.000008362534, y: 0.0000017466957, z: -0.00000021106096}
+--- !u!114 &8812889201807266856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5091784680771305785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c20de64011c7143a491b56f141393b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  selectedLight: 0
 --- !u!33 &8813539360701321540
 MeshFilter:
   m_ObjectHideFlags: 0

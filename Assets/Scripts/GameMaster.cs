@@ -26,6 +26,7 @@ public class GameMaster : MonoBehaviour
     public TravelCompanion TravelCompanion;
     public Pickup Pickup;
     public LightManager LightManager;
+    public EventManager EventManager;
     
     // Game Globals
 

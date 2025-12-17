@@ -30,11 +30,8 @@ public class TravelCompanion : MonoBehaviour
         GameMaster.FROZEN = false;
         Notepad = PlayerInstance.Instance.TravelNotepad;
 
+        Debug.Log("travel companion");
         
-		//Notepad.SetActive(false);
-		//TravelClicked = false;
-		//loadingbar.fillAmount = 0;
-
 		InitialiseLocations();
     }
 

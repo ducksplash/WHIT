@@ -14569,6 +14569,51 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 389141574}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &391302968
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 391302970}
+  - component: {fileID: 391302969}
+  m_Layer: 0
+  m_Name: --GameLevel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &391302969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 391302968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2df84a5d3e3072142898a2ca4bafa1eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  ThisGameLevel: 3
+--- !u!4 &391302970
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 391302968}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 61.07259, y: 6.01182, z: 489.258}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &392956346
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20956,8 +21001,8 @@ Transform:
   m_GameObject: {fileID: 974610563}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.56, y: -6.14, z: 12.48}
-  m_LocalScale: {x: 1, y: 1, z: 24.478384}
+  m_LocalPosition: {x: -13.86, y: -6.14, z: -1.78}
+  m_LocalScale: {x: 1, y: 1, z: 3.28}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1978673278}
@@ -20976,7 +21021,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ColliderCube: {fileID: 1978673277}
-  ContactName: 0
+  ContactName: 1
   MessageBody: 'You won''t be able to just go in the front door.
 
     I''ve checked
@@ -27218,17 +27263,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   panTime: 3
   duration: 7
-  zoomDuration: 2
-  unZoomDuration: 0.75
-  ContactName: 0
-  message: Enter Roark Microtechnologies
+  ContactName: 2
+  selectedMessage: 3
   targetObject: {fileID: 527408825}
-  mainCamera: {fileID: 0}
-  mainCameraTransform: {fileID: 0}
-  cutsceneBars: {fileID: 0}
   ColliderCube: {fileID: 415010947}
-  originalFieldOfView: 70
-  targetFieldOfView: 40
 --- !u!1001 &1576843018
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35999,7 +36037,7 @@ MonoBehaviour:
   visibilityDelay: 0.5
   actiontext: {fileID: 418190828}
   actionprogress: {fileID: 1492341684}
-  NextScene: RoarkInside
+  NextScene: 4
   holdTime: 3
 --- !u!65 &1100256176000375423
 BoxCollider:
@@ -38341,6 +38379,7 @@ MeshCollider:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 391302970}
   - {fileID: 455555697}
   - {fileID: 1429813876}
   - {fileID: 352618481}

@@ -9,15 +9,16 @@ using Image = UnityEngine.UI.Image;
 
 public class TravelCompanion : MonoBehaviour
 {
+
     public CanvasGroup TravelCanvas;
 
-	[SerializeField] private bool CompanionOpen;
+	public bool CompanionOpen;
 	private GameObject Notepad;
 	public CanvasGroup crosshair;
 	public CanvasGroup evidencecompanion;
 	public CanvasGroup loadingpanel;
 	public Image loadingbar;
-	public Dictionary<GameScene, string> AvailableLocations = new Dictionary<GameScene, string>();
+	public Dictionary<GameMaster.GAMELEVEL, string> AvailableLocations = new Dictionary<GameMaster.GAMELEVEL, string>();
 	public TextMeshProUGUI loadingclock;
 	public bool TravelClicked;
 	private bool launchAvailable = true; // Flag to track if launch is available
@@ -26,6 +27,7 @@ public class TravelCompanion : MonoBehaviour
 	public RectTransform scrollViewContent;	
 	private void Start()
     {
+
 	    SceneManager.sceneLoaded += OnSceneLoaded;
         GameMaster.FROZEN = false;
         Notepad = PlayerInstance.Instance.TravelNotepad;
@@ -52,11 +54,11 @@ public class TravelCompanion : MonoBehaviour
 		AvailableLocations.Clear();
 		
         // order matters.
-		AvailableLocations.Add(GameScene.TawleyMeats, "Tawley Meats");
+		AvailableLocations.Add(GameMaster.GAMELEVEL.TawleyMeats, "Tawley Meats");
 		
-		AvailableLocations.Add(GameScene.RoarkOutside, "Roark Microtech");
+		AvailableLocations.Add(GameMaster.GAMELEVEL.RoarkOutside, "Roark Microtech");
 		
-		AvailableLocations.Add(GameScene.NorasFlat, "\n...just go home");
+		AvailableLocations.Add(GameMaster.GAMELEVEL.NorasFlat, "\n...just go home");
 		
 		
 		
@@ -72,7 +74,7 @@ public class TravelCompanion : MonoBehaviour
 
 		foreach (var availableLocation in AvailableLocations)
 		{
-			if (!availableLocation.Key.ToString().Equals(GameMaster.THISLEVEL))
+			if (!availableLocation.Key.ToString().Equals(GameMaster.Instance.THISLEVEL.ToString()))
 			{
 				GameObject notePadButtonPrefabInstance = Instantiate(notepadButtonPrefab, scrollViewContent);
 
@@ -118,7 +120,7 @@ public class TravelCompanion : MonoBehaviour
 		if (launchAvailable)
 		{
 			Debug.Log("launch companion");
-			if (GameMaster.THISLEVEL.Equals(GameScene.NorasFlat.ToString()))
+			if (GameMaster.Instance.THISLEVEL == GameMaster.GAMELEVEL.NorasFlat)
 			{
 
 				// if debuggery, override
@@ -270,7 +272,7 @@ public class TravelCompanion : MonoBehaviour
 		launchAvailable = true;
 	}
 
-	public void ChangeScene(string SceneName)
+	public void ChangeScene(GameMaster.GAMELEVEL SceneName)
 	{
 		Rigidbody rb = PlayerInstance.Instance.gameObject.GetComponentInParent<Rigidbody>();
 		// rb.isKinematic = false;
@@ -282,7 +284,7 @@ public class TravelCompanion : MonoBehaviour
 	}
 
 
-	public void ChangeSceneOffTheBooks(string SceneName)
+	public void ChangeSceneOffTheBooks(GameMaster.GAMELEVEL SceneName)
 	{
 		Rigidbody rb = PlayerInstance.Instance.gameObject.GetComponentInParent<Rigidbody>();
 		
@@ -296,7 +298,7 @@ public class TravelCompanion : MonoBehaviour
 
 
 
-	IEnumerator ChangeSceneAsync(string levelName)
+	IEnumerator ChangeSceneAsync(GameMaster.GAMELEVEL levelName)
 	{
 
 		
@@ -305,9 +307,9 @@ public class TravelCompanion : MonoBehaviour
 		
 		loadingpanel.alpha = 1;
 
-		Debug.Log("Loading: "+levelName);
+		Debug.Log("Loading: "+levelName.ToString());
 		
-		AsyncOperation op = SceneManager.LoadSceneAsync(levelName);
+		AsyncOperation op = SceneManager.LoadSceneAsync(levelName.ToString());
 
 
 		var buildDate = "";
@@ -328,25 +330,25 @@ public class TravelCompanion : MonoBehaviour
 		Debug.Log("setting pos now");
 		
 
-		if (levelName.Equals(GameScene.NorasFlat.ToString()))
+		if (levelName == GameMaster.GAMELEVEL.NorasFlat)
 		{	
 			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTNORASFLAT;
 			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;
 		}
 
-		if (levelName.Equals(GameScene.TawleyMeats.ToString()))
+		if (levelName == GameMaster.GAMELEVEL.TawleyMeats)
 		{	
 			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
 			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
 		}
 
-		if (levelName.Equals(GameScene.RoarkInside.ToString()))
+		if (levelName == GameMaster.GAMELEVEL.RoarkInside)
 		{	
 			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
 			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
 		}
 
-		if (levelName.Equals(GameScene.RoarkOutside.ToString()))
+		if (levelName == GameMaster.GAMELEVEL.RoarkOutside)
 		{	
 			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
 			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
@@ -361,7 +363,7 @@ public class TravelCompanion : MonoBehaviour
 			yield return null;
 		}
 
-		GameMaster.THISLEVEL = levelName;
+		GameMaster.Instance.THISLEVEL = levelName;
 		GameMaster.Instance.DialogueManager.queueDropFlag = true;
 		loadingpanel.alpha = 0;
 		Time.timeScale = 1;
@@ -402,17 +404,5 @@ public class TravelCompanion : MonoBehaviour
 		}
 		return nuNum;
 	}
-
-
-	public enum GameScene
-	{
-		MainMenu,
-		NorasFlat,
-		TawleyMeats,
-		RoarkOutside,
-		RoarkInside
-	}
-	
-	
 	
 }

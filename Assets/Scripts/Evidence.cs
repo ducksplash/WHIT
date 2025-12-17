@@ -86,7 +86,7 @@ public class Evidence : MonoBehaviour
             // if evidence definitely collected, increment Evidence Quotient
 
             GameMaster.EQThisLevel += EvidenceQuality;
-            PlayerPrefs.SetInt("EQLevel" + GameMaster.THISLEVEL, GameMaster.EQThisLevel);
+            PlayerPrefs.SetInt("EQLevel" + GameMaster.Instance.THISLEVEL.ToString(), GameMaster.EQThisLevel);
             EvidenceBar.EQReadout();
 
             // output notification to player

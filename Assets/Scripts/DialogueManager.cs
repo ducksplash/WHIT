@@ -11,6 +11,7 @@ using UnityEngine.Rendering.HighDefinition;
 
 public class DialogueManager : MonoBehaviour
 {
+    
     public GameObject DialogManager;
     private CanvasGroup DialogManagerCanvas;
     public TextMeshProUGUI ContactName;
@@ -27,6 +28,7 @@ public class DialogueManager : MonoBehaviour
 
     void Start()
     {
+
         DialogManagerCanvas = DialogManager.GetComponent<CanvasGroup>();
         DialogInProgress = false;
         currentDialogueIsCutscene = false;

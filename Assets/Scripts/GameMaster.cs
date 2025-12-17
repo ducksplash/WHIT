@@ -7,22 +7,25 @@ using UnityEngine.UI;
 using TMPro;
 
 
-public class GameMaster : Singleton<GameMaster>
+public class GameMaster : MonoBehaviour
 {
-  GameData saveData = new GameData();
-  
-    // components
-  
+    private static GameMaster _instance;
+    public static GameMaster Instance => _instance ??= FindObjectOfType<GameMaster>();
+
+    
+    GameData saveData = new GameData();
+    
     // Debuggery
     [Header("Debug Mode Toggle")]
     public bool DEBUGGERY;
 
+    // components
     [Header("Global Components")]
     public DialogueManager DialogueManager;
     public CutsceneManager CutsceneManager;
     public TravelCompanion TravelCompanion;
     public Pickup Pickup;
-    
+    public LightManager LightManager;
     
     // Game Globals
 
@@ -35,7 +38,9 @@ public class GameMaster : Singleton<GameMaster>
     public static bool HASITEM;
     public static bool PHONEOUT;
     public static bool  ISWRITING;
-    public static string THISLEVEL;
+
+    public GAMELEVEL THISLEVEL;
+    
     public Scene ThisScene;
     public bool WaitingForTrinity;
     public CanvasGroup DevModeIcon;
@@ -53,6 +58,9 @@ public class GameMaster : Singleton<GameMaster>
 
     public static bool TRINITY;
 
+    
+    
+    
     public GameObject phonePickup;
     public GameObject notepadPickup;
     public GameObject torchPickup;
@@ -68,6 +76,8 @@ public class GameMaster : Singleton<GameMaster>
 
     public bool checkForEvidence;
 
+    
+    
 
     // Evidence Quotient
 
@@ -115,9 +125,10 @@ public class GameMaster : Singleton<GameMaster>
 
     void Awake()
     {
+        DontDestroyOnLoad(gameObject);
 
 
-            Debug.Log($"This script is active in scene: {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
+        Debug.Log($"This script is active in scene: {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
         
         
         SPAWNPOINTNORASFLAT = new Vector3(65, 2, 486);
@@ -189,17 +200,7 @@ public class GameMaster : Singleton<GameMaster>
             GarbageRun = true;
         }
 
-
-
-
-
-
-        Scene ThisScene = SceneManager.GetActiveScene();
-
-
-        THISLEVEL = ThisScene.name;
-
-
+        
 
 
         WaitingForTrinity = true;
@@ -215,7 +216,7 @@ public class GameMaster : Singleton<GameMaster>
         }
 
 
-        if (THISLEVEL == "NorasFlat")
+        if (THISLEVEL == GAMELEVEL.NorasFlat)
         {
             torchTick.alpha = 0;
             phoneTick.alpha = 0;
@@ -235,7 +236,7 @@ void Start ()
         Application.targetFrameRate = 60;
 
 
-        if (THISLEVEL == "NorasFlat")
+        if (THISLEVEL == GAMELEVEL.NorasFlat)
         {
 
             if (PHONECOLLECTED)
@@ -267,7 +268,7 @@ void Start ()
 
 
 
-        if (THISLEVEL == "1")
+        if (THISLEVEL == GAMELEVEL.TawleyMeats)
         {
 
             ExpectedEQThisLevel = ExpectedEQ_Level1;
@@ -279,7 +280,7 @@ void Start ()
 
 
 
-        if (THISLEVEL == "2")
+        if (THISLEVEL == GAMELEVEL.RoarkInside)
         {
 
             ExpectedEQThisLevel = ExpectedEQ_Level2;
@@ -302,7 +303,7 @@ void Start ()
 
     private void Update()
     {
-        if (THISLEVEL == "NorasFlat")
+        if (THISLEVEL == GAMELEVEL.NorasFlat)
         {
             if (!TRINITY)
             {
@@ -377,6 +378,16 @@ void Start ()
         DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
 
 
+    }
+
+
+    public enum GAMELEVEL
+    {
+        MainMenu,
+        NorasFlat,
+        TawleyMeats,
+        RoarkOutside,
+        RoarkInside
     }
 
 }

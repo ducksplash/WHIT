@@ -7,7 +7,7 @@ public class NotepadButton : MonoBehaviour
 {
     public TextMeshProUGUI buttonTextElement;
     public string buttonText;
-    public TravelCompanion.GameScene targetScene;
+    public GameMaster.GAMELEVEL targetScene;
     
     
     // Start is called before the first frame update
@@ -18,6 +18,6 @@ public class NotepadButton : MonoBehaviour
 
     public void ClickToChangeScene()
     {
-        GameMaster.Instance.TravelCompanion.ChangeScene(targetScene.ToString());
+        GameMaster.Instance.TravelCompanion.ChangeScene(targetScene);
     }
 }

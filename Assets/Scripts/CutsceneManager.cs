@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class CutsceneManager : MonoBehaviour 
 {
+
     // Variables to control the cutscene timing
     [Header("Time to rotate to face object")]
     public float panTime = 5.0f;     // How long it takes to pan to the object
@@ -28,6 +29,7 @@ public class CutsceneManager : MonoBehaviour
     
     public void Start()
     {    
+
         Debug.Log("UInstance Start");
         
         UInstance.Instance.cutsceneBarsCanvas.alpha = 0;  
@@ -201,6 +203,9 @@ public class CutsceneManager : MonoBehaviour
             case DialogueSelectorTemp.NoraIncinerator:
                 returnMessage = "I'm not looking forward to searching that...";
                 break;
+            case DialogueSelectorTemp.NoraOutsideRoark:
+                returnMessage = "...Roark Microtech...";
+                break;
         }
 
         return returnMessage;
@@ -214,7 +219,8 @@ public enum DialogueSelectorTemp
 {
     NoraBathroom,
     NoraCorkboard,
-    NoraIncinerator
+    NoraIncinerator,
+    NoraOutsideRoark
 }
 
 

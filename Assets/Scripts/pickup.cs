@@ -6,7 +6,6 @@ using VLB;
 public class Pickup : MonoBehaviour
 {
 
-
 	public static bool hasobject;
 	private Transform defaultparent;
 	public Transform myHeldItem;
@@ -25,6 +24,7 @@ public class Pickup : MonoBehaviour
 
 	private void Awake()
     {
+
 		hasobject = false;
 		StartRotation = handTransform.parent.eulerAngles;
 		defaultparent = null;

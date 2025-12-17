@@ -110,20 +110,20 @@ public class Evidence : MonoBehaviour
         if (EvidenceName.Contains("Blood"))
         {
             var msg = "Who's blood is this...?";
-            solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
+            GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
         }
 
         if (EvidenceName.Contains("Email"))
         {
             var msg = "Is he talking about Eimear??";
-            solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
+            GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
         }
 
 
         if (EvidenceName.Contains("Skull"))
         {
             var msg = "Oh my... This one looks real...";
-            solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
+            GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
         }
     }
 

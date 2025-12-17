@@ -11,10 +11,19 @@ public class GameMaster : Singleton<GameMaster>
 {
   GameData saveData = new GameData();
   
+    // components
+  
     // Debuggery
     [Header("Debug Mode Toggle")]
     public bool DEBUGGERY;
 
+    [Header("Global Components")]
+    public DialogueManager DialogueManager;
+    public CutsceneManager CutsceneManager;
+    public TravelCompanion TravelCompanion;
+    public Pickup Pickup;
+    
+    
     // Game Globals
 
     // Electricity Enabled - We can probably use this for all levels, resetting to false on scene change.
@@ -365,7 +374,7 @@ void Start ()
         yield return new WaitForSeconds(5);
         var msg = "Ok, I think I'm ready to go now.";
 
-        solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
+        DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
 
 
     }

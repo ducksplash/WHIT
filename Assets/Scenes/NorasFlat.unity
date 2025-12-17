@@ -43747,7 +43747,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1525618386}
-  - component: {fileID: 1525618387}
   - component: {fileID: 1525618388}
   m_Layer: 0
   m_Name: Game Managers
@@ -43770,27 +43769,11 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1874393889}
+  - {fileID: 485578789}
   - {fileID: 659293019}
   - {fileID: 728985365}
-  - {fileID: 485578789}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1525618387
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1525618384}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5bdc156baededdf40bd6b5c547f93945, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  DialogueManager: {fileID: 1874393890}
-  CutsceneManager: {fileID: 485578790}
-  TravelCompanion: {fileID: 659293020}
-  Pickup: {fileID: 728985366}
 --- !u!114 &1525618388
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43803,7 +43786,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efe593edd77f6f344b2bab4e10d5dede, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameMaster
-  DEBUGGERY: 0
+  DEBUGGERY: 1
+  DialogueManager: {fileID: 1874393890}
+  CutsceneManager: {fileID: 485578790}
+  TravelCompanion: {fileID: 659293020}
+  Pickup: {fileID: 728985366}
   ThisScene:
     m_Handle: 0
   WaitingForTrinity: 0

@@ -9,7 +9,7 @@ public class GetHeldObjectCollisions : MonoBehaviour
         if (other.gameObject.layer != LayerMask.NameToLayer("player"))
         {
             // Perform the action if the other object is not on the "Player" layer
-            solo.Instance.Pickup.DropItem();
+            GameMaster.Instance.Pickup.DropItem();
         }
     }
 }

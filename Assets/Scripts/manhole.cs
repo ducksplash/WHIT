@@ -51,7 +51,7 @@ public class manhole : MonoBehaviour
                     {
                         
                         Debug.Log("Key has been held down for " + holdTime + " seconds");
-                        solo.Instance.TravelCompanion.ChangeSceneOffTheBooks(NextScene);
+                        GameMaster.Instance.TravelCompanion.ChangeSceneOffTheBooks(NextScene);
                     }
                 }
             }

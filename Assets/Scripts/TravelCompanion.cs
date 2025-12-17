@@ -196,7 +196,7 @@ public class TravelCompanion : MonoBehaviour
 					else
 					{
 						var dialogstring = "I need my phone, my torch and my notepad.";
-						solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+						GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 						gameObject.GetComponent<Collider>().enabled = false;
 
 					}
@@ -206,7 +206,9 @@ public class TravelCompanion : MonoBehaviour
 				{
 					var dialogstring =
 						"I haven't checked that I can photograph evidence with my phone yet, I should open the camera app and try on the wine bottle on my desk.";
-					solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+					GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+
+					Debug.Log("Didn't get evidence");
 				}
 
 			}
@@ -360,7 +362,7 @@ public class TravelCompanion : MonoBehaviour
 		}
 
 		GameMaster.THISLEVEL = levelName;
-		solo.Instance.DialogueManager.queueDropFlag = true;
+		GameMaster.Instance.DialogueManager.queueDropFlag = true;
 		loadingpanel.alpha = 0;
 		Time.timeScale = 1;
 		InitialiseLocations();

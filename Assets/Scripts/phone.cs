@@ -387,7 +387,7 @@ public class phone : MonoBehaviour
 
                 var dialogstring = "I see you found your phone.\n\nTake a few minutes to explore this, and if you miss anything, check \"Messages\" for my past texts and \"Notes\" for your own comments.";
                 
-                solo.Instance.DialogueManager.NewDialogue(Contacts.Kieron.ToString(), dialogstring, 10);
+                GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Kieron.ToString(), dialogstring, 10);
 
 
 
@@ -680,7 +680,7 @@ public class phone : MonoBehaviour
         {
             var dialogstring = "First photo?\n\nWhen evidence is in view, the camera frame will turn green and you just have to press " + camerakey + ".\n\nNot green? Not evidence.\n\nYou may have to crouch.";
 
-            solo.Instance.DialogueManager.NewDialogue(Contacts.Kieron.ToString(), dialogstring, 10);
+            GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Kieron.ToString(), dialogstring, 10);
         }
 
         CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
@@ -1161,7 +1161,7 @@ public class phone : MonoBehaviour
             {
                 var dialogstring = "Brilliant!\n\nYou can open the Gallery app on your phone to see all the evidence you've collected.";
 
-                solo.Instance.DialogueManager.NewDialogue(Contacts.Kieron.ToString(), dialogstring, 5);
+                GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Kieron.ToString(), dialogstring, 5);
 
             }
 

@@ -37,13 +37,13 @@ public class cutscene : MonoBehaviour
         {
             if (!GameMaster.CutSceneSeen.ContainsKey(selectedMessage.ToString()))
             {
-                solo.Instance.CutsceneManager.cameraZoom.enabled = false;
-                solo.Instance.CutsceneManager.elapsedCutsceneTime = 0.0f;
+                GameMaster.Instance.CutsceneManager.cameraZoom.enabled = false;
+                GameMaster.Instance.CutsceneManager.elapsedCutsceneTime = 0.0f;
                 
                 // we don't want to await, that's why we're not awaiting. ignore this 'hint' 
                 
                 
-                StartCoroutine(solo.Instance.CutsceneManager.ExecuteCutscene(duration, panTime, targetObject, ContactName, selectedMessage));
+                StartCoroutine(GameMaster.Instance.CutsceneManager.ExecuteCutscene(duration, panTime, targetObject, ContactName, selectedMessage));
                 
                 
                 GameMaster.CutSceneSeen.TryAdd(selectedMessage.ToString(), ContactName.ToString());

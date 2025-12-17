@@ -54,7 +54,7 @@ public class CutsceneManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         
         
-        solo.Instance.CutsceneManager.CutsceneDialogue(duration, ContactName, selectedMessage);
+        GameMaster.Instance.CutsceneManager.CutsceneDialogue(duration, ContactName, selectedMessage);
 
         
         while (elapsedCutsceneTime < duration)
@@ -178,7 +178,7 @@ public class CutsceneManager : MonoBehaviour
         string message = TempSelectMessage(selectedMessage);
         
         Debug.Log(ContactName.ToString());
-        await solo.Instance.DialogueManager.NewDialogue(ContactName.ToString(), message, duration, true);
+        await GameMaster.Instance.DialogueManager.NewDialogue(ContactName.ToString(), message, duration, true);
     }
 
     
@@ -193,13 +193,13 @@ public class CutsceneManager : MonoBehaviour
         switch (selectedMessage)
         {
             case DialogueSelectorTemp.NoraBathroom:
-                returnMessage = "st";
+                returnMessage = "This blood is fresh. Door locked from the inside. Whoever did this got out the way I came in. I should photograph this.";
                 break;
             case DialogueSelectorTemp.NoraCorkboard:
                 returnMessage = "I'll keep notes and the like here, sure that way if I forget what I'm to be at it's on the board and I can look at it.";
                 break;
             case DialogueSelectorTemp.NoraIncinerator:
-                returnMessage = "rd";
+                returnMessage = "I'm not looking forward to searching that...";
                 break;
         }
 

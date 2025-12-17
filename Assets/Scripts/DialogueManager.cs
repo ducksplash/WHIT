@@ -119,6 +119,10 @@ public class DialogueManager : MonoBehaviour
                 // log me
                 GameMaster.DialogueSeen.Add(message, Contact);
             }
+            else
+            {
+                Debug.Log("already seen System");
+            }
         }
         else if (Contact.Equals(Contacts.Nora.ToString()))
         {
@@ -133,6 +137,10 @@ public class DialogueManager : MonoBehaviour
 
                 // log me
                 GameMaster.DialogueSeen.Add(message, Contact);
+            }
+            else
+            {
+                Debug.Log("already seen NORA");
             }
         }
         else
@@ -149,6 +157,10 @@ public class DialogueManager : MonoBehaviour
 
                 // log me
                 GameMaster.DialogueSeen.Add(message, Contact);
+            }
+            else
+            {
+                Debug.Log("already seen Contact");
             }
         }
     }

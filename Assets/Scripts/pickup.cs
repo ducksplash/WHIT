@@ -255,7 +255,7 @@ public class Pickup : MonoBehaviour
 
 
 					var dialogstring = "Found my torch, I can check that it works by pressing "+torchkey+". and I can swing it if I left click.";
-					solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+					GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 					if (torchTick) torchTick.alpha = 1;
 				}
 
@@ -265,7 +265,7 @@ public class Pickup : MonoBehaviour
 					GameMaster.NOTEPADCOLLECTED = true;
 					Destroy(hit.transform.gameObject);
 					var dialogstring = "Got some places I wanna check out written down here. I should take a look when I'm leaving.";
-					solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+					GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 					if (notepadTick) notepadTick.alpha = 1;
 
 				}
@@ -279,7 +279,7 @@ public class Pickup : MonoBehaviour
 					string phonekey = InputManager.GetKeyName("phone");
 
 					var dialogstring = "My phone. I should test that it works by pressing "+phonekey+".";
-					solo.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+					GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
 					if (phoneTick) phoneTick.alpha = 1;
 
 				}

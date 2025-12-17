@@ -18,6 +18,6 @@ public class NotepadButton : MonoBehaviour
 
     public void ClickToChangeScene()
     {
-        solo.Instance.TravelCompanion.ChangeScene(targetScene.ToString());
+        GameMaster.Instance.TravelCompanion.ChangeScene(targetScene.ToString());
     }
 }

@@ -25,7 +25,6 @@ public class GameMaster : MonoBehaviour
     public CutsceneManager CutsceneManager;
     public TravelCompanion TravelCompanion;
     public Pickup Pickup;
-    public LightManager LightManager;
     public EventManager EventManager;
     
     // Game Globals
@@ -71,7 +70,7 @@ public class GameMaster : MonoBehaviour
     public CanvasGroup torchTick;
     public CanvasGroup evidenceTick;
 
-    public RawImage MyFirstEvidence;
+    public Image MyFirstEvidence;
     public TextMeshProUGUI EvidenceDesc;
     public static bool GarbageRun;
 
@@ -338,33 +337,31 @@ void Start ()
                     FileInfo[] info = dir.GetFiles("*.quack");
                     var lines = System.IO.File.ReadAllLines(info[0].FullName);
 
-
-                    MemoryStream dest = new MemoryStream();
-
                     var photopath = Application.persistentDataPath + "/Phone/0/DCIM/";
 
+                    // Read image bytes
                     byte[] imageData = File.ReadAllBytes(photopath + lines[1]);
 
-                    //Create new Texture2D
-                    Texture2D tempTexture = new Texture2D(100, 100);
-
-                    //Load the Image Byte to Texture2D
+                    // Create new Texture2D (size will auto-resize)
+                    Texture2D tempTexture = new Texture2D(2, 2);
                     tempTexture.LoadImage(imageData);
 
+                    // Convert Texture2D to Sprite for Image component
+                    Sprite newSprite = Sprite.Create(
+                        tempTexture,
+                        new Rect(0, 0, tempTexture.width, tempTexture.height),
+                        new Vector2(0.5f, 0.5f)
+                    );
 
-                    var finaltexture = tempTexture;
+                    // Assign Sprite to Image component
+                    MyFirstEvidence.GetComponent<Image>().sprite = newSprite;
 
-                    //Load to Rawmage?
-
-
-                    MyFirstEvidence.GetComponent<RawImage>().texture = finaltexture;
-
-
+                    // Set description and tick
                     EvidenceDesc.text = lines[5];
-
                     evidenceTick.alpha = 1;
                     checkForEvidence = true;
                 }
+
             }
         }
 

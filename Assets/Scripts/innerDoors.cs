@@ -91,7 +91,7 @@ public class innerDoors : MonoBehaviour
         {
             if (hit.transform.gameObject.CompareTag("ExteriorDoor"))
             {
-                Debug.Log("Travel!");
+                Debug.Log("Travel! (commented out for refactor)");
                 // Launch companion if the player clicks on an exterior door
 
                 GameMaster.Instance.TravelCompanion.LaunchCompanion();
@@ -99,7 +99,7 @@ public class innerDoors : MonoBehaviour
             }
             else
             {
-                Debug.Log("Open!");
+                //Debug.Log("Open!");
                 if (!isLocked && hit.transform.name.Equals(thisDoorName))
                 {
                     DoDoor(hit);

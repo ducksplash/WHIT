@@ -3,13 +3,16 @@ using UnityEngine;
 
 public class EventManager : MonoBehaviour
 {    
-    public static event Action<LightBulbID> OnLightSwitchClick = (LightBulbID) => { };
+    public static event Action<bool> OnLightToggleChanged = (value) => { };
     //public static event Action OnLightSwitchClick = () => { };
     //public static event Action<TempSessionDataClass> OnDistributionGameSessionEnded = (sessionData) => { };
+
     
-    public void ClickedLightSwitch(LightBulbID LightBulbID)
+    
+    public void LightToggleChanged(bool value)
     {
-        OnLightSwitchClick.Invoke(LightBulbID);
+
+        OnLightToggleChanged.Invoke(value);
     }
     
 }

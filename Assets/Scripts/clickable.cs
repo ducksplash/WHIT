@@ -1,407 +1,207 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
+using System.Linq;
 
 public class clickable : Singleton<clickable>
 {
+    [Header("Cursor")]
     public Image selectcursor;
-    public Sprite clickablesprite;
-    public Sprite clickablespritegreen;
-    public Sprite clickablespritered;
-    public Sprite idlesprite;
-    public Sprite enemysprite;
-    public Sprite unknownsprite;
-    public Sprite doorsprite;
-    public Sprite doorspritegreen;
-    public Sprite drawersprite;
-    public Sprite drawerspritegreen;
-    public Sprite lockeddrawersprite;
-    public Sprite lockeddoorsprite; 
-    public Sprite pickupsprite;
-    public Sprite evidencesprite;
-    public Sprite pickupcloseenoughsprite;
-    public TextMeshProUGUI infotext;
-    public TextMeshProUGUI infotextbg;
-    public Transform infotextbgimg;
-    public int raycost;
+    public Sprite clickablesprite, clickablespritegreen, clickablespritered;
+    public Sprite idlesprite, enemysprite, unknownsprite;
+    public Sprite doorsprite, doorspritegreen;
+    public Sprite drawersprite, drawerspritegreen, lockeddrawersprite;
+    public Sprite lockeddoorsprite;
+    public Sprite pickupsprite, pickupcloseenoughsprite, evidencesprite;
 
-    public int RaycastInterval;
-    public int StartRaycastInterval;
+    [Header("Info Text")]
+    public TextMeshProUGUI infotext, infotextbg;
+    public Transform infotextbgimg;
+
+    // Layer cache
+    int doorlayer, cupboardlayer, drawerlayer, clickablelayer, enemylayer;
+    int idlelayer, floorlayer, unknownlayer, pickuplayer;
+    int evidencelayer, staticevidencelayer, slidingdoorlayer;
+
+    private RaycastHit currentHit;
+    private bool hasHit;
+
+    private Sprite currentSprite;
+    private string currentText, currentTextColor;
 
     void Awake()
     {
-        selectcursor = gameObject.GetComponent<Image>();
+        selectcursor = GetComponent<Image>();
 
-        selectcursor.sprite = idlesprite;
-        INFOTEXT("");
+        doorlayer = LayerMask.NameToLayer("door");
+        cupboardlayer = LayerMask.NameToLayer("cupboard");
+        drawerlayer = LayerMask.NameToLayer("drawer");
+        clickablelayer = LayerMask.NameToLayer("clickable");
+        enemylayer = LayerMask.NameToLayer("enemy");
+        idlelayer = LayerMask.NameToLayer("Default");
+        floorlayer = LayerMask.NameToLayer("ground");
+        unknownlayer = LayerMask.NameToLayer("unknown");
+        pickuplayer = LayerMask.NameToLayer("pickupable");
+        evidencelayer = LayerMask.NameToLayer("evidence");
+        staticevidencelayer = LayerMask.NameToLayer("staticevidence");
+        slidingdoorlayer = LayerMask.NameToLayer("slidingdoor");
 
-    }
-
-    private void Start()
-    {
-        raycost = 0;
-        RaycastInterval = StartRaycastInterval;
+        SetCursor(idlesprite, "");
     }
 
     void Update()
     {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
+        // Raycast all hits
+        var hits = Physics.RaycastAll(ray, 4f);
 
-        if (RaycastInterval < 1)
+        // Select closest interactive target by priority
+        RaycastHit? targetHit = SelectTarget(hits);
+
+        if (targetHit.HasValue)
         {
-
-            int doorlayer = LayerMask.NameToLayer("door");
-            int cupboardlayer = LayerMask.NameToLayer("cupboard");
-            int drawerlayer = LayerMask.NameToLayer("drawer");
-            int clickablelayer = LayerMask.NameToLayer("clickable");
-            int enemylayer = LayerMask.NameToLayer("enemy");
-            int idlelayer = LayerMask.NameToLayer("Default");
-            int floorlayer = LayerMask.NameToLayer("ground");
-            int unknownlayer = LayerMask.NameToLayer("unknown");
-            int pickuplayer = LayerMask.NameToLayer("pickupable");
-            int evidencelayer = LayerMask.NameToLayer("evidence");
-            int staticevidencelayer = LayerMask.NameToLayer("staticevidence");
-            int slidingdoorlayer = LayerMask.NameToLayer("slidingdoor");
-
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-            RaycastHit hit;
-
-            raycost++;
-
-
-
-
-            if (Physics.Raycast(ray, out hit, 5.5f))
-            {
-
-                if (hit.transform.gameObject.layer == idlelayer)
-                {
-                    //Debug.Log("idle");
-                    selectcursor.sprite = idlesprite;
-                    INFOTEXT("");
-                }
-
-
-                if (hit.transform.gameObject.layer == floorlayer)
-                {
-                    //Debug.Log("idle");
-                    selectcursor.sprite = idlesprite;
-                    INFOTEXT("");
-                }
-
-
-
-
-                if (hit.transform.gameObject.layer == clickablelayer)
-                {
-
-
-                selectcursor.sprite = clickablesprite;
-                INFOTEXT("");
-
-
-                    if (hit.distance <= 3f)
-                    {
-                        selectcursor.sprite = clickablespritegreen;
-                        INFOTEXT("");
-                    }
-
-
-                    if (hit.transform.tag.Contains("LIGHTSWITCHES"))
-                    {
-
-                        if (hit.distance <= 3f)
-                        {
-
-                            if (GameMaster.POWER_SUPPLY_ENABLED)
-                            {
-                                INFOTEXT("Lights", "green");
-                                selectcursor.sprite = clickablespritegreen;
-                            }
-                            else
-                            {
-                                INFOTEXT("Lights (Power Disabled)", "red");
-                                selectcursor.sprite = clickablespritered;
-                            }
-
-                        }
-                        else
-                        {
-                            INFOTEXT("Lights", "red");
-                        }
-                    }
-
-
-                    if (hit.transform.tag.Contains("POWERSWITCH"))
-                    {
-                        if (hit.distance <= 3f)
-                        {
-
-                            if (GameMaster.POWER_SUPPLY_ENABLED)
-                            {
-                                INFOTEXT("Power (on)", "green");
-                                selectcursor.sprite = clickablespritegreen;
-                            }
-                            else
-                            {
-                                INFOTEXT("Power (off)", "red");
-                                selectcursor.sprite = clickablespritered;
-                            }
-
-                        }
-                        else
-                        {
-                            INFOTEXT("Power", "red");
-                        }
-                    }
-
-
-                    if (hit.transform.tag.Contains("INCINERATOR"))
-                    {
-
-                        if (GameMaster.POWER_SUPPLY_ENABLED && GameMaster.INCINERATOR_ENABLED)
-                        {
-                            INFOTEXT("Start Incinerator", "green");
-                        }
-                        else
-                        {
-                                INFOTEXT("Start Incinerator (Power Disabled)", "red");
-                        }
-                        
-
-                        if (hit.transform.tag.Contains("INCINERATOROFF"))
-                        {
-
-                            if (GameMaster.POWER_SUPPLY_ENABLED && GameMaster.INCINERATOR_ENABLED)
-                            {
-                                INFOTEXT("Stop Incinerator", "green");
-                            }
-                            else
-                            {
-                                INFOTEXT("Stop Incinerator (Power Disabled)", "red");
-                            }
-                        }
-                    }
-                }
-                
-                
-                if (hit.transform.gameObject.layer == enemylayer)
-                {
-                    selectcursor.sprite = enemysprite;
-                }
-
-
-                if (hit.transform.gameObject.layer == unknownlayer)
-                {
-                    //Debug.Log("enemy");
-                    selectcursor.sprite = unknownsprite;
-                }
-
-
-                if (hit.transform.gameObject.layer == doorlayer)
-                {
-                    //Debug.Log("door");
-                    if (hit.distance <= 3f)
-                    {
-                        if (hit.transform.parent.parent.GetComponent<innerDoors>().isLocked)
-                        {
-                            selectcursor.sprite = lockeddoorsprite;
-                            INFOTEXT("locked", "red");
-                        }
-                        else
-                        {
-                            selectcursor.sprite = doorspritegreen;
-                            INFOTEXT("");
-                        }
-                    }
-                    else
-                    {
-                        selectcursor.sprite = doorsprite;
-                        INFOTEXT("");
-                    }
-
-
-
-                }
-
-
-
-                if (hit.transform.gameObject.layer == slidingdoorlayer)
-                {
-                    //Debug.Log("door");
-                    if (hit.distance <= 3f)
-                    {
-                        if (hit.transform.GetComponent<SlidingDoors>().isLocked)
-                        {
-                            selectcursor.sprite = lockeddoorsprite;
-                            INFOTEXT("locked", "red");
-                        }
-                        else
-                        {
-                            selectcursor.sprite = doorspritegreen;
-                            INFOTEXT("");
-                        }
-                    }
-                    else
-                    {
-                        selectcursor.sprite = doorsprite;
-                        INFOTEXT("");
-                    }
-                }
-
-                
-                if (hit.transform.gameObject.layer == drawerlayer)
-                {
-                    
-                    if (hit.distance <= 3f)
-                    {
-                        if (hit.transform.GetComponent<Drawers>().isLocked)
-                        {
-                            selectcursor.sprite = lockeddrawersprite;
-                            INFOTEXT("locked", "red");
-                        }
-                        else
-                        {
-                            selectcursor.sprite = drawerspritegreen;
-                            INFOTEXT("");
-                        }
-                    }
-                    else
-                    {
-                        selectcursor.sprite = drawersprite;
-                        INFOTEXT("");
-                    }
-
-
-
-                    if (hit.transform.GetComponentInParent<Drawers>().isLocked)
-                    {
-                        selectcursor.sprite = lockeddrawersprite;
-                        INFOTEXT("locked", "red");
-                    }
-                    else
-                    {
-                        selectcursor.sprite = drawersprite;
-                        INFOTEXT("");
-                    }
-
-                }
-
-
-
-                if (hit.transform.gameObject.layer == cupboardlayer)
-                {
-                    //Debug.Log("door");
-
-                    selectcursor.sprite = doorsprite;
-                    INFOTEXT("");
-
-                    if (hit.transform.gameObject.tag.Equals("ExteriorDoor"))
-                    {
-
-                        if (hit.distance < 3f && hit.distance > 1.2f)
-                        {
-                            INFOTEXT("Move to a new location");
-                            selectcursor.sprite = doorspritegreen;
-                        }
-                    }
-                }
-
-
-                if (hit.transform.gameObject.layer == pickuplayer)
-                {
-                    //Debug.Log("door");
-                    selectcursor.sprite = pickupsprite;
-
-                    if (hit.distance <= 3f)
-                    {
-                        selectcursor.sprite = pickupcloseenoughsprite;
-                    }
-
-                }
-
-
-
-
-
-                if (hit.transform.gameObject.layer == evidencelayer)
-                {
-                    //Debug.Log("door");
-                    selectcursor.sprite = evidencesprite;
-                }
-
-                if (hit.transform.gameObject.layer == staticevidencelayer)
-                {
-                    //Debug.Log("door");
-                    selectcursor.sprite = evidencesprite;
-                }
-
-            }
-            else
-            {
-                //Debug.Log("idle");
-                selectcursor.sprite = idlesprite;
-                INFOTEXT("");
-            }
-
-
-
-            RaycastInterval = StartRaycastInterval;
+            hasHit = true;
+            currentHit = targetHit.Value;
+            ApplyHover(currentHit);
+
+            if (Input.GetMouseButtonUp(1))
+                HandleClick();
         }
         else
         {
-            RaycastInterval--;
+            hasHit = false;
+            SetCursor(idlesprite, "");
         }
-    
-
-
     }
 
-
-
-
-
-    public void INFOTEXT(string text, string textcolor = "white")
+    // -------------------------
+    // Target selection by priority
+    // -------------------------
+    private RaycastHit? SelectTarget(RaycastHit[] hits)
     {
+        if (hits.Length == 0) return null;
 
+        // Assign a priority value: lower = higher priority
+        int Priority(RaycastHit h)
+        {
+            int l = h.transform.gameObject.layer;
+
+            if (l == clickablelayer) return 0;
+            if (l == doorlayer || l == slidingdoorlayer) return 1;
+            if (l == drawerlayer) return 2;
+            if (l == pickuplayer) return 3;
+            if (l == evidencelayer || l == staticevidencelayer) return 4;
+            if (l == enemylayer) return 5;
+            if (l == unknownlayer) return 6;
+            return 10; // default / idle
+        }
+
+        return hits
+            .OrderBy(Priority)
+            .ThenBy(h => h.distance) // closest
+            .FirstOrDefault();
+    }
+
+    private void ApplyHover(RaycastHit hit)
+    {
+        int layer = hit.transform.gameObject.layer;
+
+        if (layer == clickablelayer && IsCloseEnough(hit))
+        {
+            if (hit.transform.CompareTag("LIGHTSWITCHES"))
+                SetCursor(GameMaster.POWER_SUPPLY_ENABLED ? clickablespritegreen : clickablespritered,
+                          GameMaster.POWER_SUPPLY_ENABLED ? "Lights" : "Lights (Power Disabled)",
+                          GameMaster.POWER_SUPPLY_ENABLED ? "green" : "red");
+            else if (hit.transform.CompareTag("POWERSWITCH"))
+                SetCursor(GameMaster.POWER_SUPPLY_ENABLED ? clickablespritegreen : clickablespritered,
+                          GameMaster.POWER_SUPPLY_ENABLED ? "Power (on)" : "Power (off)",
+                          GameMaster.POWER_SUPPLY_ENABLED ? "green" : "red");
+            else
+                SetCursor(clickablespritegreen);
+            return;
+        }
+
+        if ((layer == doorlayer || layer == slidingdoorlayer) && IsCloseEnough(hit))
+        {
+            bool locked = (layer == doorlayer) ?
+                hit.transform.parent.parent.GetComponent<innerDoors>().isLocked :
+                hit.transform.GetComponent<SlidingDoors>().isLocked;
+
+            SetCursor(locked ? lockeddoorsprite : doorspritegreen, locked ? "locked" : "", locked ? "red" : "white");
+            return;
+        }
+
+        if (layer == drawerlayer && IsCloseEnough(hit))
+        {
+            var drawer = hit.transform.GetComponent<Drawers>();
+            SetCursor(drawer != null && drawer.isLocked ? lockeddrawersprite : drawerspritegreen,
+                      drawer != null && drawer.isLocked ? "locked" : "",
+                      drawer != null && drawer.isLocked ? "red" : "white");
+            return;
+        }
+
+        if (layer == cupboardlayer)
+        {
+            if (hit.transform.CompareTag("ExteriorDoor") && hit.distance < 4f && hit.distance > 2f)
+                SetCursor(doorspritegreen, "Move to a new location");
+            else
+                SetCursor(doorsprite);
+            return;
+        }
+
+        if (layer == pickuplayer)
+            SetCursor(IsCloseEnough(hit) ? pickupcloseenoughsprite : pickupsprite);
+        else if (layer == evidencelayer || layer == staticevidencelayer)
+            SetCursor(evidencesprite);
+        else if (layer == enemylayer)
+            SetCursor(enemysprite);
+        else if (layer == unknownlayer)
+            SetCursor(unknownsprite);
+        else
+            SetCursor(idlesprite);
+    }
+
+    private void HandleClick()
+    {
+        if (!hasHit) return;
+
+        if (currentHit.transform.CompareTag("LIGHTSWITCHES"))
+        {
+            var light = currentHit.transform.GetComponent<LightSwitch>();
+            if (light != null) light.ToggleLightswitch();
+        }
+    }
+
+    private void SetCursor(Sprite sprite, string text = "", string color = "white")
+    {
+        if (currentSprite != sprite)
+        {
+            selectcursor.sprite = sprite;
+            currentSprite = sprite;
+        }
+
+        if (currentText != text || currentTextColor != color)
+        {
+            INFOTEXT(text, color);
+            currentText = text;
+            currentTextColor = color;
+        }
+    }
+
+    private bool IsCloseEnough(RaycastHit hit) => hit.distance <= 4f;
+
+    private void INFOTEXT(string text, string textcolor = "white")
+    {
         infotext.text = text;
         infotextbg.text = text;
-
-        if (textcolor == "white")
+        infotext.color = textcolor switch
         {
-            infotext.color = new Color(1f, 1f, 1f, 1f);
-        }
-
-        if (textcolor == "red")
-        {
-            infotext.color = new Color(1f, 0.2f, 0.2f, 1f);
-        }
-
-        if (textcolor == "green")
-        {
-            infotext.color = new Color(0f, 0.9f, 0f, 1f);
-        }
-
-
-        var stringlen = text.Length;
-
-        var stringmaffs = stringlen * 18;
-
-
-
-        var theBarRectTransform = infotextbgimg as RectTransform;
-        theBarRectTransform.sizeDelta = new Vector2(stringmaffs, 35);
-
-
-
-
+            "red" => new Color(1f, 0.2f, 0.2f, 1f),
+            "green" => new Color(0f, 0.9f, 0f, 1f),
+            _ => Color.white
+        };
+        var rect = infotextbgimg as RectTransform;
+        rect.sizeDelta = new Vector2(text.Length * 18, 35);
     }
-
-
-
-
 }

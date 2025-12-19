@@ -8569,11 +8569,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 290817251}
+  - component: {fileID: 290817253}
   - component: {fileID: 290817246}
   - component: {fileID: 290817245}
   - component: {fileID: 290817248}
   - component: {fileID: 290817252}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: exteriordoor
   m_TagString: ExteriorDoor
   m_Icon: {fileID: 0}
@@ -8697,6 +8698,25 @@ MonoBehaviour:
   isLocked: 0
   isExteriorDoor: 0
   PlayerClicked: 0
+--- !u!114 &290817253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 290817242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DoorType: 4
+  isOpen: 0
+  isLocked: 0
+  isAnimating: 0
+  doorAnimator: {fileID: 0}
+  colliderDisableTime: 0.5
+  indicatorLights: []
 --- !u!1 &292085139
 GameObject:
   m_ObjectHideFlags: 0
@@ -9165,7 +9185,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 319290088}
-  - component: {fileID: 319290089}
   m_Layer: 0
   m_Name: kitchendoor
   m_TagString: Untagged
@@ -9190,27 +9209,6 @@ Transform:
   - {fileID: 1923563734}
   m_Father: {fileID: 292085140}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &319290089
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 319290087}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 525990046d144a14fab375a51752a6f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisDoor: {fileID: 468923489}
-  thisDoorHinge: {fileID: 1923563733}
-  doorLockTag: 
-  doorUnlockTag: 
-  doorAnimator: {fileID: 0}
-  isOpen: 0
-  isLocked: 0
-  isExteriorDoor: 0
-  PlayerClicked: 0
 --- !u!1 &321979157
 GameObject:
   m_ObjectHideFlags: 0
@@ -10177,7 +10175,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 368821716}
-  - component: {fileID: 368821718}
   - component: {fileID: 368821717}
   m_Layer: 0
   m_Name: hinge
@@ -10224,27 +10221,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &368821718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 368821715}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 525990046d144a14fab375a51752a6f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisDoor: {fileID: 890601246}
-  thisDoorHinge: {fileID: 368821715}
-  doorLockTag: 
-  doorUnlockTag: 
-  doorAnimator: {fileID: 0}
-  isOpen: 0
-  isLocked: 0
-  isExteriorDoor: 0
-  PlayerClicked: 0
 --- !u!1 &370539868
 GameObject:
   m_ObjectHideFlags: 0
@@ -13710,6 +13686,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 468923490}
+  - component: {fileID: 468923494}
   - component: {fileID: 468923493}
   - component: {fileID: 468923492}
   - component: {fileID: 468923491}
@@ -13812,6 +13789,25 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 468923489}
   m_Mesh: {fileID: 3268981864624825529, guid: 2a83bdeba9bebbd418e21e98042f4d66, type: 3}
+--- !u!114 &468923494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468923489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DoorType: 0
+  isOpen: 0
+  isLocked: 0
+  isAnimating: 0
+  doorAnimator: {fileID: 1923563735}
+  colliderDisableTime: 0.5
+  indicatorLights: []
 --- !u!1 &471024353
 GameObject:
   m_ObjectHideFlags: 0
@@ -16181,7 +16177,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 562253574}
-  - component: {fileID: 562253575}
   - component: {fileID: 562253576}
   m_Layer: 0
   m_Name: fridgehinge
@@ -16206,27 +16201,6 @@ Transform:
   - {fileID: 5315707986269242001}
   m_Father: {fileID: 2608420126959941198}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &562253575
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 562253573}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 525990046d144a14fab375a51752a6f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisDoor: {fileID: 6955014259076833372}
-  thisDoorHinge: {fileID: 562253573}
-  doorLockTag: 
-  doorUnlockTag: 
-  doorAnimator: {fileID: 0}
-  isOpen: 0
-  isLocked: 0
-  isExteriorDoor: 0
-  PlayerClicked: 0
 --- !u!95 &562253576
 Animator:
   serializedVersion: 7
@@ -20436,7 +20410,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 718183746}
-  - component: {fileID: 718183747}
   m_Layer: 0
   m_Name: bathroomdoor
   m_TagString: Untagged
@@ -20461,27 +20434,6 @@ Transform:
   - {fileID: 690746813}
   m_Father: {fileID: 1108621349}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &718183747
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 718183745}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 525990046d144a14fab375a51752a6f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisDoor: {fileID: 1109690378}
-  thisDoorHinge: {fileID: 690746812}
-  doorLockTag: 
-  doorUnlockTag: 
-  doorAnimator: {fileID: 0}
-  isOpen: 0
-  isLocked: 0
-  isExteriorDoor: 0
-  PlayerClicked: 0
 --- !u!1 &719460288
 GameObject:
   m_ObjectHideFlags: 0
@@ -20628,7 +20580,6 @@ GameObject:
   m_Component:
   - component: {fileID: 722174268}
   - component: {fileID: 722174270}
-  - component: {fileID: 722174269}
   m_Layer: 0
   m_Name: hinge
   m_TagString: Untagged
@@ -20652,27 +20603,6 @@ Transform:
   - {fileID: 901289818}
   m_Father: {fileID: 1338059508}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &722174269
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 722174267}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 525990046d144a14fab375a51752a6f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisDoor: {fileID: 901289817}
-  thisDoorHinge: {fileID: 722174267}
-  doorLockTag: 
-  doorUnlockTag: 
-  doorAnimator: {fileID: 0}
-  isOpen: 0
-  isLocked: 0
-  isExteriorDoor: 0
-  PlayerClicked: 0
 --- !u!95 &722174270
 Animator:
   serializedVersion: 7
@@ -21211,7 +21141,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   LightList:
   - {fileID: 7851861580592835842}
-  hasSprites: 0
   switchMats: []
 --- !u!1 &750086268
 GameObject:
@@ -25064,10 +24993,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 890601247}
+  - component: {fileID: 890601252}
   - component: {fileID: 890601249}
   - component: {fileID: 890601248}
   - component: {fileID: 890601251}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: cupboardoor3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25168,6 +25098,25 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4290048971853235214, guid: bbd078ad70e1f32458a1f7ede294ef36, type: 3}
+--- !u!114 &890601252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 890601246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DoorType: 3
+  isOpen: 0
+  isLocked: 0
+  isAnimating: 0
+  doorAnimator: {fileID: 368821717}
+  colliderDisableTime: 0.5
+  indicatorLights: []
 --- !u!1 &896590062
 GameObject:
   m_ObjectHideFlags: 0
@@ -25314,10 +25263,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 901289818}
+  - component: {fileID: 901289822}
   - component: {fileID: 901289820}
   - component: {fileID: 901289819}
   - component: {fileID: 901289821}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: cupboardoor1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25418,6 +25368,25 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4290048971853235214, guid: bbd078ad70e1f32458a1f7ede294ef36, type: 3}
+--- !u!114 &901289822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 901289817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DoorType: 3
+  isOpen: 0
+  isLocked: 0
+  isAnimating: 0
+  doorAnimator: {fileID: 722174270}
+  colliderDisableTime: 0.5
+  indicatorLights: []
 --- !u!1 &902006131
 GameObject:
   m_ObjectHideFlags: 0
@@ -29397,7 +29366,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1024028307}
-  - component: {fileID: 1024028308}
   - component: {fileID: 1024028309}
   m_Layer: 0
   m_Name: freezerhinge
@@ -29422,27 +29390,6 @@ Transform:
   - {fileID: 4647338469599340703}
   m_Father: {fileID: 2608420126959941198}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1024028308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1024028306}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 525990046d144a14fab375a51752a6f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisDoor: {fileID: 4189134706591522569}
-  thisDoorHinge: {fileID: 1024028306}
-  doorLockTag: 
-  doorUnlockTag: 
-  doorAnimator: {fileID: 0}
-  isOpen: 0
-  isLocked: 0
-  isExteriorDoor: 0
-  PlayerClicked: 0
 --- !u!95 &1024028309
 Animator:
   serializedVersion: 7
@@ -31206,6 +31153,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1109690379}
+  - component: {fileID: 1109690383}
   - component: {fileID: 1109690382}
   - component: {fileID: 1109690381}
   - component: {fileID: 1109690380}
@@ -31308,6 +31256,25 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1109690378}
   m_Mesh: {fileID: 3268981864624825529, guid: 2a83bdeba9bebbd418e21e98042f4d66, type: 3}
+--- !u!114 &1109690383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1109690378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DoorType: 0
+  isOpen: 0
+  isLocked: 0
+  isAnimating: 0
+  doorAnimator: {fileID: 690746814}
+  colliderDisableTime: 0.5
+  indicatorLights: []
 --- !u!1 &1110278849
 GameObject:
   m_ObjectHideFlags: 0
@@ -49299,7 +49266,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1768136385}
   - component: {fileID: 1768136387}
-  - component: {fileID: 1768136386}
   m_Layer: 0
   m_Name: hinge
   m_TagString: Untagged
@@ -49323,27 +49289,6 @@ Transform:
   - {fileID: 7001398167076785739}
   m_Father: {fileID: 543450651724227251}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1768136386
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1768136384}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 525990046d144a14fab375a51752a6f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisDoor: {fileID: 9007386066942666036}
-  thisDoorHinge: {fileID: 1768136384}
-  doorLockTag: 
-  doorUnlockTag: 
-  doorAnimator: {fileID: 0}
-  isOpen: 0
-  isLocked: 0
-  isExteriorDoor: 0
-  PlayerClicked: 0
 --- !u!95 &1768136387
 Animator:
   serializedVersion: 7
@@ -49824,7 +49769,6 @@ MonoBehaviour:
   LightList:
   - {fileID: 2772701137896213703}
   - {fileID: 394880069}
-  hasSprites: 1
   switchMats: []
 --- !u!1 &1780108482
 GameObject:
@@ -63761,7 +63705,6 @@ MonoBehaviour:
   LightList:
   - {fileID: 1242235298}
   - {fileID: 8644271631558673875}
-  hasSprites: 0
   switchMats: []
 --- !u!1 &919132147536218837
 GameObject:
@@ -63984,7 +63927,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 543450653131065802}
-  - component: {fileID: 919132148657853297}
   m_Layer: 0
   m_Name: washingmachine
   m_TagString: Untagged
@@ -63992,27 +63934,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &919132148657853297
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132148657853296}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 525990046d144a14fab375a51752a6f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisDoor: {fileID: 4423045621473967682}
-  thisDoorHinge: {fileID: 482662106}
-  doorLockTag: 
-  doorUnlockTag: 
-  doorAnimator: {fileID: 0}
-  isOpen: 0
-  isLocked: 0
-  isExteriorDoor: 0
-  PlayerClicked: 0
 --- !u!1 &919132148751517738
 GameObject:
   m_ObjectHideFlags: 0
@@ -64109,7 +64030,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 543450653418047591}
-  - component: {fileID: 919132149479609054}
   m_Layer: 0
   m_Name: bedside
   m_TagString: Untagged
@@ -64117,27 +64037,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &919132149479609054
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132149479609053}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 525990046d144a14fab375a51752a6f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisDoor: {fileID: 3113032875855085496}
-  thisDoorHinge: {fileID: 1150586666}
-  doorLockTag: 
-  doorUnlockTag: 
-  doorAnimator: {fileID: 0}
-  isOpen: 0
-  isLocked: 0
-  isExteriorDoor: 0
-  PlayerClicked: 0
 --- !u!33 &924856147105174096
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -69354,10 +69253,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7953821578457531594}
+  - component: {fileID: 8908230150941926882}
   - component: {fileID: 8908230150941926880}
   - component: {fileID: 4988076473629786341}
   - component: {fileID: 8908230150941926881}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: cupboard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70552,7 +70452,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4038138610811182035}
-  - component: {fileID: 4038138610811182036}
   m_Layer: 0
   m_Name: kitchenunit
   m_TagString: Untagged
@@ -71171,27 +71070,6 @@ Transform:
   - {fileID: 3946108254169367227}
   m_Father: {fileID: 1905240484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4038138610811182036
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3693383834482557289}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 525990046d144a14fab375a51752a6f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisDoor: {fileID: 7249555990555428918}
-  thisDoorHinge: {fileID: 1945245196}
-  doorLockTag: 
-  doorUnlockTag: 
-  doorAnimator: {fileID: 0}
-  isOpen: 0
-  isLocked: 0
-  isExteriorDoor: 0
-  PlayerClicked: 0
 --- !u!1 &4039306734682862920
 GameObject:
   m_ObjectHideFlags: 0
@@ -71582,9 +71460,10 @@ GameObject:
   m_Component:
   - component: {fileID: 4647338469599340703}
   - component: {fileID: 203407251136968798}
+  - component: {fileID: 4647338469599340705}
   - component: {fileID: 363380171671275641}
   - component: {fileID: 4647338469599340704}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: fredoor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71746,7 +71625,6 @@ GameObject:
   - component: {fileID: 5441353772358604641}
   - component: {fileID: 6310457851179263486}
   - component: {fileID: 8636278061132364343}
-  - component: {fileID: 8636278061132364345}
   - component: {fileID: 8636278061132364346}
   m_Layer: 0
   m_Name: toilet
@@ -72306,10 +72184,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2647898423250469677}
+  - component: {fileID: 9077926072623697997}
   - component: {fileID: 5361293283545343250}
   - component: {fileID: 9077926072623697995}
   - component: {fileID: 9077926072623697996}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -72862,6 +72741,25 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -349840981952550940, guid: c15ca6dff7efeb0498ff25ef854ba413, type: 3}
+--- !u!114 &4647338469599340705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4189134706591522569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DoorType: 3
+  isOpen: 0
+  isLocked: 0
+  isAnimating: 0
+  doorAnimator: {fileID: 1024028309}
+  colliderDisableTime: 0.5
+  indicatorLights: []
 --- !u!4 &4652176083120827580
 Transform:
   m_ObjectHideFlags: 0
@@ -75578,10 +75476,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2703850347948423498}
+  - component: {fileID: 5666880072944102461}
   - component: {fileID: 4146700105283940737}
   - component: {fileID: 5666880072944102459}
   - component: {fileID: 5666880072944102460}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: lid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75961,6 +75860,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.008760316, y: 0.011219752, z: 0.0009905853}
   m_Center: {x: 0.000014983583, y: 0.0032827847, z: 0.007099211}
+--- !u!114 &5666880072944102461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5561086131233661153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DoorType: 3
+  isOpen: 0
+  isLocked: 0
+  isAnimating: 0
+  doorAnimator: {fileID: 1953777586}
+  colliderDisableTime: 0.5
+  indicatorLights: []
 --- !u!1 &5669305350689084422
 GameObject:
   m_ObjectHideFlags: 0
@@ -79286,10 +79204,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5315707986269242001}
+  - component: {fileID: 7304333914016731637}
   - component: {fileID: 7304333914016731635}
   - component: {fileID: 1364469060283977598}
   - component: {fileID: 7304333914016731636}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: fridoor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79944,10 +79863,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2938916677106413534}
+  - component: {fileID: 7249555990555428921}
   - component: {fileID: 3432848274406969033}
   - component: {fileID: 5745109104632679813}
   - component: {fileID: 7249555990555428920}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: cupboardoor2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79976,6 +79896,25 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4290048971853235214, guid: bbd078ad70e1f32458a1f7ede294ef36, type: 3}
+--- !u!114 &7249555990555428921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7249555990555428918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DoorType: 3
+  isOpen: 0
+  isLocked: 0
+  isAnimating: 0
+  doorAnimator: {fileID: 1945245198}
+  colliderDisableTime: 0.5
+  indicatorLights: []
 --- !u!33 &7257198004123167099
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -80102,6 +80041,25 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 6546734202294380652, guid: c15ca6dff7efeb0498ff25ef854ba413, type: 3}
+--- !u!114 &7304333914016731637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6955014259076833372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DoorType: 3
+  isOpen: 0
+  isLocked: 0
+  isAnimating: 0
+  doorAnimator: {fileID: 562253576}
+  colliderDisableTime: 0.5
+  indicatorLights: []
 --- !u!1 &7314321538012815767
 GameObject:
   m_ObjectHideFlags: 0
@@ -83942,27 +83900,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &8636278061132364345
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4233597832531068142}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 525990046d144a14fab375a51752a6f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  thisDoor: {fileID: 5561086131233661153}
-  thisDoorHinge: {fileID: 1953777585}
-  doorLockTag: 
-  doorUnlockTag: 
-  doorAnimator: {fileID: 0}
-  isOpen: 0
-  isLocked: 0
-  isExteriorDoor: 0
-  PlayerClicked: 0
 --- !u!136 &8636278061132364346
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -84426,7 +84363,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   LightList:
   - {fileID: 1806358256}
-  hasSprites: 1
   switchMats: []
 --- !u!33 &8813539360701321540
 MeshFilter:
@@ -84930,6 +84866,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.00034534463, y: 0.019485438, z: 0.017844634}
   m_Center: {x: -0.0097829, y: 0.00048618423, z: -0.0061370484}
+--- !u!114 &8908230150941926882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3113032875855085496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DoorType: 3
+  isOpen: 0
+  isLocked: 0
+  isAnimating: 0
+  doorAnimator: {fileID: 1150586667}
+  colliderDisableTime: 0.5
+  indicatorLights: []
 --- !u!33 &8909604237510500520
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -85257,10 +85212,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7001398167076785739}
+  - component: {fileID: 9007386066942666038}
   - component: {fileID: 1675091539137832033}
   - component: {fileID: 4920749420873750596}
   - component: {fileID: 9007386066942666037}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: ovendoor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -85288,6 +85244,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0019444267, y: 0.019655848, z: 0.016101401}
   m_Center: {x: 0.009511432, y: 0.00040380322, z: -0.0018345603}
+--- !u!114 &9007386066942666038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9007386066942666036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DoorType: 3
+  isOpen: 0
+  isLocked: 0
+  isAnimating: 0
+  doorAnimator: {fileID: 1768136387}
+  colliderDisableTime: 0.5
+  indicatorLights: []
 --- !u!23 &9009936161862826082
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -85647,6 +85622,25 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 5779197439840542771, guid: 17857e8790ee3ea489b97e68def3516a, type: 3}
+--- !u!114 &9077926072623697997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4423045621473967682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DoorType: 3
+  isOpen: 0
+  isLocked: 0
+  isAnimating: 0
+  doorAnimator: {fileID: 482662108}
+  colliderDisableTime: 0.5
+  indicatorLights: []
 --- !u!33 &9085793445743868218
 MeshFilter:
   m_ObjectHideFlags: 0

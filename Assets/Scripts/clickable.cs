@@ -122,15 +122,34 @@ public class clickable : Singleton<clickable>
             return;
         }
 
-        if ((layer == doorlayer || layer == slidingdoorlayer) && IsCloseEnough(hit))
+        if (layer == doorlayer && IsCloseEnough(hit))
         {
-            bool locked = (layer == doorlayer) ?
-                hit.transform.parent.parent.GetComponent<innerDoors>().isLocked :
-                hit.transform.GetComponent<SlidingDoors>().isLocked;
+            Door door = hit.transform.GetComponentInParent<Door>();
+            if (door == null)
+            {
+                SetCursor(doorsprite);
+                return;
+            }
 
-            SetCursor(locked ? lockeddoorsprite : doorspritegreen, locked ? "locked" : "", locked ? "red" : "white");
+            bool locked = door.IsLocked();
+            
+
+            if (door.transform.CompareTag("ExteriorDoor"))
+            {
+                SetCursor(doorspritegreen, "Move to a new location");
+            }
+            else
+            {
+                SetCursor(
+                    locked ? lockeddoorsprite : doorspritegreen,
+                    locked ? "Locked" : "",
+                    locked ? "red" : "green"
+                );
+                
+            }
             return;
         }
+
 
         if (layer == drawerlayer && IsCloseEnough(hit))
         {
@@ -140,15 +159,7 @@ public class clickable : Singleton<clickable>
                       drawer != null && drawer.isLocked ? "red" : "white");
             return;
         }
-
-        if (layer == cupboardlayer)
-        {
-            if (hit.transform.CompareTag("ExteriorDoor") && hit.distance < 4f && hit.distance > 2f)
-                SetCursor(doorspritegreen, "Move to a new location");
-            else
-                SetCursor(doorsprite);
-            return;
-        }
+        
 
         if (layer == pickuplayer)
             SetCursor(IsCloseEnough(hit) ? pickupcloseenoughsprite : pickupsprite);
@@ -166,12 +177,24 @@ public class clickable : Singleton<clickable>
     {
         if (!hasHit) return;
 
+        // Light switches
         if (currentHit.transform.CompareTag("LIGHTSWITCHES"))
         {
             var light = currentHit.transform.GetComponent<LightSwitch>();
             if (light != null) light.ToggleLightswitch();
+            return;
         }
+
+        // Doors
+        if (currentHit.transform.gameObject.layer == doorlayer)
+        {
+            Door door = currentHit.transform.GetComponentInParent<Door>();
+            if (door != null)
+                door.TryUseDoor(currentHit.collider);
+        }
+
     }
+
 
     private void SetCursor(Sprite sprite, string text = "", string color = "white")
     {

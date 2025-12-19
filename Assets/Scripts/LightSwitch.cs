@@ -4,7 +4,6 @@ using UnityEngine;
 public class LightSwitch : MonoBehaviour
 {
     public List<WorldLight> LightList = new List<WorldLight>();
-    public bool hasSprites;
     [SerializeField] private Material[] switchMats;
 
     private Renderer rend;
@@ -19,7 +18,7 @@ public class LightSwitch : MonoBehaviour
     {
         foreach (WorldLight LightBank in LightList)
         {
-            LightBank.ToggleLight(hasSprites);
+            LightBank.ToggleLight();
         }
 
         // Pass the on/off state of the first light to change the switch visuals

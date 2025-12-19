@@ -64,7 +64,7 @@ public class WorldLight : MonoBehaviour
         }
     }
 
-    public void ToggleLight(bool hasSprites = false)
+    public void ToggleLight()
     {
         lightOn = !lightOn;
 
@@ -99,7 +99,6 @@ public class WorldLight : MonoBehaviour
             StopAllCoroutines();
         }
         
-        if (hasSprites) GameMaster.Instance.EventManager.LightToggleChanged(lightOn);
     }
 
     private void UpdateBulbEmission(Light light, int index)

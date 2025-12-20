@@ -105,6 +105,7 @@ public class ManagersPC : MonoBehaviour
     {
 
 
+	    Debug.Log("todo: Refactor managers pc to use new Door script");
 
 
 
@@ -391,24 +392,24 @@ public class ManagersPC : MonoBehaviour
 	// I belong to the four functions below
 	private void buttonOp(GameObject theButton, GameObject theDoor, Image dooricon, string FeedbackName)
 	{
-		if (theDoor.GetComponent<innerDoors>().isLocked)
-		{
-			theButton.transform.GetComponent<Image>().color = Color.green;
-			theDoor.GetComponent<innerDoors>().isLocked = false;
-			theDoor.GetComponent<innerDoors>().doLockedLights();
-			dooricon.color = Color.green;
-
-			DoorFeedbackText.text = "** " +FeedbackName+" Door Unlocked"+" **";
-
-		}
-		else
-		{
-			theButton.transform.GetComponent<Image>().color = new Color32(77,76,164,100);
-			theDoor.GetComponent<innerDoors>().isLocked = true;
-			theDoor.GetComponent<innerDoors>().doLockedLights();
-			dooricon.color = Color.red;
-			DoorFeedbackText.text = "** " + FeedbackName + " Door Locked" + " **";
-		}
+		// if (theDoor.GetComponent<innerDoors>().isLocked)
+		// {
+		// 	theButton.transform.GetComponent<Image>().color = Color.green;
+		// 	theDoor.GetComponent<innerDoors>().isLocked = false;
+		// 	theDoor.GetComponent<innerDoors>().doLockedLights();
+		// 	dooricon.color = Color.green;
+		//
+		// 	DoorFeedbackText.text = "** " +FeedbackName+" Door Unlocked"+" **";
+		//
+		// }
+		// else
+		// {
+		// 	theButton.transform.GetComponent<Image>().color = new Color32(77,76,164,100);
+		// 	theDoor.GetComponent<innerDoors>().isLocked = true;
+		// 	theDoor.GetComponent<innerDoors>().doLockedLights();
+		// 	dooricon.color = Color.red;
+		// 	DoorFeedbackText.text = "** " + FeedbackName + " Door Locked" + " **";
+		// }
 	}
 	
 	

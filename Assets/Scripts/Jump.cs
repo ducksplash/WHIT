@@ -10,23 +10,21 @@ public class Jump : MonoBehaviour
     private Vector3 moveDirection = Vector3.zero;
     public float jumpSpeed = 8.0F;
     public float gravity = 1F;
-    public FirstPersonCollision firstPersonColscript;
 
 
     void Awake()
     {
         thisChar = GetComponent<CharacterController>();
-        firstPersonColscript = gameObject.GetComponentInParent<FirstPersonCollision>();
         groundCheck = true;
     }
 
     void FixedUpdate()
     {
 
-        if (!gameObject.GetComponent<FirstPersonCollision>().climbing)
+        if (!Player.Instance.climbing)
         {
 
-            if (!GameMaster.FROZEN && groundCheck && !firstPersonColscript.crouching && ((InputManager.GetKey("jump") || Input.GetKey(KeyCode.RightShift))))
+            if (!GameMaster.FROZEN && groundCheck && !Player.Instance.crouching && ((InputManager.GetKey("jump") || Input.GetKey(KeyCode.RightShift))))
             {
                 moveDirection.y = jumpSpeed;
                 groundCheck = false;

@@ -5,6 +5,7 @@ public class LightSwitch : MonoBehaviour
 {
     public List<WorldLight> LightList = new List<WorldLight>();
     [SerializeField] private Material[] switchMats;
+    public bool rotateOnClick;
 
     private Renderer rend;
 
@@ -50,7 +51,7 @@ public class LightSwitch : MonoBehaviour
 
         // Reassign materials back to renderer to apply changes in HDRP
         rend.materials = switchMats;
-        RotateSwitch();
+        if (rotateOnClick) RotateSwitch();
     }
     
     	public void RotateSwitch()

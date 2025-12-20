@@ -30,7 +30,7 @@ public class TravelCompanion : MonoBehaviour
 
 	    SceneManager.sceneLoaded += OnSceneLoaded;
         GameMaster.FROZEN = false;
-        Notepad = PlayerInstance.Instance.TravelNotepad;
+        Notepad = Player.Instance.TravelNotepad;
 
         Debug.Log("travel companion");
         
@@ -274,7 +274,7 @@ public class TravelCompanion : MonoBehaviour
 
 	public void ChangeScene(GameMaster.GAMELEVEL SceneName)
 	{
-		Rigidbody rb = PlayerInstance.Instance.gameObject.GetComponentInParent<Rigidbody>();
+		Rigidbody rb = Player.Instance.gameObject.GetComponentInParent<Rigidbody>();
 		// rb.isKinematic = false;
 		// rb.useGravity = false;
 		
@@ -286,7 +286,7 @@ public class TravelCompanion : MonoBehaviour
 
 	public void ChangeSceneOffTheBooks(GameMaster.GAMELEVEL SceneName)
 	{
-		Rigidbody rb = PlayerInstance.Instance.gameObject.GetComponentInParent<Rigidbody>();
+		Rigidbody rb = Player.Instance.gameObject.GetComponentInParent<Rigidbody>();
 		
 		// rb.isKinematic = false;
 		// rb.useGravity = false;
@@ -324,7 +324,7 @@ public class TravelCompanion : MonoBehaviour
 
 		loadingclock.text = buildDate;
 
-		Transform PlayerTransform = PlayerInstance.Instance.gameObject.GetComponentInParent<Transform>();
+		Transform PlayerTransform = Player.Instance.gameObject.GetComponentInParent<Transform>();
 
 
 		Debug.Log("setting pos now");
@@ -333,25 +333,25 @@ public class TravelCompanion : MonoBehaviour
 		if (levelName == GameMaster.GAMELEVEL.NorasFlat)
 		{	
 			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTNORASFLAT;
-			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;
+			Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;
 		}
 
 		if (levelName == GameMaster.GAMELEVEL.TawleyMeats)
 		{	
 			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
-			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
+			Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
 		}
 
 		if (levelName == GameMaster.GAMELEVEL.RoarkInside)
 		{	
 			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
-			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
+			Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
 		}
 
 		if (levelName == GameMaster.GAMELEVEL.RoarkOutside)
 		{	
 			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
-			FirstPersonCollision.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
+			Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
 		}
 
 		Time.timeScale = 0; // or the player falls out the world

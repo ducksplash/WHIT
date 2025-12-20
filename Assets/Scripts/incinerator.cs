@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class incinerator : MonoBehaviour
 {
+    
+    // incinerator uses old Doors script for lock/unlock
+    // refactor to use new Door script
+    
     public ParticleSystem[] flames;
     public Collider doorcollider;
     private float flamesize = 20f;
@@ -18,22 +22,21 @@ public class incinerator : MonoBehaviour
         {
             origsize = flame.main.startSize;
 
+            Debug.Log("todo: Refactor incinerator to use new Door script");
         }
 
+        
 
+        if (GameMaster.POWER_SUPPLY_ENABLED && GameMaster.INCINERATOR_ENABLED)
+        {
 
-
-            if (GameMaster.POWER_SUPPLY_ENABLED && GameMaster.INCINERATOR_ENABLED)
-            {
-
-                FlameControl(true);
-
-
-            }
-            else
-            {
-                FlameControl(false);
-            }
+            FlameControl(true);
+            
+        }
+        else
+        {
+            FlameControl(false);
+        }
         
     }
 
@@ -169,8 +172,8 @@ public class incinerator : MonoBehaviour
 
                 if (other.name.Contains("Player"))
                 {
-                    GetComponentInChildren<innerDoors>().isOpen = false;
-                    GetComponentInChildren<innerDoors>().isLocked = true;
+                    // GetComponentInChildren<innerDoors>().isOpen = false;
+                    // GetComponentInChildren<innerDoors>().isLocked = true;
 
                     GetComponentInChildren<Animator>().SetTrigger("closed");
                     StartCoroutine(weeWait(1, doorcollider));
@@ -189,7 +192,7 @@ public class incinerator : MonoBehaviour
                         singlight.enabled = true;
 
                     }
-                    StartCoroutine(BurnPlayer(other.gameObject));
+                    StartCoroutine(BurnPlayer());
                 }
             }
 
@@ -201,7 +204,7 @@ public class incinerator : MonoBehaviour
     }
 
 
-    IEnumerator BurnPlayer(GameObject Player)
+    IEnumerator BurnPlayer()
     {
 
         flametriggered = true;
@@ -217,7 +220,7 @@ public class incinerator : MonoBehaviour
 
         yield return new WaitForSeconds(3f);
 
-        Player.GetComponent<FirstPersonCollision>().CauseDeath("incineration");
+        Player.Instance.CauseDeath("incineration");
 
         StartCoroutine(cleanup());
     }
@@ -241,7 +244,7 @@ public class incinerator : MonoBehaviour
 
 
         
-        GetComponentInChildren<innerDoors>().isLocked = false;
+        // GetComponentInChildren<innerDoors>().isLocked = false;
 
         foreach (Light singlight in redlights)
         {

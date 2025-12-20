@@ -6,19 +6,9 @@ public class FirstPersonLook : Singleton<FirstPersonLook>
     Vector2 currentMouseLook;
     Vector2 appliedMouseDelta;
     public phone thephonescript;
-    public FirstPersonCollision playerhandler;
     public float sensitivity = 1;
     public float smoothing = 2;
 
-    void Reset()
-    {
-        character = GetComponentInParent<FirstPersonCollision>().transform;
-    }
-
-    void Start()
-    {
-        //Cursor.lockState = CursorLockMode.Locked;
-    }
 
     void FixedUpdate()
     {

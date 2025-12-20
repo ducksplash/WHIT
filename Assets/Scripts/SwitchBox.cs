@@ -26,7 +26,6 @@ public class SwitchBox : MonoBehaviour
 	private bool incineratorIsOn = true;
 	public string doorLockTag;
 	public string doorUnlockTag;
-	public innerDoors[] innerDoors;
 	public GameObject[] doorLockedLights;
 	public GameObject[] doorUnlockedLights;
 	public GameObject IncineratorDoor;
@@ -41,17 +40,17 @@ public class SwitchBox : MonoBehaviour
 		allTheLights = FindObjectsOfType<Light>();
 		
 		
-		foreach (Light aLight in allTheLights)
-		{
-
-			if (aLight.tag != "TORCH" && aLight.tag != "STREETLAMP" && aLight.tag != "HOUSELIGHTS" && aLight.tag != "INCINERATOR")
-			{
-
-				aLight.enabled = false;
-
-			}
-
-		}
+		// foreach (Light aLight in allTheLights)
+		// {
+		//
+		// 	if (aLight.tag != "TORCH" && aLight.tag != "STREETLAMP" && aLight.tag != "HOUSELIGHTS" && aLight.tag != "INCINERATOR")
+		// 	{
+		//
+		// 		aLight.enabled = false;
+		//
+		// 	}
+		//
+		// }
 		
 		
 	}
@@ -127,15 +126,7 @@ public class SwitchBox : MonoBehaviour
 								switchIsOn = true;
 
 								GameMaster.POWER_SUPPLY_ENABLED = true;
-
-
-								foreach (innerDoors thisdoor in innerDoors)
-								{
-									thisdoor.doLockedLights();
-								}
-
-								IncineratorDoor.GetComponent<innerDoors>().isLocked = false;
-
+								
 
 								GameMaster.INCINERATOR_ENABLED = true;
 

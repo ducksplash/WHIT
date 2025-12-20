@@ -22,6 +22,7 @@ public class fridgedeath : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("todo: Refactor fridge to use new Door script");
 
         FridgeParte = GetComponentInChildren<ParticleSystem>();
 
@@ -70,11 +71,11 @@ public class fridgedeath : MonoBehaviour
 
 
         Debug.Log("playa fridgin' yo");
-        FridgeDoor.GetComponent<innerDoors>().isLocked = true;
-        FridgeDoor.GetComponent<innerDoors>().isOpen = false;
-        FridgeDoor.GetComponent<innerDoors>().doorAnimator.SetTrigger("closed");
-        FridgeDoor.GetComponent<innerDoors>().doorAnimator.SetTrigger("idle");
-        FridgeDoor.GetComponent<innerDoors>().doLockedLights();
+        // FridgeDoor.GetComponent<innerDoors>().isLocked = true;
+        // FridgeDoor.GetComponent<innerDoors>().isOpen = false;
+        // FridgeDoor.GetComponent<innerDoors>().doorAnimator.SetTrigger("closed");
+        // FridgeDoor.GetComponent<innerDoors>().doorAnimator.SetTrigger("idle");
+        // FridgeDoor.GetComponent<innerDoors>().doLockedLights();
         FridgeDoorImg.color = Color.red;
 
 
@@ -103,7 +104,7 @@ public class fridgedeath : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
-        theplayer.GetComponent<FirstPersonCollision>().CauseDeath("being flash frozen");
+        Player.Instance.CauseDeath("being flash frozen");
         StartCoroutine(DoCooldown());
 
     }

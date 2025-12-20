@@ -30,7 +30,7 @@ public class WorldLight : MonoBehaviour
     void Start()
     {
         baseIntensities.Clear();
-
+        
         foreach (var light in bulbList)
         {
             if (light != null)
@@ -62,6 +62,12 @@ public class WorldLight : MonoBehaviour
             StopAllCoroutines();
             StartCoroutine(LightFlicker());
         }
+
+        for (int i = 0; i < bulbList.Count; i++)
+        {
+            bulbList[i].enabled = lightOn;
+        }
+
     }
 
     public void ToggleLight()

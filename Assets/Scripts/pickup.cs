@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using VLB;
@@ -24,15 +25,18 @@ public class Pickup : MonoBehaviour
 
 	private void Awake()
     {
-
 		hasobject = false;
 		StartRotation = handTransform.parent.eulerAngles;
 		defaultparent = null;
     }
 
+	private void Start()
+	{
+		handTransform = Player.Instance.playerHand;
+	}
 
 
-    void Update()
+	void Update()
 	{
 		hasobjectshown = hasobject;
 		if (Input.GetMouseButtonDown(1))
@@ -67,11 +71,7 @@ public class Pickup : MonoBehaviour
 			}
 		}
 
-
-
-
-
-
+		
 
 
 		if (!hasobject)

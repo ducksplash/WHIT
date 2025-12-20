@@ -96,7 +96,7 @@ public class electroshock : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
 
-            theplayer.GetComponent<FirstPersonCollision>().CauseDeath("electrocution");
+        Player.Instance.CauseDeath("electrocution");
 
 
     }

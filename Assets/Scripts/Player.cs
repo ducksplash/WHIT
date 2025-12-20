@@ -3,11 +3,9 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
-public class FirstPersonCollision : Singleton<FirstPersonCollision>
+public class Player : Singleton<Player>
 {
-	
-	
-	private Collider thePlayerCollider;
+	public GameObject TravelNotepad;
 	public float speed = 0.1f;
 	public float walkspeed = 0.1f;
 	public float sprintspeed = 0.2f;
@@ -43,6 +41,7 @@ public class FirstPersonCollision : Singleton<FirstPersonCollision>
 
 	public Vector3 SpawnPoint;
 
+	public Transform playerHand;
 
 
 
@@ -55,7 +54,6 @@ public class FirstPersonCollision : Singleton<FirstPersonCollision>
 		SpawnPoint = transform.position;
 
 
-		thePlayerCollider = gameObject.GetComponent<CapsuleCollider>();
 		thisCharController = gameObject.GetComponent<CharacterController>();
 		MainCam = Camera.main;
 

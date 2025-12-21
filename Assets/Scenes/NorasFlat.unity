@@ -18421,8 +18421,8 @@ MonoBehaviour:
   notepadButtonPrefab: {fileID: 9189996519057078450, guid: 3839f34719e10b040bf8e9b81a8b88e2,
     type: 3}
   scrollViewContent: {fileID: 641065714}
-  needMyThings: 0
-  needTextEvidence: 0
+  needMyThings: 103
+  needTestEvidence: 104
 --- !u!1 &659449595
 GameObject:
   m_ObjectHideFlags: 0
@@ -20438,9 +20438,9 @@ MonoBehaviour:
   notepadTick: {fileID: 1182946668}
   torchTick: {fileID: 1951482238}
   theHandCollider: {fileID: 0}
-  pickupPhoneDialogue: 7
-  pickupTorchDialogue: 8
-  pickupNotepadDialogue: 6
+  pickupPhoneDialogue: 107
+  pickupTorchDialogue: 108
+  pickupNotepadDialogue: 106
 --- !u!1 &742353821
 GameObject:
   m_ObjectHideFlags: 0
@@ -27894,7 +27894,7 @@ MonoBehaviour:
   panTime: 3
   duration: 8
   ContactName: 0
-  selectedMessage: 2
+  selectedMessage: 102
   targetObject: {fileID: 919132147862447011}
   ColliderCube: {fileID: 546663110}
 --- !u!65 &990157393
@@ -42587,7 +42587,7 @@ MonoBehaviour:
   TravelCompanion: {fileID: 659293020}
   Pickup: {fileID: 728985366}
   EventManager: {fileID: 1525618389}
-  readyMessage: 5
+  readyMessage: 105
   THISLEVEL: 0
   ThisScene:
     m_Handle: 0
@@ -42607,6 +42607,7 @@ MonoBehaviour:
   MyFirstEvidence: {fileID: 1012224471}
   EvidenceDesc: {fileID: 31528216}
   checkForEvidence: 0
+  DialogueSeen: 
 --- !u!114 &1525618389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52912,6 +52913,7 @@ MonoBehaviour:
   currentDialogueIsCutscene: 0
   Dialogues:
   - {fileID: 11400000, guid: 34a9e64f2eb017f46b27e272adb2c365, type: 2}
+  - {fileID: 11400000, guid: ec196a47a1e322043af26e6e23de386c, type: 2}
   - {fileID: 11400000, guid: cb05804234143e143bd6d9e9fe98c4ee, type: 2}
   - {fileID: 11400000, guid: 7617ce254f633bb488a4ce925cd9269b, type: 2}
   - {fileID: 11400000, guid: d15c0e8a43eb4d9438bdcaff1dc1ae19, type: 2}
@@ -56068,10 +56070,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ColliderCube: {fileID: 1539384908}
-  selectedDialogue: 1
+  selectedDialogue: 100
   DisplayTimer: 4
-  Noraply: 0
-  followUpDialogue: 0
+  Noraply: 1
+  followUpDialogue: 101
   Noradelay: 4
   forhowlong: 0
 --- !u!65 &1973899178
@@ -72683,7 +72685,6 @@ MonoBehaviour:
   DeviceAnim: {fileID: 5148817236368904744}
   Fader: {fileID: 1720929390}
   Clock: {fileID: 2005649163}
-  Player: {fileID: 1773623358626660}
   Camera: {fileID: 1593727744470608}
   PhoneCamera: {fileID: 1805068287}
   UnlockSlider: {fileID: 2074561548}
@@ -72699,7 +72700,7 @@ MonoBehaviour:
   SentPane: {fileID: 443153145}
   BigMessageScreen: {fileID: 1137844401}
   HomeScreen: {fileID: 46314848}
-  theDialler: {fileID: 1144976388}
+  theDialler: {fileID: 1493420702}
   Messagelist: {fileID: 1854544907}
   Sentlist: {fileID: 860819258}
   MessageBlockPrefab: {fileID: 665735234014314487, guid: b007774684484474898f2c4f7da5b71e,
@@ -72710,11 +72711,11 @@ MonoBehaviour:
   CameraReadyText: {fileID: 557693715}
   CameraSavedText: {fileID: 161482449}
   CameraReady: 0
-  CallText: {fileID: 993341656}
-  CallTitleText: {fileID: 89924762}
+  CallText: {fileID: 1455588024}
+  CallTitleText: {fileID: 1144976390}
   CrosshairCanvas: {fileID: 388548396}
   anonNum: {fileID: 1194891012}
-  kieronNum: {fileID: 689376682}
+  kieronNum: {fileID: 2056631068}
   maryNum: {fileID: 861040616}
   tomNum: {fileID: 1594994326}
   workNum: {fileID: 407729907}
@@ -72740,9 +72741,9 @@ MonoBehaviour:
   galleryBack: {fileID: 345419917}
   galleryNext: {fileID: 385940613}
   PhotosInGallery: 0
-  phoneTutorialGotPhone: 9
-  phoneTutorialFirstEvidence: 10
-  phoneTutorialTookPhoto: 11
+  phoneTutorialGotPhone: 109
+  phoneTutorialFirstEvidence: 110
+  phoneTutorialFirstPhoto: 111
 --- !u!1 &5157025830819033287
 GameObject:
   m_ObjectHideFlags: 0

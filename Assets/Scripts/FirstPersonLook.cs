@@ -5,7 +5,7 @@ public class FirstPersonLook : Singleton<FirstPersonLook>
     [SerializeField] Transform character;
     Vector2 currentMouseLook;
     Vector2 appliedMouseDelta;
-    public phone thephonescript;
+    public Phone thephonescript;
     public float sensitivity = 1;
     public float smoothing = 2;
 

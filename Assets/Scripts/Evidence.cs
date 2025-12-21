@@ -46,7 +46,7 @@ public class Evidence : MonoBehaviour
     }
 
 
-    public void CollectEvidence(GameObject Player)
+    public void CollectEvidence()
     {
 
 
@@ -108,6 +108,7 @@ public class Evidence : MonoBehaviour
 
     public void GiveFeedback()
     {
+        if (selectedDialogue == DialogueName.None) return;
         GameMaster.Instance.DialogueManager.NewDialogue(selectedDialogue, 5);
     }
 

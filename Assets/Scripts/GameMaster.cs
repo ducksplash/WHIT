@@ -117,7 +117,7 @@ public class GameMaster : MonoBehaviour
     // The main dictionary is split into NoraSpeak - The player dialogue, and 'Messages' (from others)
     // 
 
-    public static List<DialogueName> DialogueSeen = new List<DialogueName>();
+    public List<DialogueName> DialogueSeen = new List<DialogueName>();
 
     // now again for cutscenes
 

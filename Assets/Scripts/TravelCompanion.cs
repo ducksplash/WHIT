@@ -27,7 +27,7 @@ public class TravelCompanion : MonoBehaviour
 	public RectTransform scrollViewContent;
 
 	public DialogueName needMyThings = DialogueName.NoraNeedsHerThings;
-	public DialogueName needTextEvidence = DialogueName.NoraNeedsTestEvidence;
+	public DialogueName needTestEvidence = DialogueName.NoraNeedsTestEvidence;
 	
 	
 	private void Start()
@@ -210,7 +210,7 @@ public class TravelCompanion : MonoBehaviour
 				else
 				{
 
-					GameMaster.Instance.DialogueManager.NewDialogue(needTextEvidence, 6);
+					GameMaster.Instance.DialogueManager.NewDialogue(needTestEvidence, 6);
 
 					Debug.Log("Didn't get evidence");
 				}

@@ -7,13 +7,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class phone : MonoBehaviour
+public class Phone : MonoBehaviour
 {
     public GameObject MobilePhone;
     public Animator DeviceAnim;
     public GameObject Fader;
     public GameObject Clock;
-    public GameObject Player;
     public GameObject Camera;
     public GameObject PhoneCamera;
     public Slider UnlockSlider;
@@ -86,7 +85,7 @@ public class phone : MonoBehaviour
 
     public DialogueName phoneTutorialGotPhone = DialogueName.KieronToNoraGotPhone;
     public DialogueName phoneTutorialFirstEvidence = DialogueName.KieronToNoraFirstEvidence;
-    public DialogueName phoneTutorialTookPhoto = DialogueName.KieronToNoraTookPhoto;
+    public DialogueName phoneTutorialFirstPhoto = DialogueName.phoneTutorialFirstPhoto;
     
     // Make Call Coroutine
 
@@ -567,7 +566,7 @@ public class phone : MonoBehaviour
         SentPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
         //var itty = 0;
-        foreach (DialogueName entry in GameMaster.DialogueSeen)
+        foreach (DialogueName entry in GameMaster.Instance.DialogueSeen)
         {
             Dialogue selectedDialogue = GameMaster.Instance.DialogueManager.Dialogues.FirstOrDefault(d => d.DialogueName == entry);
             
@@ -616,7 +615,7 @@ public class phone : MonoBehaviour
         SentPane.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
         //var itty = 0;
-        foreach (DialogueName entry in GameMaster.DialogueSeen)
+        foreach (DialogueName entry in GameMaster.Instance.DialogueSeen)
         {
             
             Dialogue selectedDialogue = GameMaster.Instance.DialogueManager.Dialogues.FirstOrDefault(d => d.DialogueName == entry);
@@ -679,7 +678,7 @@ public class phone : MonoBehaviour
 
         if (GameMaster.EvidenceFound.Count < 1)
         {
-            GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstEvidence, 5);
+            GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstPhoto, 5);
         }
 
         CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
@@ -1158,8 +1157,7 @@ public class phone : MonoBehaviour
 
             if (GameMaster.EvidenceFound.Count < 1)
             {
-                GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialTookPhoto, 5);
-
+                GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstEvidence, 5);
             }
 
 
@@ -1196,7 +1194,7 @@ public class phone : MonoBehaviour
             System.IO.File.WriteAllBytes(filenameString, bytes);
 
 
-            ObservedEvidence.GetComponent<Evidence>().CollectEvidence(Player);
+            ObservedEvidence.GetComponent<Evidence>().CollectEvidence();
 
             CameraReadyFrame.color = Color.black;
             CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;

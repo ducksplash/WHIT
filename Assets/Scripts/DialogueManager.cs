@@ -4,9 +4,10 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
-using UnityEngine.EventSystems;
-using UnityEngine.Rendering.HighDefinition;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 
 public class DialogueManager : MonoBehaviour
@@ -66,19 +67,16 @@ public class DialogueManager : MonoBehaviour
         if (!DialogInProgress)
         {
             await CreateDialogue(dialogueName, displaytimer);
-            Debug.Log(DialogInProgress);
         }
         else // incoming dialogue is NOT cutscene, queue it
         {
             await Queuer(dialogueName, displaytimer);
-            Debug.Log(DialogInProgress);
         }
             
     }
 
     public Task Queuer(DialogueName dialogueName, float displaytimer)
     {
-        Debug.Log("queued");
         var tcs = new TaskCompletionSource<bool>();
         StartCoroutine(QueuerCoroutine(dialogueName, displaytimer, tcs));
         return tcs.Task;
@@ -98,6 +96,8 @@ public class DialogueManager : MonoBehaviour
         Contacts contact = Contacts.System; 
         string message = "..."; 
         
+        
+        
         if (DialogueDict.ContainsKey(dialogueName))
         {
             Dialogue selectedDialogue = DialogueDict[dialogueName];
@@ -108,7 +108,7 @@ public class DialogueManager : MonoBehaviour
         
         if (contact == Contacts.System)
         {
-            if (!GameMaster.DialogueSeen.Contains(dialogueName))
+            if (!GameMaster.Instance.DialogueSeen.Contains(dialogueName))
             {
                 messagetimer = displaytimer;
 
@@ -118,16 +118,12 @@ public class DialogueManager : MonoBehaviour
                 await SystemTimer(displaytimer); // Wait asynchronously for the timer to complete
 
                 // log me
-                GameMaster.DialogueSeen.Add(dialogueName);
-            }
-            else
-            {
-                Debug.Log("already seen System");
+                GameMaster.Instance.DialogueSeen.Add(dialogueName);
             }
         }
         if (contact == Contacts.Nora)
         {
-            if (!GameMaster.DialogueSeen.Contains(dialogueName))
+            if (!GameMaster.Instance.DialogueSeen.Contains(dialogueName))
             {
                 messagetimer = displaytimer;
 
@@ -137,16 +133,12 @@ public class DialogueManager : MonoBehaviour
                 await NoraTimer(displaytimer); // Wait asynchronously for the timer to complete
 
                 // log me
-                GameMaster.DialogueSeen.Add(dialogueName);
-            }
-            else
-            {
-                Debug.Log("already seen NORA");
+                GameMaster.Instance.DialogueSeen.Add(dialogueName);
             }
         }
         else
         {
-            if (!GameMaster.DialogueSeen.Contains(dialogueName))
+            if (!GameMaster.Instance.DialogueSeen.Contains(dialogueName))
             {
                 messagetimer = displaytimer;
 
@@ -157,11 +149,7 @@ public class DialogueManager : MonoBehaviour
                 await MessageTimer(displaytimer); // Wait asynchronously for the timer to complete
 
                 // log me
-                GameMaster.DialogueSeen.Add(dialogueName);
-            }
-            else
-            {
-                Debug.Log("already seen Contact");
+                GameMaster.Instance.DialogueSeen.Add(dialogueName);
             }
         }
     }
@@ -245,28 +233,75 @@ public enum DialogueType
 public enum DialogueName
 {
     None,
-    KieronToNoraBathroom, 
-    NoraLookingAtCorkboard, 
-    NoraNeedsHerThings,
-    NoraNeedsTestEvidence,
-    NoraReadyToGo,
-    NoraCollectedNotepad,
-    NoraCollectedPhone,
-    NoraCollectedTorch,
-    KieronToNoraGotPhone,
-    KieronToNoraFirstEvidence,
-    KieronToNoraTookPhoto,
+    // Nora's Flat
+    KieronToNoraBathroom = 100, 
+    NoraAboutKieronBathroom = 101,
+    NoraLookingAtCorkboard = 102, 
+    NoraNeedsHerThings = 103,
+    NoraNeedsTestEvidence = 104,
+    NoraReadyToGo = 105,
+    NoraCollectedNotepad = 106,
+    NoraCollectedPhone = 107,
+    NoraCollectedTorch = 108,
+    KieronToNoraGotPhone = 109,
+    KieronToNoraFirstEvidence = 110,
+    phoneTutorialFirstPhoto = 111,
+    phoneTutorialSomething = 112,
     
     
     // Nora Meaty
-    NoraBathroomLockedFromInside,
-    NoraDiesInAFreezer, //
-    NoraLookingAtIncinerator, //
-    NoraLookingAtBloodstains, //
-    NoraLookingAtSkull, //
-    NoraReadingManagersEmails, //
+    NoraBathroomLockedFromInside = 200,
+    NoraDiesInAFreezer = 201, //
+    NoraLookingAtIncinerator = 202, //
+    NoraLookingAtBloodstains = 203, //
+    NoraLookingAtSkull = 204, //
+    NoraReadingManagersEmails = 205, //
     
     // Noroark
-    NoraOutsideRoark //
+    NoraOutsideRoark = 307 //
 }
 
+
+public enum Dialanguage
+{
+    EN, // ENGLISH
+    IE, // IRISH
+    FR, // FRENCH
+    DE, // GERMAN
+    ES, // SPANISH (SPAIN)
+    KR, // KOREAN
+    AR, // ARABIC
+    JP, // JAPANESE
+    CN, // CHINESE
+    RU // RUSSIAN
+}
+
+
+#if UNITY_EDITOR
+
+
+[CustomEditor(typeof(DialogueManager))]
+public class DialogueManagerEditor : Editor
+{
+    private DialogueName selectedDialogue = DialogueName.None;
+    private DialogueType dialogueType = DialogueType.Standard;
+    private Dialanguage language = Dialanguage.EN;
+
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+
+        GUILayout.Space(10);
+        GUILayout.Label("Test Dialogue", EditorStyles.boldLabel);
+
+        selectedDialogue = (DialogueName)EditorGUILayout.EnumPopup("Dialogue", selectedDialogue);
+        language = (Dialanguage)EditorGUILayout.EnumPopup("Language", language); // Stub, not implemented
+
+        if (GUILayout.Button("Play Dialogue"))
+        {
+            DialogueManager manager = (DialogueManager)target;
+            manager.NewDialogue(selectedDialogue, 5f, dialogueType == DialogueType.Cutscene);
+        }
+    }
+}
+#endif

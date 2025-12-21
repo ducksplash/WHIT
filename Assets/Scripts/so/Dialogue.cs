@@ -13,12 +13,44 @@ public class Dialogue : ScriptableObject
     
     [Header("Dialogue Text")]
     [TextArea(3, 10)]
-    public string DialogueText;
+    public string DialogueText; // This is in English
 
+    [Header("Localisation")] 
+    public Dialanguage DialogueLanguage = Dialanguage.EN; // English for default
     
+    [Header("Irish Text")]
+    [TextArea(3, 10)]
+    public string IrishDialogueText;
     
-    [Header("Follow Up Dialogue")]
-    public bool HasFollowUpDialogue = false;
-    public DialogueName FollowupDialogueName;
-    public DialogueType FollowupDialogueType;
+    [Header("French Text")]
+    [TextArea(3, 10)]
+    public string FrenchDialogueText;
+    
+    [Header("German Text")]
+    [TextArea(3, 10)]
+    public string GermanDialogueText;
+    
+    [Header("Spanish Text")]
+    [TextArea(3, 10)]
+    public string SpanishDialogueText;
+    
+    [Header("Korean Text")]
+    [TextArea(3, 10)]
+    public string KoreanDialogueText;
+    
+    [Header("Arabic Text")]
+    [TextArea(3, 10)]
+    public string ArabicDialogueText;
+    
+    [Header("Japanese Text")]
+    [TextArea(3, 10)]
+    public string JapaneseDialogueText;
+    
+    [Header("Chinese Text")]
+    [TextArea(3, 10)]
+    public string ChineseDialogueText;
+    
+    [Header("Russian Text")]
+    [TextArea(3, 10)]
+    public string RussianDialogueText;
 }

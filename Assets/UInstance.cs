@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class UInstance : Singleton<UInstance>
 {
-    public GameObject CrossHair;
-    
-    
-    public GameObject cutsceneBars;
     public CanvasGroup cutsceneBarsCanvas;
 
 

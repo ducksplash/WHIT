@@ -34,8 +34,6 @@ public class CutsceneManager : MonoBehaviour
         
         UInstance.Instance.cutsceneBarsCanvas.alpha = 0;  
         
-        cameraZoom = mainCamera.GetComponent<Zoom>();
-
         originalFieldOfView = mainCamera.fieldOfView;
     }
 
@@ -108,16 +106,12 @@ public class CutsceneManager : MonoBehaviour
         {
             while (elapsedTime < zoomDuration)
             {
-                // Calculate the interpolation factor using SmoothStep for smoother interpolation
                 float t = Mathf.SmoothStep(0.0f, 1.0f, elapsedTime / zoomDuration);
 
-                // Interpolate the field of view using Mathf.Lerp
                 float fov = Mathf.Lerp(originalFieldOfView, targetFieldOfView, t);
 
-                // Set the camera's field of view
                 mainCamera.fieldOfView = fov;
 
-                // Increment elapsed time using deltaTime for smoother animation
                 elapsedTime += Time.deltaTime;
 
                 yield return null; // Wait for the next frame
@@ -129,7 +123,6 @@ public class CutsceneManager : MonoBehaviour
             yield return new WaitForSeconds(zoomDuration);
         }
         
-        // Set the final field of view to ensure accuracy
     }
 
     private IEnumerator UndoZoom()
@@ -173,7 +166,7 @@ public class CutsceneManager : MonoBehaviour
     // duration from start to finish
     // pan time is time allowed to pan (a sweeping rotation) toward the object if not already looking at it
     // contact name is the person who's name should appear as that which 'said' the dialogue.
-    // DialogueSelector is a temporary enum with a selection of messages for ebug. will be replaced with scriptable objects from DialogueManager
+    // DialogueSelector is a temporary enum with a selection of messages for debug. will be replaced with scriptable objects from DialogueManager
 
     public async Task CutsceneDialogue(float duration, Contacts ContactName, DialogueSelectorTemp selectedMessage)
     {

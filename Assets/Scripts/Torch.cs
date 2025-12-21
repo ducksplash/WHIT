@@ -36,7 +36,7 @@ public class Torch : MonoBehaviour
 		torchAnimator = theTorch.GetComponentInChildren<Animator>();
 
 		theTorch.SetActive(false);
-		torchimg.transform.parent.GetComponent<CanvasGroup>().alpha = 0f;
+		torchimg.transform.GetComponent<CanvasGroup>().alpha = 0f;
 
 	}
 
@@ -49,7 +49,7 @@ public class Torch : MonoBehaviour
 			{
 				theTorch.SetActive(true);
 				WaitingForTorch = false;
-				torchimg.transform.parent.GetComponent<CanvasGroup>().alpha = 1f;
+				torchimg.transform.GetComponent<CanvasGroup>().alpha = 1f;
 			}
 		}
 

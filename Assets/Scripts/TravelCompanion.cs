@@ -24,7 +24,12 @@ public class TravelCompanion : MonoBehaviour
 	private bool launchAvailable = true; // Flag to track if launch is available
 	private float launchCooldown = 0.5f;
 	public GameObject notepadButtonPrefab;
-	public RectTransform scrollViewContent;	
+	public RectTransform scrollViewContent;
+
+	public DialogueName needMyThings = DialogueName.NoraNeedsHerThings;
+	public DialogueName needTextEvidence = DialogueName.NoraNeedsTestEvidence;
+	
+	
 	private void Start()
     {
 
@@ -161,8 +166,7 @@ public class TravelCompanion : MonoBehaviour
 
 						if (!CompanionOpen)
 						{
-							Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x,
-								Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
+							Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
 
 
 
@@ -197,8 +201,7 @@ public class TravelCompanion : MonoBehaviour
 					}
 					else
 					{
-						var dialogstring = "I need my phone, my torch and my notepad.";
-						GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+						GameMaster.Instance.DialogueManager.NewDialogue(needMyThings, 6);
 						gameObject.GetComponent<Collider>().enabled = false;
 
 					}
@@ -206,9 +209,8 @@ public class TravelCompanion : MonoBehaviour
 				}
 				else
 				{
-					var dialogstring =
-						"I haven't checked that I can photograph evidence with my phone yet, I should open the camera app and try on the wine bottle on my desk.";
-					GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+
+					GameMaster.Instance.DialogueManager.NewDialogue(needTextEvidence, 6);
 
 					Debug.Log("Didn't get evidence");
 				}

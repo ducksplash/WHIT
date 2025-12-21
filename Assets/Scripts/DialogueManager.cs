@@ -24,6 +24,9 @@ public class DialogueManager : MonoBehaviour
     public float messagetimer = 0f;
     public bool currentDialogueIsCutscene;
 
+    public List<Dialogue> Dialogues = new List<Dialogue>();
+    private Dictionary<DialogueName, Dialogue> DialogueDict = new Dictionary<DialogueName, Dialogue>();
+    
     public bool queueDropFlag;
 
     void Start()
@@ -35,8 +38,18 @@ public class DialogueManager : MonoBehaviour
         queueDropFlag = false;
         NoraMessage.text = "";
         SystemMessage.text = "";
+        
+        PopulateDialogues();
     }
 
+
+    private void PopulateDialogues()
+    {
+        foreach (Dialogue Dialogue in Dialogues)
+        {
+            DialogueDict.TryAdd(Dialogue.DialogueName, Dialogue);
+        }
+    }
 
 
     private void Update()
@@ -47,69 +60,55 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public async Task NewDialogue(string Contact, string message, float displaytimer, bool isCutSceneDialogue = false)
+    public async Task NewDialogue(DialogueName dialogueName, float displaytimer, bool isCutSceneDialogue = false)
     {
-        // NOT currently cutscene dialogue
-        if (!currentDialogueIsCutscene)
+        // if dialogue NOT already in progress, OR incoming dialogue is cutscene, show cutscene
+        if (!DialogInProgress)
         {
-            // if dialogue NOT already in progress, OR incoming dialogue is cutscene, show cutscene
-            if (!DialogInProgress || isCutSceneDialogue)
-            {
-                await CreateDialogue(Contact, message, displaytimer);
-                Debug.Log(DialogInProgress);
-            }
-            else // incoming dialogue is NOT cutscene, queue it
-            {
-                await Queuer(Contact, message, displaytimer);
-                Debug.Log(DialogInProgress);
-            }
+            await CreateDialogue(dialogueName, displaytimer);
+            Debug.Log(DialogInProgress);
         }
-        else // IS currently cutscene dialogue
+        else // incoming dialogue is NOT cutscene, queue it
         {
-            // if incoming dialogue is not cutscene, show dialogue
-            if (!isCutSceneDialogue)
-            {
-                await CreateDialogue(Contact, message, displaytimer);
-                Debug.Log(DialogInProgress);
-            }
-            else // incoming dialogue IS cutscene, queue it.
-            {
-                await Queuer(Contact, message, displaytimer);
-                Debug.Log(DialogInProgress);
-            }
+            await Queuer(dialogueName, displaytimer);
+            Debug.Log(DialogInProgress);
         }
+            
     }
 
-    public Task Queuer(string Contact, string message, float displaytimer)
+    public Task Queuer(DialogueName dialogueName, float displaytimer)
     {
         Debug.Log("queued");
         var tcs = new TaskCompletionSource<bool>();
-        StartCoroutine(QueuerCoroutine(Contact, message, displaytimer, tcs));
+        StartCoroutine(QueuerCoroutine(dialogueName, displaytimer, tcs));
         return tcs.Task;
     }
 
-    private IEnumerator QueuerCoroutine(string Contact, string message, float displaytimer, TaskCompletionSource<bool> tcs)
+    private IEnumerator QueuerCoroutine(DialogueName dialogueName, float displaytimer, TaskCompletionSource<bool> tcs)
     {
         yield return new WaitWhile(() => DialogInProgress);
-        if (!queueDropFlag)
-        {
-            NewDialogue(Contact, message, displaytimer);
-        }
-        else
-        {
-            // record silently
-            GameMaster.DialogueSeen.Add(message, Contact);
-            queueDropFlag = false;
-        }
 
+        NewDialogue(dialogueName, displaytimer);
+        
         tcs.SetResult(true);
     }
 
-    public async Task CreateDialogue(string Contact, string message, float displaytimer)
+    public async Task CreateDialogue(DialogueName dialogueName, float displaytimer)
     {
-        if (Contact.Equals(Contacts.System.ToString()))
+        Contacts contact = Contacts.System; 
+        string message = "..."; 
+        
+        if (DialogueDict.ContainsKey(dialogueName))
         {
-            if (!GameMaster.DialogueSeen.ContainsKey(message))
+            Dialogue selectedDialogue = DialogueDict[dialogueName];
+
+            contact = selectedDialogue.Contact;
+            message = selectedDialogue.DialogueText;
+        }
+        
+        if (contact == Contacts.System)
+        {
+            if (!GameMaster.DialogueSeen.Contains(dialogueName))
             {
                 messagetimer = displaytimer;
 
@@ -119,16 +118,16 @@ public class DialogueManager : MonoBehaviour
                 await SystemTimer(displaytimer); // Wait asynchronously for the timer to complete
 
                 // log me
-                GameMaster.DialogueSeen.Add(message, Contact);
+                GameMaster.DialogueSeen.Add(dialogueName);
             }
             else
             {
                 Debug.Log("already seen System");
             }
         }
-        else if (Contact.Equals(Contacts.Nora.ToString()))
+        if (contact == Contacts.Nora)
         {
-            if (!GameMaster.DialogueSeen.ContainsKey(message))
+            if (!GameMaster.DialogueSeen.Contains(dialogueName))
             {
                 messagetimer = displaytimer;
 
@@ -138,7 +137,7 @@ public class DialogueManager : MonoBehaviour
                 await NoraTimer(displaytimer); // Wait asynchronously for the timer to complete
 
                 // log me
-                GameMaster.DialogueSeen.Add(message, Contact);
+                GameMaster.DialogueSeen.Add(dialogueName);
             }
             else
             {
@@ -147,18 +146,18 @@ public class DialogueManager : MonoBehaviour
         }
         else
         {
-            if (!GameMaster.DialogueSeen.ContainsKey(message))
+            if (!GameMaster.DialogueSeen.Contains(dialogueName))
             {
                 messagetimer = displaytimer;
 
                 DialogInProgress = true;
-                ContactName.text = Contact;
+                ContactName.text = contact.ToString();
                 ReceivedMessage.text = message;
 
                 await MessageTimer(displaytimer); // Wait asynchronously for the timer to complete
 
                 // log me
-                GameMaster.DialogueSeen.Add(message, Contact);
+                GameMaster.DialogueSeen.Add(dialogueName);
             }
             else
             {
@@ -182,31 +181,22 @@ public class DialogueManager : MonoBehaviour
                 ThisCanvas.alpha -= 0.1f;
 
                 counter--;
-
-
             }
-
         }
         else
         {
-
             while (counter > 0)
             {
-
                 yield return new WaitForSeconds(0.05f);
 
-
                 ThisCanvas.alpha += 0.1f;
-
                 counter--;
 
             }
-
         }
     }
 
-
-
+    
 
 
     public async Task MessageTimer(float timevalue)
@@ -243,3 +233,40 @@ public class DialogueManager : MonoBehaviour
 
 
 }
+
+
+public enum DialogueType
+{
+    Standard,
+    Cutscene
+}
+
+
+public enum DialogueName
+{
+    None,
+    KieronToNoraBathroom, 
+    NoraLookingAtCorkboard, 
+    NoraNeedsHerThings,
+    NoraNeedsTestEvidence,
+    NoraReadyToGo,
+    NoraCollectedNotepad,
+    NoraCollectedPhone,
+    NoraCollectedTorch,
+    KieronToNoraGotPhone,
+    KieronToNoraFirstEvidence,
+    KieronToNoraTookPhoto,
+    
+    
+    // Nora Meaty
+    NoraBathroomLockedFromInside,
+    NoraDiesInAFreezer, //
+    NoraLookingAtIncinerator, //
+    NoraLookingAtBloodstains, //
+    NoraLookingAtSkull, //
+    NoraReadingManagersEmails, //
+    
+    // Noroark
+    NoraOutsideRoark //
+}
+

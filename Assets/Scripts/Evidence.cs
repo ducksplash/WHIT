@@ -7,7 +7,6 @@ public class Evidence : MonoBehaviour
 
     [Header("Evidence Setup")]
     public string EvidenceName;
-
     public string EvidenceDetails;
 
     [Header("Evidence Veracity")]
@@ -19,6 +18,9 @@ public class Evidence : MonoBehaviour
     public bool PhotographableEvidence;
 
 
+    [Header("Dialogue to use")] 
+    public DialogueName selectedDialogue;
+    
 
     [Header("LevelFrom")]
     public string LevelFrom;
@@ -90,7 +92,7 @@ public class Evidence : MonoBehaviour
             EvidenceBar.EQReadout();
 
             // output notification to player
-            GiveFeedback(EvidenceName, Player);
+            GiveFeedback();
 
         }
         else
@@ -104,27 +106,9 @@ public class Evidence : MonoBehaviour
 
     // todo: dialogue database 
 
-    public void GiveFeedback(string EvidenceName, GameObject Player)
+    public void GiveFeedback()
     {
-
-        if (EvidenceName.Contains("Blood"))
-        {
-            var msg = "Who's blood is this...?";
-            GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
-        }
-
-        if (EvidenceName.Contains("Email"))
-        {
-            var msg = "Is he talking about Eimear??";
-            GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
-        }
-
-
-        if (EvidenceName.Contains("Skull"))
-        {
-            var msg = "Oh my... This one looks real...";
-            GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
-        }
+        GameMaster.Instance.DialogueManager.NewDialogue(selectedDialogue, 5);
     }
 
 

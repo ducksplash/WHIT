@@ -21,6 +21,10 @@ public class Pickup : MonoBehaviour
 	public CanvasGroup torchTick;
 	public Collider theHandCollider;
 
+	public DialogueName pickupPhoneDialogue = DialogueName.NoraCollectedPhone;
+	public DialogueName pickupTorchDialogue = DialogueName.NoraCollectedTorch;
+	public DialogueName pickupNotepadDialogue = DialogueName.NoraCollectedNotepad;
+	
 
 
 	private void Awake()
@@ -245,17 +249,16 @@ public class Pickup : MonoBehaviour
 			else
 			{
 
+				//string torchkey = InputManager.GetKeyName("torch");
+				Debug.Log("TODO: Specify keys in dialogues, i.e. torch is H etc");
+					//string phonekey = InputManager.GetKeyName("phone"); // the old code
+					
 				if (hit.transform.name.Contains("TORCH"))
 				{
 
 					GameMaster.TORCHCOLLECTED = true;
 					Destroy(hit.transform.gameObject); 
-
-					string torchkey = InputManager.GetKeyName("torch");
-
-
-					var dialogstring = "Found my torch, I can check that it works by pressing "+torchkey+". and I can swing it if I left click.";
-					GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+					GameMaster.Instance.DialogueManager.NewDialogue(pickupTorchDialogue, 6);
 					if (torchTick) torchTick.alpha = 1;
 				}
 
@@ -264,8 +267,7 @@ public class Pickup : MonoBehaviour
 
 					GameMaster.NOTEPADCOLLECTED = true;
 					Destroy(hit.transform.gameObject);
-					var dialogstring = "Got some places I wanna check out written down here. I should take a look when I'm leaving.";
-					GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+					GameMaster.Instance.DialogueManager.NewDialogue(pickupNotepadDialogue, 6);
 					if (notepadTick) notepadTick.alpha = 1;
 
 				}
@@ -276,10 +278,8 @@ public class Pickup : MonoBehaviour
 					GameMaster.PHONECOLLECTED = true;
 					Destroy(hit.transform.gameObject);
 
-					string phonekey = InputManager.GetKeyName("phone");
-
-					var dialogstring = "My phone. I should test that it works by pressing "+phonekey+".";
-					GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), dialogstring, 6);
+					
+					GameMaster.Instance.DialogueManager.NewDialogue(pickupPhoneDialogue, 6);
 					if (phoneTick) phoneTick.alpha = 1;
 
 				}

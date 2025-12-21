@@ -26,6 +26,10 @@ public class GameMaster : MonoBehaviour
     public TravelCompanion TravelCompanion;
     public Pickup Pickup;
     public EventManager EventManager;
+
+
+    public DialogueName readyMessage = DialogueName.NoraReadyToGo;
+    
     
     // Game Globals
 
@@ -94,6 +98,8 @@ public class GameMaster : MonoBehaviour
     public static int ExpectedEQ_Level2 = 19;
 
 
+    
+    
 
     // Evidence Expected
 
@@ -111,7 +117,7 @@ public class GameMaster : MonoBehaviour
     // The main dictionary is split into NoraSpeak - The player dialogue, and 'Messages' (from others)
     // 
 
-    public static Dictionary<string, string> DialogueSeen = new Dictionary<string, string>();
+    public static List<DialogueName> DialogueSeen = new List<DialogueName>();
 
     // now again for cutscenes
 
@@ -373,7 +379,7 @@ void Start ()
         yield return new WaitForSeconds(5);
         var msg = "Ok, I think I'm ready to go now.";
 
-        DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
+        DialogueManager.NewDialogue(readyMessage, 5);
 
 
     }

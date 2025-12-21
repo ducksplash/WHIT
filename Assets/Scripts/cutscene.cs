@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-public class cutscene : MonoBehaviour 
+public class Cutscene : MonoBehaviour 
 {
     // Variables to control the cutscene timing
     [Header("Time to rotate to face object")]
@@ -14,7 +14,7 @@ public class cutscene : MonoBehaviour
     [SerializeField]
     public Contacts ContactName;
 
-    public DialogueSelectorTemp selectedMessage;
+    public DialogueName selectedMessage;
     
     [Header("Object to zoom to")]
     public GameObject targetObject;
@@ -43,7 +43,7 @@ public class cutscene : MonoBehaviour
                 // we don't want to await, that's why we're not awaiting. ignore this 'hint' 
                 
                 
-                StartCoroutine(GameMaster.Instance.CutsceneManager.ExecuteCutscene(duration, panTime, targetObject, ContactName, selectedMessage));
+                StartCoroutine(GameMaster.Instance.CutsceneManager.ExecuteCutscene(duration, panTime, targetObject, selectedMessage));
                 
                 
                 GameMaster.CutSceneSeen.TryAdd(selectedMessage.ToString(), ContactName.ToString());
@@ -54,7 +54,7 @@ public class cutscene : MonoBehaviour
 
 
 
-[CustomPropertyDrawer(typeof(cutscene))]
+[CustomPropertyDrawer(typeof(Cutscene))]
 public class ContactDrawerCutscene : PropertyDrawer
 {
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

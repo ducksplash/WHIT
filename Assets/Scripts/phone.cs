@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -83,6 +84,10 @@ public class phone : MonoBehaviour
 
     private GameObject ObservedEvidence;
 
+    public DialogueName phoneTutorialGotPhone = DialogueName.KieronToNoraGotPhone;
+    public DialogueName phoneTutorialFirstEvidence = DialogueName.KieronToNoraFirstEvidence;
+    public DialogueName phoneTutorialTookPhoto = DialogueName.KieronToNoraTookPhoto;
+    
     // Make Call Coroutine
 
     IEnumerator CallContact()
@@ -384,10 +389,8 @@ public class phone : MonoBehaviour
 
             if (!GameMaster.INMENU && !GameMaster.HASITEM && !GameMaster.ISWRITING)
             {
-
-                var dialogstring = "I see you found your phone.\n\nTake a few minutes to explore this, and if you miss anything, check \"Messages\" for my past texts and \"Notes\" for your own comments.";
                 
-                GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Kieron.ToString(), dialogstring, 10);
+                GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialGotPhone, 5);
 
 
 
@@ -564,23 +567,21 @@ public class phone : MonoBehaviour
         SentPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
         //var itty = 0;
-        foreach (KeyValuePair<string, string> entry in GameMaster.DialogueSeen)
+        foreach (DialogueName entry in GameMaster.DialogueSeen)
         {
-            if (!entry.Value.Contains("NORA"))
+            Dialogue selectedDialogue = GameMaster.Instance.DialogueManager.Dialogues.FirstOrDefault(d => d.DialogueName == entry);
+            
+            if (selectedDialogue.Contact != Contacts.Nora)
             {
                 var buttonPosition = new Vector3(Messagelist.transform.localPosition.x, Messagelist.transform.localPosition.y, Messagelist.transform.localPosition.z);
 
                 GameObject messageBlock = Instantiate(MessageBlockPrefab, buttonPosition, Quaternion.identity);
                 messageBlock.transform.SetParent(Messagelist.transform, false);
+                
 
-                Debug.Log(entry.Key);
-                Debug.Log("---");
-                Debug.Log(entry.Value);
+                messageBlock.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = selectedDialogue.Contact.ToString();
 
-
-                messageBlock.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = entry.Value;
-
-                var messageBit = entry.Key;
+                var messageBit = selectedDialogue.DialogueText;
 
                 if (messageBit.Length > 32)
                 {
@@ -592,7 +593,7 @@ public class phone : MonoBehaviour
 
                 messageBlock.GetComponent<Button>().onClick.AddListener(delegate
                 {
-                    BigMessage(entry.Value, entry.Key);
+                    BigMessage(selectedDialogue.Contact.ToString(), selectedDialogue.DialogueText);
                 });
             }
         }
@@ -615,9 +616,13 @@ public class phone : MonoBehaviour
         SentPane.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
         //var itty = 0;
-        foreach (KeyValuePair<string, string> entry in GameMaster.DialogueSeen)
+        foreach (DialogueName entry in GameMaster.DialogueSeen)
         {
-            if (entry.Value.Contains("NORA"))
+            
+            Dialogue selectedDialogue = GameMaster.Instance.DialogueManager.Dialogues.FirstOrDefault(d => d.DialogueName == entry);
+            
+            
+            if (selectedDialogue.Contact == Contacts.Nora)
             {
 
                 var buttonPosition = new Vector3(Sentlist.transform.localPosition.x, Sentlist.transform.localPosition.y, Sentlist.transform.localPosition.z);
@@ -625,14 +630,10 @@ public class phone : MonoBehaviour
                 GameObject messageBlock = Instantiate(NoteBlockPrefab, buttonPosition, Quaternion.identity);
                 messageBlock.transform.SetParent(Sentlist.transform, false);
 
-                Debug.Log(entry.Key);
-                Debug.Log("---");
-                Debug.Log(entry.Value);
 
+                messageBlock.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = selectedDialogue.Contact.ToString();
 
-                messageBlock.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = entry.Value;
-
-                var messageBit = entry.Key;
+                var messageBit = selectedDialogue.DialogueText;
 
                 if (messageBit.Length > 32)
                 {
@@ -644,7 +645,7 @@ public class phone : MonoBehaviour
 
                 messageBlock.GetComponent<Button>().onClick.AddListener(delegate
                 {
-                    BigMessage(entry.Value, entry.Key, "Sent");
+                    BigMessage(selectedDialogue.Contact.ToString(), selectedDialogue.DialogueText, "Sent");
                 });
             }
         }
@@ -678,9 +679,7 @@ public class phone : MonoBehaviour
 
         if (GameMaster.EvidenceFound.Count < 1)
         {
-            var dialogstring = "First photo?\n\nWhen evidence is in view, the camera frame will turn green and you just have to press " + camerakey + ".\n\nNot green? Not evidence.\n\nYou may have to crouch.";
-
-            GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Kieron.ToString(), dialogstring, 10);
+            GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstEvidence, 5);
         }
 
         CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
@@ -1159,9 +1158,7 @@ public class phone : MonoBehaviour
 
             if (GameMaster.EvidenceFound.Count < 1)
             {
-                var dialogstring = "Brilliant!\n\nYou can open the Gallery app on your phone to see all the evidence you've collected.";
-
-                GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Kieron.ToString(), dialogstring, 5);
+                GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialTookPhoto, 5);
 
             }
 

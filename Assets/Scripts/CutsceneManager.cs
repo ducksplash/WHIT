@@ -44,7 +44,7 @@ public class CutsceneManager : MonoBehaviour
     
     
     
-    public IEnumerator ExecuteCutscene(float duration, float panTime, GameObject targetObject, Contacts ContactName, DialogueSelectorTemp selectedMessage)
+    public IEnumerator ExecuteCutscene(float duration, float panTime, GameObject targetObject, DialogueName selectedMessage)
     {
 
         GameMaster.FROZEN = true;
@@ -54,7 +54,7 @@ public class CutsceneManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         
         
-        GameMaster.Instance.CutsceneManager.CutsceneDialogue(duration, ContactName, selectedMessage);
+        GameMaster.Instance.CutsceneManager.CutsceneDialogue(selectedMessage, duration);
 
         
         while (elapsedCutsceneTime < duration)
@@ -168,54 +168,40 @@ public class CutsceneManager : MonoBehaviour
     // contact name is the person who's name should appear as that which 'said' the dialogue.
     // DialogueSelector is a temporary enum with a selection of messages for debug. will be replaced with scriptable objects from DialogueManager
 
-    public async Task CutsceneDialogue(float duration, Contacts ContactName, DialogueSelectorTemp selectedMessage)
+    public async Task CutsceneDialogue(DialogueName selectedMessage, float duration)
     {
-        string message = TempSelectMessage(selectedMessage);
-        
-        Debug.Log(ContactName.ToString());
-        await GameMaster.Instance.DialogueManager.NewDialogue(ContactName.ToString(), message, duration, true);
+        await GameMaster.Instance.DialogueManager.NewDialogue(selectedMessage, duration, true);
     }
-
     
     
     
     // temp until scriptable objects take over
     // Dialogue Manager will supply messages in the future
 
-    public string TempSelectMessage(DialogueSelectorTemp selectedMessage)
-    {
-        string returnMessage = "";
-        switch (selectedMessage)
-        {
-            case DialogueSelectorTemp.NoraBathroom:
-                returnMessage = "This blood is fresh. Door locked from the inside. Whoever did this got out the way I came in. I should photograph this.";
-                break;
-            case DialogueSelectorTemp.NoraCorkboard:
-                returnMessage = "I'll keep notes and the like here, sure that way if I forget what I'm to be at it's on the board and I can look at it.";
-                break;
-            case DialogueSelectorTemp.NoraIncinerator:
-                returnMessage = "I'm not looking forward to searching that...";
-                break;
-            case DialogueSelectorTemp.NoraOutsideRoark:
-                returnMessage = "...Roark Microtech...";
-                break;
-        }
-
-        return returnMessage;
-    }
+    // public string TempSelectMessage(DialogueName selectedMessage)
+    // {
+    //     string returnMessage = "";
+    //     switch (selectedMessage)
+    //     {
+    //         case DialogueName.NoraBathroom:
+    //             returnMessage = "This blood is fresh. Door locked from the inside. Whoever did this got out the way I came in. I should photograph this.";
+    //             break;
+    //         case DialogueName.NoraCorkboard:
+    //             returnMessage = "I'll keep notes and the like here, sure that way if I forget what I'm to be at it's on the board and I can look at it.";
+    //             break;
+    //         case DialogueName.NoraIncinerator:
+    //             returnMessage = "I'm not looking forward to searching that...";
+    //             break;
+    //         case DialogueName.NoraOutsideRoark:
+    //             returnMessage = "...Roark Microtech...";
+    //             break;
+    //     }
+    //
+    //     return returnMessage;
+    // }
     
     
 }
-
-
-public enum DialogueSelectorTemp
-{
-    NoraBathroom,
-    NoraCorkboard,
-    NoraIncinerator,
-    NoraOutsideRoark
-}
-
 
 
 // [CustomPropertyDrawer(typeof(cutscene))]

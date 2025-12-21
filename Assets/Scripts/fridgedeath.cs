@@ -18,6 +18,7 @@ public class fridgedeath : MonoBehaviour
     public ParticleSystem FridgeParte;
     public bool FridgePower;
     public bool CoolDown;
+    public DialogueName selectedDialogue;
 
 
     void Start()
@@ -58,24 +59,19 @@ public class fridgedeath : MonoBehaviour
         {
             if (other.name.Contains("Player"))
             {
-
-                StartCoroutine(TrapPlayer(other.gameObject));
+                StartCoroutine(TrapPlayer());
                 gameObject.GetComponent<Collider>().enabled = false;
 
             }
         }
     }
     
-    public IEnumerator TrapPlayer(GameObject Playa)
+    public IEnumerator TrapPlayer()
     {
 
 
         Debug.Log("playa fridgin' yo");
-        // FridgeDoor.GetComponent<innerDoors>().isLocked = true;
-        // FridgeDoor.GetComponent<innerDoors>().isOpen = false;
-        // FridgeDoor.GetComponent<innerDoors>().doorAnimator.SetTrigger("closed");
-        // FridgeDoor.GetComponent<innerDoors>().doorAnimator.SetTrigger("idle");
-        // FridgeDoor.GetComponent<innerDoors>().doLockedLights();
+
         FridgeDoorImg.color = Color.red;
 
 
@@ -87,24 +83,23 @@ public class fridgedeath : MonoBehaviour
 
         }
 
-        StartCoroutine(DoDeath(Playa));
+        StartCoroutine(DoDeath());
 
 
     }
 
 
-    IEnumerator DoDeath(GameObject theplayer)
+    IEnumerator DoDeath()
     {
 
         yield return new WaitForSeconds(1f);
         
-        var msg = "Ah f***.";
-
-        GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), msg, 5);
+        GameMaster.Instance.DialogueManager.NewDialogue(selectedDialogue, 5);
 
         yield return new WaitForSeconds(2f);
 
         Player.Instance.CauseDeath("being flash frozen");
+        
         StartCoroutine(DoCooldown());
 
     }

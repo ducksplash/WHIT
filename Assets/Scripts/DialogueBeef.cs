@@ -12,23 +12,18 @@ public class DialogueBeef : MonoBehaviour
     [Header("Dev Placeholder Cube")]
     public GameObject ColliderCube;
 
-    [Header("Message from:")]
-    [SerializeField]
-    public Contacts ContactName;
-    [Header("Message contents:")]
-    [TextArea(5, 10)]
-    public string MessageBody;
+    [Header("Dialogue To Trigger:")] 
+    public DialogueName selectedDialogue;
 
     [Header("Display time in seconds")]
     public float DisplayTimer = 5.0f;
 
 
-    [Header("Nora Reply?")]
+    [Header("Does Nora Reply?")]
     public bool Noraply;
 
-    [Header("Nora's Reply:")]
-    [TextArea(5, 10)]
-    public string NoraplyBody;
+    [Header("Nora's Dialogue:")]
+    public DialogueName followUpDialogue;
 
     [Header("Delay before Nora's reply?")]
     public float Noradelay = 5.0f;
@@ -40,9 +35,7 @@ public class DialogueBeef : MonoBehaviour
     
     void Start() 
     {
-
         ColliderCube.SetActive(false);
-
     }
 
     private void OnTriggerEnter(Collider other)
@@ -53,34 +46,25 @@ public class DialogueBeef : MonoBehaviour
             gameObject.GetComponent<Collider>().enabled = false;
 
 
-            var TheCallingObject = gameObject;
             forhowlong = DisplayTimer;
 
-            GameMaster.Instance.DialogueManager.NewDialogue(ContactName.ToString(), MessageBody, DisplayTimer);
+            GameMaster.Instance.DialogueManager.NewDialogue(selectedDialogue, DisplayTimer);
            
-
             if (Noraply)
             {
-
-                StartCoroutine(Norasponse(other.gameObject));
-
+                StartCoroutine(Norasponse());
             }
         }
     }
 
-
-
-
-    public IEnumerator Norasponse(GameObject ThePlayer)
+    
+    public IEnumerator Norasponse()
     {
         yield return new WaitForSeconds(Noradelay);
 
-        GameMaster.Instance.DialogueManager.NewDialogue(Contacts.Nora.ToString(), NoraplyBody, 4);
-
-
+        GameMaster.Instance.DialogueManager.NewDialogue(followUpDialogue, 4);
+        
     }
-
-
 
 }
 

@@ -16,17 +16,10 @@ public class Pickup : MonoBehaviour
 	public Vector3 StartRotation;
 	public CanvasGroup RotationMenu;
 	public LayerMask IgnoreLayer;
-	public CanvasGroup phoneTick;
-	public CanvasGroup notepadTick;
-	public CanvasGroup torchTick;
 	public Collider theHandCollider;
 
-	public DialogueName pickupPhoneDialogue = DialogueName.NoraCollectedPhone;
-	public DialogueName pickupTorchDialogue = DialogueName.NoraCollectedTorch;
-	public DialogueName pickupNotepadDialogue = DialogueName.NoraCollectedNotepad;
 	
-
-
+	
 	private void Awake()
     {
 		hasobject = false;
@@ -194,99 +187,74 @@ public class Pickup : MonoBehaviour
 
 
 	public void PickupItem(RaycastHit hit)
-    {
-		if (!GameMaster.PHONEOUT)
+	{
+		if (GameMaster.PHONEOUT) return;
+		
+		if (!hit.transform.gameObject.tag.Equals("COLLECTABLE"))
 		{
+			var TheItem = hit;
+
+			RotationMenu.alpha = 0.7f;
+
+			TheItem.transform.SetParent(handTransform, true);
+
+			TheItem.transform.gameObject.AddComponent<GetHeldObjectCollisions>();
 			
-			if (!hit.transform.gameObject.tag.Equals("COLLECTABLE"))
+			
+			//handTransform.Rotate(new Vector3(0,0,0), Space.Self);
+			TheItem.transform.localPosition = new Vector3(0, 0, 0);
+
+			TheItem.transform.localEulerAngles = transform.forward * -1;
+
+
+			TheItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+
+			myHeldItem = TheItem.transform;
+
+			Collider myItemCollider = myHeldItem.GetComponent<Collider>();
+			if (myItemCollider)
 			{
-				var TheItem = hit;
-
-				RotationMenu.alpha = 0.7f;
-
-				TheItem.transform.SetParent(handTransform, true);
-
-				TheItem.transform.gameObject.AddComponent<GetHeldObjectCollisions>();
-				
-				
-				//handTransform.Rotate(new Vector3(0,0,0), Space.Self);
-				TheItem.transform.localPosition = new Vector3(0, 0, 0);
-
-				TheItem.transform.localEulerAngles = transform.forward * -1;
-
-
-				TheItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-
-				myHeldItem = TheItem.transform;
-
-				Collider myItemCollider = myHeldItem.GetComponent<Collider>();
-				if (myItemCollider)
-				{
-					ResizeCollider(myItemCollider, 0.85f);
-				}
-				
-				hasobject = true;
-				GameMaster.HASITEM = true;
-				
-
-				if (TheItem.transform.GetComponent<Evidence>() != null)
-                {
-					
-
-					Debug.Log("this is evidence");
-
-					if (TheItem.transform.GetComponent<Evidence>().EvidenceQuality > 1)
-                    {
-						TheItem.transform.GetComponent<Evidence>().EvidenceQuality--;
-                    }
-
-
-					Debug.Log("evidence quality"+ TheItem.transform.GetComponent<Evidence>().EvidenceQuality);
-
-				}
-
+				ResizeCollider(myItemCollider, 0.85f);
 			}
-			else
-			{
+			
+			hasobject = true;
+			GameMaster.HASITEM = true;
+			
 
-				//string torchkey = InputManager.GetKeyName("torch");
-				Debug.Log("TODO: Specify keys in dialogues, i.e. torch is H etc");
-					//string phonekey = InputManager.GetKeyName("phone"); // the old code
-					
-				if (hit.transform.name.Contains("TORCH"))
-				{
+			if (TheItem.transform.GetComponent<Evidence>() != null)
+            {
+				
 
-					GameMaster.TORCHCOLLECTED = true;
-					Destroy(hit.transform.gameObject); 
-					GameMaster.Instance.DialogueManager.NewDialogue(pickupTorchDialogue, 6);
-					if (torchTick) torchTick.alpha = 1;
-				}
+				Debug.Log("this is evidence");
 
-				if (hit.transform.name.Contains("NOTEPAD"))
-				{
+				if (TheItem.transform.GetComponent<Evidence>().EvidenceQuality > 1)
+                {
+					TheItem.transform.GetComponent<Evidence>().EvidenceQuality--;
+                }
 
-					GameMaster.NOTEPADCOLLECTED = true;
-					Destroy(hit.transform.gameObject);
-					GameMaster.Instance.DialogueManager.NewDialogue(pickupNotepadDialogue, 6);
-					if (notepadTick) notepadTick.alpha = 1;
 
-				}
-
-				if (hit.transform.name.Contains("PHONE"))
-				{
-
-					GameMaster.PHONECOLLECTED = true;
-					Destroy(hit.transform.gameObject);
-
-					
-					GameMaster.Instance.DialogueManager.NewDialogue(pickupPhoneDialogue, 6);
-					if (phoneTick) phoneTick.alpha = 1;
-
-				}
+				Debug.Log("evidence quality"+ TheItem.transform.GetComponent<Evidence>().EvidenceQuality);
 
 			}
 
 		}
+		
+				
+		if (hit.transform.name.Contains("TORCH"))
+		{
+			GameMaster.Instance.OnboardingManager.CollectTorch();
+		}
+		
+		if (hit.transform.name.Contains("NOTEPAD"))
+		{
+			GameMaster.Instance.OnboardingManager.CollectNotepad();
+		}
+		
+		if (hit.transform.name.Contains("PHONE"))
+		{
+			GameMaster.Instance.OnboardingManager.CollectPhone();
+		}
+		
 	}
 
 	

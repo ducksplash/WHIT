@@ -18421,8 +18421,6 @@ MonoBehaviour:
   notepadButtonPrefab: {fileID: 9189996519057078450, guid: 3839f34719e10b040bf8e9b81a8b88e2,
     type: 3}
   scrollViewContent: {fileID: 641065714}
-  needMyThings: 103
-  needTestEvidence: 104
 --- !u!1 &659449595
 GameObject:
   m_ObjectHideFlags: 0
@@ -20434,13 +20432,7 @@ MonoBehaviour:
   IgnoreLayer:
     serializedVersion: 2
     m_Bits: 3507539967
-  phoneTick: {fileID: 44149770}
-  notepadTick: {fileID: 1182946668}
-  torchTick: {fileID: 1951482238}
   theHandCollider: {fileID: 0}
-  pickupPhoneDialogue: 107
-  pickupTorchDialogue: 108
-  pickupNotepadDialogue: 106
 --- !u!1 &742353821
 GameObject:
   m_ObjectHideFlags: 0
@@ -29766,6 +29758,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1064525986}
   m_CullTransparentMesh: 1
+--- !u!1 &1065065962
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1065065964}
+  - component: {fileID: 1065065963}
+  m_Layer: 0
+  m_Name: Onboarding
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1065065963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1065065962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea69819713452b24187e7750afd89698, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DEBUGGERY: 0
+  TORCHCOLLECTED: 0
+  NOTEPADCOLLECTED: 0
+  PHONECOLLECTED: 0
+  PHONEACCESSED: 0
+  TESTEVIDENCECOLLECTED: 0
+  ONBOARDINGCOMPLETE: 0
+  phonePickup: {fileID: 1700466224}
+  notepadPickup: {fileID: 2060321446}
+  torchPickup: {fileID: 5272723185499140592}
+  phoneTick: {fileID: 44149770}
+  notepadTick: {fileID: 1182946668}
+  torchTick: {fileID: 1951482238}
+  evidenceTick: {fileID: 391458662}
+  needMyThings: 103
+  pickupPhoneDialogue: 107
+  pickupTorchDialogue: 108
+  pickupNotepadDialogue: 106
+  needTestEvidence: 104
+  phoneTutorialGotPhone: 109
+  phoneTutorialFirstEvidence: 110
+  readyMessage: 105
+  MyFirstEvidence: {fileID: 1012224471}
+  EvidenceDesc: {fileID: 31528216}
+--- !u!4 &1065065964
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1065065962}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1525618386}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1065882297
 GameObject:
   m_ObjectHideFlags: 0
@@ -42567,6 +42627,7 @@ Transform:
   - {fileID: 485578789}
   - {fileID: 659293019}
   - {fileID: 728985365}
+  - {fileID: 1065065964}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1525618388
@@ -42586,27 +42647,16 @@ MonoBehaviour:
   CutsceneManager: {fileID: 485578790}
   TravelCompanion: {fileID: 659293020}
   Pickup: {fileID: 728985366}
+  OnboardingManager: {fileID: 1065065963}
   EventManager: {fileID: 1525618389}
-  readyMessage: 105
   THISLEVEL: 0
   ThisScene:
     m_Handle: 0
-  WaitingForTrinity: 0
   DevModeIcon: {fileID: 588896094}
   SPAWNPOINTNORASFLAT: {x: 0, y: 0, z: 0}
   SPAWNPOINTTAWLEYMEATS: {x: 0, y: 0, z: 0}
   SPAWNPOINTROARKOUTSIDE: {x: 0, y: 0, z: 0}
   SPAWNPOINTROARKINSIDE: {x: 0, y: 0, z: 0}
-  phonePickup: {fileID: 1700466224}
-  notepadPickup: {fileID: 2060321446}
-  torchPickup: {fileID: 5272723185499140592}
-  phoneTick: {fileID: 44149770}
-  notepadTick: {fileID: 1182946668}
-  torchTick: {fileID: 1951482238}
-  evidenceTick: {fileID: 391458662}
-  MyFirstEvidence: {fileID: 1012224471}
-  EvidenceDesc: {fileID: 31528216}
-  checkForEvidence: 0
   DialogueSeen: 
 --- !u!114 &1525618389
 MonoBehaviour:
@@ -62643,7 +62693,7 @@ GameObject:
   m_Component:
   - component: {fileID: 543450651779922201}
   m_Layer: 0
-  m_Name: corkboard
+  m_Name: CORKBOARD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -72741,8 +72791,6 @@ MonoBehaviour:
   galleryBack: {fileID: 345419917}
   galleryNext: {fileID: 385940613}
   PhotosInGallery: 0
-  phoneTutorialGotPhone: 109
-  phoneTutorialFirstEvidence: 110
   phoneTutorialFirstPhoto: 111
 --- !u!1 &5157025830819033287
 GameObject:

@@ -43,9 +43,10 @@ public class Torch : MonoBehaviour
 	void Update()
 	{
 
+		// Onboarding - To be moved to Onboarding Manager
 		if (WaitingForTorch)
 		{
-			if (GameMaster.TORCHCOLLECTED)
+			if (GameMaster.Instance.OnboardingManager.TORCHCOLLECTED)
 			{
 				theTorch.SetActive(true);
 				WaitingForTorch = false;
@@ -53,7 +54,7 @@ public class Torch : MonoBehaviour
 			}
 		}
 
-		if (GameMaster.TORCHCOLLECTED)
+		if (GameMaster.Instance.OnboardingManager.TORCHCOLLECTED)
 		{
 			if (!GameMaster.INMENU)
 			{

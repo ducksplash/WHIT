@@ -279,7 +279,9 @@ public class Player : Singleton<Player>
 
 		CrouchIndicator.alpha = 1;
 		CrossHair.alpha = 1;
-		if (GameMaster.TORCHCOLLECTED)
+		
+		// Todo: Remember why i needed this
+		if (GameMaster.Instance.OnboardingManager.TORCHCOLLECTED)
         {
 			TorchIndicator.alpha = 1;
         }
@@ -309,7 +311,7 @@ public class Player : Singleton<Player>
 		CrouchIndicator.alpha = 1;
 		CrossHair.alpha = 1;
 		EvidenceCompanion.alpha = 1;
-		if (GameMaster.TORCHCOLLECTED)
+		if (GameMaster.Instance.OnboardingManager.TORCHCOLLECTED)
 		{
 			TorchIndicator.alpha = 1;
 		}

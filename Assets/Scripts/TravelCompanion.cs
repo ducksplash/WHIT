@@ -26,8 +26,7 @@ public class TravelCompanion : MonoBehaviour
 	public GameObject notepadButtonPrefab;
 	public RectTransform scrollViewContent;
 
-	public DialogueName needMyThings = DialogueName.NoraNeedsHerThings;
-	public DialogueName needTestEvidence = DialogueName.NoraNeedsTestEvidence;
+
 	
 	
 	private void Start()
@@ -124,140 +123,60 @@ public class TravelCompanion : MonoBehaviour
 	{
 		if (launchAvailable)
 		{
-			Debug.Log("launch companion");
-			if (GameMaster.Instance.THISLEVEL == GameMaster.GAMELEVEL.NorasFlat)
+
+			
+			
+			if (!GameMaster.Instance.OnboardingManager.TESTEVIDENCECOLLECTED)
 			{
+				GameMaster.Instance.OnboardingManager.EvidenceNotCollected();
+				return;
+			}
+			
+			if (!GameMaster.Instance.OnboardingManager.ONBOARDINGCOMPLETE)
+			{
+				GameMaster.Instance.OnboardingManager.NotReadyYet();
+				return;
+			}
+			
+			
+			
+			if (!CompanionOpen)
+			{
+				Debug.Log("not open");
+				Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
 
-				// if debuggery, override
-				int evidenceOverride = GameMaster.Instance.DEBUGGERY ? 100 : GameMaster.EvidenceFound.Count;
-
-				if (evidenceOverride > 0)
-				{
-
-
-					var itemsfound = 0;
-
-
-					if (GameMaster.PHONECOLLECTED)
-					{
-						itemsfound += 1;
-					}
-
-
-					if (GameMaster.TORCHCOLLECTED)
-					{
-
-						itemsfound += 1;
-					}
-
-
-
-
-					if (GameMaster.NOTEPADCOLLECTED)
-					{
-						itemsfound += 1;
-					}
-
-
-					if (itemsfound > 2)
-					{
-
-
-
-						if (!CompanionOpen)
-						{
-							Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
-
-
-
-							Notepad.SetActive(true);
-							TravelCanvas.alpha = 1f;
-							TravelCanvas.blocksRaycasts = true;
-							GameMaster.INMENU = true;
-							GameMaster.FROZEN = true;
-							CompanionOpen = true;
-							evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.0f;
-							crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
-
-						}
-						else
-						{
-							Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x,
-								Notepad.transform.localPosition.y - 1, Notepad.transform.localPosition.z);
-
-							Notepad.SetActive(false);
-
-							TravelCanvas.alpha = 0f;
-							TravelCanvas.blocksRaycasts = false;
-							GameMaster.INMENU = false;
-							GameMaster.FROZEN = false;
-							CompanionOpen = false;
-							evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.9f;
-							crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
-
-						}
-
-
-					}
-					else
-					{
-						GameMaster.Instance.DialogueManager.NewDialogue(needMyThings, 6);
-						gameObject.GetComponent<Collider>().enabled = false;
-
-					}
-
-				}
-				else
-				{
-
-					GameMaster.Instance.DialogueManager.NewDialogue(needTestEvidence, 6);
-
-					Debug.Log("Didn't get evidence");
-				}
+				Notepad.SetActive(true);
+				TravelCanvas.alpha = 1f;
+				TravelCanvas.blocksRaycasts = true;
+				GameMaster.INMENU = true;
+				GameMaster.FROZEN = true;
+				CompanionOpen = true;
+				evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.0f;
+				crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
 
 			}
 			else
 			{
-				Debug.Log("not nora's flat");
+				Debug.Log("open");
+				Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y - 1, Notepad.transform.localPosition.z);
 
-				if (!CompanionOpen)
-				{
-					Debug.Log("not open");
-					Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x,
-						Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
+				Notepad.SetActive(false);
 
+				TravelCanvas.alpha = 0f;
+				TravelCanvas.blocksRaycasts = false;
+				GameMaster.INMENU = false;
+				GameMaster.FROZEN = false;
+				CompanionOpen = false;
+				evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.9f;
+				crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
 
-					Notepad.SetActive(true);
-					TravelCanvas.alpha = 1f;
-					TravelCanvas.blocksRaycasts = true;
-					GameMaster.INMENU = true;
-					GameMaster.FROZEN = true;
-					CompanionOpen = true;
-					evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.0f;
-					crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
-
-				}
-				else
-				{
-					Debug.Log("open");
-					Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x,
-						Notepad.transform.localPosition.y - 1, Notepad.transform.localPosition.z);
-
-					Notepad.SetActive(false);
-
-					TravelCanvas.alpha = 0f;
-					TravelCanvas.blocksRaycasts = false;
-					GameMaster.INMENU = false;
-					GameMaster.FROZEN = false;
-					CompanionOpen = false;
-					evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.9f;
-					crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
-
-				}
 			}
 			
-			
 			StartCoroutine(LaunchCooldown());
+			
+			
+			
+			
 		}
 	}
 	

@@ -34,15 +34,12 @@ public class Evidence : MonoBehaviour
     public Renderer EvidenceRenderer;
 
 
-
-
+    
     private void Start()
     {
         EvidenceTransform = transform;
         EvidenceRigidbody = GetComponent<Rigidbody>();
         EvidenceRenderer = GetComponent<Renderer>();
-
-
     }
 
 

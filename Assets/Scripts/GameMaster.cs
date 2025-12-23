@@ -25,15 +25,14 @@ public class GameMaster : MonoBehaviour
     public CutsceneManager CutsceneManager;
     public TravelCompanion TravelCompanion;
     public Pickup Pickup;
+    public OnboardingManager OnboardingManager;
     public EventManager EventManager;
 
 
-    public DialogueName readyMessage = DialogueName.NoraReadyToGo;
     
     
     // Game Globals
 
-    // Electricity Enabled - We can probably use this for all levels, resetting to false on scene change.
     public static bool POWER_SUPPLY_ENABLED;
     public static bool INCINERATOR_ENABLED;
     public static bool FROZEN;
@@ -42,11 +41,11 @@ public class GameMaster : MonoBehaviour
     public static bool HASITEM;
     public static bool PHONEOUT;
     public static bool  ISWRITING;
-
+    public static bool ONBOARDINGCOMPLETED;
+    
     public GAMELEVEL THISLEVEL;
     
     public Scene ThisScene;
-    public bool WaitingForTrinity;
     public CanvasGroup DevModeIcon;
 
     // spawn points
@@ -55,61 +54,23 @@ public class GameMaster : MonoBehaviour
     public Vector3 SPAWNPOINTROARKOUTSIDE;
     public Vector3 SPAWNPOINTROARKINSIDE;
 
-    // COLLECTED ITEMS
-    public static bool TORCHCOLLECTED;
-    public static bool NOTEPADCOLLECTED;
-    public static bool PHONECOLLECTED;
-
-    public static bool TRINITY;
-
     
-    
-    
-    public GameObject phonePickup;
-    public GameObject notepadPickup;
-    public GameObject torchPickup;
-
-    public CanvasGroup phoneTick;
-    public CanvasGroup notepadTick;
-    public CanvasGroup torchTick;
-    public CanvasGroup evidenceTick;
-
-    public Image MyFirstEvidence;
-    public TextMeshProUGUI EvidenceDesc;
     public static bool GarbageRun;
-
-    public bool checkForEvidence;
-
     
     
-
     // Evidence Quotient
-
-    public static int TotalEQ;
-
-
+    
+    
     public static int EQThisLevel;
     public static int ExpectedEQThisLevel;
 
-
-    // EQ Expected
+    // EQ Expected for the different levels (due to be refactored)
     public static int ExpectedEQ_Level0 = 1;
     public static int ExpectedEQ_Level1 = 18;
     public static int ExpectedEQ_Level2 = 19;
 
 
     
-    
-
-    // Evidence Expected
-
-
-
-
-    // Have I Ever - done this? - We'll set up per-level persistence shortly.
-
-
-
     // Dialog log
 
     // The main purpose is to prevent duplicates.
@@ -133,144 +94,61 @@ public class GameMaster : MonoBehaviour
     {
         DontDestroyOnLoad(gameObject);
 
+        Debug.Log($"This script is active in scene: {SceneManager.GetActiveScene().name}");
 
-        Debug.Log($"This script is active in scene: {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
-        
-        
         SPAWNPOINTNORASFLAT = new Vector3(65, 2, 486);
         SPAWNPOINTTAWLEYMEATS = new Vector3(71.50f, 12, 282);
         SPAWNPOINTROARKOUTSIDE = new Vector3(90, 5, 252);
         SPAWNPOINTROARKINSIDE = new Vector3(69, 16, 310);
 
+        // ALWAYS load existing evidence first
+        LoadExistingEvidence();
 
-
-        // Use this loop for debugging the dialog log
-        //foreach (var Message in DialogueSeen)
-        //{
-        //    Debug.Log("Message: " + Message.Key + "\n" + "Sender: " + Message.Value);
-        //}
-
-        // Use this loop to pre-mark collected evidence (the primary use of the evidence log)
-        // The Gallery usage is all handled in phone.cs
-
-        foreach (var Evidence in EvidenceFound)
+        // Mark collected evidence objects in scene
+        foreach (var evidence in EvidenceFound)
         {
-
-            if (GameObject.Find(Evidence.Key))
+            GameObject obj = GameObject.Find(evidence.Key);
+            if (obj != null && obj.TryGetComponent<Evidence>(out var ev))
             {
-                var ThisEvidence = GameObject.Find(Evidence.Key);
-
-
-                if (ThisEvidence.GetComponent<Evidence>() != null)
-                {
-                    ThisEvidence.GetComponent<Evidence>().EvidenceCollected = true;
-                }
+                ev.EvidenceCollected = true;
             }
-
         }
 
-
-        // cleanup
-        // We will use this on boot every time
-        // We then set GarbageRun to 'true' to say that it is done, and not to do it again.
+        // ONLY run garbage collection in debug mode or if explicitly needed
+        // if (DEBUGGERY && !GarbageRun)  // Or remove entirely if not needed
+        // {
+        //     string rootPath = Application.persistentDataPath + "/Phone/0/";
+        //     if (Directory.Exists(rootPath))
+        //     {
+        //         Directory.Delete(rootPath, true);
+        //     }
+        //     Directory.CreateDirectory(rootPath);
         //
-        // We'll handle saves by just copying this and then optionally restoring after GC.
+        //     PlayerPrefs.SetInt("EQLevelNorasFlat", 0);
+        //     PlayerPrefs.SetInt("EQLevel1", 0);
+        //     PlayerPrefs.SetInt("EQLevel2", 0);
         //
-        // FFR; Dir Tree is:
-        // <persistent data path>/Phone/0/DCIM
-        // and
-        // <persistent data path>/Phone/0/Evidence
-        // So we can treat /0/ as a defacto root here.
-
-        if (!GarbageRun)
-        {
-
-            var filepath = Application.persistentDataPath + "/Phone/0/";
-
-            if (Directory.Exists(filepath))
-            {
-                // deleting the foler also deletes the files.
-                // handy.
-                Directory.Delete(filepath, true);
-            }
-
-            // then just make the root folder back up; the phone will create the rest when needed.
-            Directory.CreateDirectory(filepath);
-
-            // Clear out Evidence Quotient Player Prefs
-
-            PlayerPrefs.SetInt("EQLevelNorasFlat", GameMaster.EQThisLevel);
-            PlayerPrefs.SetInt("EQLevel1", GameMaster.EQThisLevel);
-            PlayerPrefs.SetInt("EQLevel2", GameMaster.EQThisLevel);
-
-            GarbageRun = true;
-        }
-
-        
-
-
-        WaitingForTrinity = true;
+        //     GarbageRun = true;
+        //
+        //     // Re-load after wipe if needed (or just clear dictionary)
+        //     EvidenceFound.Clear();
+        // }
 
         if (DEBUGGERY)
         {
-
-            TORCHCOLLECTED = true;
-            NOTEPADCOLLECTED = true;
-            PHONECOLLECTED = true;
             DevModeIcon.alpha = 1;
-
         }
-
-
-        if (THISLEVEL == GAMELEVEL.NorasFlat)
-        {
-            torchTick.alpha = 0;
-            phoneTick.alpha = 0;
-            notepadTick.alpha = 0;
-            evidenceTick.alpha = 0;
-
-        }
-
     }
 
 
-
-void Start ()
+    void Start()
     {
 
 
         Application.targetFrameRate = 60;
 
 
-        if (THISLEVEL == GAMELEVEL.NorasFlat)
-        {
 
-            if (PHONECOLLECTED)
-            {
-                Destroy(phonePickup);
-                phoneTick.alpha = 1;
-            }
-
-            if (TORCHCOLLECTED)
-            {
-                Destroy(torchPickup);
-                torchTick.alpha = 1;
-            }
-
-            if (NOTEPADCOLLECTED)
-            {
-                Destroy(notepadPickup);
-                notepadTick.alpha = 1;
-            }
-
-            if (EvidenceFound.Count > 0)
-            {
-                evidenceTick.alpha = 1;
-            }
-
-            ExpectedEQThisLevel = ExpectedEQ_Level0;
-
-        }
 
 
 
@@ -306,82 +184,28 @@ void Start ()
 
 
 
-
-    private void Update()
+    private void LoadExistingEvidence()
     {
-        if (THISLEVEL == GAMELEVEL.NorasFlat)
+        string folder = Application.persistentDataPath + "/Phone/0/Evidence/";
+        
+        
+        Debug.Log(folder);
+        
+        if (!Directory.Exists(folder)) return;
+
+        
+        foreach (string file in Directory.GetFiles(folder, "*.quack"))
         {
-            if (!TRINITY)
+            string fileName = Path.GetFileNameWithoutExtension(file);
+            if (!EvidenceFound.ContainsKey(fileName))
             {
-                if (WaitingForTrinity)
-                {
-                    if (TORCHCOLLECTED && NOTEPADCOLLECTED && PHONECOLLECTED && !DEBUGGERY)
-                    {
-                        StartCoroutine(NoraReady());
-                        WaitingForTrinity = false;
-                    }
-
-                    if (DEBUGGERY)
-                    {
-                        WaitingForTrinity = false;
-                    }
-                }
-            }
-
-            if (EvidenceFound.Count > 0 && !checkForEvidence)
-            {
-
-
-
-                // lets get the files
-                var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
-
-
-                DirectoryInfo dir = new DirectoryInfo(filepath);
-                if (dir.Exists)
-                {
-                    FileInfo[] info = dir.GetFiles("*.quack");
-                    var lines = System.IO.File.ReadAllLines(info[0].FullName);
-
-                    var photopath = Application.persistentDataPath + "/Phone/0/DCIM/";
-
-                    // Read image bytes
-                    byte[] imageData = File.ReadAllBytes(photopath + lines[1]);
-
-                    // Create new Texture2D (size will auto-resize)
-                    Texture2D tempTexture = new Texture2D(2, 2);
-                    tempTexture.LoadImage(imageData);
-
-                    // Convert Texture2D to Sprite for Image component
-                    Sprite newSprite = Sprite.Create(
-                        tempTexture,
-                        new Rect(0, 0, tempTexture.width, tempTexture.height),
-                        new Vector2(0.5f, 0.5f)
-                    );
-
-                    // Assign Sprite to Image component
-                    MyFirstEvidence.GetComponent<Image>().sprite = newSprite;
-
-                    // Set description and tick
-                    EvidenceDesc.text = lines[5];
-                    evidenceTick.alpha = 1;
-                    checkForEvidence = true;
-                }
-
+                Debug.Log(folder+fileName);
+                EvidenceFound.Add(fileName, folder);
             }
         }
-
-    }
-
-
-    IEnumerator NoraReady()
-    {
-        yield return new WaitForSeconds(5);
-        var msg = "Ok, I think I'm ready to go now.";
-
-        DialogueManager.NewDialogue(readyMessage, 5);
-
-
+        
+        Debug.Log("Init Evidence - "+GameMaster.EvidenceFound.Count);
+        
     }
 
 

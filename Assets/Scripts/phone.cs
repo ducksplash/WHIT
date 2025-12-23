@@ -83,8 +83,6 @@ public class Phone : MonoBehaviour
 
     private GameObject ObservedEvidence;
 
-    public DialogueName phoneTutorialGotPhone = DialogueName.KieronToNoraGotPhone;
-    public DialogueName phoneTutorialFirstEvidence = DialogueName.KieronToNoraFirstEvidence;
     public DialogueName phoneTutorialFirstPhoto = DialogueName.phoneTutorialFirstPhoto;
     
     // Make Call Coroutine
@@ -248,127 +246,119 @@ public class Phone : MonoBehaviour
     void Update()
     {
 
+        if (!GameMaster.Instance.OnboardingManager.PHONECOLLECTED) return;
+
+    
+
+        DateTime nowDateTime = DateTime.Now;
+        string anHour = nowDateTime.Hour.ToString().PadLeft(2, '0');
+        string aMinute = nowDateTime.Minute.ToString().PadLeft(2, '0');
+
+        Clock.GetComponent<TMPro.TextMeshProUGUI>().text = anHour + ":" + aMinute;
 
 
-        if (GameMaster.PHONECOLLECTED)
+        if (isLocked == true)
         {
+            Fader.GetComponent<CanvasGroup>().alpha = 0.0f;
 
-
-            DateTime nowDateTime = DateTime.Now;
-            string anHour = nowDateTime.Hour.ToString().PadLeft(2, '0');
-            string aMinute = nowDateTime.Minute.ToString().PadLeft(2, '0');
-
-            Clock.GetComponent<TMPro.TextMeshProUGUI>().text = anHour + ":" + aMinute;
-
-
-            if (isLocked == true)
+            if (UnlockSlider.value == 10)
             {
-                Fader.GetComponent<CanvasGroup>().alpha = 0.0f;
+                changeScreen(HomeScreen);
+                // disable LockScreen
+                isLocked = false;
+                Fader.GetComponent<CanvasGroup>().alpha = 1.0f;
+            }
+        }
 
-                if (UnlockSlider.value == 10)
-                {
-                    changeScreen(HomeScreen);
-                    // disable LockScreen
-                    isLocked = false;
-                    Fader.GetComponent<CanvasGroup>().alpha = 1.0f;
-                }
+
+        if (!GameMaster.FROZEN)
+        {
+            if (InputManager.GetKeyUp("phone"))
+            {
+
+                TogglePhone();
+
             }
 
 
-            if (!GameMaster.FROZEN)
+            if (GameMaster.PHONEOUT && Input.GetKeyUp(KeyCode.Escape))
             {
-                if (InputManager.GetKeyUp("phone"))
-                {
-
-                    TogglePhone();
-
-                }
-
-
-                if (GameMaster.PHONEOUT && Input.GetKeyUp(KeyCode.Escape))
-                {
-                    TogglePhone();
-                }
+                TogglePhone();
             }
+        }
 
-            // take photos
+        // take photos
 
-            if (InputManager.GetKeyUp("camera") && CameraReady)
-            {
-
-                TakePhoto();
-            }
-
-
-
-
-            // Dial By Keyb
-            // need to refactor this
-
-
-            if ((Input.GetKeyUp("0") || Input.GetKeyUp("[0]")) && GameMaster.PHONEOUT)
-            {
-                DialBar.text = DialBar.text + "0";
-            }
-            if ((Input.GetKeyUp("1") || Input.GetKeyUp("[1]")) && GameMaster.PHONEOUT)
-            {
-                DialBar.text = DialBar.text + "1";
-            }
-            if ((Input.GetKeyUp("2") || Input.GetKeyUp("[2]")) && GameMaster.PHONEOUT)
-            {
-                DialBar.text = DialBar.text + "2";
-            }
-            if ((Input.GetKeyUp("3") || Input.GetKeyUp("[3]")) && GameMaster.PHONEOUT)
-            {
-                DialBar.text = DialBar.text + "3";
-            }
-            if ((Input.GetKeyUp("4") || Input.GetKeyUp("[4]")) && GameMaster.PHONEOUT)
-            {
-                DialBar.text = DialBar.text + "4";
-            }
-            if ((Input.GetKeyUp("5") || Input.GetKeyUp("[5]")) && GameMaster.PHONEOUT)
-            {
-                DialBar.text = DialBar.text + "5";
-            }
-            if ((Input.GetKeyUp("6") || Input.GetKeyUp("[6]")) && GameMaster.PHONEOUT)
-            {
-                DialBar.text = DialBar.text + "6";
-            }
-            if ((Input.GetKeyUp("7") || Input.GetKeyUp("[7]")) && GameMaster.PHONEOUT)
-            {
-                DialBar.text = DialBar.text + "7";
-            }
-            if ((Input.GetKeyUp("8") || Input.GetKeyUp("[8]")) && GameMaster.PHONEOUT)
-            {
-                DialBar.text = DialBar.text + "8";
-            }
-            if ((Input.GetKeyUp("9") || Input.GetKeyUp("[9]")) && GameMaster.PHONEOUT)
-            {
-                DialBar.text = DialBar.text + "9";
-            }
-            if ((Input.GetKeyUp("[*]")) && GameMaster.PHONEOUT)
-            {
-                DialBar.text = DialBar.text + "*";
-            }
-            if ((Input.GetKeyUp("#")) && GameMaster.PHONEOUT)
-            {
-                DialBar.text = DialBar.text + "#";
-            }
-
-            if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && GameMaster.PHONEOUT)
-            {
-                if (DialBar.text.Length > 0)
-                {
-                    String SubString = DialBar.text.Substring(0, DialBar.text.Length - 1);
-                    DialBar.text = SubString;
-                }
-            }
-
-
+        if (InputManager.GetKeyUp("camera") && CameraReady)
+        {
+            TakePhoto();
         }
 
 
 
+
+        // Dial By Keyb
+        // need to refactor this
+
+
+        if ((Input.GetKeyUp("0") || Input.GetKeyUp("[0]")) && GameMaster.PHONEOUT)
+        {
+            DialBar.text = DialBar.text + "0";
+        }
+        if ((Input.GetKeyUp("1") || Input.GetKeyUp("[1]")) && GameMaster.PHONEOUT)
+        {
+            DialBar.text = DialBar.text + "1";
+        }
+        if ((Input.GetKeyUp("2") || Input.GetKeyUp("[2]")) && GameMaster.PHONEOUT)
+        {
+            DialBar.text = DialBar.text + "2";
+        }
+        if ((Input.GetKeyUp("3") || Input.GetKeyUp("[3]")) && GameMaster.PHONEOUT)
+        {
+            DialBar.text = DialBar.text + "3";
+        }
+        if ((Input.GetKeyUp("4") || Input.GetKeyUp("[4]")) && GameMaster.PHONEOUT)
+        {
+            DialBar.text = DialBar.text + "4";
+        }
+        if ((Input.GetKeyUp("5") || Input.GetKeyUp("[5]")) && GameMaster.PHONEOUT)
+        {
+            DialBar.text = DialBar.text + "5";
+        }
+        if ((Input.GetKeyUp("6") || Input.GetKeyUp("[6]")) && GameMaster.PHONEOUT)
+        {
+            DialBar.text = DialBar.text + "6";
+        }
+        if ((Input.GetKeyUp("7") || Input.GetKeyUp("[7]")) && GameMaster.PHONEOUT)
+        {
+            DialBar.text = DialBar.text + "7";
+        }
+        if ((Input.GetKeyUp("8") || Input.GetKeyUp("[8]")) && GameMaster.PHONEOUT)
+        {
+            DialBar.text = DialBar.text + "8";
+        }
+        if ((Input.GetKeyUp("9") || Input.GetKeyUp("[9]")) && GameMaster.PHONEOUT)
+        {
+            DialBar.text = DialBar.text + "9";
+        }
+        if ((Input.GetKeyUp("[*]")) && GameMaster.PHONEOUT)
+        {
+            DialBar.text = DialBar.text + "*";
+        }
+        if ((Input.GetKeyUp("#")) && GameMaster.PHONEOUT)
+        {
+            DialBar.text = DialBar.text + "#";
+        }
+
+        if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && GameMaster.PHONEOUT)
+        {
+            if (DialBar.text.Length > 0)
+            {
+                String SubString = DialBar.text.Substring(0, DialBar.text.Length - 1);
+                DialBar.text = SubString;
+            }
+        }
+        
     }
 
 
@@ -379,25 +369,24 @@ public class Phone : MonoBehaviour
     public void TogglePhone()
     {
         currentpage = 0;
-
-
-
+        
 
         if (!GameMaster.PHONEOUT)
         {
 
             if (!GameMaster.INMENU && !GameMaster.HASITEM && !GameMaster.ISWRITING)
             {
+
+                if (!GameMaster.Instance.OnboardingManager.PHONEACCESSED)
+                {
+                    GameMaster.Instance.OnboardingManager.OpenedPhone();
+                }
+
                 
-                GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialGotPhone, 5);
-
-
-
 
                 MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 1, MobilePhone.transform.localPosition.z);
 
-
-
+                
                 //Camera.GetComponent<FirstPersonLook>().enabled = false;
                 //FirstPersonCollision.FROZEN = true;
                 MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 1.0f;
@@ -659,9 +648,7 @@ public class Phone : MonoBehaviour
     // Contacts menu incorporating CallScreen, Dialler.
     public void CameraButton()
     {
-
-
-
+        
         changeScreen(CameraScreen);
 
         if (TorchLight.enabled)
@@ -679,6 +666,7 @@ public class Phone : MonoBehaviour
         if (GameMaster.EvidenceFound.Count < 1)
         {
             GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstPhoto, 5);
+            
         }
 
         CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
@@ -1086,15 +1074,10 @@ public class Phone : MonoBehaviour
         StartCoroutine("CallContact");
     }
 
-
-
-
-
+    
     public void BackButton()
     {
-
         currentpage = 0;
-
         changeScreen(HomeScreen);
     }
 
@@ -1129,44 +1112,29 @@ public class Phone : MonoBehaviour
             }
         }
     }
+    
     private void OnTriggerExit(Collider other)
     {
         if (CameraOpen)
         {
-
-
             CameraReadyFrame.color = Color.black;
             CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
             CameraReady = false;
             ObservedEvidence = null;
-
-
         }
-
-
     }
 
 
 
     public void TakePhoto()
     {
-
-
         if (ObservedEvidence != null)
         {
-
-            if (GameMaster.EvidenceFound.Count < 1)
-            {
-                GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstEvidence, 5);
-            }
-
-
             RenderTexture activeRenderTexture = RenderTexture.active;
             RenderTexture.active = PhoneCamera.GetComponent<Camera>().targetTexture;
 
             PhoneCamera.GetComponent<Camera>().Render();
-
-
+            
             Texture2D image = new Texture2D(PhoneCamera.GetComponent<Camera>().targetTexture.width, PhoneCamera.GetComponent<Camera>().targetTexture.height);
             image.ReadPixels(new Rect(0, 0, PhoneCamera.GetComponent<Camera>().targetTexture.width, PhoneCamera.GetComponent<Camera>().targetTexture.height), 0, 0);
             image.Apply();
@@ -1174,9 +1142,7 @@ public class Phone : MonoBehaviour
 
             byte[] bytes = image.EncodeToPNG();
             Destroy(image);
-
-
-
+            
             var photoname = ObservedEvidence.name;
 
             var filepath = Application.persistentDataPath + "/Phone/0/DCIM/";
@@ -1202,10 +1168,13 @@ public class Phone : MonoBehaviour
             CameraReady = false;
 
             StartCoroutine(SavedPhoto());
-
+            
+            // 
+            if (!GameMaster.Instance.OnboardingManager.TESTEVIDENCECOLLECTED)
+            {
+                GameMaster.Instance.OnboardingManager.CollectTestEvidence();
+            }
         }
-
-
     }
 
 
@@ -1214,18 +1183,9 @@ public class Phone : MonoBehaviour
 
     IEnumerator SavedPhoto()
     {
-
         CameraSavedText.alpha = 1;
-
-
         yield return new WaitForSeconds(3f);
-
-
         CameraSavedText.alpha = 0;
-
-
-
-
     }
 
 

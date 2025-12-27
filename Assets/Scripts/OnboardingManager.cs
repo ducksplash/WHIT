@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using System.IO;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine.UI;
 
@@ -85,14 +86,27 @@ public class OnboardingManager : MonoBehaviour
 
     private void Start()
     {
-        if (GameMaster.Instance.THISLEVEL == GameMaster.GAMELEVEL.NorasFlat)
+        if (GameMaster.Instance.THISLEVEL == GAMELEVEL.NorasFlat)
         {
 
-            if (PHONECOLLECTED) { Destroy(phonePickup); phoneTick.alpha = 1; } else { phoneTick.alpha = 0; }
+            if (PHONECOLLECTED)
+            {
+                phonePickup.SetActive(false); phoneTick.alpha = 1;
+                GameMaster.Instance.EventManager.PhoneCollectedEvent();
+            } 
+            else { phoneTick.alpha = 0; }
 
-            if (TORCHCOLLECTED) { Destroy(torchPickup); torchTick.alpha = 1; } else { torchTick.alpha = 0; }
+            if (TORCHCOLLECTED)
+            {
+                torchPickup.SetActive(false); torchTick.alpha = 1;
+                GameMaster.Instance.EventManager.TorchCollectedEvent();
+            } else { torchTick.alpha = 0; }
 
-            if (NOTEPADCOLLECTED) { Destroy(notepadPickup); notepadTick.alpha = 1; } else { notepadTick.alpha = 0; }
+            if (NOTEPADCOLLECTED)
+            {
+                notepadPickup.SetActive(false); notepadTick.alpha = 1;
+                GameMaster.Instance.EventManager.NotepadCollectedEvent();
+            } else { notepadTick.alpha = 0; }
 
             if (TESTEVIDENCECOLLECTED) { evidenceTick.alpha = 1; } else { evidenceTick.alpha = 0; }
             
@@ -105,40 +119,46 @@ public class OnboardingManager : MonoBehaviour
         
     }
 
-    public void CollectTorch()
+    public async void CollectTorch()
     {
         Debug.Log("CollectTorch");
         TORCHCOLLECTED = true;
-        Destroy(torchPickup); 
-        GameMaster.Instance.DialogueManager.NewDialogue(pickupTorchDialogue, 6);
+
+        var coroutine = GameMaster.Instance.CutsceneManager.ExecuteCutscene(6, 1, torchPickup, pickupTorchDialogue);
+        await coroutine.AsTask(GameMaster.Instance);
+        torchPickup.SetActive(false); 
+        
         if (torchTick) torchTick.alpha = 1;
         PlayerPrefs.SetInt("TORCHCOLLECTED", TORCHCOLLECTED ? 1 : 0); PlayerPrefs.Save();
+        GameMaster.Instance.EventManager.TorchCollectedEvent();
         CheckOnboardingStatus();
     }
 
 
-    public void CollectNotepad()
+    public async void CollectNotepad()
     {
         Debug.Log("CollectNotepad");
         NOTEPADCOLLECTED = true;
-        Destroy(notepadPickup); 
-        GameMaster.Instance.DialogueManager.NewDialogue(pickupNotepadDialogue, 6);
+        var coroutine = GameMaster.Instance.CutsceneManager.ExecuteCutscene(6, 1, notepadPickup, pickupNotepadDialogue);
+        await coroutine.AsTask(GameMaster.Instance);
+        notepadPickup.SetActive(false); 
         if (notepadTick) notepadTick.alpha = 1;
         PlayerPrefs.SetInt("NOTEPADCOLLECTED", NOTEPADCOLLECTED ? 1 : 0); PlayerPrefs.Save();
-        
+        GameMaster.Instance.EventManager.NotepadCollectedEvent();
         CheckOnboardingStatus();
     }
 
 
-    public void CollectPhone()
+    public async void CollectPhone()
     {
         Debug.Log("CollectPhone");
         PHONECOLLECTED = true;
-        Destroy(phonePickup); 
-        GameMaster.Instance.DialogueManager.NewDialogue(pickupPhoneDialogue, 6);
+        var coroutine = GameMaster.Instance.CutsceneManager.ExecuteCutscene(6, 1, phonePickup, pickupPhoneDialogue);
+        await coroutine.AsTask(GameMaster.Instance);
+        phonePickup.SetActive(false); 
         if (phoneTick) phoneTick.alpha = 1;
         PlayerPrefs.SetInt("PHONECOLLECTED", PHONECOLLECTED ? 1 : 0); PlayerPrefs.Save();
-        
+        GameMaster.Instance.EventManager.PhoneCollectedEvent();
         CheckOnboardingStatus();
     }
 
@@ -148,7 +168,6 @@ public class OnboardingManager : MonoBehaviour
         Debug.Log("OpenedPhone");
         PHONEACCESSED = true;
         GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialGotPhone, 6);
-        
         PlayerPrefs.SetInt("PHONEACCESSED", PHONEACCESSED ? 1 : 0); PlayerPrefs.Save();
         CheckOnboardingStatus();
     }
@@ -207,7 +226,7 @@ public class OnboardingManager : MonoBehaviour
     public void UpdateChalkboard()
     {
         Debug.Log("UpdateChalkboard");
-        if (GameMaster.EvidenceFound.Count > 0)
+        if (GameMaster.Instance.EvidenceFound.Count > 0)
         {
             Debug.Log("UpdateChalkboard EvidenceFound.Count > 0");
             // lets get the files
@@ -259,6 +278,28 @@ public class OnboardingManager : MonoBehaviour
 
 
     }
+
+
+    public void GarbageRun()
+    {
+        
+        string rootPath = Application.persistentDataPath + "/Phone/0/";
+        if (Directory.Exists(rootPath))
+        {
+            Directory.Delete(rootPath, true);
+        }
+        Directory.CreateDirectory(rootPath);
+        
+        PlayerPrefs.SetInt("EQLevelNorasFlat", 0);
+        PlayerPrefs.SetInt("EQLevel1", 0);
+        PlayerPrefs.SetInt("EQLevel2", 0);
+        
+        // Re-load after wipe if needed (or just clear dictionary)
+        GameMaster.Instance.EvidenceFound.Clear();
+        
+    }
+    
+
 
 }
 
@@ -347,6 +388,18 @@ public class OnboardingManagerEditor : Editor
             PlayerPrefs.DeleteKey("TESTEVIDENCECOLLECTED");
             PlayerPrefs.DeleteKey("ONBOARDINGCOMPLETE");
             PlayerPrefs.Save();
+            
+            mgr.phonePickup.SetActive(true); 
+            mgr.phoneTick.alpha = 0;
+            
+            mgr.torchPickup.SetActive(true); 
+            mgr.torchTick.alpha = 0;
+            
+            mgr.notepadPickup.SetActive(true); 
+            mgr.notepadTick.alpha = 0;
+            
+            mgr.GarbageRun();
+
         }
 
         if (GUI.changed)

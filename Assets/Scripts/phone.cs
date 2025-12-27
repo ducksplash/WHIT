@@ -663,7 +663,7 @@ public class Phone : MonoBehaviour
 
         string camerakey = InputManager.GetKeyName("camera");
 
-        if (GameMaster.EvidenceFound.Count < 1)
+        if (GameMaster.Instance.EvidenceFound.Count < 1)
         {
             GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstPhoto, 5);
             

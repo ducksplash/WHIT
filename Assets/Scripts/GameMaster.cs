@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine.UI;
 using TMPro;
 
@@ -88,7 +89,7 @@ public class GameMaster : MonoBehaviour
     // Again, mainly preventing duplication
     // With the secondary use being in the phone again, as an "Evidence Log" in the "Gallery App"
 
-    public static Dictionary<string, string> EvidenceFound = new Dictionary<string, string>();
+    public Dictionary<string, string> EvidenceFound = new Dictionary<string, string>();
 
     void Awake()
     {
@@ -114,25 +115,7 @@ public class GameMaster : MonoBehaviour
             }
         }
 
-        // ONLY run garbage collection in debug mode or if explicitly needed
-        // if (DEBUGGERY && !GarbageRun)  // Or remove entirely if not needed
-        // {
-        //     string rootPath = Application.persistentDataPath + "/Phone/0/";
-        //     if (Directory.Exists(rootPath))
-        //     {
-        //         Directory.Delete(rootPath, true);
-        //     }
-        //     Directory.CreateDirectory(rootPath);
-        //
-        //     PlayerPrefs.SetInt("EQLevelNorasFlat", 0);
-        //     PlayerPrefs.SetInt("EQLevel1", 0);
-        //     PlayerPrefs.SetInt("EQLevel2", 0);
-        //
-        //     GarbageRun = true;
-        //
-        //     // Re-load after wipe if needed (or just clear dictionary)
-        //     EvidenceFound.Clear();
-        // }
+
 
         if (DEBUGGERY)
         {
@@ -204,18 +187,35 @@ public class GameMaster : MonoBehaviour
             }
         }
         
-        Debug.Log("Init Evidence - "+GameMaster.EvidenceFound.Count);
+        Debug.Log("Init Evidence - "+EvidenceFound.Count);
         
     }
-
-
-    public enum GAMELEVEL
-    {
-        MainMenu,
-        NorasFlat,
-        TawleyMeats,
-        RoarkOutside,
-        RoarkInside
-    }
-
 }
+
+public enum GAMELEVEL
+{
+    MainMenu,
+    NorasFlat,
+    TawleyMeats,
+    RoarkOutside,
+    RoarkInside
+}
+    
+public static class CoroutineExtensions
+{
+    public static Task AsTask(this IEnumerator coroutine, MonoBehaviour runner)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+
+        runner.StartCoroutine(Wrap());
+
+        IEnumerator Wrap()
+        {
+            yield return coroutine;
+            tcs.SetResult(true);
+        }
+
+        return tcs.Task;
+    }
+}
+    

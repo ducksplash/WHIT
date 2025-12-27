@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: notepagespickup
   m_Shader: {fileID: 4800000, guid: 30419ba061b0ff3439cede0a70b627be, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _DISABLE_DECALS
@@ -30,6 +32,7 @@ Material:
   - TransparentBackface
   - RayTracingPrepass
   - MOTIONVECTORS
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -168,7 +171,7 @@ Material:
     - _EnableFogOnTransparent: 1
     - _EnableGeometricSpecularAA: 0
     - _EnergyConservingSpecularColor: 1
-    - _GlowSpeed: 2.5
+    - _GlowSpeed: 10
     - _GlowStrength: 1
     - _HeightAmplitude: 0.02
     - _HeightCenter: 0.5
@@ -247,7 +250,7 @@ Material:
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissiveColor: {r: 0.074176654, g: 0.074176654, b: 0.074176654, a: 1}
     - _EmissiveColorLDR: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 1}
-    - _GlowColor: {r: 1, g: 1, b: 1, a: 1}
+    - _GlowColor: {r: 0, g: 0, b: 1, a: 1}
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
     - _SpecularColor: {r: 0, g: 0, b: 0, a: 1}
@@ -257,6 +260,7 @@ Material:
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &7194791101729540464
 MonoBehaviour:
   m_ObjectHideFlags: 11

@@ -7,7 +7,7 @@ public class NotepadButton : MonoBehaviour
 {
     public TextMeshProUGUI buttonTextElement;
     public string buttonText;
-    public GameMaster.GAMELEVEL targetScene;
+    public GAMELEVEL targetScene;
     
     
     // Start is called before the first frame update

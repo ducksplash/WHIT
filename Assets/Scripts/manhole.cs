@@ -10,7 +10,7 @@ public class manhole : MonoBehaviour
     public float visibilityDelay = 0.5f;
     public TextMeshProUGUI actiontext;
     public Image actionprogress;
-    public GameMaster.GAMELEVEL NextScene;
+    public GAMELEVEL NextScene;
     public float holdTime = 1.0f;
     private bool isHolding;
     private float holdTimer;

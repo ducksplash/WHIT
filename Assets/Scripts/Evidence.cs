@@ -47,7 +47,7 @@ public class Evidence : MonoBehaviour
     {
 
 
-        if (!GameMaster.EvidenceFound.ContainsKey(gameObject.name))
+        if (!GameMaster.Instance.EvidenceFound.ContainsKey(gameObject.name))
         {
 
             var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
@@ -75,7 +75,7 @@ public class Evidence : MonoBehaviour
 
             System.IO.File.WriteAllText(filepath + EvidenceFilename, EvidenceSlug);
 
-            GameMaster.EvidenceFound.Add(transform.name, filepath);
+            GameMaster.Instance.EvidenceFound.Add(transform.name, filepath);
 
             gameObject.GetComponent<Evidence>().PhotographableEvidence = false;
             gameObject.GetComponent<Evidence>().EvidenceCollected = true;

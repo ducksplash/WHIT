@@ -1,107 +1,115 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VLB;
 
 public class Torch : MonoBehaviour
 {
+    public Light lightBeam;
+    public GameObject theTorch;
+    public static bool torchToggle = true;
 
-	public Light lightBeam;
-	public GameObject theTorch;
-	public static bool torchToggle;
-	public int lightIntensity = 4;
-	private Animator torchAnimator;
-	//public GameObject thePhone;
-	//public GameObject thePC;
-	private bool phoneBool;
-	private bool pcBool;
-	public Image torchimg;
-	public Sprite litsprite;
-	public Sprite unlitsprite;
-	public VolumetricLightBeamSD SpotlightBeam;
+    private Animator torchAnimator;
 
-	
-	
-	public bool WaitingForTorch;
+    public Image torchimg;
+    public Sprite litsprite;
+    public Sprite unlitsprite;
+    public VolumetricLightBeamSD SpotlightBeam;
 
-	// Start is called before the first frame update
-	void Start()
-	{
+    public InputActionReference swingAction;
+    public InputActionReference toggleAction;
+    public bool isSwinging;
+    public bool WaitingForTorch = true;
 
-		torchimg.sprite = litsprite;
-		WaitingForTorch = true;
-		torchToggle = true;
-		lightBeam = gameObject.GetComponentInChildren<Light>();
-		torchAnimator = theTorch.GetComponentInChildren<Animator>();
+    void Awake()
+    {
+        EventManager.OnTorchCollected += OnTorchCollected;
+    }
 
-		theTorch.SetActive(false);
-		torchimg.transform.GetComponent<CanvasGroup>().alpha = 0f;
+    void Start()
+    {
+        torchimg.sprite = litsprite;
+        torchimg.GetComponent<CanvasGroup>().alpha = 0f;
+        if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED) theTorch.SetActive(false);
+    }
 
-	}
+    void OnEnable()
+    {
+        if (swingAction != null)
+        {
+            swingAction.action.Enable();
+            swingAction.action.performed += OnSwing;
+        }
 
-	void Update()
-	{
+        if (toggleAction != null)
+        {
+            toggleAction.action.Enable();
+            toggleAction.action.performed += OnToggle;
+        }
+    }
 
-		// Onboarding - To be moved to Onboarding Manager
-		if (WaitingForTorch)
-		{
-			if (GameMaster.Instance.OnboardingManager.TORCHCOLLECTED)
-			{
-				theTorch.SetActive(true);
-				WaitingForTorch = false;
-				torchimg.transform.GetComponent<CanvasGroup>().alpha = 1f;
-			}
-		}
+    void OnDisable()
+    {
+        if (swingAction != null)
+            swingAction.action.performed -= OnSwing;
 
-		if (GameMaster.Instance.OnboardingManager.TORCHCOLLECTED)
-		{
-			if (!GameMaster.INMENU)
-			{
-				if (!GameMaster.FROZEN)
-				{
+        if (toggleAction != null)
+            toggleAction.action.performed -= OnToggle;
+    }
 
-					if (Input.GetMouseButtonUp(2) || InputManager.GetKeyUp("torch"))
-					{
-						if (!torchToggle)
-						{
-							lightBeam.enabled = true;
-							torchimg.sprite = litsprite;
-							torchToggle = true;
-							SpotlightBeam.enabled = true;
-						}
-						else
-						{
-							lightBeam.enabled = false;
-							torchimg.sprite = unlitsprite;
+    public void OnTorchCollected()
+    {
+        Debug.Log("Torch collected, activating torch");
+        theTorch.SetActive(true);
+        torchAnimator = theTorch.GetComponentInChildren<Animator>();
+        lightBeam = theTorch.GetComponentInChildren<Light>();
+        WaitingForTorch = false;
+        torchimg.GetComponent<CanvasGroup>().alpha = 1f;
+    }
 
-							SpotlightBeam.enabled = false;
-							torchToggle = false;
-							//Debug.Log("off");
-						}
-					}
+    private void OnToggle(InputAction.CallbackContext ctx)
+    {
+        if (WaitingForTorch || GameMaster.INMENU || GameMaster.FROZEN) return;
 
-					if (Input.GetMouseButtonUp(0))
-					{
-						if (!Pickup.hasobject)
-						{
-							torchAnimator.SetTrigger("swing");
-						}
-					}
-					else
-					{
-						torchAnimator.SetTrigger("idle");
-					}
+        torchToggle = !torchToggle;
 
-				}
-			}
+        if (lightBeam != null)
+            lightBeam.enabled = torchToggle;
+        if (SpotlightBeam != null)
+            SpotlightBeam.enabled = torchToggle;
 
+        if (torchimg != null)
+            torchimg.sprite = torchToggle ? litsprite : unlitsprite;
 
-		}
+        Debug.Log("Torch toggled: " + torchToggle);
+    }
 
+    private void OnSwing(InputAction.CallbackContext ctx)
+    {
+        if (WaitingForTorch || GameMaster.INMENU || GameMaster.FROZEN) return;
+        if (Pickup.hasobject) return;
+        if (isSwinging) return;
+        isSwinging = true;
 
+        if (torchAnimator != null)
+        {
+            torchAnimator.SetTrigger("swing");
+            Debug.Log("SwingTorch triggered");
 
-	}
+            // Optional: reset to idle after animation duration
+            float swingDuration = 0.5f; // match the swing clip length
+            StartCoroutine(ResetIdleAfter(swingDuration));
+        }
+    }
 
-
+    private IEnumerator ResetIdleAfter(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (torchAnimator != null)
+            torchAnimator.ResetTrigger("swing");
+            torchAnimator.SetTrigger("idle");
+            isSwinging = false;
+    }
+    
 }

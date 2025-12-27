@@ -13824,9 +13824,8 @@ MonoBehaviour:
   cameraZoom: {fileID: 114103969151773366}
   originalFieldOfView: 70
   targetFieldOfView: 40
-  zoomDuration: 2
-  unZoomDuration: 0.75
   elapsedCutsceneTime: 0
+  CutsceneInProgress: 0
   ColliderCube: {fileID: 0}
 --- !u!1 &491288316
 GameObject:
@@ -24811,11 +24810,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 901289818}
-  - component: {fileID: 901289822}
   - component: {fileID: 901289820}
   - component: {fileID: 901289819}
   - component: {fileID: 901289821}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: cupboardoor1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24916,25 +24914,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4290048971853235214, guid: bbd078ad70e1f32458a1f7ede294ef36, type: 3}
---- !u!114 &901289822
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 901289817}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  DoorType: 3
-  isOpen: 0
-  isLocked: 0
-  isAnimating: 0
-  doorAnimator: {fileID: 722174270}
-  colliderDisableTime: 0.5
-  indicatorLights: []
 --- !u!1 &902377878
 GameObject:
   m_ObjectHideFlags: 0
@@ -35427,7 +35406,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 2147483647
+    m_Bits: 1896939519
 --- !u!114 &1281712749
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40553,11 +40532,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lightBeam: {fileID: 1420132373}
   theTorch: {fileID: 4895431323914189644}
-  lightIntensity: 100
   torchimg: {fileID: 263267959}
   litsprite: {fileID: 21300000, guid: 6645475fa4918ca4c88d7f6893bdc438, type: 3}
   unlitsprite: {fileID: 21300000, guid: ceba58d1a29c8514893469c8635b6810, type: 3}
   SpotlightBeam: {fileID: 1420132375}
+  swingAction: {fileID: 5189715140081850168, guid: 4df9819211fd51e44a104719df85f7ac,
+    type: 3}
+  toggleAction: {fileID: -8271075607852034829, guid: 4df9819211fd51e44a104719df85f7ac,
+    type: 3}
+  isSwinging: 0
   WaitingForTorch: 0
 --- !u!1 &1472779747
 GameObject:
@@ -47053,10 +47036,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!65 &1700466226
 BoxCollider:
@@ -58157,10 +58140,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!65 &2060321448
 BoxCollider:
@@ -78082,11 +78065,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2938916677106413534}
-  - component: {fileID: 7249555990555428921}
   - component: {fileID: 3432848274406969033}
   - component: {fileID: 5745109104632679813}
   - component: {fileID: 7249555990555428920}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: cupboardoor2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -78115,25 +78097,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4290048971853235214, guid: bbd078ad70e1f32458a1f7ede294ef36, type: 3}
---- !u!114 &7249555990555428921
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7249555990555428918}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  DoorType: 3
-  isOpen: 0
-  isLocked: 0
-  isAnimating: 0
-  doorAnimator: {fileID: 1945245198}
-  colliderDisableTime: 0.5
-  indicatorLights: []
 --- !u!33 &7257198004123167099
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -83090,10 +83053,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!136 &8978363447729834607
 CapsuleCollider:
@@ -83239,11 +83202,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7001398167076785739}
-  - component: {fileID: 9007386066942666038}
   - component: {fileID: 1675091539137832033}
   - component: {fileID: 4920749420873750596}
   - component: {fileID: 9007386066942666037}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: ovendoor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -83271,25 +83233,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0019444267, y: 0.019655848, z: 0.016101401}
   m_Center: {x: 0.009511432, y: 0.00040380322, z: -0.0018345603}
---- !u!114 &9007386066942666038
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9007386066942666036}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13375570e3218d1429cf16d008778f39, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  DoorType: 3
-  isOpen: 0
-  isLocked: 0
-  isAnimating: 0
-  doorAnimator: {fileID: 1768136387}
-  colliderDisableTime: 0.5
-  indicatorLights: []
 --- !u!23 &9009936161862826082
 MeshRenderer:
   m_ObjectHideFlags: 0

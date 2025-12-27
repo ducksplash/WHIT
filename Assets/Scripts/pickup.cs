@@ -189,6 +189,7 @@ public class Pickup : MonoBehaviour
 	public void PickupItem(RaycastHit hit)
 	{
 		if (GameMaster.PHONEOUT) return;
+		if (GameMaster.FROZEN) return;
 		
 		if (!hit.transform.gameObject.tag.Equals("COLLECTABLE"))
 		{

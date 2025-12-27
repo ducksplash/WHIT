@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class GameLevel : MonoBehaviour
 {
-    public GameMaster.GAMELEVEL ThisGameLevel;
+    public GAMELEVEL ThisGameLevel;
 
 
     private void Awake()

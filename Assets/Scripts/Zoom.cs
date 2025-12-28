@@ -20,20 +20,21 @@ public class Zoom : MonoBehaviour
     {
         
         
-        if (zoomAllowed)
-        {
-            if (!GameMaster.PHONEOUT && !GameMaster.Instance.TravelCompanion.CompanionIsOpen)
-            {
-                zoomAmount += Input.mouseScrollDelta.y * sensitivity * .05f;
-                zoomAmount = Mathf.Clamp01(zoomAmount);
-                gameObject.GetComponent<Camera>().fieldOfView = Mathf.Lerp(defaultFOV, maxZoom, zoomAmount);
-            }
-            else
-            {
-                gameObject.GetComponent<Camera>().fieldOfView = 70;
-                zoomAmount = 0;
-            }
-        }
+        // Todo: New Input system
+        // if (zoomAllowed)
+        // {
+        //     if (!GameMaster.PHONEOUT && !GameMaster.Instance.TravelCompanion.CompanionIsOpen)
+        //     {
+        //         zoomAmount += Input.mouseScrollDelta.y * sensitivity * .05f;
+        //         zoomAmount = Mathf.Clamp01(zoomAmount);
+        //         gameObject.GetComponent<Camera>().fieldOfView = Mathf.Lerp(defaultFOV, maxZoom, zoomAmount);
+        //     }
+        //     else
+        //     {
+        //         gameObject.GetComponent<Camera>().fieldOfView = 70;
+        //         zoomAmount = 0;
+        //     }
+        // }
         
     }
 

@@ -505,61 +505,65 @@ public class MainMenu : MonoBehaviour
 			return;
 		}
 
-		bool success;
-		switch (GameFunction.ToLower())
-		{
-			case "forward":
-				success = InputManager.SetKey("up", thisKey, BadKeyMsg);
-				PlayerForwardKeyText1.text = success ? thisKey.ToString() : PlayerForwardKeyText1.text;
-				break;
-			case "backward":
-				success = InputManager.SetKey("down", thisKey, BadKeyMsg);
-				PlayerBackwardKeyText1.text = success ? thisKey.ToString() : PlayerBackwardKeyText1.text;
-				break;
-			case "left":
-				success = InputManager.SetKey("left", thisKey, BadKeyMsg);
-				PlayerLeftKeyText1.text = success ? thisKey.ToString() : PlayerLeftKeyText1.text;
-				break;
-			case "right":
-				success = InputManager.SetKey("right", thisKey, BadKeyMsg);
-				PlayerRightKeyText1.text = success ? thisKey.ToString() : PlayerRightKeyText1.text;
-				break;
-			case "jump":
-				success = InputManager.SetKey("jump", thisKey, BadKeyMsg);
-				PlayerJumpKeyText.text = success ? thisKey.ToString() : PlayerJumpKeyText.text;
-				break;
-			case "crouch":
-				success = InputManager.SetKey("crouch", thisKey, BadKeyMsg);
-				PlayerCrouchKeyText.text = success ? thisKey.ToString() : PlayerCrouchKeyText.text;
-				break;
-			case "sprint":
-				success = InputManager.SetKey("sprint", thisKey, BadKeyMsg);
-				PlayerSprintKeyText.text = success ? thisKey.ToString() : PlayerSprintKeyText.text;
-				break;
-			case "respawn":
-				success = InputManager.SetKey("respawn", thisKey, BadKeyMsg);
-				PlayerRespawnKeyText.text = success ? thisKey.ToString() : PlayerRespawnKeyText.text;
-				break;
-			case "phone":
-				success = InputManager.SetKey("phone", thisKey, BadKeyMsg);
-				PlayerPhoneKeyText.text = success ? thisKey.ToString() : PlayerPhoneKeyText.text;
-				break;
-			case "camera":
-				success = InputManager.SetKey("camera", thisKey, BadKeyMsg);
-				PlayerCameraKeyText.text = success ? thisKey.ToString() : PlayerCameraKeyText.text;
-				break;
-			case "torch":
-				success = InputManager.SetKey("torch", thisKey, BadKeyMsg);
-				PlayerTorchKeyText.text = success ? thisKey.ToString() : PlayerTorchKeyText.text;
-				break;
-			case "special":
-				success = InputManager.SetKey("special", thisKey, BadKeyMsg);
-				PlayerSpecialKeyText.text = success ? thisKey.ToString() : PlayerSpecialKeyText.text;
-				break;
-			default:
-				Debug.LogError("Unknown game function: " + GameFunction);
-				return;
-		}
+		bool success = false;
+		
+		
+		
+		// todo: input action references
+		// switch (GameFunction.ToLower())
+		// {
+		// 	case "forward":
+		// 		success = InputManager.SetKey("up", thisKey, BadKeyMsg);
+		// 		PlayerForwardKeyText1.text = success ? thisKey.ToString() : PlayerForwardKeyText1.text;
+		// 		break;
+		// 	case "backward":
+		// 		success = InputManager.SetKey("down", thisKey, BadKeyMsg);
+		// 		PlayerBackwardKeyText1.text = success ? thisKey.ToString() : PlayerBackwardKeyText1.text;
+		// 		break;
+		// 	case "left":
+		// 		success = InputManager.SetKey("left", thisKey, BadKeyMsg);
+		// 		PlayerLeftKeyText1.text = success ? thisKey.ToString() : PlayerLeftKeyText1.text;
+		// 		break;
+		// 	case "right":
+		// 		success = InputManager.SetKey("right", thisKey, BadKeyMsg);
+		// 		PlayerRightKeyText1.text = success ? thisKey.ToString() : PlayerRightKeyText1.text;
+		// 		break;
+		// 	case "jump":
+		// 		success = InputManager.SetKey("jump", thisKey, BadKeyMsg);
+		// 		PlayerJumpKeyText.text = success ? thisKey.ToString() : PlayerJumpKeyText.text;
+		// 		break;
+		// 	case "crouch":
+		// 		success = InputManager.SetKey("crouch", thisKey, BadKeyMsg);
+		// 		PlayerCrouchKeyText.text = success ? thisKey.ToString() : PlayerCrouchKeyText.text;
+		// 		break;
+		// 	case "sprint":
+		// 		success = InputManager.SetKey("sprint", thisKey, BadKeyMsg);
+		// 		PlayerSprintKeyText.text = success ? thisKey.ToString() : PlayerSprintKeyText.text;
+		// 		break;
+		// 	case "respawn":
+		// 		success = InputManager.SetKey("respawn", thisKey, BadKeyMsg);
+		// 		PlayerRespawnKeyText.text = success ? thisKey.ToString() : PlayerRespawnKeyText.text;
+		// 		break;
+		// 	case "phone":
+		// 		success = InputManager.SetKey("phone", thisKey, BadKeyMsg);
+		// 		PlayerPhoneKeyText.text = success ? thisKey.ToString() : PlayerPhoneKeyText.text;
+		// 		break;
+		// 	case "camera":
+		// 		success = InputManager.SetKey("camera", thisKey, BadKeyMsg);
+		// 		PlayerCameraKeyText.text = success ? thisKey.ToString() : PlayerCameraKeyText.text;
+		// 		break;
+		// 	case "torch":
+		// 		success = InputManager.SetKey("torch", thisKey, BadKeyMsg);
+		// 		PlayerTorchKeyText.text = success ? thisKey.ToString() : PlayerTorchKeyText.text;
+		// 		break;
+		// 	case "special":
+		// 		success = InputManager.SetKey("special", thisKey, BadKeyMsg);
+		// 		PlayerSpecialKeyText.text = success ? thisKey.ToString() : PlayerSpecialKeyText.text;
+		// 		break;
+		// 	default:
+		// 		Debug.LogError("Unknown game function: " + GameFunction);
+		// 		return;
+		// }
 
 		if (success)
 		{
@@ -618,7 +622,8 @@ public class MainMenu : MonoBehaviour
 			RestoreDefaultsDialog.GetComponent<CanvasGroup>().alpha = 0f;
 			RestoreDefaultsDialog.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
-			InputManager.SetDefault();
+			// todo: input action references
+			//InputManager.SetDefault();
 			LoadSavedKeys();
 
 	}

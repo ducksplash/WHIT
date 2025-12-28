@@ -273,91 +273,94 @@ public class Phone : MonoBehaviour
 
         if (!GameMaster.FROZEN)
         {
-            if (InputManager.GetKeyUp("phone"))
-            {
+            // todo: input action references
+            // if (InputManager.GetKeyUp("phone"))
+            // {
+            //
+            //     TogglePhone();
+            //
+            // }
 
-                TogglePhone();
 
-            }
-
-
-            if (GameMaster.PHONEOUT && Input.GetKeyUp(KeyCode.Escape))
-            {
-                TogglePhone();
-            }
+            // todo: input action references
+            // if (GameMaster.PHONEOUT && Input.GetKeyUp(KeyCode.Escape))
+            // {
+            //     TogglePhone();
+            // }
         }
 
         // take photos
 
-        if (InputManager.GetKeyUp("camera") && CameraReady)
-        {
-            TakePhoto();
-        }
+        // todo: input action references
+        // if (InputManager.GetKeyUp("camera") && CameraReady)
+        // {
+        //     TakePhoto();
+        // }
 
 
 
 
         // Dial By Keyb
         // need to refactor this
-
-
-        if ((Input.GetKeyUp("0") || Input.GetKeyUp("[0]")) && GameMaster.PHONEOUT)
-        {
-            DialBar.text = DialBar.text + "0";
-        }
-        if ((Input.GetKeyUp("1") || Input.GetKeyUp("[1]")) && GameMaster.PHONEOUT)
-        {
-            DialBar.text = DialBar.text + "1";
-        }
-        if ((Input.GetKeyUp("2") || Input.GetKeyUp("[2]")) && GameMaster.PHONEOUT)
-        {
-            DialBar.text = DialBar.text + "2";
-        }
-        if ((Input.GetKeyUp("3") || Input.GetKeyUp("[3]")) && GameMaster.PHONEOUT)
-        {
-            DialBar.text = DialBar.text + "3";
-        }
-        if ((Input.GetKeyUp("4") || Input.GetKeyUp("[4]")) && GameMaster.PHONEOUT)
-        {
-            DialBar.text = DialBar.text + "4";
-        }
-        if ((Input.GetKeyUp("5") || Input.GetKeyUp("[5]")) && GameMaster.PHONEOUT)
-        {
-            DialBar.text = DialBar.text + "5";
-        }
-        if ((Input.GetKeyUp("6") || Input.GetKeyUp("[6]")) && GameMaster.PHONEOUT)
-        {
-            DialBar.text = DialBar.text + "6";
-        }
-        if ((Input.GetKeyUp("7") || Input.GetKeyUp("[7]")) && GameMaster.PHONEOUT)
-        {
-            DialBar.text = DialBar.text + "7";
-        }
-        if ((Input.GetKeyUp("8") || Input.GetKeyUp("[8]")) && GameMaster.PHONEOUT)
-        {
-            DialBar.text = DialBar.text + "8";
-        }
-        if ((Input.GetKeyUp("9") || Input.GetKeyUp("[9]")) && GameMaster.PHONEOUT)
-        {
-            DialBar.text = DialBar.text + "9";
-        }
-        if ((Input.GetKeyUp("[*]")) && GameMaster.PHONEOUT)
-        {
-            DialBar.text = DialBar.text + "*";
-        }
-        if ((Input.GetKeyUp("#")) && GameMaster.PHONEOUT)
-        {
-            DialBar.text = DialBar.text + "#";
-        }
-
-        if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && GameMaster.PHONEOUT)
-        {
-            if (DialBar.text.Length > 0)
-            {
-                String SubString = DialBar.text.Substring(0, DialBar.text.Length - 1);
-                DialBar.text = SubString;
-            }
-        }
+        //
+        //
+        // if ((Input.GetKeyUp("0") || Input.GetKeyUp("[0]")) && GameMaster.PHONEOUT)
+        // {
+        //     DialBar.text = DialBar.text + "0";
+        // }
+        // if ((Input.GetKeyUp("1") || Input.GetKeyUp("[1]")) && GameMaster.PHONEOUT)
+        // {
+        //     DialBar.text = DialBar.text + "1";
+        // }
+        // if ((Input.GetKeyUp("2") || Input.GetKeyUp("[2]")) && GameMaster.PHONEOUT)
+        // {
+        //     DialBar.text = DialBar.text + "2";
+        // }
+        // if ((Input.GetKeyUp("3") || Input.GetKeyUp("[3]")) && GameMaster.PHONEOUT)
+        // {
+        //     DialBar.text = DialBar.text + "3";
+        // }
+        // if ((Input.GetKeyUp("4") || Input.GetKeyUp("[4]")) && GameMaster.PHONEOUT)
+        // {
+        //     DialBar.text = DialBar.text + "4";
+        // }
+        // if ((Input.GetKeyUp("5") || Input.GetKeyUp("[5]")) && GameMaster.PHONEOUT)
+        // {
+        //     DialBar.text = DialBar.text + "5";
+        // }
+        // if ((Input.GetKeyUp("6") || Input.GetKeyUp("[6]")) && GameMaster.PHONEOUT)
+        // {
+        //     DialBar.text = DialBar.text + "6";
+        // }
+        // if ((Input.GetKeyUp("7") || Input.GetKeyUp("[7]")) && GameMaster.PHONEOUT)
+        // {
+        //     DialBar.text = DialBar.text + "7";
+        // }
+        // if ((Input.GetKeyUp("8") || Input.GetKeyUp("[8]")) && GameMaster.PHONEOUT)
+        // {
+        //     DialBar.text = DialBar.text + "8";
+        // }
+        // if ((Input.GetKeyUp("9") || Input.GetKeyUp("[9]")) && GameMaster.PHONEOUT)
+        // {
+        //     DialBar.text = DialBar.text + "9";
+        // }
+        // if ((Input.GetKeyUp("[*]")) && GameMaster.PHONEOUT)
+        // {
+        //     DialBar.text = DialBar.text + "*";
+        // }
+        // if ((Input.GetKeyUp("#")) && GameMaster.PHONEOUT)
+        // {
+        //     DialBar.text = DialBar.text + "#";
+        // }
+        //
+        // if ((Input.GetKeyUp("backspace") || Input.GetKeyUp("delete")) && GameMaster.PHONEOUT)
+        // {
+        //     if (DialBar.text.Length > 0)
+        //     {
+        //         String SubString = DialBar.text.Substring(0, DialBar.text.Length - 1);
+        //         DialBar.text = SubString;
+        //     }
+        // }
         
     }
 
@@ -661,7 +664,8 @@ public class Phone : MonoBehaviour
         CameraRightFlash.enabled = true;
 
 
-        string camerakey = InputManager.GetKeyName("camera");
+        // todo: input action references
+        // string camerakey = InputManager.GetKeyName("camera");
 
         if (GameMaster.Instance.EvidenceFound.Count < 1)
         {
@@ -1101,9 +1105,10 @@ public class Phone : MonoBehaviour
                             CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
 
 
-                            string camerakey = InputManager.GetKeyName("camera");
+                            // todo: input action references
+                            //string camerakey = InputManager.GetKeyName("camera");
 
-                            CameraReadyText.text = "press " + camerakey + " to photograph evidence";
+                            //CameraReadyText.text = "press " + camerakey + " to photograph evidence";
                             CameraReady = true;
                             ObservedEvidence = other.gameObject;
                         }

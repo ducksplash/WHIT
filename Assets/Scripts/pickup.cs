@@ -1,340 +1,176 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using VLB;
 
 public class Pickup : MonoBehaviour
 {
+    public bool hasobject;
+    public Transform defaultparent;
+    public Transform myHeldItem;
+    public Transform handTransform;
+    public bool hasobjectshown;
+    public Vector3 StartRotation;
+    public CanvasGroup RotationMenu;
+    public LayerMask IgnoreLayer;
 
-	public static bool hasobject;
-	private Transform defaultparent;
-	public Transform myHeldItem;
-	public Transform heldItemParent;
-	public Transform handTransform;
-	public bool hasobjectshown;
-	public Vector3 StartRotation;
-	public CanvasGroup RotationMenu;
-	public LayerMask IgnoreLayer;
-	public Collider theHandCollider;
+    [Header("Input (New System)")]
+    public InputActionReference pointerPositionAction;
+    public InputActionReference pickupDropAction;
+    public InputActionReference throwAction;
+    public InputActionReference rotateAction;
+    public InputActionReference focusAction;
 
-	
-	
-	private void Awake()
+    void Awake()
     {
-		hasobject = false;
-		StartRotation = handTransform.parent.eulerAngles;
-		defaultparent = null;
+        hasobject = false;
+        if (handTransform != null)
+            StartRotation = handTransform.parent.eulerAngles;
     }
 
-	private void Start()
-	{
-		handTransform = Player.Instance.playerHand;
-	}
-
-
-	void Update()
-	{
-		hasobjectshown = hasobject;
-		if (Input.GetMouseButtonDown(1))
-		{
-
-			if (!hasobject)
-			{
-
-
-				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-				RaycastHit hit;
-
-				if (Physics.Raycast(ray, out hit, 3.5f, ~IgnoreLayer))
-				{
-
-					PickupItem(hit);
-
-				}
-			}
-			else
-			{
-				DropItem();
-			}
-		}
-
-
-		if (Input.GetMouseButtonUp(0))
-		{
-			if (hasobject)
-			{
-				ThrowItem();
-			}
-		}
-
-		
-
-
-		if (!hasobject)
-		{
-			myHeldItem = null;
-			if (RotationMenu) RotationMenu.alpha = 0f;
-			hasobjectshown = false;
-		}
-
-
-		if (handTransform.childCount > 0 && !hasobject)
-		{
-			myHeldItem = null;
-			if (RotationMenu) RotationMenu.alpha = 0f;
-			hasobjectshown = false;
-			handTransform.GetChild(0).parent = defaultparent;
-		}
-
-		
-	}
-
-
-
-
-    void FixedUpdate()
-	{
-		
-		if (hasobject && myHeldItem != null)
-		{
-
-			if (Input.GetKey(KeyCode.Keypad1) || Input.GetKey(KeyCode.Alpha1))
-			{
-
-				myHeldItem.Rotate(new Vector3(-5, 5, 0) * (Time.smoothDeltaTime * 20));
-
-			}
-
-
-			if (Input.GetKey(KeyCode.Keypad2) || Input.GetKey(KeyCode.Alpha2))
-			{
-
-				myHeldItem.Rotate(new Vector3(-5, 0, 0) * (Time.smoothDeltaTime * 20));
-
-			}
-
-
-			if (Input.GetKey(KeyCode.Keypad3) || Input.GetKey(KeyCode.Alpha3))
-			{
-
-				myHeldItem.Rotate(new Vector3(-5, -5, 0) * (Time.smoothDeltaTime * 20));
-
-			}
-
-
-
-
-
-			if (Input.GetKey(KeyCode.Keypad4) || Input.GetKey(KeyCode.Alpha4))
-			{
-
-				myHeldItem.Rotate(new Vector3(0, 5, 0) * (Time.smoothDeltaTime * 20));
-
-			}
-
-
-			if (Input.GetKeyUp(KeyCode.Keypad5) || Input.GetKey(KeyCode.Alpha5))
-			{
-
-				Debug.Log("focus");
-
-				myHeldItem.transform.localEulerAngles = transform.forward * -1;
-			}
-
-
-
-
-			if (Input.GetKey(KeyCode.Keypad6) || Input.GetKey(KeyCode.Alpha6))
-			{
-
-				myHeldItem.Rotate(new Vector3(0, -5, 0) * (Time.smoothDeltaTime * 20));
-
-			}
-
-			if (Input.GetKey(KeyCode.Keypad7) || Input.GetKey(KeyCode.Alpha7))
-			{
-
-				myHeldItem.Rotate(new Vector3(5, -5, 0) * (Time.smoothDeltaTime * 20));
-
-			}
-
-
-
-			if (Input.GetKey(KeyCode.Keypad8) || Input.GetKey(KeyCode.Alpha8))
-			{
-
-				myHeldItem.Rotate(new Vector3(5, 0, 0) * (Time.smoothDeltaTime * 20));
-
-			}
-
-
-
-			if (Input.GetKey(KeyCode.Keypad9) || Input.GetKey(KeyCode.Alpha9))
-			{
-
-				myHeldItem.Rotate(new Vector3(5, 5, 0) * (Time.smoothDeltaTime * 20));
-
-			}
-
-
-
-		}
-
-
-
-	}
-
-
-	public void PickupItem(RaycastHit hit)
-	{
-		if (GameMaster.PHONEOUT) return;
-		if (GameMaster.FROZEN) return;
-		
-		if (!hit.transform.gameObject.tag.Equals("COLLECTABLE"))
-		{
-			var TheItem = hit;
-
-			RotationMenu.alpha = 0.7f;
-
-			TheItem.transform.SetParent(handTransform, true);
-
-			TheItem.transform.gameObject.AddComponent<GetHeldObjectCollisions>();
-			
-			
-			//handTransform.Rotate(new Vector3(0,0,0), Space.Self);
-			TheItem.transform.localPosition = new Vector3(0, 0, 0);
-
-			TheItem.transform.localEulerAngles = transform.forward * -1;
-
-
-			TheItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-
-			myHeldItem = TheItem.transform;
-
-			Collider myItemCollider = myHeldItem.GetComponent<Collider>();
-			if (myItemCollider)
-			{
-				ResizeCollider(myItemCollider, 0.85f);
-			}
-			
-			hasobject = true;
-			GameMaster.HASITEM = true;
-			
-
-			if (TheItem.transform.GetComponent<Evidence>() != null)
-            {
-				
-
-				Debug.Log("this is evidence");
-
-				if (TheItem.transform.GetComponent<Evidence>().EvidenceQuality > 1)
-                {
-					TheItem.transform.GetComponent<Evidence>().EvidenceQuality--;
-                }
-
-
-				Debug.Log("evidence quality"+ TheItem.transform.GetComponent<Evidence>().EvidenceQuality);
-
-			}
-
-		}
-		
-				
-		if (hit.transform.name.Contains("TORCH"))
-		{
-			GameMaster.Instance.OnboardingManager.CollectTorch();
-		}
-		
-		if (hit.transform.name.Contains("NOTEPAD"))
-		{
-			GameMaster.Instance.OnboardingManager.CollectNotepad();
-		}
-		
-		if (hit.transform.name.Contains("PHONE"))
-		{
-			GameMaster.Instance.OnboardingManager.CollectPhone();
-		}
-		
-	}
-
-	
-
-	// Function to resize the collider by a specified factor
-	public void ResizeCollider(Collider collider, float scaleFactor)
-	{
-		
-		// Get the Collider component attached to this GameObject
-
-		if (collider is BoxCollider)
-		{
-			BoxCollider boxCollider = (BoxCollider)collider;
-			Vector3 originalSize = boxCollider.size;
-			boxCollider.size = originalSize * scaleFactor;
-		}
-		else if (collider is SphereCollider)
-		{
-			SphereCollider sphereCollider = (SphereCollider)collider;
-			sphereCollider.radius *= scaleFactor;
-		}
-		// Add support for other collider types as needed (e.g., CapsuleCollider, MeshCollider)
-	}
-	
-
-	public void DropItem()
-	{
-		RotationMenu.alpha = 0f;
-		
-		if (myHeldItem != null)
-		{
-			Collider myItemCollider = myHeldItem.GetComponent<Collider>();
-			if (myItemCollider)
-			{
-				ResizeCollider(myItemCollider, 1f);
-			}
-
-			myHeldItem.SetParent(defaultparent);
-			GetHeldObjectCollisions component = myHeldItem.transform.gameObject.GetComponent<GetHeldObjectCollisions>();
-			if (component != null)
-			{
-				// Remove the component from the GameObject
-				Destroy(component);
-			}
-
-			myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-			myHeldItem = null;
-			hasobject = false;
-			GameMaster.HASITEM = false;
-		}
-	}
-
-	public void ThrowItem()
-	{
-		
-		RotationMenu.alpha = 0f;
-		Collider myItemCollider = myHeldItem.GetComponent<Collider>();
-		if (myItemCollider)
-		{
-			ResizeCollider(myItemCollider, 1f);
-		}
-		myHeldItem.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-		myHeldItem.transform.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward * 200f);
-		myHeldItem.SetParent(defaultparent);
-		GetHeldObjectCollisions component = myHeldItem.transform.gameObject.GetComponent<GetHeldObjectCollisions>();
-		if (component != null)
-		{
-			// Remove the component from the GameObject
-			Destroy(component);
-		}
-		if (myHeldItem.parent == defaultparent)
+    void Start()
+    {
+        if (handTransform == null && Player.Instance != null)
+            handTransform = Player.Instance.playerHand;
+    }
+
+    void OnEnable()
+    {
+        pointerPositionAction?.action.Enable();
+        pickupDropAction?.action.Enable();
+        throwAction?.action.Enable();
+        rotateAction?.action.Enable();
+        focusAction?.action.Enable();
+
+        pickupDropAction.action.performed += OnPickupDrop;
+        throwAction.action.performed += OnThrow;
+        focusAction.action.performed += OnFocus;
+    }
+
+    void OnDisable()
+    {
+        pickupDropAction.action.performed -= OnPickupDrop;
+        throwAction.action.performed -= OnThrow;
+        focusAction.action.performed -= OnFocus;
+    }
+
+    private void OnPickupDrop(InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed) return;
+
+        // ⛔ do not pick up if hovering drawers/doors/etc
+        if (clickable.Instance != null && clickable.Instance.IsHoveringInteractive())
+            return;
+
+        if (!hasobject)
         {
-			hasobject = false;
-			GameMaster.HASITEM = false;
-			myHeldItem = null;
+            Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            if (Physics.Raycast(ray, out RaycastHit hit, Player.Instance.RayCastDistance, ~IgnoreLayer))
+                PickupItem(hit);
+        }
+        else
+        {
+            DropItem();
+        }
+    }
+
+    private void OnThrow(InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed) return;
+        if (hasobject)
+            ThrowItem();
+    }
+
+    private void OnFocus(InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed || !hasobject || myHeldItem == null) return;
+        myHeldItem.transform.localEulerAngles = transform.forward * -1;
+    }
+
+    public void PickupItem(RaycastHit hit)
+    {
+        if (GameMaster.PHONEOUT || GameMaster.FROZEN) return;
+
+        Transform obj = hit.transform;
+
+
+        if (obj.CompareTag("COLLECTABLE"))
+        {
+            if (obj.name.Contains("TORCH")) GameMaster.Instance.OnboardingManager.CollectTorch();
+            else if (obj.name.Contains("NOTEPAD")) GameMaster.Instance.OnboardingManager.CollectNotepad();
+            else if (obj.name.Contains("PHONE")) GameMaster.Instance.OnboardingManager.CollectPhone();
+
+
+            Debug.Log("Collected: " + obj.name);
+            return;
         }
 
-	}
+        myHeldItem = obj;
 
+        RotationMenu.alpha = 0.7f;
 
+        obj.SetParent(handTransform, true);
+        obj.localPosition = Vector3.zero;
+        obj.localRotation = Quaternion.identity;
 
+        Rigidbody rb = obj.GetComponent<Rigidbody>();
+        if (rb != null) rb.constraints = RigidbodyConstraints.FreezeAll;
+        
+        obj.gameObject.AddComponent<GetHeldObjectCollisions>();
+
+        hasobject = true;
+        GameMaster.HASITEM = true;
+
+        Evidence e = obj.GetComponent<Evidence>();
+        if (e != null && e.EvidenceQuality > 1) e.EvidenceQuality--;
+
+        Debug.Log("Picked up holdable: " + obj.name);
+    }
+
+    public void DropItem()
+    {
+        RotationMenu.alpha = 0f;
+
+        if (myHeldItem != null)
+        {
+            myHeldItem.SetParent(defaultparent, true);
+        
+
+            var comp = myHeldItem.GetComponent<GetHeldObjectCollisions>();
+            if (comp != null) Destroy(comp);
+
+            Rigidbody rb = myHeldItem.GetComponent<Rigidbody>();
+            if (rb != null) rb.constraints = RigidbodyConstraints.None;
+
+            myHeldItem = null;
+            hasobject = false;
+            GameMaster.HASITEM = false;
+        }
+    }
+
+    public void ThrowItem()
+    {
+        RotationMenu.alpha = 0f;
+
+        if (myHeldItem == null) return;
+
+        
+        myHeldItem.SetParent(defaultparent, true);
+
+        
+        var comp = myHeldItem.GetComponent<GetHeldObjectCollisions>();
+        if (comp != null) Destroy(comp);
+        
+        Rigidbody rb = myHeldItem.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.constraints = RigidbodyConstraints.None;
+            rb.AddForce(Camera.main.transform.forward * 200f);
+        }
+
+        
+        myHeldItem = null;
+        hasobject = false;
+        GameMaster.HASITEM = false;
+    }
 }

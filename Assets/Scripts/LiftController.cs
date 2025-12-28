@@ -54,7 +54,7 @@ public class LiftController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1))
         {
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 2.5f) &&
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Player.Instance.RayCastDistance) &&
                 (hit.transform.name.Contains("X") || hit.transform.name == "G" || hit.transform.name == "1" ||
                  hit.transform.name == "B1" || hit.transform.name == "B2"))
             {

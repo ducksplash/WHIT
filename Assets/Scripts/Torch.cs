@@ -88,7 +88,7 @@ public class Torch : MonoBehaviour
     private void OnSwing(InputAction.CallbackContext ctx)
     {
         if (WaitingForTorch || GameMaster.INMENU || GameMaster.FROZEN) return;
-        if (Pickup.hasobject) return;
+        if (GameMaster.Instance.Pickup.hasobject) return;
         if (isSwinging) return;
         isSwinging = true;
 

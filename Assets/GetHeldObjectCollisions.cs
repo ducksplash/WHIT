@@ -3,13 +3,47 @@ using UnityEngine;
 
 public class GetHeldObjectCollisions : MonoBehaviour
 {
-    private void OnCollisionEnter(Collision other)
+    [Tooltip("How long the object can collide before being dropped.")]
+    private float collisionGraceTime = 0.75f;
+
+    private float collisionTimer = 0f;
+    private bool colliding = false;
+
+    private void Update()
     {
-        // Check if the other object is not on the "Player" layer
-        if (other.gameObject.layer != LayerMask.NameToLayer("player"))
+        if (!colliding)
         {
-            // Perform the action if the other object is not on the "Player" layer
+            collisionTimer = 0f;
+            return;
+        }
+
+        collisionTimer += Time.deltaTime;
+
+        if (collisionTimer >= collisionGraceTime)
+        {
             GameMaster.Instance.Pickup.DropItem();
         }
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("player")) return;
+
+        colliding = true;
+    }
+
+    private void OnCollisionStay(Collision other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("player")) return;
+
+        colliding = true;
+    }
+
+    private void OnCollisionExit(Collision other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("player")) return;
+
+        colliding = false;
+        collisionTimer = 0f;
     }
 }

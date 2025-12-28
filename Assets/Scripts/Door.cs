@@ -8,8 +8,8 @@ public class Door : MonoBehaviour
     public DoorType DoorType = DoorType.Standard;
 
     [Header("State")]
-    [SerializeField] private bool isOpen;
-    [SerializeField] private bool isLocked;
+    public bool isOpen;
+    public bool isLocked;
     [SerializeField] private bool isAnimating;
 
     [Header("Animation (Optional)")]

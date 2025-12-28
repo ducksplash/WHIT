@@ -1,513 +1,313 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 using System.Collections;
 
 public class Player : Singleton<Player>
 {
-	public GameObject TravelNotepad;
-	public float speed = 0.1f;
-	public float walkspeed = 0.1f;
-	public float sprintspeed = 0.2f;
-	Vector2 velocity;
-	private Collision thisCollision;
-	//private bool didCollide = false;
-	private CharacterController thisCharController;
-	private Camera MainCam;
-	public bool crouching;
-	public float croucheight;
-	public float standheight;
-	public Image stanceimg;
-	public Sprite crouchsprite;
-	public Sprite standsprite;
-	public bool climbing;
-	public GameObject LadderAttachedTo;
+    [Header("Movement & State")]
+    public float walkspeed = 0.1f;
+    public float sprintspeed = 0.2f;
+    public float jumpForce = 2;
+    private float speed;
+    private Vector2 moveInput;
+    private CharacterController thisCharController;
+    private Camera MainCam;
+    public float RayCastDistance = 4;
+
+    public bool crouching;
+    public float croucheight;
+    public float standheight;
+    public Image stanceimg;
+    public Sprite crouchsprite;
+    public Sprite standsprite;
+
+    public GameObject TravelNotepad;
+    public bool climbing;
+    public GameObject LadderAttachedTo;
+
+    [Header("UI References")]
+    public TextMeshProUGUI PaperDeathText;
+    public TextMeshProUGUI PaperDateText;
+    public CanvasGroup DeathScreenMain;
+    public CanvasGroup DeathScreenFader;
+    public CanvasGroup PaperScreenFader;
+    public CanvasGroup DiedTextFader;
+    public CanvasGroup ButtonFaderLeave;
+    public CanvasGroup ButtonFaderContinue;
+
+    public CanvasGroup CrossHair;
+    public CanvasGroup CrouchIndicator;
+    public CanvasGroup TorchIndicator;
+    public CanvasGroup EvidenceCompanion;
+
+    [Header("Spawn & Hands")]
+    public Vector3 SpawnPoint;
+    public Transform playerHand;
+
+    [Header("Input Actions")]
+    public InputActionReference moveAction;
+    public InputActionReference jumpAction;
+    public InputActionReference crouchAction;
+    public InputActionReference sprintAction;
+    public InputActionReference climbUpAction;
+    public InputActionReference climbDownAction;
+    public InputActionReference exitLadderAction;
 
 
-	public TextMeshProUGUI PaperDeathText;
-	public TextMeshProUGUI PaperDateText;
-	public CanvasGroup DeathScreenMain;
-	public CanvasGroup DeathScreenFader;
-	public CanvasGroup PaperScreenFader;
-	public CanvasGroup DiedTextFader;
-	public CanvasGroup ButtonFaderLeave;
-	public CanvasGroup ButtonFaderContinue;
+    [Header("Scripts")] 
+    public FirstPersonLook FirstPersonLook;
+    
+    private Vector3 moveDirection = Vector3.zero;
+    private bool jumpRequested = false;
+    private bool sprinting = false;
 
-	// the stuff we must disable
-	public CanvasGroup CrossHair;
-	public CanvasGroup CrouchIndicator;
-	public CanvasGroup TorchIndicator;
-	public CanvasGroup EvidenceCompanion;
+    void Awake()
+    {
+        thisCharController = GetComponent<CharacterController>();
+        MainCam = Camera.main;
+        SpawnPoint = transform.position;
+        speed = walkspeed;
+    }
 
-	public Vector3 SpawnPoint;
+    void OnEnable()
+    {
+        moveAction?.action.Enable();
+        jumpAction?.action.Enable();
+        crouchAction?.action.Enable();
+        sprintAction?.action.Enable();
+        climbUpAction?.action.Enable();
+        climbDownAction?.action.Enable();
+        exitLadderAction?.action.Enable();
 
-	public Transform playerHand;
+        jumpAction.action.performed += OnJump;
+        crouchAction.action.performed += OnCrouchToggle;
+        sprintAction.action.performed += ctx => sprinting = true;
+        sprintAction.action.canceled += ctx => sprinting = false;
+    }
 
-
-
-	void Start()
-	{
-
-		stanceimg = stanceimg.GetComponent<Image>();
-
-
-		SpawnPoint = transform.position;
-
-
-		thisCharController = gameObject.GetComponent<CharacterController>();
-		MainCam = Camera.main;
-
-		
-
-	}
-	
-
-
-
+    void OnDisable()
+    {
+        jumpAction.action.performed -= OnJump;
+        crouchAction.action.performed -= OnCrouchToggle;
+    }
 
     void Update()
-	{
-		if (InputManager.GetKeyUp("crouch") || Input.GetKeyUp(KeyCode.RightControl))
-		{
-			if (!GameMaster.FROZEN)
-			{
-				if (!crouching)
-				{
-					crouch();
-				}
-				else
-				{
-					var up = Vector3.up;
-					RaycastHit hit;
-
-					if (!Physics.Raycast(MainCam.transform.position, up, out hit, 2.5f))
-					{
-
-						uncrouch();
-
-					}
-					else
-                    {
-						Debug.Log("uncrouch ray hit?");
-
-						Debug.Log(hit.transform.name);
-
-
-					}
-
-				}
-			}
-		}
-
-
-		if (!GameMaster.FROZEN)
-		{
-
-
-			if (climbing)
-			{
-
-				if (InputManager.GetKey("jump"))
-                {
-					ExitLadder(LadderAttachedTo);
-                }
-
-
-
-				if (InputManager.GetKey("up") || Input.GetKey(KeyCode.UpArrow))
-				{
-					Debug.Log("u");
-
-
-					var moveForce = transform.up * speed * Time.smoothDeltaTime;
-					thisCharController.Move(moveForce);
-
-
-
-				}
-
-				if (InputManager.GetKey("down") || Input.GetKey(KeyCode.DownArrow))
-				{
-					Debug.Log("d");
-
-
-					var moveForce = transform.up * speed * Time.smoothDeltaTime;
-					thisCharController.Move(-moveForce);
-				}
-			}
-			else
-			{
-
-
-				if (InputManager.GetKey("up") || Input.GetKey(KeyCode.UpArrow))
-				{
-
-
-					if (!crouching)
-					{
-
-						if (Input.GetKey(KeyCode.Keypad0) ||Input.GetKey(KeyCode.Alpha0) || InputManager.GetKey("sprint"))
-						{
-							speed = sprintspeed;
-						}
-						else
-						{
-							speed = walkspeed;
-						}
-					}
-
-					//Debug.Log("f");
-					var moveForce = transform.forward * speed * Time.smoothDeltaTime;
-					thisCharController.Move(moveForce);
-				}
-
-
-				if (InputManager.GetKey("down") || Input.GetKey(KeyCode.DownArrow))
-				{
-					//Debug.Log("b");
-					var moveForce = transform.forward * speed * Time.smoothDeltaTime;
-					thisCharController.Move(-moveForce);
-				}
-
-
-
-				if (InputManager.GetKey("left") || Input.GetKey(KeyCode.LeftArrow))
-				{
-					//Debug.Log("l");
-					var moveForce = transform.right * speed * Time.smoothDeltaTime;
-					thisCharController.Move(-moveForce);
-				}
-
-
-
-				if (InputManager.GetKey("right") || Input.GetKey(KeyCode.RightArrow))
-				{
-					//Debug.Log("r");
-					var moveForce = transform.right * speed * Time.smoothDeltaTime;
-					thisCharController.Move(moveForce);
-				}
-
-			}
-
-
-
-			if (climbing)
-			{
-				var xup = Vector3.up;
-				RaycastHit xhit;
-				if (Physics.Raycast(MainCam.transform.position, xup, out xhit, 3f))
-				{
-
-					crouch();
-
-				}
-			}
-
-
-
-
-
-
-			//devmode
-
-
-				if (InputManager.GetKey("respawn"))
-                {
-					transform.position = SpawnPoint;
-                }
-
-
-		}
-
-	}
-
-
-
-	public void crouch()
     {
-
-		crouching = true;
-		//thisCharController.height = croucheight;
-		thisCharController.height = Mathf.Lerp(croucheight, standheight, 0f);
-		speed = walkspeed;
-		stanceimg.sprite = crouchsprite;
-
-	}
-
-
-	public void uncrouch()
-    {
-		Debug.Log("uncrouch ray didnt hit");
-		crouching = false;
-		//thisCharController.height = standheight;
-		thisCharController.height = Mathf.Lerp(standheight, croucheight, 0f);
-		stanceimg.sprite = standsprite;
-
-	}
-
-
-    public void DisableAllScreens()
-	{
-		CrossHair.alpha = 0f;
-		CrouchIndicator.alpha = 0f;
-		TorchIndicator.alpha = 0f;
-		EvidenceCompanion.alpha = 0f;
-		PaperScreenFader.alpha = 0f;
-		DeathScreenMain.alpha = 0f;
-		DeathScreenMain.blocksRaycasts = false;
-		DeathScreenFader.alpha = 0f;
-		ButtonFaderLeave.alpha = 0f;
-		ButtonFaderContinue.alpha = 0f;
-		DiedTextFader.alpha = 0f;
-		ButtonFaderContinue.blocksRaycasts = false;
-		ButtonFaderLeave.blocksRaycasts = false;
-	}
-
-
-
-
-
-
-	public void QuitToMainmenu()
-	{
-
-		GameMaster.INMENU = false;
-		GameMaster.FROZEN = false;
-
-
-		DisableAllScreens();
-
-		CrouchIndicator.alpha = 1;
-		CrossHair.alpha = 1;
-		
-		// Todo: Remember why i needed this
-		if (GameMaster.Instance.OnboardingManager.TORCHCOLLECTED)
+        if (!GameMaster.FROZEN)
         {
-			TorchIndicator.alpha = 1;
+            HandleMovement();
+        }
+    }
+
+    private void HandleMovement()
+    {
+        moveInput = moveAction != null ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
+
+        Vector3 forward = MainCam.transform.forward;
+        Vector3 right = MainCam.transform.right;
+        forward.y = 0; right.y = 0;
+        forward.Normalize(); right.Normalize();
+
+        Vector3 desiredMove = forward * moveInput.y + right * moveInput.x;
+
+        speed = crouching ? walkspeed : (sprinting ? sprintspeed : walkspeed);
+
+        // ----- CLIMBING -----
+        if (climbing)
+        {
+            Vector3 climbMove = Vector3.zero;
+
+            if (climbUpAction != null && climbUpAction.action.ReadValue<float>() > 0f)
+                climbMove += Vector3.up * speed;
+
+            if (climbDownAction != null && climbDownAction.action.ReadValue<float>() > 0f)
+                climbMove -= Vector3.up * speed;
+
+            thisCharController.Move(climbMove * Time.deltaTime);
+            return;
         }
 
-	}
+        // ----- GROUNDED CHECK -----
+        if (thisCharController.isGrounded)
+        {
+            // Keep us grounded
+            if (moveDirection.y < 0)
+                moveDirection.y = -2f;
 
+            // Jump
+            if (jumpRequested)
+            {
+                moveDirection.y = jumpForce; // jump strength
+                jumpRequested = false;
+            }
+        }
 
+        // Horizontal movement
+        thisCharController.Move(desiredMove * speed * Time.deltaTime);
 
+        // Gravity (use real-world-ish gravity)
+        moveDirection.y += Physics.gravity.y * Time.deltaTime;
 
-
-
-	public void ContinueGame()
-	{
-
-		GameMaster.INMENU = false;
-		GameMaster.FROZEN = false;
-
-
-		transform.position = SpawnPoint;
-
-		Debug.Log("carry on");
-
-		// do this before stuff lol
-		DisableAllScreens();
-
-
-		CrouchIndicator.alpha = 1;
-		CrossHair.alpha = 1;
-		EvidenceCompanion.alpha = 1;
-		if (GameMaster.Instance.OnboardingManager.TORCHCOLLECTED)
-		{
-			TorchIndicator.alpha = 1;
-		}
-
-
-	}
-
-	public void CauseDeath(string cause)
-    {
-
-		GameMaster.INMENU = true;
-		GameMaster.FROZEN = true;
-
-		StartCoroutine(SlowDeath(cause));
+        // Apply vertical motion last
+        thisCharController.Move(moveDirection * Time.deltaTime);
     }
 
 
-	IEnumerator SlowDeath(string CauseString)
+    private void OnJump(InputAction.CallbackContext ctx)
     {
-		DisableAllScreens();
+        if (!climbing && !crouching)
+            jumpRequested = true;
+    }
 
+    private void OnCrouchToggle(InputAction.CallbackContext ctx)
+    {
+        if (climbing) return;
 
-		var buildDate = "";
+        if (!crouching)
+            Crouch();
+        else
+        {
+            if (!Physics.Raycast(MainCam.transform.position, Vector3.up, 2.5f))
+                Uncrouch();
+        }
+    }
 
-		buildDate += System.DateTime.Now.ToString("dddd");
-		buildDate += ", ";
-		buildDate += System.DateTime.Now.ToString("MMMM d");
-		buildDate += MonthDay(System.DateTime.Now.ToString("dd").ToString());
-		buildDate += ", ";
-		buildDate += System.DateTime.Now.ToString("yyyy");
+    public void Crouch()
+    {
+        crouching = true;
+        thisCharController.height = croucheight;
+        speed = walkspeed;
+        stanceimg.sprite = crouchsprite;
+    }
 
-		// put cause of death on paper
-		// don't forget the full stop.
-		PaperDeathText.text = CauseString + ".";
-		PaperDateText.text = buildDate;
+    public void Uncrouch()
+    {
+        crouching = false;
+        thisCharController.height = standheight;
+        stanceimg.sprite = standsprite;
+    }
 
+    public void DisableAllScreens()
+    {
+        CrossHair.alpha = 0f;
+        CrouchIndicator.alpha = 0f;
+        TorchIndicator.alpha = 0f;
+        EvidenceCompanion.alpha = 0f;
+        PaperScreenFader.alpha = 0f;
+        DeathScreenMain.alpha = 0f;
+        DeathScreenMain.blocksRaycasts = false;
+        DeathScreenFader.alpha = 0f;
+        ButtonFaderLeave.alpha = 0f;
+        ButtonFaderContinue.alpha = 0f;
+        DiedTextFader.alpha = 0f;
+        ButtonFaderContinue.blocksRaycasts = false;
+        ButtonFaderLeave.blocksRaycasts = false;
+    }
 
-		Debug.Log(CauseString);
+    public void CauseDeath(string cause)
+    {
+        GameMaster.INMENU = true;
+        GameMaster.FROZEN = true;
+        StartCoroutine(SlowDeath(cause));
+    }
 
-		// death screen first
-		DeathScreenMain.alpha = 1f;
-		DeathScreenMain.blocksRaycasts = true;
+    private IEnumerator SlowDeath(string CauseString)
+    {
+        DisableAllScreens();
 
+        string buildDate = System.DateTime.Now.ToString("dddd") + ", " +
+                           System.DateTime.Now.ToString("MMMM d") + MonthDay(System.DateTime.Now.ToString("dd")) + ", " +
+                           System.DateTime.Now.ToString("yyyy");
 
+        PaperDeathText.text = CauseString + ".";
+        PaperDateText.text = buildDate;
 
-		Cursor.lockState = CursorLockMode.None;
-		Cursor.visible = true;
+        DeathScreenMain.alpha = 1f;
+        DeathScreenMain.blocksRaycasts = true;
 
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
 
-		var diedduration = 50;
-		var duration = 100;
-		var paperduration = 50;
-		var buttonduration = 50;
+        int duration = 100, diedDuration = 50, paperDuration = 50, buttonDuration = 50;
 
-		while (duration > 0)
-		{
-			DeathScreenFader.alpha += 0.01f;
-			yield return new WaitForSeconds(0.01f);
-			duration--;
-			Debug.Log(duration);
-		}
+        while (duration > 0)
+        {
+            DeathScreenFader.alpha += 0.01f;
+            yield return new WaitForSeconds(0.01f);
+            duration--;
+        }
 
-		if (duration == 0)
-		{
+        while (diedDuration > 0)
+        {
+            DiedTextFader.alpha += 0.02f;
+            yield return new WaitForSeconds(0.02f);
+            diedDuration--;
+        }
 
-			while (diedduration > 0)
-			{
-				DiedTextFader.alpha += 0.02f;
-				yield return new WaitForSeconds(0.02f);
-				diedduration--;
-				Debug.Log(diedduration);
-			}
+        while (paperDuration > 0)
+        {
+            PaperScreenFader.alpha += 0.02f;
+            yield return new WaitForSeconds(0.02f);
+            paperDuration--;
+        }
 
-		}
+        while (buttonDuration > 0)
+        {
+            ButtonFaderContinue.blocksRaycasts = true;
+            ButtonFaderLeave.blocksRaycasts = true;
+            ButtonFaderContinue.alpha += 0.02f;
+            ButtonFaderLeave.alpha += 0.02f;
+            yield return new WaitForSeconds(0.02f);
+            buttonDuration--;
+        }
 
+        Uncrouch();
+    }
 
-		if (duration == 0)
-		{
+    private string MonthDay(string day)
+    {
+        string nuNum = "th";
+        int d = int.Parse(day);
+        if (d < 11 || d > 20)
+        {
+            day = day[day.Length - 1].ToString();
+            switch (day)
+            {
+                case "1": nuNum = "st"; break;
+                case "2": nuNum = "nd"; break;
+                case "3": nuNum = "rd"; break;
+            }
+        }
+        return nuNum;
+    }
 
-
-			while (paperduration > 0)
-			{
-				PaperScreenFader.alpha += 0.02f;
-				yield return new WaitForSeconds(0.02f);
-				paperduration--;
-				Debug.Log(paperduration);
-			}
-
-		}
-
-		if (duration == 0)
-		{
-
-
-			while (buttonduration > 0)
-			{
-
-				ButtonFaderContinue.blocksRaycasts = true;
-				ButtonFaderLeave.blocksRaycasts = true;
-				ButtonFaderContinue.alpha += 0.02f;
-				ButtonFaderLeave.alpha += 0.02f;
-				yield return new WaitForSeconds(0.02f);
-				buttonduration--;
-				Debug.Log(buttonduration);
-			}
-
-		}
-
-		uncrouch();
-
-
-	}
-
-
-
-
-
-
-
-
-
-
-	public string MonthDay(string day)
-	{
-		string nuNum = "th";
-		if (int.Parse(day) < 11 || int.Parse(day) > 20)
-		{
-			day = day.ToCharArray()[^1].ToString();
-			switch (day)
-			{
-				case "1":
-					nuNum = "st";
-					break;
-				case "2":
-					nuNum = "nd";
-					break;
-				case "3":
-					nuNum = "rd";
-					break;
-			}
-		}
-		return nuNum;
-	}
-
-
-
-
-
-	// laddering
-
-
-	private void OnTriggerEnter(Collider other)
-	{
-
-
-		if (other.tag.Equals("LADDERS") && !climbing)
-		{
-			LadderAttachedTo = other.gameObject;
-			Debug.Log(other);
-			Debug.Log("made contact");
-			gameObject.transform.parent = transform;
-			gameObject.GetComponent<Rigidbody>().useGravity = false;
-			climbing = true;
-
-		}
-
-
-	}
-
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("LADDERS") && !climbing)
+        {
+            LadderAttachedTo = other.gameObject;
+            transform.parent = transform;
+            gameObject.GetComponent<Rigidbody>().useGravity = false;
+            climbing = true;
+        }
+    }
 
     private void OnTriggerExit(Collider other)
     {
-		if (other.tag.Equals("LADDERS") && climbing)
-		{
-			LadderAttachedTo = other.gameObject;
+        if (other.CompareTag("LADDERS") && climbing)
+        {
+            LadderAttachedTo = other.gameObject;
+            ExitLadder(LadderAttachedTo);
+        }
+    }
 
-			speed = walkspeed;
-
-			ExitLadder(LadderAttachedTo);
-
-		}
-	}
-    private void ExitLadder(GameObject WeeLadder)
-	{
-
-		Debug.Log("broke contact");
-		gameObject.transform.parent = null;
-		gameObject.GetComponent<Rigidbody>().useGravity = true;
-		climbing = false;
-
-
-	}
-
-
-
-
-
-
+    private void ExitLadder(GameObject ladder)
+    {
+        transform.parent = null;
+        gameObject.GetComponent<Rigidbody>().useGravity = true;
+        climbing = false;
+        speed = walkspeed;
+    }
 }

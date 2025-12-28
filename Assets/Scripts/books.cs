@@ -37,7 +37,7 @@ public class books : MonoBehaviour
 			{
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 				RaycastHit hit;
-				if (Physics.Raycast(ray, out hit, 4f))
+				if (Physics.Raycast(ray, out hit, Player.Instance.RayCastDistance))
 				{
 					if (hit.transform.name.Equals(thisBookName))
 					{

@@ -75,7 +75,7 @@ public class CutsceneManager : MonoBehaviour
         float yaw   = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
         float pitch = Mathf.Asin(dir.y) * Mathf.Rad2Deg;
 
-        FirstPersonLook.Instance.SetPlayerRotation(new Vector2(yaw, pitch));
+        Player.Instance.FirstPersonLook.SetPlayerRotation(new Vector2(yaw, pitch));
         CutsceneInProgress = false;
 
     }

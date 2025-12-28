@@ -1,53 +1,31 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Drawers : MonoBehaviour
 {
-	private GameObject thisDrawer;
-	private string thisDrawerName;
-	private Animator drawerAnimator;
-	private bool isOpen = false;
-	public bool isLocked = false;
+    private Animator drawerAnimator;
+    public bool isOpen = false;
+    public bool isLocked = false;
 
-	void Start()
+    void Start()
     {
-		thisDrawer = this.gameObject;
-		drawerAnimator = thisDrawer.GetComponent<Animator>();
-		thisDrawerName = thisDrawer.name;
-	
+        drawerAnimator = GetComponent<Animator>();
     }
 
-    void Update()
+    public void Interact()
     {
-        if (Input.GetMouseButtonDown(1))
-		{  
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);  
-			RaycastHit hit;  
-			if (Physics.Raycast(ray, out hit)) 
-			{  
-				if (hit.distance <= 3f)
-				{			
-					
-				if (hit.transform.name.Equals(thisDrawerName))
-					{  
-							
-						if (!isOpen)
-						{
-							drawerAnimator.SetTrigger("opened");
-							Debug.Log("open");
-							isOpen = true;
-						}
-						else
-						{
-							drawerAnimator.SetTrigger("closed");
-							Debug.Log("close");
-							isOpen = false;
-							drawerAnimator.SetTrigger("idle");
-						}
-					}					
-				}  				
-			}  
-		} 
+        if (isLocked) return;
+
+        if (!isOpen)
+        {
+            drawerAnimator.SetTrigger("opened");
+            drawerAnimator.SetTrigger("idle");
+            isOpen = true;
+        }
+        else
+        {
+            drawerAnimator.SetTrigger("closed");
+            drawerAnimator.SetTrigger("idle");
+            isOpen = false;
+        }
     }
 }

@@ -1,14 +1,26 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;   // <-- NEW
 
-public class FirstPersonLook : Singleton<FirstPersonLook>
+public class FirstPersonLook : MonoBehaviour
 {
     [SerializeField] Transform character;
+    [SerializeField] InputActionReference lookAction;   // <-- drag your Look action here
+
     Vector2 currentMouseLook;
     Vector2 appliedMouseDelta;
-    public Phone thephonescript;
-    public float sensitivity = 1;
-    public float smoothing = 2;
 
+    public float sensitivity = 1f;
+    public float smoothing = 2f;
+
+    private void OnEnable()
+    {
+        lookAction.action.Enable();
+    }
+
+    private void OnDisable()
+    {
+        lookAction.action.Disable();
+    }
 
     void FixedUpdate()
     {
@@ -17,8 +29,7 @@ public class FirstPersonLook : Singleton<FirstPersonLook>
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
-
-        if (!GameMaster.INMENU)
+        else
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -26,7 +37,6 @@ public class FirstPersonLook : Singleton<FirstPersonLook>
 
         if (!GameMaster.FROZEN)
         {
-            // Rotate camera and controller.
             transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
             character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
         }
@@ -34,17 +44,21 @@ public class FirstPersonLook : Singleton<FirstPersonLook>
 
     private void LateUpdate()
     {
-        if (!GameMaster.FROZEN)
-        {
-            // Get smooth mouse look.
-            Vector2 smoothMouseDelta = Vector2.Scale(new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")), Vector2.one * sensitivity * smoothing);
-            appliedMouseDelta = Vector2.Lerp(appliedMouseDelta, smoothMouseDelta, 1 / smoothing);
-            currentMouseLook += appliedMouseDelta;
-            currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, -60, 60);
-        }
+        if (GameMaster.FROZEN) return;
+
+        // Read from Input System
+        Vector2 rawMouse = lookAction.action.ReadValue<Vector2>();
+
+        // Apply smoothing + sensitivity
+        Vector2 smoothMouseDelta =
+            Vector2.Scale(rawMouse, Vector2.one * sensitivity * smoothing);
+
+        appliedMouseDelta = Vector2.Lerp(appliedMouseDelta, smoothMouseDelta, 1f / smoothing);
+
+        currentMouseLook += appliedMouseDelta;
+        currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, -60, 60);
     }
 
-    // Public method to set the player's rotation value
     public void SetPlayerRotation(Vector2 rotation)
     {
         currentMouseLook = rotation;

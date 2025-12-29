@@ -2,7 +2,6 @@
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using TMPro;
-using System.Linq;
 
 public class clickable : Singleton<clickable>
 {
@@ -74,14 +73,13 @@ public class clickable : Singleton<clickable>
 
         Debug.DrawRay(ray.origin, ray.direction * Player.Instance.RayCastDistance, Color.red);
 
-        var hits = Physics.RaycastAll(ray, Player.Instance.RayCastDistance);
-        RaycastHit? targetHit = SelectTarget(hits);
-
-        if (targetHit.HasValue)
+        // 👇 THE IMPORTANT FIX
+        if (Physics.Raycast(ray, out RaycastHit hit, Player.Instance.RayCastDistance))
         {
             hasHit = true;
-            currentHit = targetHit.Value;
-            ApplyHover(currentHit);
+            currentHit = hit;
+
+            ApplyHover(hit);
 
             if (rightClick != null && rightClick.action.WasReleasedThisFrame())
                 HandleClick();
@@ -93,52 +91,30 @@ public class clickable : Singleton<clickable>
         }
     }
 
-    private RaycastHit? SelectTarget(RaycastHit[] hits)
-    {
-        if (hits.Length == 0) return null;
-
-        int Priority(RaycastHit h)
-        {
-            int l = h.transform.gameObject.layer;
-
-            if (l == clickablelayer) return 0;
-            if (l == doorlayer || l == slidingdoorlayer) return 1;
-            if (l == drawerlayer) return 2;
-            if (l == pickuplayer) return 3;
-            if (l == evidencelayer || l == staticevidencelayer) return 4;
-            if (l == enemylayer) return 5;
-            if (l == unknownlayer) return 6;
-
-            return 10;
-        }
-
-        return hits.OrderBy(Priority).ThenBy(h => h.distance).First();
-    }
-
     private void ApplyHover(RaycastHit hit)
     {
         int layer = hit.transform.gameObject.layer;
-        
+
         if (layer == drawerlayer && IsCloseEnough(hit))
         {
             var drawer = hit.transform.GetComponentInParent<Drawers>();
 
-            SetCursor(drawer != null && drawer.isLocked ? lockeddrawersprite : drawerspritegreen, drawer != null && drawer.isLocked ? "locked" : "", drawer != null && drawer.isLocked ? "red" : "white");
+            SetCursor(
+                drawer != null && drawer.isLocked ? lockeddrawersprite : drawerspritegreen,
+                drawer != null && drawer.isLocked ? "locked" : "",
+                drawer != null && drawer.isLocked ? "red" : "white"
+            );
             return;
-        }
+    }
 
         if (layer == doorlayer || layer == slidingdoorlayer)
         {
             Door door = hit.transform.GetComponentInParent<Door>();
 
             if (door != null && door.isLocked)
-            {
                 SetCursor(lockeddoorsprite, "locked", "red");
-            }
             else
-            {
                 SetCursor(doorspritegreen, "", "white");
-            }
 
             return;
         }
@@ -151,7 +127,11 @@ public class clickable : Singleton<clickable>
             {
                 bool powerOn = GameMaster.POWER_SUPPLY_ENABLED;
 
-                SetCursor(powerOn ? clickablespritegreen : clickablespritered, powerOn ? "Lights" : "Lights (Power Disabled)", powerOn ? "green" : "red");
+                SetCursor(
+                    powerOn ? clickablespritegreen : clickablespritered,
+                    powerOn ? "Lights" : "Lights (Power Disabled)",
+                    powerOn ? "green" : "red"
+                );
 
                 return;
             }
@@ -186,37 +166,28 @@ public class clickable : Singleton<clickable>
     {
         if (!hasHit) return;
 
-        // DRAWERS
         if (currentHit.transform.gameObject.layer == drawerlayer)
         {
             var drawer = currentHit.transform.GetComponentInParent<Drawers>();
-            
-            if (drawer != null)
-            {
-                drawer.Interact();
-            }
+            if (drawer != null) drawer.Interact();
             return;
         }
 
-        // DOORS
-        if (currentHit.transform.gameObject.layer == doorlayer || currentHit.transform.gameObject.layer == slidingdoorlayer)
+        if (currentHit.transform.gameObject.layer == doorlayer ||
+            currentHit.transform.gameObject.layer == slidingdoorlayer)
         {
             Door door = currentHit.transform.GetComponentInParent<Door>();
             if (door != null)
-            {
                 door.TryUseDoor(currentHit.collider);
-            }
+
             return;
         }
 
-        // LIGHT SWITCHES 
         if (currentHit.transform.gameObject.layer == clickablelayer)
         {
             var switchComp = currentHit.transform.GetComponentInParent<LightSwitch>();
             if (switchComp != null)
-            {
                 switchComp.ToggleLightswitch();
-            }
         }
     }
 
@@ -244,12 +215,14 @@ public class clickable : Singleton<clickable>
         }
     }
 
-    private bool IsCloseEnough(RaycastHit hit) => hit.distance <= Player.Instance.RayCastDistance;
+    private bool IsCloseEnough(RaycastHit hit) =>
+        hit.distance <= Player.Instance.RayCastDistance;
 
     private void INFOTEXT(string text, string textcolor = "white")
     {
         infotext.text = text;
         infotextbg.text = text;
+
         infotext.color = textcolor switch
         {
             "red" => new Color(1f, 0.2f, 0.2f, 1f),

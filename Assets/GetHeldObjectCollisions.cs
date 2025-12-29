@@ -3,12 +3,11 @@ using UnityEngine;
 
 public class GetHeldObjectCollisions : MonoBehaviour
 {
-    [Tooltip("How long the object can collide before being dropped.")]
     private float collisionGraceTime = 0.75f;
-
     private float collisionTimer = 0f;
     private bool colliding = false;
 
+    
     private void Update()
     {
         if (!colliding)

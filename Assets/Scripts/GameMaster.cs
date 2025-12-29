@@ -30,7 +30,8 @@ public class GameMaster : MonoBehaviour
     public EventManager EventManager;
 
 
-    
+
+    public float MouseSensitivity = 0.2f;
     
     // Game Globals
 

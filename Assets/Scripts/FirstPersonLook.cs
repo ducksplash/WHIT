@@ -12,6 +12,12 @@ public class FirstPersonLook : MonoBehaviour
     public float sensitivity = 1f;
     public float smoothing = 2f;
 
+    private void Start()
+    {
+        sensitivity = GameMaster.Instance.MouseSensitivity;
+    }
+    
+    
     private void OnEnable()
     {
         lookAction.action.Enable();

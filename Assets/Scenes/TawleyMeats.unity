@@ -3338,6 +3338,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &66502437
 Animator:
@@ -12066,6 +12067,7 @@ MonoBehaviour:
   EvidenceQuality: 3
   EvidenceFake: 0
   PhotographableEvidence: 1
+  selectedDialogue: 0
   LevelFrom: 
   EvidenceCollected: 0
   PlayerSeen: 0
@@ -14255,6 +14257,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &233078869
 Animator:
@@ -17999,6 +18002,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &290020198
 Animator:
@@ -26440,6 +26444,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &417780959
 Animator:
@@ -30962,6 +30967,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &467765290
 Animator:
@@ -32561,6 +32567,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &482237725
 Animator:
@@ -33828,6 +33835,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &503656512
 Animator:
@@ -36617,6 +36625,7 @@ MonoBehaviour:
   EvidenceQuality: 0
   EvidenceFake: 1
   PhotographableEvidence: 1
+  selectedDialogue: 0
   LevelFrom: 
   EvidenceCollected: 0
   PlayerSeen: 0
@@ -41669,6 +41678,7 @@ MonoBehaviour:
   EvidenceQuality: 3
   EvidenceFake: 0
   PhotographableEvidence: 1
+  selectedDialogue: 0
   LevelFrom: 
   EvidenceCollected: 0
   PlayerSeen: 0
@@ -44981,6 +44991,7 @@ MonoBehaviour:
   EvidenceQuality: 0
   EvidenceFake: 1
   PhotographableEvidence: 1
+  selectedDialogue: 0
   LevelFrom: 
   EvidenceCollected: 0
   PlayerSeen: 0
@@ -56215,6 +56226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &814617953
 Animator:
@@ -56931,6 +56943,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &822471197
 Animator:
@@ -62731,6 +62744,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &900183675
 Animator:
@@ -63373,6 +63387,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &902305516
 Animator:
@@ -65214,6 +65229,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &919437397
 Animator:
@@ -65900,6 +65916,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &924983080
 Animator:
@@ -68723,6 +68740,7 @@ MonoBehaviour:
   EvidenceQuality: 3
   EvidenceFake: 0
   PhotographableEvidence: 1
+  selectedDialogue: 0
   LevelFrom: 
   EvidenceCollected: 0
   PlayerSeen: 0
@@ -70215,13 +70233,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ColliderCube: {fileID: 628180899}
-  ContactName: 0
-  MessageBody: The power room; the door seems to be locked... I don't think there's
-    gonna be a key around here, maybe try and bash it with your torch?  I know it's
-    a long shot.
+  selectedDialogue: 0
   DisplayTimer: 10
   Noraply: 0
-  NoraplyBody: 
+  followUpDialogue: 0
   Noradelay: 5
   forhowlong: 0
 --- !u!65 &974610566
@@ -73375,6 +73390,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1026929280
 Animator:
@@ -80175,12 +80191,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ColliderCube: {fileID: 1471455888}
-  ContactName: 0
-  MessageBody: This looks like the manager's office.  That computer probably controls
-    the doors, but you'll need to find a way to turn on the power first.
+  selectedDialogue: 0
   DisplayTimer: 10
   Noraply: 0
-  NoraplyBody: 
+  followUpDialogue: 0
   Noradelay: 5
   forhowlong: 0
 --- !u!65 &1117824256
@@ -84807,7 +84821,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1189475638}
   - component: {fileID: 1189475637}
-  - component: {fileID: 1189475636}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -84815,26 +84828,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1189475636
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1189475635}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SendPointerHoverToParent: 1
-  m_HorizontalAxis: Horizontal
-  m_VerticalAxis: Vertical
-  m_SubmitButton: Submit
-  m_CancelButton: Cancel
-  m_InputActionsPerSecond: 10
-  m_RepeatDelay: 0.5
-  m_ForceModuleActive: 0
 --- !u!114 &1189475637
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84914,6 +84907,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1191064224
 Animator:
@@ -87100,6 +87094,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1212440766
 Animator:
@@ -90679,6 +90674,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1262868040
 Animator:
@@ -91596,6 +91592,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1269959358
 Animator:
@@ -109417,6 +109414,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1501640906
 Animator:
@@ -110018,6 +110016,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1503830087
 Animator:
@@ -110555,6 +110554,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1505661697
 Animator:
@@ -111078,6 +111078,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1518159118
 Animator:
@@ -112903,6 +112904,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1552841090
 Animator:
@@ -113566,6 +113568,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1556299392
 Animator:
@@ -119036,6 +119039,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1649425176
 Animator:
@@ -123980,6 +123984,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1722376808
 Animator:
@@ -129347,6 +129352,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1804574932
 Animator:
@@ -131047,6 +131053,7 @@ MonoBehaviour:
   EvidenceQuality: 3
   EvidenceFake: 0
   PhotographableEvidence: 1
+  selectedDialogue: 0
   LevelFrom: 
   EvidenceCollected: 0
   PlayerSeen: 0
@@ -133007,6 +133014,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1877795140
 Animator:
@@ -133859,6 +133867,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1888017800
 Animator:
@@ -142255,6 +142264,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &1944938129
 Animator:
@@ -155872,6 +155882,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &2098699157
 Animator:
@@ -175021,6 +175032,7 @@ MonoBehaviour:
   EvidenceQuality: 3
   EvidenceFake: 0
   PhotographableEvidence: 1
+  selectedDialogue: 0
   LevelFrom: 
   EvidenceCollected: 0
   PlayerSeen: 0
@@ -176070,6 +176082,7 @@ MonoBehaviour:
   FridgeParte: {fileID: 0}
   FridgePower: 0
   CoolDown: 0
+  selectedDialogue: 0
 --- !u!4 &2438083158557321204
 Transform:
   m_ObjectHideFlags: 0
@@ -227692,6 +227705,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &6184454569449892349
 Animator:
@@ -233136,6 +233150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &6987814424926246021
 Animator:
@@ -240564,6 +240579,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &7912707785649116719
 Animator:
@@ -240931,6 +240947,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &7976885828082166544
 Animator:
@@ -241280,6 +241297,7 @@ MonoBehaviour:
   EvidenceQuality: 3
   EvidenceFake: 0
   PhotographableEvidence: 1
+  selectedDialogue: 0
   LevelFrom: 
   EvidenceCollected: 0
   PlayerSeen: 0
@@ -244106,6 +244124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77817f69c277d184f972d9053aff3fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOpen: 0
   isLocked: 0
 --- !u!95 &8917783415061943998
 Animator:
@@ -244770,6 +244789,7 @@ MonoBehaviour:
   EvidenceQuality: 0
   EvidenceFake: 1
   PhotographableEvidence: 1
+  selectedDialogue: 0
   LevelFrom: 
   EvidenceCollected: 0
   PlayerSeen: 0

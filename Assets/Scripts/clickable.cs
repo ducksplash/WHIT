@@ -118,22 +118,15 @@ public class clickable : Singleton<clickable>
     private void ApplyHover(RaycastHit hit)
     {
         int layer = hit.transform.gameObject.layer;
-
-        // ---------------- DRAWERS ----------------
+        
         if (layer == drawerlayer && IsCloseEnough(hit))
         {
             var drawer = hit.transform.GetComponentInParent<Drawers>();
 
-            SetCursor(
-                drawer != null && drawer.isLocked ? lockeddrawersprite : drawerspritegreen,
-                drawer != null && drawer.isLocked ? "locked" : "",
-                drawer != null && drawer.isLocked ? "red" : "white"
-            );
+            SetCursor(drawer != null && drawer.isLocked ? lockeddrawersprite : drawerspritegreen, drawer != null && drawer.isLocked ? "locked" : "", drawer != null && drawer.isLocked ? "red" : "white");
             return;
         }
 
-        // ---------------- DOORS ----------------
-        
         if (layer == doorlayer || layer == slidingdoorlayer)
         {
             Door door = hit.transform.GetComponentInParent<Door>();
@@ -146,65 +139,84 @@ public class clickable : Singleton<clickable>
             {
                 SetCursor(doorspritegreen, "", "white");
             }
+
             return;
         }
 
-        // ---------------- CLICKABLE OBJECTS ----------------
         if (layer == clickablelayer)
         {
+            var switchComp = hit.transform.GetComponentInParent<LightSwitch>();
+
+            if (switchComp != null)
+            {
+                bool powerOn = GameMaster.POWER_SUPPLY_ENABLED;
+
+                SetCursor(powerOn ? clickablespritegreen : clickablespritered, powerOn ? "Lights" : "Lights (Power Disabled)", powerOn ? "green" : "red");
+
+                return;
+            }
+
             SetCursor(clickablespritegreen);
             return;
         }
 
-        // ---------------- PICKUPS ----------------
         if (layer == pickuplayer)
         {
-            if (IsCloseEnough(hit))
-                SetCursor(pickupcloseenoughsprite);
-            else
-                SetCursor(pickupsprite);
-
+            SetCursor(IsCloseEnough(hit) ? pickupcloseenoughsprite : pickupsprite);
             return;
         }
 
-        // ---------------- EVIDENCE ----------------
         if (layer == evidencelayer || layer == staticevidencelayer)
         {
             SetCursor(evidencesprite);
             return;
         }
 
-        // ---------------- ENEMIES ----------------
         if (layer == enemylayer)
         {
             SetCursor(enemysprite, "", "red");
-            return;
         }
-
-        // ---------------- DEFAULT ----------------
-        SetCursor(idlesprite, "");
+        else
+        {
+            SetCursor(idlesprite, "");
+        }
     }
 
     private void HandleClick()
     {
         if (!hasHit) return;
 
+        // DRAWERS
         if (currentHit.transform.gameObject.layer == drawerlayer)
         {
             var drawer = currentHit.transform.GetComponentInParent<Drawers>();
+            
             if (drawer != null)
+            {
                 drawer.Interact();
+            }
             return;
         }
 
-        if (currentHit.transform.gameObject.layer == doorlayer ||
-            currentHit.transform.gameObject.layer == slidingdoorlayer)
+        // DOORS
+        if (currentHit.transform.gameObject.layer == doorlayer || currentHit.transform.gameObject.layer == slidingdoorlayer)
         {
             Door door = currentHit.transform.GetComponentInParent<Door>();
             if (door != null)
+            {
                 door.TryUseDoor(currentHit.collider);
-
+            }
             return;
+        }
+
+        // LIGHT SWITCHES 
+        if (currentHit.transform.gameObject.layer == clickablelayer)
+        {
+            var switchComp = currentHit.transform.GetComponentInParent<LightSwitch>();
+            if (switchComp != null)
+            {
+                switchComp.ToggleLightswitch();
+            }
         }
     }
 
@@ -232,8 +244,7 @@ public class clickable : Singleton<clickable>
         }
     }
 
-    private bool IsCloseEnough(RaycastHit hit) =>
-        hit.distance <= Player.Instance.RayCastDistance;
+    private bool IsCloseEnough(RaycastHit hit) => hit.distance <= Player.Instance.RayCastDistance;
 
     private void INFOTEXT(string text, string textcolor = "white")
     {

@@ -1,5 +1,8 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class Cutscene : MonoBehaviour 
 {
@@ -52,7 +55,7 @@ public class Cutscene : MonoBehaviour
     }
 }
 
-
+#if UNITY_EDITOR
 
 [CustomPropertyDrawer(typeof(Cutscene))]
 public class ContactDrawerCutscene : PropertyDrawer
@@ -67,3 +70,5 @@ public class ContactDrawerCutscene : PropertyDrawer
         EditorGUI.EndProperty();
     }
 }
+
+#endif

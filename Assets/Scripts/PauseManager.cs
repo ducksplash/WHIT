@@ -1,0 +1,28 @@
+using System;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class PauseManager : MonoBehaviour
+{
+    public bool IsPaused;
+    public InputActionReference pauseAction;
+    public CanvasGroup pauseUnderlay;
+    public GameObject VirtualCursor;
+    
+    
+    private void Start()
+    {
+        pauseAction.action.performed += TogglePause;
+    }
+
+    public void TogglePause(InputAction.CallbackContext callbackContext)
+    {
+        IsPaused = !IsPaused;
+        GameMaster.INMENU = IsPaused;
+        pauseUnderlay.alpha = IsPaused ? 1 : 0;
+        GameMaster.FROZEN = IsPaused;
+        VirtualCursor.SetActive(IsPaused);
+        Player.Instance.FirstPersonLook.sensitivity = IsPaused ? GameMaster.Instance.MouseSensitivity * 10 : GameMaster.Instance.MouseSensitivity;
+        GameMaster.Instance.EventManager.GamePaused(IsPaused);
+    }
+}

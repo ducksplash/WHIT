@@ -57,12 +57,22 @@ public class OnboardingManager : MonoBehaviour
         
     public Image MyFirstEvidence;
     public TextMeshProUGUI EvidenceDesc;
+    
+    
+    
+    
+    
     void Awake()
     {
+
+        EventManager.OnPlayerDataLoaded += RunOnboardingChecks;
+
+    }
+
+    private void RunOnboardingChecks()
+    {
         
-        
-        
-        ONBOARDINGCOMPLETE = PlayerPrefs.GetInt("ONBOARDINGCOMPLETE", 0) != 0;
+        ONBOARDINGCOMPLETE = StoredPrefs.GetInt("ONBOARDINGCOMPLETE", 0) != 0;
         
         // If onboarding was previously marked as complete, we can go ahead and true the rest as these, canonically, all precede ONBOARDINGCOMPLETE
         if (DEBUGGERY || ONBOARDINGCOMPLETE)
@@ -75,20 +85,16 @@ public class OnboardingManager : MonoBehaviour
         }
 
         // 
-        TORCHCOLLECTED = PlayerPrefs.GetInt("TORCHCOLLECTED", 0) != 0;
-        NOTEPADCOLLECTED = PlayerPrefs.GetInt("NOTEPADCOLLECTED", 0) != 0;
-        PHONECOLLECTED = PlayerPrefs.GetInt("PHONECOLLECTED", 0) != 0;
-        TESTEVIDENCECOLLECTED = PlayerPrefs.GetInt("TESTEVIDENCECOLLECTED", 0) != 0;
-        PHONEACCESSED = PlayerPrefs.GetInt("PHONEACCESSED", 0) != 0;
-        
-        
-    }
+        TORCHCOLLECTED = StoredPrefs.GetInt("TORCHCOLLECTED", 0) != 0;
+        NOTEPADCOLLECTED = StoredPrefs.GetInt("NOTEPADCOLLECTED", 0) != 0;
+        PHONECOLLECTED = StoredPrefs.GetInt("PHONECOLLECTED", 0) != 0;
+        TESTEVIDENCECOLLECTED = StoredPrefs.GetInt("TESTEVIDENCECOLLECTED", 0) != 0;
+        PHONEACCESSED = StoredPrefs.GetInt("PHONEACCESSED", 0) != 0;
 
-    private void Start()
-    {
+        
+        
         if (GameMaster.Instance.THISLEVEL == GAMELEVEL.NorasFlat)
         {
-
             if (PHONECOLLECTED)
             {
                 phonePickup.SetActive(false); phoneTick.alpha = 1;
@@ -129,7 +135,7 @@ public class OnboardingManager : MonoBehaviour
         torchPickup.SetActive(false); 
         
         if (torchTick) torchTick.alpha = 1;
-        PlayerPrefs.SetInt("TORCHCOLLECTED", TORCHCOLLECTED ? 1 : 0); PlayerPrefs.Save();
+        StoredPrefs.SetInt("TORCHCOLLECTED", TORCHCOLLECTED ? 1 : 0); StoredPrefs.Save();
         GameMaster.Instance.EventManager.TorchCollectedEvent();
         CheckOnboardingStatus();
     }
@@ -143,7 +149,7 @@ public class OnboardingManager : MonoBehaviour
         await coroutine.AsTask(GameMaster.Instance);
         notepadPickup.SetActive(false); 
         if (notepadTick) notepadTick.alpha = 1;
-        PlayerPrefs.SetInt("NOTEPADCOLLECTED", NOTEPADCOLLECTED ? 1 : 0); PlayerPrefs.Save();
+        StoredPrefs.SetInt("NOTEPADCOLLECTED", NOTEPADCOLLECTED ? 1 : 0); StoredPrefs.Save();
         GameMaster.Instance.EventManager.NotepadCollectedEvent();
         CheckOnboardingStatus();
     }
@@ -157,7 +163,7 @@ public class OnboardingManager : MonoBehaviour
         await coroutine.AsTask(GameMaster.Instance);
         phonePickup.SetActive(false); 
         if (phoneTick) phoneTick.alpha = 1;
-        PlayerPrefs.SetInt("PHONECOLLECTED", PHONECOLLECTED ? 1 : 0); PlayerPrefs.Save();
+        StoredPrefs.SetInt("PHONECOLLECTED", PHONECOLLECTED ? 1 : 0); StoredPrefs.Save();
         GameMaster.Instance.EventManager.PhoneCollectedEvent();
         CheckOnboardingStatus();
     }
@@ -168,7 +174,7 @@ public class OnboardingManager : MonoBehaviour
         Debug.Log("OpenedPhone");
         PHONEACCESSED = true;
         GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialGotPhone, 6);
-        PlayerPrefs.SetInt("PHONEACCESSED", PHONEACCESSED ? 1 : 0); PlayerPrefs.Save();
+        StoredPrefs.SetInt("PHONEACCESSED", PHONEACCESSED ? 1 : 0); StoredPrefs.Save();
         CheckOnboardingStatus();
     }
 
@@ -180,7 +186,7 @@ public class OnboardingManager : MonoBehaviour
         TESTEVIDENCECOLLECTED = true;
         GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstEvidence, 5);
         
-        PlayerPrefs.SetInt("TESTEVIDENCECOLLECTED", TESTEVIDENCECOLLECTED ? 1 : 0); PlayerPrefs.Save();
+        StoredPrefs.SetInt("TESTEVIDENCECOLLECTED", TESTEVIDENCECOLLECTED ? 1 : 0); StoredPrefs.Save();
         
         CheckOnboardingStatus();
     }
@@ -212,8 +218,8 @@ public class OnboardingManager : MonoBehaviour
             {
                 ONBOARDINGCOMPLETE = true;
                 StartCoroutine(NoraReady());
-                PlayerPrefs.SetInt("ONBOARDINGCOMPLETE", ONBOARDINGCOMPLETE ? 1 : 0);
-                PlayerPrefs.Save();
+                StoredPrefs.SetInt("ONBOARDINGCOMPLETE", ONBOARDINGCOMPLETE ? 1 : 0);
+                StoredPrefs.Save();
 
                 Debug.Log("ONBOARDINGCOMPLETE");
             }
@@ -290,9 +296,9 @@ public class OnboardingManager : MonoBehaviour
         }
         Directory.CreateDirectory(rootPath);
         
-        PlayerPrefs.SetInt("EQLevelNorasFlat", 0);
-        PlayerPrefs.SetInt("EQLevel1", 0);
-        PlayerPrefs.SetInt("EQLevel2", 0);
+        StoredPrefs.SetInt("EQLevelNorasFlat", 0);
+        StoredPrefs.SetInt("EQLevel1", 0);
+        StoredPrefs.SetInt("EQLevel2", 0);
         
         // Re-load after wipe if needed (or just clear dictionary)
         GameMaster.Instance.EvidenceFound.Clear();
@@ -354,40 +360,40 @@ public class OnboardingManagerEditor : Editor
 
         if (GUILayout.Button("Reset Torch"))
         {
-            PlayerPrefs.SetInt("TORCHCOLLECTED", 0);
+            StoredPrefs.SetInt("TORCHCOLLECTED", 0);
         }
         if (GUILayout.Button("Reset Notepad"))
         {
-            PlayerPrefs.SetInt("NOTEPADCOLLECTED", 0);
+            StoredPrefs.SetInt("NOTEPADCOLLECTED", 0);
         }
         if (GUILayout.Button("Reset Phone"))
         {
-            PlayerPrefs.SetInt("PHONECOLLECTED", 0);
+            StoredPrefs.SetInt("PHONECOLLECTED", 0);
         }
         if (GUILayout.Button("Reset Phone Accessed"))
         {
-            PlayerPrefs.SetInt("PHONEACCESSED", 0);
+            StoredPrefs.SetInt("PHONEACCESSED", 0);
         }
         if (GUILayout.Button("Reset Test Evidence"))
         {
-            PlayerPrefs.SetInt("TESTEVIDENCECOLLECTED", 0);
+            StoredPrefs.SetInt("TESTEVIDENCECOLLECTED", 0);
         }
         if (GUILayout.Button("Reset Onboarding Complete"))
         {
-            PlayerPrefs.SetInt("ONBOARDINGCOMPLETE", 0);
+            StoredPrefs.SetInt("ONBOARDINGCOMPLETE", 0);
         }
 
         EditorGUILayout.Space();
 
-        if (GUILayout.Button("Reset All Onboarding PlayerPrefs"))
+        if (GUILayout.Button("Reset All Onboarding StoredPrefs"))
         {
-            PlayerPrefs.DeleteKey("TORCHCOLLECTED");
-            PlayerPrefs.DeleteKey("NOTEPADCOLLECTED");
-            PlayerPrefs.DeleteKey("PHONECOLLECTED");
-            PlayerPrefs.DeleteKey("PHONEACCESSED");
-            PlayerPrefs.DeleteKey("TESTEVIDENCECOLLECTED");
-            PlayerPrefs.DeleteKey("ONBOARDINGCOMPLETE");
-            PlayerPrefs.Save();
+            StoredPrefs.DeleteKey("TORCHCOLLECTED");
+            StoredPrefs.DeleteKey("NOTEPADCOLLECTED");
+            StoredPrefs.DeleteKey("PHONECOLLECTED");
+            StoredPrefs.DeleteKey("PHONEACCESSED");
+            StoredPrefs.DeleteKey("TESTEVIDENCECOLLECTED");
+            StoredPrefs.DeleteKey("ONBOARDINGCOMPLETE");
+            StoredPrefs.Save();
             
             mgr.phonePickup.SetActive(true); 
             mgr.phoneTick.alpha = 0;

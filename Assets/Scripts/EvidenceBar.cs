@@ -62,7 +62,7 @@ public class EvidenceBar : MonoBehaviour
     public static void EQReadout()
     {
 
-        var ThisLevelsEQ = PlayerPrefs.GetInt("EQLevel" + GameMaster.Instance.THISLEVEL);
+        var ThisLevelsEQ = StoredPrefs.GetInt("EQLevel" + GameMaster.Instance.THISLEVEL);
 
 
         int EQPercent = Convert.ToInt32(Math.Round(((decimal)ThisLevelsEQ / GameMaster.ExpectedEQThisLevel) * 100, 0));

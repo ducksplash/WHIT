@@ -69,11 +69,12 @@ public class clickable : Singleton<clickable>
         Camera cam = Camera.main;
         if (cam == null) return;
 
+        Vector2 mousePos = pointerPosition.action.ReadValue<Vector2>();
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+
 
         Debug.DrawRay(ray.origin, ray.direction * Player.Instance.RayCastDistance, Color.red);
 
-        // 👇 THE IMPORTANT FIX
         if (Physics.Raycast(ray, out RaycastHit hit, Player.Instance.RayCastDistance))
         {
             hasHit = true;
@@ -86,8 +87,11 @@ public class clickable : Singleton<clickable>
         }
         else
         {
-            hasHit = false;
-            SetCursor(idlesprite, "");
+            if (hasHit)   // only reset when we *just* lost a hit
+            {
+                hasHit = false;
+                SetCursor(idlesprite, "");
+            }
         }
     }
 
@@ -105,7 +109,7 @@ public class clickable : Singleton<clickable>
                 drawer != null && drawer.isLocked ? "red" : "white"
             );
             return;
-    }
+        }
 
         if (layer == doorlayer || layer == slidingdoorlayer)
         {

@@ -148,8 +148,8 @@ public class MainMenu : MonoBehaviour
 
     private void SaveKey(KeyCode key, string functionName)
     {
-        PlayerPrefs.SetString(functionName, key.ToString());
-        PlayerPrefs.Save();
+        StoredPrefs.SetString(functionName, key.ToString());
+        StoredPrefs.Save();
 
         WaitingForKey = false;
 
@@ -164,7 +164,7 @@ public class MainMenu : MonoBehaviour
         if (KeybindLabel == null)
             return;
 
-        string value = PlayerPrefs.GetString(KeySetFunction, "None");
+        string value = StoredPrefs.GetString(KeySetFunction, "None");
         KeybindLabel.text = $"{KeySetFunction}: {value}";
     }
 

@@ -8,21 +8,44 @@ public class DebugLogger : MonoBehaviour
     [Header("UI")]
     public ScrollRect scrollRect;
     public TextMeshProUGUI logText;
-
+    public CanvasGroup canvasGroup;
+    
     [Header("Settings")]
     public int maxLines = 20;
 
     private readonly Queue<string> lines = new Queue<string>();
 
-    void OnEnable()
+    
+    
+    private void OnEnable()
     {
+        EventManager.OnPaused += PanelToggle;
         Application.logMessageReceived += HandleLog;
+    }
+
+    private void PanelToggle(bool isPaused)
+    {
+        if (isPaused)
+        {
+            PanelEnable();
+        }
+        else
+        {
+            PanelDisable();
+        }
+    }
+    
+    
+    
+    void PanelEnable()
+    {
+        canvasGroup.alpha = 1;
         RefreshView();
     }
 
-    void OnDisable()
+    void PanelDisable()
     {
-        Application.logMessageReceived -= HandleLog;
+        canvasGroup.alpha = 0;
     }
 
     private void HandleLog(string message, string stackTrace, LogType type)

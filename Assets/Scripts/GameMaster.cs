@@ -28,7 +28,8 @@ public class GameMaster : MonoBehaviour
     public Pickup Pickup;
     public OnboardingManager OnboardingManager;
     public EventManager EventManager;
-
+    public DeviceType DeviceType;
+    public int DefaultFOV;
 
 
     public float MouseSensitivity = 0.2f;

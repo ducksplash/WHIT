@@ -16,9 +16,18 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Look",
+                    "name": "LookPC",
                     "type": "Value",
                     "id": "6b444451-8a00-4d00-a97e-f47457f736a8",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "LookConsole",
+                    "type": "Value",
+                    "id": "2c54a461-1c0b-4515-ad78-70b80840ce01",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -61,33 +70,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SelectWeapon",
-                    "type": "Button",
-                    "id": "b7230bb6-fc9b-4f52-8b25-f5e19cb2c2ba",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "SelectNextWeapon",
-                    "type": "Button",
-                    "id": "8973b72d-11ff-4306-a340-27468fceb33e",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "SelectPrevWeapon",
-                    "type": "Button",
-                    "id": "1d558e04-ad58-4b97-ab44-41704aa7ea3a",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Sprint",
                     "type": "Button",
                     "id": "641cd816-40e6-41b4-8c3d-04687c349290",
@@ -115,33 +97,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "MenuSelectPrev",
-                    "type": "Button",
-                    "id": "2421bb3c-d98e-4fff-8cb1-7a8c975ffcd7",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "MenuSelectNext",
-                    "type": "Button",
-                    "id": "c45d4b88-556f-4fc2-ab28-e69142c30193",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "MenuActivate",
-                    "type": "Button",
-                    "id": "7e3af54c-5a72-41ef-82a8-5c9dbf0fa915",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Torch",
                     "type": "Button",
                     "id": "3bb17ed7-be6b-4bcd-9edd-25246e673b52",
@@ -151,7 +106,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Phone",
+                    "name": "PhoneToggle",
                     "type": "Button",
                     "id": "2c9ba7a8-6db6-4cb6-9f71-2e4568d6cf68",
                     "expectedControlType": "",
@@ -169,7 +124,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Rotate",
+                    "name": "RotateItems",
                     "type": "Value",
                     "id": "5c7a8077-3db1-415a-b82b-185e7f8b83cc",
                     "expectedControlType": "Vector2",
@@ -181,6 +136,33 @@
                     "name": "Interact",
                     "type": "Button",
                     "id": "18b50268-3f2f-43f0-8917-a5103bd08460",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ZoomIn",
+                    "type": "Value",
+                    "id": "0e0e41c7-21fb-468f-889b-3655ed41c754",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press(behavior=1)",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "ZoomOut",
+                    "type": "Value",
+                    "id": "361ebbcc-f884-4d6a-a41f-65d6a206a7da",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press(behavior=1)",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "TakePhotograph",
+                    "type": "Button",
+                    "id": "18bd5d39-f5a5-4959-8e16-f1cdb93a7780",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -327,7 +309,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Rotate",
+                    "action": "RotateItems",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -338,7 +320,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Rotate",
+                    "action": "RotateItems",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -349,7 +331,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Rotate",
+                    "action": "RotateItems",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -360,7 +342,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Rotate",
+                    "action": "RotateItems",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -371,7 +353,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Rotate",
+                    "action": "RotateItems",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -382,7 +364,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Rotate",
+                    "action": "RotateItems",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -393,7 +375,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "Rotate",
+                    "action": "RotateItems",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -404,7 +386,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "Rotate",
+                    "action": "RotateItems",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -415,7 +397,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "Rotate",
+                    "action": "RotateItems",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -426,20 +408,9 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "Rotate",
+                    "action": "RotateItems",
                     "isComposite": false,
                     "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "c1f7a91b-d0fd-4a62-997e-7fb9b69bf235",
-                    "path": "<Gamepad>/rightStick",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Look",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 },
                 {
                     "name": "",
@@ -448,18 +419,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse;Touch",
-                    "action": "Look",
+                    "action": "LookPC",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "3e5f5442-8668-4b27-a940-df99bad7e831",
-                    "path": "<Joystick>/{Hatswitch}",
+                    "id": "2e0a2fc1-754e-455d-bfe1-b4bf901d8b29",
+                    "path": "<Gamepad>/rightStick",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Joystick",
-                    "action": "Look",
+                    "groups": ";Gamepad",
+                    "action": "LookConsole",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -515,39 +486,6 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Attack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "8df15f1f-567c-4baf-924a-926bc1792cf8",
-                    "path": "<Mouse>/scroll/y",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "SelectWeapon",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "3d142c3f-5477-48ce-b09f-35f459ae9fbf",
-                    "path": "<Gamepad>/rightShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "SelectNextWeapon",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "04b882c9-7411-4d07-9b33-df72bb74e7f9",
-                    "path": "<Gamepad>/leftShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "SelectPrevWeapon",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -718,17 +656,6 @@
                 },
                 {
                     "name": "",
-                    "id": "b7b4a291-4da8-40db-a09c-ab1993bb0827",
-                    "path": "<Keyboard>/p",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Pause",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "11a6b1f3-eb51-48dc-b7f5-2a82cb700498",
                     "path": "<Keyboard>/escape",
                     "interactions": "",
@@ -773,72 +700,6 @@
                 },
                 {
                     "name": "",
-                    "id": "85320e7d-0871-4f95-a4b4-17c68348c139",
-                    "path": "<Gamepad>/dpad/up",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "MenuSelectPrev",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "e101f3c6-28b2-4114-b628-8376564686c4",
-                    "path": "<Gamepad>/leftStick/up",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "MenuSelectPrev",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "fa53c6e2-3098-4df1-b7a5-c9a815b6cb29",
-                    "path": "<Gamepad>/leftStick/down",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "MenuSelectNext",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "efea78da-0964-44b2-8aef-de5ebaacd0e2",
-                    "path": "<Gamepad>/dpad/down",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "MenuSelectNext",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "5d9ca5fe-29e2-48f6-8e93-30cb42c94bea",
-                    "path": "<Gamepad>/rightTrigger",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "MenuActivate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d2861800-c39f-41a8-aa0e-379fc77263ce",
-                    "path": "<Gamepad>/buttonWest",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "MenuActivate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "35cc6b5d-ed03-446b-b4a7-fbebd7f8841c",
                     "path": "<Keyboard>/h",
                     "interactions": "",
@@ -862,11 +723,22 @@
                 {
                     "name": "",
                     "id": "840ff8e8-b109-4d18-aa45-c023ee937afc",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "PhoneToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6daafcd8-0962-4ba4-98ec-e696d36ce323",
                     "path": "<Keyboard>/p",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Phone",
+                    "groups": "",
+                    "action": "PhoneToggle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -883,9 +755,20 @@
                 },
                 {
                     "name": "",
+                    "id": "c49eb57e-9492-4072-909d-ce3c8ff2bfd8",
+                    "path": "<Gamepad>/leftStickPress",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Focus",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "71569d09-722d-49a5-b12d-3941e1ea41c6",
                     "path": "<Mouse>/rightButton",
-                    "interactions": "",
+                    "interactions": "Press(behavior=1)",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "Interact",
@@ -900,6 +783,72 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cbffd329-966d-4fa3-9a08-5ba11c2d1e1c",
+                    "path": "<Mouse>/scroll/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "ZoomIn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "540faecf-3f8a-4aac-9993-c3d17c0aabc1",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "ZoomIn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0fae9876-56b0-4b75-8084-309925d4dfbb",
+                    "path": "<Mouse>/scroll/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "ZoomOut",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3e47abe9-edfc-447d-a162-6f62c374145f",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "ZoomOut",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b0d62d29-f45e-4db3-a47e-78e8e0e6e93e",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "TakePhotograph",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "be11e004-b0ce-442d-b806-a0dce9a667f4",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "TakePhotograph",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -4,8 +4,11 @@ using UnityEngine.InputSystem;   // <-- NEW
 public class FirstPersonLook : MonoBehaviour
 {
     [SerializeField] Transform character;
-    [SerializeField] InputActionReference lookAction;   // <-- drag your Look action here
+    [SerializeField] InputActionReference lookActionPC;
+    [SerializeField] InputActionReference lookActionConsole;
 
+    [SerializeField] InputActionReference selectedLookAction;
+    
     Vector2 currentMouseLook;
     Vector2 appliedMouseDelta;
 
@@ -15,19 +18,24 @@ public class FirstPersonLook : MonoBehaviour
     private void Start()
     {
         sensitivity = GameMaster.Instance.MouseSensitivity;
+        
+        if (GameMaster.Instance.DeviceType.selectedDeviceType == PlayerDeviceType.DesktopPC)
+        {
+            lookActionPC.action.Enable();
+            lookActionConsole.action.Disable();
+            Debug.Log("set pc");
+            selectedLookAction = lookActionPC;
+        }
+        else
+        {
+            lookActionPC.action.Disable();
+            lookActionConsole.action.Enable();
+            Debug.Log("set console");
+            selectedLookAction = lookActionConsole;
+        }
     }
     
     
-    private void OnEnable()
-    {
-        lookAction.action.Enable();
-    }
-
-    private void OnDisable()
-    {
-        lookAction.action.Disable();
-    }
-
     void FixedUpdate()
     {
         if (GameMaster.INMENU)
@@ -53,7 +61,7 @@ public class FirstPersonLook : MonoBehaviour
         if (GameMaster.FROZEN) return;
 
         // Read from Input System
-        Vector2 rawMouse = lookAction.action.ReadValue<Vector2>();
+        Vector2 rawMouse = selectedLookAction.action.ReadValue<Vector2>();
 
         // Apply smoothing + sensitivity
         Vector2 smoothMouseDelta =

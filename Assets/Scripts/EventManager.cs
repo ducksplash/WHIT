@@ -7,6 +7,7 @@ public class EventManager : MonoBehaviour
     public static event Action OnPhoneCollected = () => { };
     public static event Action OnNotepadCollected = () => { };
     public static event Action OnPlayerDataLoaded = () => { };
+    public static event Action OnPhoneOpened = () => { };
     public static event Action<bool> OnPaused = (GamePaused) => { };
     
     //public static event Action OnLightSwitchClick = () => { };
@@ -41,6 +42,11 @@ public class EventManager : MonoBehaviour
     {
         Debug.Log("PlayerDataLoaded");
         OnPlayerDataLoaded.Invoke();
+    }
+    public void PhoneOpened()
+    {
+        Debug.Log("PhoneOpened");
+        OnPhoneOpened.Invoke();
     }
     
 }

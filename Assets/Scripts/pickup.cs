@@ -9,13 +9,11 @@ public class Pickup : MonoBehaviour
     public Transform handTransform;
     public Vector3 StartRotation;
     public CanvasGroup RotationMenu;
-    public LayerMask IgnoreLayer;
 
     [Header("Input (New System)")]
-    public InputActionReference pointerPositionAction;
     public InputActionReference pickupDropAction;
     public InputActionReference throwAction;
-    public InputActionReference rotateAction;   // ← used for rotation
+    public InputActionReference rotateAction;   // used for rotation
     public InputActionReference focusAction;
 
     private Vector2 rotateInput;
@@ -23,18 +21,17 @@ public class Pickup : MonoBehaviour
     void Awake()
     {
         GameMaster.HASITEM = false;
-
         if (handTransform != null) StartRotation = handTransform.parent.eulerAngles;
     }
 
     void Start()
     {
-        if (handTransform == null && Player.Instance != null) handTransform = Player.Instance.playerHand;
+        if (handTransform == null && Player.Instance != null)
+            handTransform = Player.Instance.playerHand;
     }
 
     void OnEnable()
     {
-        pointerPositionAction?.action.Enable();
         pickupDropAction?.action.Enable();
         throwAction?.action.Enable();
         rotateAction?.action.Enable();
@@ -72,16 +69,11 @@ public class Pickup : MonoBehaviour
     {
         if (!ctx.performed) return;
 
-        if (clickable.Instance != null && clickable.Instance.IsHoveringInteractive()) return;
-
-        if (!GameMaster.HASITEM)
+        if (!GameMaster.HASITEM && clickable.Instance != null && clickable.Instance.IsHoveringPickup())
         {
-            Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-
-            if (Physics.Raycast(ray, out RaycastHit hit, Player.Instance.RayCastDistance, ~IgnoreLayer))
-                PickupItem(hit);
+            PickupItem(clickable.Instance.GetCurrentHit().transform);
         }
-        else
+        else if (GameMaster.HASITEM)
         {
             DropItem();
         }
@@ -90,34 +82,29 @@ public class Pickup : MonoBehaviour
     private void OnThrow(InputAction.CallbackContext ctx)
     {
         if (!ctx.performed) return;
-        
         if (GameMaster.HASITEM) ThrowItem();
     }
 
     private void OnFocus(InputAction.CallbackContext ctx)
     {
         if (!ctx.performed || !GameMaster.HASITEM || myHeldItem == null) return;
-
         myHeldItem.transform.localEulerAngles = transform.forward * -1;
     }
 
     void FixedUpdate()
     {
         if (!GameMaster.HASITEM || myHeldItem == null) return;
-        
+
         if (rotateInput != Vector2.zero)
         {
             Vector3 rot = new Vector3(rotateInput.y * 5f, rotateInput.x * 5f, 0f);
-
             myHeldItem.Rotate(rot * (Time.smoothDeltaTime * 20f), Space.Self);
         }
     }
 
-    public void PickupItem(RaycastHit hit)
+    public void PickupItem(Transform obj)
     {
         if (GameMaster.PHONEOUT || GameMaster.FROZEN || GameMaster.HASITEM) return;
-
-        Transform obj = hit.transform;
 
         if (obj.CompareTag("COLLECTABLE"))
         {
@@ -125,9 +112,7 @@ public class Pickup : MonoBehaviour
             else if (obj.name.Contains("NOTEPAD")) GameMaster.Instance.OnboardingManager.CollectNotepad();
             else if (obj.name.Contains("PHONE")) GameMaster.Instance.OnboardingManager.CollectPhone();
 
-            
             GameMaster.HASITEM = false;
-            
             Debug.Log("Collected: " + obj.name);
             return;
         }
@@ -143,14 +128,10 @@ public class Pickup : MonoBehaviour
         if (rb != null) rb.constraints = RigidbodyConstraints.FreezeAll;
 
         obj.gameObject.AddComponent<GetHeldObjectCollisions>();
-
         GameMaster.HASITEM = true;
 
         Evidence e = obj.GetComponent<Evidence>();
-        if (e != null && e.EvidenceQuality > 1)
-        {
-            e.EvidenceQuality--;
-        }
+        if (e != null && e.EvidenceQuality > 1) e.EvidenceQuality--;
 
         Debug.Log("Picked up holdable: " + obj.name);
     }
@@ -158,7 +139,6 @@ public class Pickup : MonoBehaviour
     public void DropItem()
     {
         RotationMenu.alpha = 0f;
-
         if (myHeldItem != null)
         {
             myHeldItem.SetParent(defaultparent, true);
@@ -177,9 +157,7 @@ public class Pickup : MonoBehaviour
     public void ThrowItem()
     {
         RotationMenu.alpha = 0f;
-
-        if (myHeldItem == null)
-            return;
+        if (myHeldItem == null) return;
 
         myHeldItem.SetParent(defaultparent, true);
 

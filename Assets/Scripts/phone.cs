@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class Phone : MonoBehaviour
 {
@@ -83,35 +83,22 @@ public class Phone : MonoBehaviour
 
     private GameObject ObservedEvidence;
 
+    public InputActionReference togglePhonePC;
+    
+    public InputActionReference takePhotograph;
+    
     public DialogueName phoneTutorialFirstPhoto = DialogueName.phoneTutorialFirstPhoto;
     
     // Make Call Coroutine
 
-    IEnumerator CallContact()
+
+    private void Awake()
     {
-
-
-        // disable DiallerScreen
-        DiallerScreen.GetComponent<CanvasGroup>().alpha = 0.0f;
-        DiallerScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
-
-        // disable ContactsScreen
-        ContactsScreen.GetComponent<CanvasGroup>().alpha = 0.0f;
-        ContactsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
-
-        // enable CallingScreen
-        CallingScreen.GetComponent<CanvasGroup>().alpha = 1.0f;
-        CallingScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
-
-        callingContact = true;
-
-        yield return null;
+        togglePhonePC.action.performed += ActionTogglePhone;
+        takePhotograph.action.performed += TakePhoto;
     }
-
-
-
-
-
+    
+    
 
     void Start()
     {
@@ -139,13 +126,32 @@ public class Phone : MonoBehaviour
 
 
 
+    IEnumerator CallContact()
+    {
+
+
+        // disable DiallerScreen
+        DiallerScreen.GetComponent<CanvasGroup>().alpha = 0.0f;
+        DiallerScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+        // disable ContactsScreen
+        ContactsScreen.GetComponent<CanvasGroup>().alpha = 0.0f;
+        ContactsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+        // enable CallingScreen
+        CallingScreen.GetComponent<CanvasGroup>().alpha = 1.0f;
+        CallingScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
+        callingContact = true;
+
+        yield return null;
+    }
+
+
 
 
     void changeScreen(GameObject useThisScreen)
     {
-
-
-
         Transform[] allScreens = MobilePhone.GetComponentsInChildren<Transform>();
 
         Transform[] useTheseScreens = useThisScreen.GetComponentsInChildren<Transform>();
@@ -238,6 +244,10 @@ public class Phone : MonoBehaviour
 
 
 
+    
+    
+    
+    
 
 
 
@@ -271,33 +281,7 @@ public class Phone : MonoBehaviour
         }
 
 
-        if (!GameMaster.FROZEN)
-        {
-            // todo: input action references
-            // if (InputManager.GetKeyUp("phone"))
-            // {
-            //
-            //     TogglePhone();
-            //
-            // }
-
-
-            // todo: input action references
-            // if (GameMaster.PHONEOUT && Input.GetKeyUp(KeyCode.Escape))
-            // {
-            //     TogglePhone();
-            // }
-        }
-
         // take photos
-
-        // todo: input action references
-        // if (InputManager.GetKeyUp("camera") && CameraReady)
-        // {
-        //     TakePhoto();
-        // }
-
-
 
 
         // Dial By Keyb
@@ -366,75 +350,98 @@ public class Phone : MonoBehaviour
 
 
 
-
+    private void ActionTogglePhone(InputAction.CallbackContext callbackContext)
+    {
+        currentpage = 0;
+        
+        if (!GameMaster.PHONEOUT)
+        {
+            TakeOutPhone();
+        }
+        else
+        {
+            PutAwayPhone();
+        }
+    }
 
 
     public void TogglePhone()
     {
         currentpage = 0;
-        
 
         if (!GameMaster.PHONEOUT)
         {
-
-            if (!GameMaster.INMENU && !GameMaster.HASITEM && !GameMaster.ISWRITING)
-            {
-
-                if (!GameMaster.Instance.OnboardingManager.PHONEACCESSED)
-                {
-                    GameMaster.Instance.OnboardingManager.OpenedPhone();
-                }
-
-                
-
-                MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 1, MobilePhone.transform.localPosition.z);
-
-                
-                //Camera.GetComponent<FirstPersonLook>().enabled = false;
-                //FirstPersonCollision.FROZEN = true;
-                MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 1.0f;
-
-                CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-
-                GameMaster.PHONEOUT = true;
-                GameMaster.INMENU = true;
-                gameObject.GetComponent<CapsuleCollider>().enabled = true;
-            }
+            TakeOutPhone();
         }
         else
         {
-            changeScreen(HomeScreen);
-
-            GameMaster.PHONEOUT = false;
-            GameMaster.INMENU = false;
-            gameObject.GetComponent<CapsuleCollider>().enabled = false;
-            MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y - 1, MobilePhone.transform.localPosition.z);
-
-            CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;
-            //Camera.GetComponent<FirstPersonLook>().enabled = true;
-            //FirstPersonCollision.FROZEN = false;
-            MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 0.0f;
-
-
-
-            if (!TorchLight.enabled)
-            {
-                Torch.torchToggle = true;
-                TorchLight.enabled = true;
-            }
-
-            CameraLeftFlash.enabled = false;
-            CameraRightFlash.enabled = false;
-
-            //Cursor.lockState = CursorLockMode.Locked;
-            //Cursor.visible = false;
+            PutAwayPhone();
         }
-
     }
 
 
+
+
+    private void TakeOutPhone()
+    {
+        GameMaster.Instance.EventManager.PhoneOpened();
+        
+        if (!GameMaster.INMENU && !GameMaster.HASITEM && !GameMaster.ISWRITING)
+        {
+
+            if (!GameMaster.Instance.OnboardingManager.PHONEACCESSED)
+            {
+                GameMaster.Instance.OnboardingManager.OpenedPhone();
+            }
+
+                
+
+            MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 1, MobilePhone.transform.localPosition.z);
+
+                
+            //Camera.GetComponent<FirstPersonLook>().enabled = false;
+            //FirstPersonCollision.FROZEN = true;
+            MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 1.0f;
+
+            CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
+            GameMaster.PHONEOUT = true;
+            GameMaster.INMENU = true;
+            gameObject.GetComponent<CapsuleCollider>().enabled = true;
+        }
+    }
+
+
+    private void PutAwayPhone()
+    {
+        changeScreen(HomeScreen);
+
+        GameMaster.PHONEOUT = false;
+        GameMaster.INMENU = false;
+        gameObject.GetComponent<CapsuleCollider>().enabled = false;
+        MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y - 1, MobilePhone.transform.localPosition.z);
+
+        CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;
+        //Camera.GetComponent<FirstPersonLook>().enabled = true;
+        //FirstPersonCollision.FROZEN = false;
+        MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 0.0f;
+
+        PhoneCamera.GetComponent<PhoneZoom>().DefaultFOV();
+
+        if (!TorchLight.enabled)
+        {
+            Torch.torchToggle = true;
+            TorchLight.enabled = true;
+        }
+
+        CameraLeftFlash.enabled = false;
+        CameraRightFlash.enabled = false;
+
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
+    }
 
 
 
@@ -1131,7 +1138,7 @@ public class Phone : MonoBehaviour
 
 
 
-    public void TakePhoto()
+    public void TakePhoto(InputAction.CallbackContext callbackContext)
     {
         if (ObservedEvidence != null)
         {

@@ -10,11 +10,14 @@ public class Dialogue : ScriptableObject
     public DialogueName DialogueName = DialogueName.None;
     public Contacts Contact = Contacts.System;
     public DialogueType DialogueType;
+
+    [Header("Dialogue contains replaceable strings i.e. for key binds.")]
+    public bool EregiReplace = false;
     
     [Header("Dialogue Text")]
     [TextArea(3, 10)]
     public string DialogueText; // This is in English
-
+    
     [Header("Localisation")] 
     public Dialanguage DialogueLanguage = Dialanguage.EN; // English for default
     

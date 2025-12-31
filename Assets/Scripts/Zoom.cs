@@ -1,52 +1,102 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Zoom : MonoBehaviour
 {
-    public float sensitivity = 1;
-    public float defaultFOV;
-    public float maxZoom = 10;
-    public float zoomAmount;
+    [Header("Zoom Settings")]
+    public float defaultFOV = 60f;
+    public float maxZoom = 10f;
+    [Range(0f, 1f)]
+    public float zoomAmount = 0f;
+    public float zoomStep = 0.1f; // Amount to change per input press
 
-    public bool zoomAllowed;
+    [Header("Input Actions")]
+    public InputActionReference zoomInInput;  // Zoom in (scroll up / trigger)
+    public InputActionReference zoomOutInput; // Zoom out (scroll down / trigger)
+
+    public bool zoomAllowed = false;
+
+    private Camera cam;
+
+    private void Awake()
+    {
+        cam = GetComponent<Camera>();
+    }
 
     void Start()
     {
+        EventManager.OnPhoneOpened += SetDefaultFOV;
+        
+        SetDefaultFOV();
+
         StartCoroutine(WaitForGameMaster());
-        defaultFOV = gameObject.GetComponent<Camera>().fieldOfView;
+
+        // Enable actions and subscribe to events
+        if (zoomInInput != null)
+        {
+            zoomInInput.action.Enable();
+            zoomInInput.action.performed += OnZoomInPerformed;
+        }
+
+        if (zoomOutInput != null)
+        {
+            zoomOutInput.action.Enable();
+            zoomOutInput.action.performed += OnZoomOutPerformed;
+        }
     }
 
-    void Update()
+    private void SetDefaultFOV()
     {
-        
-        
-        // Todo: New Input system
-        // if (zoomAllowed)
-        // {
-        //     if (!GameMaster.PHONEOUT && !GameMaster.Instance.TravelCompanion.CompanionIsOpen)
-        //     {
-        //         zoomAmount += Input.mouseScrollDelta.y * sensitivity * .05f;
-        //         zoomAmount = Mathf.Clamp01(zoomAmount);
-        //         gameObject.GetComponent<Camera>().fieldOfView = Mathf.Lerp(defaultFOV, maxZoom, zoomAmount);
-        //     }
-        //     else
-        //     {
-        //         gameObject.GetComponent<Camera>().fieldOfView = 70;
-        //         zoomAmount = 0;
-        //     }
-        // }
-        
+        zoomAmount = 0;
+        UpdateFOV();
     }
 
+    void OnDisable()
+    {
+        // Unsubscribe and disable actions
+        if (zoomInInput != null)
+        {
+            zoomInInput.action.performed -= OnZoomInPerformed;
+            zoomInInput.action.Disable();
+        }
+
+        if (zoomOutInput != null)
+        {
+            zoomOutInput.action.performed -= OnZoomOutPerformed;
+            zoomOutInput.action.Disable();
+        }
+    }
+
+    private void OnZoomInPerformed(InputAction.CallbackContext context)
+    {
+        if (!zoomAllowed || GameMaster.PHONEOUT || GameMaster.Instance.TravelCompanion.CompanionIsOpen)
+            return;
+
+        zoomAmount = Mathf.Clamp01(zoomAmount + zoomStep);
+        UpdateFOV();
+    }
+
+    private void OnZoomOutPerformed(InputAction.CallbackContext context)
+    {
+        if (!zoomAllowed || GameMaster.PHONEOUT || GameMaster.Instance.TravelCompanion.CompanionIsOpen)
+            return;
+
+        zoomAmount = Mathf.Clamp01(zoomAmount - zoomStep);
+        UpdateFOV();
+    }
+
+    private void UpdateFOV()
+    {
+        cam.fieldOfView = Mathf.Lerp(defaultFOV, maxZoom, zoomAmount);
+    }
 
     private IEnumerator WaitForGameMaster()
     {
         while (GameMaster.Instance == null)
-        {
             yield return null;
-        }
 
-        if (GameMaster.Instance != null) zoomAllowed = true;
+        zoomAllowed = true;
     }
-    
 }

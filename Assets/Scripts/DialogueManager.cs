@@ -27,6 +27,8 @@ public class DialogueManager : MonoBehaviour
 
     public List<Dialogue> Dialogues = new List<Dialogue>();
     private Dictionary<DialogueName, Dialogue> DialogueDict = new Dictionary<DialogueName, Dialogue>();
+
+    private Dictionary<string, string> EregiDict = new Dictionary<string, string>();
     
     public bool queueDropFlag;
 
@@ -41,9 +43,20 @@ public class DialogueManager : MonoBehaviour
         SystemMessage.text = "";
         
         PopulateDialogues();
+        CreateEregiDictionary();
     }
 
 
+    private void CreateEregiDictionary()
+    {
+        // for now we'll do a dumb collection of the replaceables, later we'll try to make it dynamic.
+
+        EregiDict.Add("+phonekey+","Y or P");
+        EregiDict.Add("+torchkey+","H or Press R Stick");
+
+    }
+    
+    
     private void PopulateDialogues()
     {
         foreach (Dialogue Dialogue in Dialogues)
@@ -95,44 +108,48 @@ public class DialogueManager : MonoBehaviour
     {
         Contacts contact = Contacts.System; 
         string message = "..."; 
-        
-        
-        
+
         if (DialogueDict.ContainsKey(dialogueName))
         {
             Dialogue selectedDialogue = DialogueDict[dialogueName];
 
             contact = selectedDialogue.Contact;
             message = selectedDialogue.DialogueText;
+
+            // ✅ Perform replacement only if EregiReplace is true
+            if (selectedDialogue.EregiReplace)
+            {
+                foreach (var kvp in EregiDict)
+                {
+                    if (!string.IsNullOrEmpty(message))
+                        message = message.Replace(kvp.Key, kvp.Value);
+                }
+            }
         }
-        
+
         if (contact == Contacts.System)
         {
             if (!GameMaster.Instance.DialogueSeen.Contains(dialogueName))
             {
                 messagetimer = displaytimer;
-
                 DialogInProgress = true;
                 SystemMessage.text = message;
 
-                await SystemTimer(displaytimer); // Wait asynchronously for the timer to complete
+                await SystemTimer(displaytimer);
 
-                // log me
                 GameMaster.Instance.DialogueSeen.Add(dialogueName);
             }
         }
-        if (contact == Contacts.Nora)
+        else if (contact == Contacts.Nora)
         {
             if (!GameMaster.Instance.DialogueSeen.Contains(dialogueName))
             {
                 messagetimer = displaytimer;
-
                 DialogInProgress = true;
                 NoraMessage.text = "NORA: " + message;
 
-                await NoraTimer(displaytimer); // Wait asynchronously for the timer to complete
+                await NoraTimer(displaytimer);
 
-                // log me
                 GameMaster.Instance.DialogueSeen.Add(dialogueName);
             }
         }
@@ -141,18 +158,17 @@ public class DialogueManager : MonoBehaviour
             if (!GameMaster.Instance.DialogueSeen.Contains(dialogueName))
             {
                 messagetimer = displaytimer;
-
                 DialogInProgress = true;
                 ContactName.text = contact.ToString();
                 ReceivedMessage.text = message;
 
-                await MessageTimer(displaytimer); // Wait asynchronously for the timer to complete
+                await MessageTimer(displaytimer);
 
-                // log me
                 GameMaster.Instance.DialogueSeen.Add(dialogueName);
             }
         }
     }
+
 
 
     public IEnumerator Fader(CanvasGroup ThisCanvas, int direction)

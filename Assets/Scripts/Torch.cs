@@ -20,7 +20,6 @@ public class Torch : MonoBehaviour
     public InputActionReference swingAction;
     public InputActionReference toggleAction;
     public bool isSwinging;
-    public bool WaitingForTorch = true;
 
     void Awake()
     {
@@ -64,32 +63,28 @@ public class Torch : MonoBehaviour
         theTorch.SetActive(true);
         torchAnimator = theTorch.GetComponentInChildren<Animator>();
         lightBeam = theTorch.GetComponentInChildren<Light>();
-        WaitingForTorch = false;
         torchimg.GetComponent<CanvasGroup>().alpha = 1f;
     }
 
     private void OnToggle(InputAction.CallbackContext ctx)
     {
-        if (WaitingForTorch || GameMaster.INMENU || GameMaster.FROZEN) return;
+        if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED) return;
+        if (GameMaster.INMENU || GameMaster.FROZEN) return;
 
         torchToggle = !torchToggle;
 
-        if (lightBeam != null)
-            lightBeam.enabled = torchToggle;
-        if (SpotlightBeam != null)
-            SpotlightBeam.enabled = torchToggle;
+        if (lightBeam != null) lightBeam.enabled = torchToggle;
+        if (SpotlightBeam != null) SpotlightBeam.enabled = torchToggle;
 
-        if (torchimg != null)
-            torchimg.sprite = torchToggle ? litsprite : unlitsprite;
+        if (torchimg != null) torchimg.sprite = torchToggle ? litsprite : unlitsprite;
 
         Debug.Log("Torch toggled: " + torchToggle);
     }
 
     private void OnSwing(InputAction.CallbackContext ctx)
     {
-        if (WaitingForTorch || GameMaster.INMENU || GameMaster.FROZEN) return;
-        if (GameMaster.Instance.Pickup.hasobject) return;
-        if (isSwinging) return;
+        if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED) return;
+        if (GameMaster.INMENU || GameMaster.FROZEN || GameMaster.HASITEM || isSwinging) return;
         isSwinging = true;
 
         if (torchAnimator != null)
@@ -97,8 +92,7 @@ public class Torch : MonoBehaviour
             torchAnimator.SetTrigger("swing");
             Debug.Log("SwingTorch triggered");
 
-            // Optional: reset to idle after animation duration
-            float swingDuration = 0.5f; // match the swing clip length
+            float swingDuration = 0.5f; 
             StartCoroutine(ResetIdleAfter(swingDuration));
         }
     }
@@ -107,9 +101,12 @@ public class Torch : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         if (torchAnimator != null)
+        {
             torchAnimator.ResetTrigger("swing");
             torchAnimator.SetTrigger("idle");
             isSwinging = false;
+        }
+
     }
     
 }

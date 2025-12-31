@@ -4,11 +4,9 @@ using UnityEngine.InputSystem;
 
 public class Pickup : MonoBehaviour
 {
-    public bool hasobject;
     public Transform defaultparent;
     public Transform myHeldItem;
     public Transform handTransform;
-    public bool hasobjectshown;
     public Vector3 StartRotation;
     public CanvasGroup RotationMenu;
     public LayerMask IgnoreLayer;
@@ -24,16 +22,14 @@ public class Pickup : MonoBehaviour
 
     void Awake()
     {
-        hasobject = false;
+        GameMaster.HASITEM = false;
 
-        if (handTransform != null)
-            StartRotation = handTransform.parent.eulerAngles;
+        if (handTransform != null) StartRotation = handTransform.parent.eulerAngles;
     }
 
     void Start()
     {
-        if (handTransform == null && Player.Instance != null)
-            handTransform = Player.Instance.playerHand;
+        if (handTransform == null && Player.Instance != null) handTransform = Player.Instance.playerHand;
     }
 
     void OnEnable()
@@ -48,7 +44,6 @@ public class Pickup : MonoBehaviour
         throwAction.action.performed += OnThrow;
         focusAction.action.performed += OnFocus;
 
-        // rotation input
         rotateAction.action.performed += OnRotatePerformed;
         rotateAction.action.canceled += OnRotateCanceled;
     }
@@ -77,10 +72,9 @@ public class Pickup : MonoBehaviour
     {
         if (!ctx.performed) return;
 
-        if (clickable.Instance != null && clickable.Instance.IsHoveringInteractive())
-            return;
+        if (clickable.Instance != null && clickable.Instance.IsHoveringInteractive()) return;
 
-        if (!hasobject)
+        if (!GameMaster.HASITEM)
         {
             Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
@@ -96,34 +90,24 @@ public class Pickup : MonoBehaviour
     private void OnThrow(InputAction.CallbackContext ctx)
     {
         if (!ctx.performed) return;
-        if (hasobject)
-            ThrowItem();
+        
+        if (GameMaster.HASITEM) ThrowItem();
     }
 
     private void OnFocus(InputAction.CallbackContext ctx)
     {
-        if (!ctx.performed || !hasobject || myHeldItem == null) return;
+        if (!ctx.performed || !GameMaster.HASITEM || myHeldItem == null) return;
 
         myHeldItem.transform.localEulerAngles = transform.forward * -1;
     }
 
     void FixedUpdate()
     {
-        if (!hasobject || myHeldItem == null)
-            return;
-
-        // ---- Rotation ported from the old script ----
-        // rotateInput.x = left / right
-        // rotateInput.y = up / down
-
+        if (!GameMaster.HASITEM || myHeldItem == null) return;
+        
         if (rotateInput != Vector2.zero)
         {
-            // Match old feel (smooth, scaled)
-            Vector3 rot = new Vector3(
-                rotateInput.y * 5f,
-                rotateInput.x * 5f,
-                0f
-            );
+            Vector3 rot = new Vector3(rotateInput.y * 5f, rotateInput.x * 5f, 0f);
 
             myHeldItem.Rotate(rot * (Time.smoothDeltaTime * 20f), Space.Self);
         }
@@ -131,20 +115,19 @@ public class Pickup : MonoBehaviour
 
     public void PickupItem(RaycastHit hit)
     {
-        if (GameMaster.PHONEOUT || GameMaster.FROZEN)
-            return;
+        if (GameMaster.PHONEOUT || GameMaster.FROZEN || GameMaster.HASITEM) return;
 
         Transform obj = hit.transform;
 
         if (obj.CompareTag("COLLECTABLE"))
         {
-            if (obj.name.Contains("TORCH"))
-                GameMaster.Instance.OnboardingManager.CollectTorch();
-            else if (obj.name.Contains("NOTEPAD"))
-                GameMaster.Instance.OnboardingManager.CollectNotepad();
-            else if (obj.name.Contains("PHONE"))
-                GameMaster.Instance.OnboardingManager.CollectPhone();
+            if (obj.name.Contains("TORCH")) GameMaster.Instance.OnboardingManager.CollectTorch();
+            else if (obj.name.Contains("NOTEPAD")) GameMaster.Instance.OnboardingManager.CollectNotepad();
+            else if (obj.name.Contains("PHONE")) GameMaster.Instance.OnboardingManager.CollectPhone();
 
+            
+            GameMaster.HASITEM = false;
+            
             Debug.Log("Collected: " + obj.name);
             return;
         }
@@ -161,12 +144,13 @@ public class Pickup : MonoBehaviour
 
         obj.gameObject.AddComponent<GetHeldObjectCollisions>();
 
-        hasobject = true;
         GameMaster.HASITEM = true;
 
         Evidence e = obj.GetComponent<Evidence>();
         if (e != null && e.EvidenceQuality > 1)
+        {
             e.EvidenceQuality--;
+        }
 
         Debug.Log("Picked up holdable: " + obj.name);
     }
@@ -186,7 +170,6 @@ public class Pickup : MonoBehaviour
             if (rb != null) rb.constraints = RigidbodyConstraints.None;
 
             myHeldItem = null;
-            hasobject = false;
             GameMaster.HASITEM = false;
         }
     }
@@ -211,7 +194,6 @@ public class Pickup : MonoBehaviour
         }
 
         myHeldItem = null;
-        hasobject = false;
         GameMaster.HASITEM = false;
     }
 }

@@ -64,89 +64,120 @@ public class clickable : Singleton<clickable>
         rightClick?.action.Disable();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         Camera cam = Camera.main;
         if (cam == null) return;
 
-        Vector2 mousePos = pointerPosition.action.ReadValue<Vector2>();
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
-
 
         Debug.DrawRay(ray.origin, ray.direction * Player.Instance.RayCastDistance, Color.red);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, Player.Instance.RayCastDistance))
-        {
-            hasHit = true;
-            currentHit = hit;
+        RaycastHit[] hits = Physics.RaycastAll(
+            ray,
+            Player.Instance.RayCastDistance,
+            ~0,
+            QueryTriggerInteraction.Ignore
+        );
 
-            ApplyHover(hit);
-
-            if (rightClick != null && rightClick.action.WasReleasedThisFrame())
-                HandleClick();
-        }
-        else
+        if (hits.Length == 0)
         {
-            if (hasHit)   // only reset when we *just* lost a hit
+            if (hasHit)
             {
                 hasHit = false;
                 SetCursor(idlesprite, "");
             }
+            return;
         }
+
+        // Only consider interactable layers
+        hits = System.Array.FindAll(hits, h =>
+        {
+            int l = h.transform.gameObject.layer;
+
+            return
+                l == pickuplayer ||
+                l == drawerlayer ||
+                l == doorlayer ||
+                l == slidingdoorlayer ||
+                l == clickablelayer ||
+                l == enemylayer ||
+                l == evidencelayer ||
+                l == staticevidencelayer;
+        });
+
+        if (hits.Length == 0)
+        {
+            hasHit = false;
+            SetCursor(idlesprite, "");
+            return;
+        }
+
+        // Now sort ONLY valid interactables
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        currentHit = hits[0];
+        hasHit = true;
+
+        ApplyHover(currentHit);
+
+        if (rightClick != null && rightClick.action.WasReleasedThisFrame())
+            HandleClick();
     }
+
 
     private void ApplyHover(RaycastHit hit)
     {
         int layer = hit.transform.gameObject.layer;
 
-        if (layer == drawerlayer && IsCloseEnough(hit))
+
+        if (layer == pickuplayer)
+        {
+            SetCursor(IsCloseEnough(hit) ? pickupcloseenoughsprite : pickupsprite);
+            return;
+        }
+
+        if (layer == drawerlayer)
         {
             var drawer = hit.transform.GetComponentInParent<Drawers>();
+            bool locked = drawer != null && drawer.isLocked;
 
             SetCursor(
-                drawer != null && drawer.isLocked ? lockeddrawersprite : drawerspritegreen,
-                drawer != null && drawer.isLocked ? "locked" : "",
-                drawer != null && drawer.isLocked ? "red" : "white"
+                locked ? lockeddrawersprite : drawerspritegreen,
+                locked ? "locked" : "",
+                locked ? "red" : "white"
             );
             return;
         }
 
         if (layer == doorlayer || layer == slidingdoorlayer)
         {
-            Door door = hit.transform.GetComponentInParent<Door>();
+            var door = hit.transform.GetComponentInParent<Door>();
+            bool locked = door != null && door.isLocked;
 
-            if (door != null && door.isLocked)
-                SetCursor(lockeddoorsprite, "locked", "red");
-            else
-                SetCursor(doorspritegreen, "", "white");
-
+            SetCursor(
+                locked ? lockeddoorsprite : doorspritegreen,
+                locked ? "locked" : "",
+                locked ? "red" : "white"
+            );
             return;
         }
 
         if (layer == clickablelayer)
         {
             var switchComp = hit.transform.GetComponentInParent<LightSwitch>();
-
             if (switchComp != null)
             {
                 bool powerOn = GameMaster.POWER_SUPPLY_ENABLED;
-
                 SetCursor(
                     powerOn ? clickablespritegreen : clickablespritered,
                     powerOn ? "Lights" : "Lights (Power Disabled)",
                     powerOn ? "green" : "red"
                 );
-
                 return;
             }
 
             SetCursor(clickablespritegreen);
-            return;
-        }
-
-        if (layer == pickuplayer)
-        {
-            SetCursor(IsCloseEnough(hit) ? pickupcloseenoughsprite : pickupsprite);
             return;
         }
 
@@ -159,39 +190,31 @@ public class clickable : Singleton<clickable>
         if (layer == enemylayer)
         {
             SetCursor(enemysprite, "", "red");
+            return;
         }
-        else
-        {
-            SetCursor(idlesprite, "");
-        }
+
+        SetCursor(idlesprite, "");
     }
 
     private void HandleClick()
     {
         if (!hasHit) return;
 
-        if (currentHit.transform.gameObject.layer == drawerlayer)
+        if (currentHit.transform.GetComponentInParent<Drawers>() is Drawers drawer)
         {
-            var drawer = currentHit.transform.GetComponentInParent<Drawers>();
-            if (drawer != null) drawer.Interact();
+            drawer.Interact();
             return;
         }
 
-        if (currentHit.transform.gameObject.layer == doorlayer ||
-            currentHit.transform.gameObject.layer == slidingdoorlayer)
+        if (currentHit.transform.GetComponentInParent<Door>() is Door door)
         {
-            Door door = currentHit.transform.GetComponentInParent<Door>();
-            if (door != null)
-                door.TryUseDoor(currentHit.collider);
-
+            door.TryUseDoor(currentHit.collider);
             return;
         }
 
-        if (currentHit.transform.gameObject.layer == clickablelayer)
+        if (currentHit.transform.GetComponentInParent<LightSwitch>() is LightSwitch sw)
         {
-            var switchComp = currentHit.transform.GetComponentInParent<LightSwitch>();
-            if (switchComp != null)
-                switchComp.ToggleLightswitch();
+            sw.ToggleLightswitch();
         }
     }
 
@@ -219,8 +242,11 @@ public class clickable : Singleton<clickable>
         }
     }
 
-    private bool IsCloseEnough(RaycastHit hit) =>
-        hit.distance <= Player.Instance.RayCastDistance;
+    private bool IsCloseEnough(RaycastHit hit)
+    {
+        float dist = Vector3.Distance(Player.Instance.transform.position, hit.point);
+        return dist <= Player.Instance.RayCastDistance;
+    }
 
     private void INFOTEXT(string text, string textcolor = "white")
     {

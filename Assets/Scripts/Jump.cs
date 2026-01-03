@@ -39,7 +39,7 @@ public class Jump : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        if (!Player.Instance.climbing && !GameMaster.FROZEN && groundCheck && !Player.Instance.crouching)
+        if (!Player.Instance.climbing && !GameMaster.Instance.FROZEN && groundCheck && !Player.Instance.crouching)
         {
             moveDirection.y = jumpSpeed;
             groundCheck = false;

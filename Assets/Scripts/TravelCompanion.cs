@@ -33,7 +33,7 @@ public class TravelCompanion : MonoBehaviour
     {
 
 	    SceneManager.sceneLoaded += OnSceneLoaded;
-        GameMaster.FROZEN = false;
+        GameMaster.Instance.FROZEN = false;
         Notepad = Player.Instance.TravelNotepad;
 
         Debug.Log("travel companion");
@@ -148,8 +148,8 @@ public class TravelCompanion : MonoBehaviour
 				Notepad.SetActive(true);
 				TravelCanvas.alpha = 1f;
 				TravelCanvas.blocksRaycasts = true;
-				GameMaster.INMENU = true;
-				GameMaster.FROZEN = true;
+				GameMaster.Instance.INMENU = true;
+				GameMaster.Instance.FROZEN = true;
 				CompanionOpen = true;
 				evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.0f;
 				crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
@@ -164,8 +164,8 @@ public class TravelCompanion : MonoBehaviour
 
 				TravelCanvas.alpha = 0f;
 				TravelCanvas.blocksRaycasts = false;
-				GameMaster.INMENU = false;
-				GameMaster.FROZEN = false;
+				GameMaster.Instance.INMENU = false;
+				GameMaster.Instance.FROZEN = false;
 				CompanionOpen = false;
 				evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.9f;
 				crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
@@ -199,8 +199,8 @@ public class TravelCompanion : MonoBehaviour
 		// rb.isKinematic = false;
 		// rb.useGravity = false;
 		
-		GameMaster.INMENU = false;
-		GameMaster.FROZEN = true;
+		GameMaster.Instance.INMENU = false;
+		GameMaster.Instance.FROZEN = true;
 		StartCoroutine(ChangeSceneAsync(SceneName));
 	}
 
@@ -212,8 +212,8 @@ public class TravelCompanion : MonoBehaviour
 		// rb.isKinematic = false;
 		// rb.useGravity = false;
 		
-		GameMaster.INMENU = false;
-		GameMaster.FROZEN = true;
+		GameMaster.Instance.INMENU = false;
+		GameMaster.Instance.FROZEN = true;
 		StartCoroutine(ChangeSceneAsync(SceneName));
 	}
 
@@ -300,8 +300,8 @@ public class TravelCompanion : MonoBehaviour
 		}
 		
 		
-		GameMaster.INMENU = false;
-		GameMaster.FROZEN = false;
+		GameMaster.Instance.INMENU = false;
+		GameMaster.Instance.FROZEN = false;
 	}
 
 	public string MonthDay(string day)

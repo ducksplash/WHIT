@@ -58,7 +58,7 @@ public class PhoneZoom : MonoBehaviour
 
     private void OnZoomInPerformed(InputAction.CallbackContext context)
     {
-        if (!zoomAllowed || !GameMaster.PHONEOUT || phone == null || !phone.CameraOpen)
+        if (!zoomAllowed || !GameMaster.Instance.PHONEOUT || phone == null || !phone.CameraOpen)
             return;
 
         zoomAmount = Mathf.Clamp01(zoomAmount + zoomStep);
@@ -67,7 +67,7 @@ public class PhoneZoom : MonoBehaviour
 
     private void OnZoomOutPerformed(InputAction.CallbackContext context)
     {
-        if (!zoomAllowed || !GameMaster.PHONEOUT || phone == null || !phone.CameraOpen)
+        if (!zoomAllowed || !GameMaster.Instance.PHONEOUT || phone == null || !phone.CameraOpen)
             return;
 
         zoomAmount = Mathf.Clamp01(zoomAmount - zoomStep);

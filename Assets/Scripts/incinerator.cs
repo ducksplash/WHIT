@@ -27,7 +27,7 @@ public class incinerator : MonoBehaviour
 
         
 
-        if (GameMaster.POWER_SUPPLY_ENABLED && GameMaster.INCINERATOR_ENABLED)
+        if (GameMaster.Instance.POWER_SUPPLY_ENABLED && GameMaster.Instance.INCINERATOR_ENABLED)
         {
 
             FlameControl(true);
@@ -55,7 +55,7 @@ public class incinerator : MonoBehaviour
 
 
 
-        if (GameMaster.POWER_SUPPLY_ENABLED && GameMaster.INCINERATOR_ENABLED)
+        if (GameMaster.Instance.POWER_SUPPLY_ENABLED && GameMaster.Instance.INCINERATOR_ENABLED)
         {
 
             if (Input.GetMouseButtonDown(1))
@@ -163,10 +163,10 @@ public class incinerator : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
 
-        if (GameMaster.POWER_SUPPLY_ENABLED)
+        if (GameMaster.Instance.POWER_SUPPLY_ENABLED)
         {
 
-            if (GameMaster.INCINERATOR_ENABLED)
+            if (GameMaster.Instance.INCINERATOR_ENABLED)
             {
 
 
@@ -179,7 +179,7 @@ public class incinerator : MonoBehaviour
                     StartCoroutine(weeWait(1, doorcollider));
                     GetComponentInChildren<Animator>().SetTrigger("idle");
 
-                    GameMaster.FROZEN = true;
+                    GameMaster.Instance.FROZEN = true;
 
 
                         FlameControl(true);

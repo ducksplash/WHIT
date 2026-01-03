@@ -42,7 +42,7 @@ public class fridgedeath : MonoBehaviour
     {
         if (!FridgePower)
         {
-            if (GameMaster.POWER_SUPPLY_ENABLED)
+            if (GameMaster.Instance.POWER_SUPPLY_ENABLED)
             {
                 FridgeParte.gameObject.SetActive(true);
                 FridgeVol.gameObject.SetActive(true);

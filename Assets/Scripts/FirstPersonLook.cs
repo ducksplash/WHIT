@@ -38,7 +38,7 @@ public class FirstPersonLook : MonoBehaviour
     
     void FixedUpdate()
     {
-        if (GameMaster.INMENU)
+        if (GameMaster.Instance.INMENU)
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
@@ -49,7 +49,7 @@ public class FirstPersonLook : MonoBehaviour
             Cursor.visible = false;
         }
 
-        if (!GameMaster.FROZEN)
+        if (!GameMaster.Instance.FROZEN)
         {
             transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
             character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
@@ -58,7 +58,7 @@ public class FirstPersonLook : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (GameMaster.FROZEN) return;
+        if (GameMaster.Instance.FROZEN) return;
 
         // Read from Input System
         Vector2 rawMouse = selectedLookAction.action.ReadValue<Vector2>();

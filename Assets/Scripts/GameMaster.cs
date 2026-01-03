@@ -36,15 +36,15 @@ public class GameMaster : MonoBehaviour
     
     // Game Globals
 
-    public static bool POWER_SUPPLY_ENABLED;
-    public static bool INCINERATOR_ENABLED;
-    public static bool FROZEN;
-    public static bool ONLADDER;
-    public static bool INMENU;
-    public static bool HASITEM;
-    public static bool PHONEOUT;
-    public static bool  ISWRITING;
-    public static bool ONBOARDINGCOMPLETED;
+    public bool POWER_SUPPLY_ENABLED;
+    public bool INCINERATOR_ENABLED;
+    public bool FROZEN;
+    public bool ONLADDER;
+    public bool INMENU;
+    public bool HASITEM;
+    public bool PHONEOUT;
+    public bool  ISWRITING;
+    public bool ONBOARDINGCOMPLETED;
     
     public GAMELEVEL THISLEVEL;
     

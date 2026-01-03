@@ -125,10 +125,10 @@ public class SwitchBox : MonoBehaviour
 								switchAnimator.SetTrigger("switchon");
 								switchIsOn = true;
 
-								GameMaster.POWER_SUPPLY_ENABLED = true;
+								GameMaster.Instance.POWER_SUPPLY_ENABLED = true;
 								
 
-								GameMaster.INCINERATOR_ENABLED = true;
+								GameMaster.Instance.INCINERATOR_ENABLED = true;
 
 
 								foreach (GameObject thisIndicator in thisIndicatorSet)
@@ -148,7 +148,7 @@ public class SwitchBox : MonoBehaviour
 								switchIsOn = false;
 								switchAnimator.SetTrigger("switchidle");
 
-								GameMaster.POWER_SUPPLY_ENABLED = false;
+								GameMaster.Instance.POWER_SUPPLY_ENABLED = false;
 
 								foreach (GameObject thisIndicator in thisIndicatorSet)
 								{
@@ -159,7 +159,7 @@ public class SwitchBox : MonoBehaviour
 								}
 
 
-								GameMaster.INCINERATOR_ENABLED = false;
+								GameMaster.Instance.INCINERATOR_ENABLED = false;
 
 
 								foreach (Light aLight in allTheLights)
@@ -186,14 +186,14 @@ public class SwitchBox : MonoBehaviour
 							if (!incineratorIsOn)
 							{
 
-								if (GameMaster.POWER_SUPPLY_ENABLED)
+								if (GameMaster.Instance.POWER_SUPPLY_ENABLED)
 								{
 
 									thatSwitchAnimator.SetTrigger("switchoff");
 									incineratorIsOn = true;
 									thatSwitchAnimator.SetTrigger("switchidle");
 
-									GameMaster.INCINERATOR_ENABLED = true;
+									GameMaster.Instance.INCINERATOR_ENABLED = true;
 
 									var nuCol = new Color(0, 1, 0, 1);
 
@@ -212,7 +212,7 @@ public class SwitchBox : MonoBehaviour
 								incineratorIsOn = false;
 								thatSwitchAnimator.SetTrigger("switchidle");
 
-								GameMaster.INCINERATOR_ENABLED = false;
+								GameMaster.Instance.INCINERATOR_ENABLED = false;
 
 								thatIndicator.GetComponent<Renderer>().material.SetColor("_Color", Color.black);
 								thatIndicator.GetComponent<Renderer>().material.SetColor("_EmissiveColor", Color.black * 0); 

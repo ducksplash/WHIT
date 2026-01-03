@@ -154,7 +154,7 @@ public class clickable : Singleton<clickable>
             var switchComp = hit.transform.GetComponentInParent<LightSwitch>();
             if (switchComp != null)
             {
-                bool powerOn = GameMaster.POWER_SUPPLY_ENABLED;
+                bool powerOn = GameMaster.Instance.POWER_SUPPLY_ENABLED;
                 SetCursor(powerOn ? clickablespritegreen : clickablespritered,
                           powerOn ? "Lights" : "Lights (Power Disabled)",
                           powerOn ? "green" : "red");

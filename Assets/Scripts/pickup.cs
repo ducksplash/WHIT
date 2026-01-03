@@ -20,7 +20,7 @@ public class Pickup : MonoBehaviour
 
     void Awake()
     {
-        GameMaster.HASITEM = false;
+        GameMaster.Instance.HASITEM = false;
         if (handTransform != null) StartRotation = handTransform.parent.eulerAngles;
     }
 
@@ -69,11 +69,11 @@ public class Pickup : MonoBehaviour
     {
         if (!ctx.performed) return;
 
-        if (!GameMaster.HASITEM && clickable.Instance != null && clickable.Instance.IsHoveringPickup())
+        if (!GameMaster.Instance.HASITEM && clickable.Instance != null && clickable.Instance.IsHoveringPickup())
         {
             PickupItem(clickable.Instance.GetCurrentHit().transform);
         }
-        else if (GameMaster.HASITEM)
+        else if (GameMaster.Instance.HASITEM)
         {
             DropItem();
         }
@@ -82,18 +82,18 @@ public class Pickup : MonoBehaviour
     private void OnThrow(InputAction.CallbackContext ctx)
     {
         if (!ctx.performed) return;
-        if (GameMaster.HASITEM) ThrowItem();
+        if (GameMaster.Instance.HASITEM) ThrowItem();
     }
 
     private void OnFocus(InputAction.CallbackContext ctx)
     {
-        if (!ctx.performed || !GameMaster.HASITEM || myHeldItem == null) return;
+        if (!ctx.performed || !GameMaster.Instance.HASITEM || myHeldItem == null) return;
         myHeldItem.transform.localEulerAngles = transform.forward * -1;
     }
 
     void FixedUpdate()
     {
-        if (!GameMaster.HASITEM || myHeldItem == null) return;
+        if (!GameMaster.Instance.HASITEM || myHeldItem == null) return;
 
         if (rotateInput != Vector2.zero)
         {
@@ -104,7 +104,7 @@ public class Pickup : MonoBehaviour
 
     public void PickupItem(Transform obj)
     {
-        if (GameMaster.PHONEOUT || GameMaster.FROZEN || GameMaster.HASITEM) return;
+        if (GameMaster.Instance.PHONEOUT || GameMaster.Instance.FROZEN || GameMaster.Instance.HASITEM) return;
 
         if (obj.CompareTag("COLLECTABLE"))
         {
@@ -112,7 +112,7 @@ public class Pickup : MonoBehaviour
             else if (obj.name.Contains("NOTEPAD")) GameMaster.Instance.OnboardingManager.CollectNotepad();
             else if (obj.name.Contains("PHONE")) GameMaster.Instance.OnboardingManager.CollectPhone();
 
-            GameMaster.HASITEM = false;
+            GameMaster.Instance.HASITEM = false;
             Debug.Log("Collected: " + obj.name);
             return;
         }
@@ -128,7 +128,7 @@ public class Pickup : MonoBehaviour
         if (rb != null) rb.constraints = RigidbodyConstraints.FreezeAll;
 
         obj.gameObject.AddComponent<GetHeldObjectCollisions>();
-        GameMaster.HASITEM = true;
+        GameMaster.Instance.HASITEM = true;
 
         Evidence e = obj.GetComponent<Evidence>();
         if (e != null && e.EvidenceQuality > 1) e.EvidenceQuality--;
@@ -150,7 +150,7 @@ public class Pickup : MonoBehaviour
             if (rb != null) rb.constraints = RigidbodyConstraints.None;
 
             myHeldItem = null;
-            GameMaster.HASITEM = false;
+            GameMaster.Instance.HASITEM = false;
         }
     }
 
@@ -172,6 +172,6 @@ public class Pickup : MonoBehaviour
         }
 
         myHeldItem = null;
-        GameMaster.HASITEM = false;
+        GameMaster.Instance.HASITEM = false;
     }
 }

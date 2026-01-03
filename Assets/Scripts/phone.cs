@@ -15,8 +15,7 @@ public class Phone : MonoBehaviour
     public GameObject Clock;
     public GameObject Camera;
     public GameObject PhoneCamera;
-    public Slider UnlockSlider;
-    public GameObject LockScreen;
+    public GameObject HomeScreen;
     public GameObject ContactsScreen;
     public GameObject CameraScreen;
     public GameObject DiallerScreen;
@@ -27,7 +26,6 @@ public class Phone : MonoBehaviour
     public GameObject InboxPane;
     public GameObject SentPane;
     public GameObject BigMessageScreen;
-    public GameObject HomeScreen;
     public GameObject theDialler;
 
     public GameObject Messagelist;
@@ -52,7 +50,6 @@ public class Phone : MonoBehaviour
     public TextMeshProUGUI workNum;
     public TextMeshProUGUI darraghNum;
     // Start is called before the first frame update
-    private bool isLocked = true;
     public bool CameraOpen;
     public Light CameraLeftFlash;
     public Light CameraRightFlash;
@@ -87,6 +84,8 @@ public class Phone : MonoBehaviour
     
     public InputActionReference takePhotograph;
     
+    public InputActionReference goBack;
+    
     public DialogueName phoneTutorialFirstPhoto = DialogueName.phoneTutorialFirstPhoto;
     
     // Make Call Coroutine
@@ -96,6 +95,7 @@ public class Phone : MonoBehaviour
     {
         togglePhonePC.action.performed += ActionTogglePhone;
         takePhotograph.action.performed += TakePhoto;
+        goBack.action.performed += ConsolePhoneButtonAction;
     }
     
     
@@ -176,14 +176,10 @@ public class Phone : MonoBehaviour
             {
                 if (screen.GetComponent<CanvasGroup>())
                 {
-
-
                     screen.GetComponent<CanvasGroup>().alpha = 0.0f;
                     screen.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
                     readyForNewScreen = true;
-
-
                 }
                 else if (screen.GetComponent<TMPro.TextMeshPro>())
                 {
@@ -267,23 +263,6 @@ public class Phone : MonoBehaviour
         Clock.GetComponent<TMPro.TextMeshProUGUI>().text = anHour + ":" + aMinute;
 
 
-        if (isLocked == true)
-        {
-            Fader.GetComponent<CanvasGroup>().alpha = 0.0f;
-
-            if (UnlockSlider.value == 10)
-            {
-                changeScreen(HomeScreen);
-                // disable LockScreen
-                isLocked = false;
-                Fader.GetComponent<CanvasGroup>().alpha = 1.0f;
-            }
-        }
-
-
-        // take photos
-
-
         // Dial By Keyb
         // need to refactor this
         //
@@ -354,7 +333,7 @@ public class Phone : MonoBehaviour
     {
         currentpage = 0;
         
-        if (!GameMaster.PHONEOUT)
+        if (!GameMaster.Instance.PHONEOUT)
         {
             TakeOutPhone();
         }
@@ -364,37 +343,21 @@ public class Phone : MonoBehaviour
         }
     }
 
-
-    public void TogglePhone()
-    {
-        currentpage = 0;
-
-        if (!GameMaster.PHONEOUT)
-        {
-            TakeOutPhone();
-        }
-        else
-        {
-            PutAwayPhone();
-        }
-    }
-
-
+    
 
 
     private void TakeOutPhone()
     {
         GameMaster.Instance.EventManager.PhoneOpened();
         
-        if (!GameMaster.INMENU && !GameMaster.HASITEM && !GameMaster.ISWRITING)
+        if (!GameMaster.Instance.INMENU && !GameMaster.Instance.HASITEM && !GameMaster.Instance.ISWRITING)
         {
 
             if (!GameMaster.Instance.OnboardingManager.PHONEACCESSED)
             {
                 GameMaster.Instance.OnboardingManager.OpenedPhone();
             }
-
-                
+            
 
             MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 1, MobilePhone.transform.localPosition.z);
 
@@ -407,8 +370,8 @@ public class Phone : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
 
-            GameMaster.PHONEOUT = true;
-            GameMaster.INMENU = true;
+            GameMaster.Instance.PHONEOUT = true;
+            GameMaster.Instance.INMENU = true;
             gameObject.GetComponent<CapsuleCollider>().enabled = true;
         }
     }
@@ -416,16 +379,16 @@ public class Phone : MonoBehaviour
 
     private void PutAwayPhone()
     {
+        GameMaster.Instance.PHONEOUT = false;
+        GameMaster.Instance.INMENU = false;
+        
         changeScreen(HomeScreen);
 
-        GameMaster.PHONEOUT = false;
-        GameMaster.INMENU = false;
         gameObject.GetComponent<CapsuleCollider>().enabled = false;
         MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y - 1, MobilePhone.transform.localPosition.z);
 
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;
-        //Camera.GetComponent<FirstPersonLook>().enabled = true;
-        //FirstPersonCollision.FROZEN = false;
+
         MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 0.0f;
 
         PhoneCamera.GetComponent<PhoneZoom>().DefaultFOV();
@@ -439,20 +402,46 @@ public class Phone : MonoBehaviour
         CameraLeftFlash.enabled = false;
         CameraRightFlash.enabled = false;
 
-        //Cursor.lockState = CursorLockMode.Locked;
-        //Cursor.visible = false;
     }
 
 
 
+    public void OpenApp(PhoneApps SelectedApp)
+    {
+        switch (SelectedApp)
+        {
+            case PhoneApps.Telephone:
+                ContactsButton();
+                break;
+            
+            case PhoneApps.Camera:
+                CameraButton();
+                break;
+            
+            case PhoneApps.Map:
+                MapsButton();
+                break;
+            
+            case PhoneApps.Messages:
+                MessagesButton();
+                break;
+            
+            case PhoneApps.Gallery:
+                GalleryButton();
+                break;
 
+        }
+    }
+    
+    
+
+    
     // Contacts menu incorporating CallScreen, Dialler.
     public void ContactsButton()
     {
         changeScreen(ContactsScreen);
 
         Debug.Log("contacts button");
-
     }
 
 
@@ -470,7 +459,7 @@ public class Phone : MonoBehaviour
 
 
 
-    public void MessagesButton(string msgtype)
+    public void MessagesButton(string msgtype = "inbox")
     {
 
 
@@ -1086,10 +1075,47 @@ public class Phone : MonoBehaviour
     }
 
     
+    
+    
     public void BackButton()
     {
-        currentpage = 0;
-        changeScreen(HomeScreen);
+        Debug.Log("BAKK");
+        Debug.Log(HomeScreen.GetComponent<CanvasGroup>().alpha);
+        if (HomeScreen.GetComponent<CanvasGroup>().alpha < 0.9f)
+        {
+            
+            Debug.Log("changeScreen");
+            changeScreen(HomeScreen);
+        }
+        else
+        {
+            Debug.Log("PutAwayPhone");
+            PutAwayPhone();
+        }
+        
+        //currentpage = 0; // possibly for gallery pagination. might be broken.
+    }
+    
+    public void ConsolePhoneButtonAction(InputAction.CallbackContext callbackContext)
+    {
+        if (GameMaster.Instance.PHONEOUT)
+        {
+            Debug.Log(HomeScreen.GetComponent<CanvasGroup>().alpha);
+            if (HomeScreen.GetComponent<CanvasGroup>().alpha < 0.9f)
+            {
+                changeScreen(HomeScreen);
+            }
+            else
+            {
+                PutAwayPhone();
+            }
+        }
+        else
+        {
+            TakeOutPhone();
+        }
+
+        //currentpage = 0; // possibly for gallery pagination. might be broken.
     }
 
 
@@ -1205,4 +1231,22 @@ public class Phone : MonoBehaviour
 
 
 
+}
+
+
+
+public enum PhoneApps
+{
+    Telephone,
+    Messages,
+    Email,
+    Camera,
+    Gallery,
+    Notes,
+    Backup,
+    Settings,
+    Map,
+    Recorder,
+    Help,
+    Calendar
 }

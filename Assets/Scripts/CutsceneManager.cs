@@ -34,7 +34,7 @@ public class CutsceneManager : MonoBehaviour
     {
         if (CutsceneInProgress) yield break;
         
-        GameMaster.FROZEN = true;
+        GameMaster.Instance.FROZEN = true;
         CutsceneInProgress = true;
         elapsedCutsceneTime = 0f;
 
@@ -117,7 +117,7 @@ public class CutsceneManager : MonoBehaviour
         StartCoroutine(UInstance.Instance.FadeOutCutsceneBars());
 
         cameraZoom.enabled = true;
-        GameMaster.FROZEN = false;
+        GameMaster.Instance.FROZEN = false;
     }
 
     public async Task CutsceneDialogue(DialogueName selectedMessage, float duration)

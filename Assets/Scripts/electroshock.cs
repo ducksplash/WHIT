@@ -27,7 +27,7 @@ public class electroshock : MonoBehaviour
         shockParticles = transform.GetChild(0).gameObject;
 
 
-        if (!GameMaster.POWER_SUPPLY_ENABLED)
+        if (!GameMaster.Instance.POWER_SUPPLY_ENABLED)
         {
             shockParticles.SetActive(false);
         }
@@ -45,7 +45,7 @@ public class electroshock : MonoBehaviour
 
         if (!WaitingForPower)
         {
-            if (GameMaster.POWER_SUPPLY_ENABLED)
+            if (GameMaster.Instance.POWER_SUPPLY_ENABLED)
             {
                 shockParticles.SetActive(true);
                 WaitingForPower = true;
@@ -63,7 +63,7 @@ public class electroshock : MonoBehaviour
 
     public void StartCameraShakeEffect()
     {
-        GameMaster.FROZEN = true;
+        GameMaster.Instance.FROZEN = true;
 
 
         if (ShakinTime > 0)

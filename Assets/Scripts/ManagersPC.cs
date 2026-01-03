@@ -146,7 +146,7 @@ public class ManagersPC : MonoBehaviour
     {
 		
 		
-		if (GameMaster.POWER_SUPPLY_ENABLED)
+		if (GameMaster.Instance.POWER_SUPPLY_ENABLED)
 		{
 			
 			screenCover.GetComponent<Image>().enabled = false;
@@ -218,8 +218,8 @@ public class ManagersPC : MonoBehaviour
 			PlayerCamera.GetComponent<FirstPersonLook>().enabled = false;
 			//Player.GetComponent<FirstPersonCollision>().enabled = true;
 			//Player.GetComponent<Jump>().enabled = false;
-			GameMaster.FROZEN = true;
-			GameMaster.INMENU = true;
+			GameMaster.Instance.FROZEN = true;
+			GameMaster.Instance.INMENU = true;
 
 			CrossHair.GetComponent<Canvas>().enabled = false;
 			Cursor.lockState = CursorLockMode.None;
@@ -232,8 +232,8 @@ public class ManagersPC : MonoBehaviour
 			thisComputer.GetComponent<Collider>().enabled = true;
 			//Player.GetComponent<FirstPersonCollision>().enabled = true;
 			//Player.GetComponent<Jump>().enabled = true;
-			GameMaster.FROZEN = false;
-			GameMaster.INMENU = false;
+			GameMaster.Instance.FROZEN = false;
+			GameMaster.Instance.INMENU = false;
 
 			CrossHair.GetComponent<Canvas>().enabled = true;
 			Cursor.lockState = CursorLockMode.Locked;
@@ -476,7 +476,7 @@ public class ManagersPC : MonoBehaviour
 
 	public void EditFile()
 	{
-		GameMaster.ISWRITING = true;
+		GameMaster.Instance.ISWRITING = true;
 		ChangeScreen(FileEditScreen, FileScreen);
 
 		CompileFailedScreen.alpha = 0f;
@@ -501,7 +501,7 @@ public class ManagersPC : MonoBehaviour
 	public void SaveCode()
 	{
 
-		GameMaster.ISWRITING = false;
+		GameMaster.Instance.ISWRITING = false;
 
 		var printNewCode = newCode.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace(" ", "").Replace("\r\n", "").Trim().ToString();
 		var printUserCode = UserEnteredCode.text.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace(" ", "").Replace("\r\n", "").Trim().ToString();

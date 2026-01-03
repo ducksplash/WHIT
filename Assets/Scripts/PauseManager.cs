@@ -18,9 +18,9 @@ public class PauseManager : MonoBehaviour
     public void TogglePause(InputAction.CallbackContext callbackContext)
     {
         IsPaused = !IsPaused;
-        GameMaster.INMENU = IsPaused;
+        GameMaster.Instance.INMENU = IsPaused;
         pauseUnderlay.alpha = IsPaused ? 1 : 0;
-        GameMaster.FROZEN = IsPaused;
+        GameMaster.Instance.FROZEN = IsPaused;
         VirtualCursor.SetActive(IsPaused);
         Player.Instance.FirstPersonLook.sensitivity = IsPaused ? GameMaster.Instance.MouseSensitivity * 10 : GameMaster.Instance.MouseSensitivity;
         GameMaster.Instance.EventManager.GamePaused(IsPaused);

@@ -58,6 +58,7 @@ public class Player : Singleton<Player>
 
     [Header("Scripts")] 
     public FirstPersonLook FirstPersonLook;
+    public Phone PlayerPhone;
     
     private Vector3 moveDirection = Vector3.zero;
     private bool jumpRequested = false;
@@ -95,7 +96,7 @@ public class Player : Singleton<Player>
 
     void Update()
     {
-        if (!GameMaster.FROZEN)
+        if (!GameMaster.Instance.FROZEN)
         {
             HandleMovement();
         }
@@ -157,8 +158,7 @@ public class Player : Singleton<Player>
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        if (!climbing && !crouching)
-            jumpRequested = true;
+        if (!climbing && !crouching) jumpRequested = true;
     }
 
     private void OnCrouchToggle(InputAction.CallbackContext ctx)
@@ -208,8 +208,8 @@ public class Player : Singleton<Player>
 
     public void CauseDeath(string cause)
     {
-        GameMaster.INMENU = true;
-        GameMaster.FROZEN = true;
+        GameMaster.Instance.INMENU = true;
+        GameMaster.Instance.FROZEN = true;
         StartCoroutine(SlowDeath(cause));
     }
 

@@ -28,6 +28,7 @@ public class GameMaster : MonoBehaviour
     public Pickup Pickup;
     public OnboardingManager OnboardingManager;
     public EventManager EventManager;
+    public EvidenceManager EvidenceManager;
     public DeviceType DeviceType;
     public int DefaultFOV;
 
@@ -171,27 +172,31 @@ public class GameMaster : MonoBehaviour
 
     private void LoadExistingEvidence()
     {
-        string folder = Application.persistentDataPath + "/Phone/0/Evidence/";
-        
-        
-        Debug.Log(folder);
-        
-        if (!Directory.Exists(folder)) return;
+        EvidenceFound.Clear();
 
-        
-        foreach (string file in Directory.GetFiles(folder, "*.quack"))
+        // Get all StoredPrefs keys
+        List<string> keys = StoredPrefs.GetAllKeys();
+
+        foreach (string key in keys)
         {
-            string fileName = Path.GetFileNameWithoutExtension(file);
-            if (!EvidenceFound.ContainsKey(fileName))
+            // We only care about Evidence entries
+            if (!key.StartsWith("Evidence/"))
+                continue;
+
+            // Evidence/<ID> → extract ID
+            string evidenceId = key.Substring("Evidence/".Length);
+
+            if (!EvidenceFound.ContainsKey(evidenceId))
             {
-                Debug.Log(folder+fileName);
-                EvidenceFound.Add(fileName, folder);
+                EvidenceFound.Add(evidenceId, key);
+                Debug.Log($"Loaded evidence: {evidenceId}");
             }
         }
-        
-        Debug.Log("Init Evidence - "+EvidenceFound.Count);
-        
+
+        Debug.Log("Init Evidence (StoredPrefs) - " + EvidenceFound.Count);
+        EventManager.PlayerDataLoaded();
     }
+
 }
 
 public enum GAMELEVEL

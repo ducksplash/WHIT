@@ -86,6 +86,9 @@ public class Phone : MonoBehaviour
     
     public InputActionReference goBack;
     
+    public InputActionReference listBackButton;
+    public InputActionReference listNextButton;
+    
     public DialogueName phoneTutorialFirstPhoto = DialogueName.phoneTutorialFirstPhoto;
     
     // Make Call Coroutine
@@ -96,6 +99,10 @@ public class Phone : MonoBehaviour
         togglePhonePC.action.performed += ActionTogglePhone;
         takePhotograph.action.performed += TakePhoto;
         goBack.action.performed += ConsolePhoneButtonAction;
+        togglePhonePC.action.performed += ActionTogglePhone;
+        
+        listBackButton.action.performed += GalleryBackAction;
+        listNextButton.action.performed += GalleryNextAction;
     }
     
     
@@ -158,9 +165,18 @@ public class Phone : MonoBehaviour
 
         PhoneCamera.GetComponent<Camera>().enabled = false;
 
-        MiniMapCam.SetActive(false);
-        CameraOpen = false;
-
+        if (MiniMapCam.activeSelf)
+        {
+            MiniMapCam.SetActive(false);
+            GameMaster.Instance.FROZEN = true;
+        }
+        
+        if (CameraOpen)
+        {
+            CameraOpen = false;
+            GameMaster.Instance.FROZEN = true;
+        }
+        
 
         CameraLeftFlash.enabled = false;
         CameraRightFlash.enabled = false;
@@ -251,11 +267,8 @@ public class Phone : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         if (!GameMaster.Instance.OnboardingManager.PHONECOLLECTED) return;
-
-    
-
+        
         DateTime nowDateTime = DateTime.Now;
         string anHour = nowDateTime.Hour.ToString().PadLeft(2, '0');
         string aMinute = nowDateTime.Minute.ToString().PadLeft(2, '0');
@@ -335,10 +348,20 @@ public class Phone : MonoBehaviour
         
         if (!GameMaster.Instance.PHONEOUT)
         {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
+            
             TakeOutPhone();
         }
         else
         {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            
+
+
+            
             PutAwayPhone();
         }
     }
@@ -352,26 +375,21 @@ public class Phone : MonoBehaviour
         
         if (!GameMaster.Instance.INMENU && !GameMaster.Instance.HASITEM && !GameMaster.Instance.ISWRITING)
         {
-
-            if (!GameMaster.Instance.OnboardingManager.PHONEACCESSED)
-            {
-                GameMaster.Instance.OnboardingManager.OpenedPhone();
-            }
             
+            GameMaster.Instance.PHONEOUT = true;
+            GameMaster.Instance.INMENU = true;
+            GameMaster.Instance.FROZEN = true;
+            
+            if (!GameMaster.Instance.OnboardingManager.PHONEACCESSED) { GameMaster.Instance.OnboardingManager.OpenedPhone(); }
 
             MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 1, MobilePhone.transform.localPosition.z);
-
-                
-            //Camera.GetComponent<FirstPersonLook>().enabled = false;
-            //FirstPersonCollision.FROZEN = true;
+            
             MobilePhone.GetComponentInChildren<CanvasGroup>().alpha = 1.0f;
 
             CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
 
-            GameMaster.Instance.PHONEOUT = true;
-            GameMaster.Instance.INMENU = true;
             gameObject.GetComponent<CapsuleCollider>().enabled = true;
         }
     }
@@ -379,11 +397,13 @@ public class Phone : MonoBehaviour
 
     private void PutAwayPhone()
     {
-        GameMaster.Instance.PHONEOUT = false;
-        GameMaster.Instance.INMENU = false;
-        
+        if (!GameMaster.Instance.PHONEOUT) return;
         changeScreen(HomeScreen);
 
+        GameMaster.Instance.PHONEOUT = false;
+        GameMaster.Instance.INMENU = false;
+        GameMaster.Instance.FROZEN = false;
+        
         gameObject.GetComponent<CapsuleCollider>().enabled = false;
         MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y - 1, MobilePhone.transform.localPosition.z);
 
@@ -452,6 +472,7 @@ public class Phone : MonoBehaviour
     {
         changeScreen(MapsScreen);
         MiniMapCam.SetActive(true);
+        GameMaster.Instance.FROZEN = false;
 
         Debug.Log("maps button");
 
@@ -659,6 +680,7 @@ public class Phone : MonoBehaviour
         CameraLeftFlash.enabled = true;
         CameraRightFlash.enabled = true;
 
+        GameMaster.Instance.FROZEN = false; // allow player move ToDo: inform player can move
 
         // todo: input action references
         // string camerakey = InputManager.GetKeyName("camera");
@@ -672,6 +694,8 @@ public class Phone : MonoBehaviour
         CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
         CameraSavedText.GetComponent<CanvasGroup>().alpha = 0;
         PhoneCamera.GetComponent<Camera>().enabled = true;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         CameraOpen = true;
 
 
@@ -773,6 +797,30 @@ public class Phone : MonoBehaviour
 
     }
 
+    public void GalleryNextAction(InputAction.CallbackContext callbackContext)
+    {
+        int next = currentpage + 1;
+
+        if (next < PhotosInGallery)
+        {
+            currentpage = next;
+            GalleryGetContent(currentpage);
+        }
+    }
+
+    
+    public void GalleryBackAction(InputAction.CallbackContext callbackContext)
+    {
+        int prev = currentpage - 1;
+
+        if (prev >= 0)
+        {
+            currentpage = prev;
+            GalleryGetContent(currentpage);
+        }
+    }
+
+
 
     public void GalleryBackNext(string direction)
     {
@@ -795,8 +843,6 @@ public class Phone : MonoBehaviour
                 currentpage++;
             }
         }
-
-
     }
 
 
@@ -826,13 +872,14 @@ public class Phone : MonoBehaviour
     void GalleryGetContent(int page = 0)
     {
         // lets get the files
-        var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
+        var filepath = Path.Combine(Application.persistentDataPath, "Phone/0/Evidence");
 
 
         DirectoryInfo dir = new DirectoryInfo(filepath);
         if (dir.Exists)
         {
             FileInfo[] info = dir.GetFiles("*.quack");
+            
             var lines = System.IO.File.ReadAllLines(info[page].FullName);
 
             PhotosInGallery = info.Length;
@@ -860,11 +907,19 @@ public class Phone : MonoBehaviour
 
             MemoryStream dest = new MemoryStream();
 
-            var photopath = Application.persistentDataPath + "/Phone/0/DCIM/";
+            var photopath = Path.Combine(Application.persistentDataPath, "Phone/0/DCIM");
 
+            string fileName = lines[1].Trim();
 
+            string fullPhotoPath = Path.Combine(photopath, fileName);
 
-            byte[] imageData = File.ReadAllBytes(photopath + lines[1]);
+            if (!File.Exists(fullPhotoPath))
+            {
+                Debug.LogError("PHOTO NOT FOUND: " + fullPhotoPath);
+                return;
+            }
+
+            byte[] imageData = File.ReadAllBytes(fullPhotoPath);
 
             //Create new Texture2D
             Texture2D tempTexture = new Texture2D(100, 100);
@@ -1162,59 +1217,80 @@ public class Phone : MonoBehaviour
         }
     }
 
-
-
-    public void TakePhoto(InputAction.CallbackContext callbackContext)
+    public void TakePhoto(InputAction.CallbackContext ctx)
     {
-        if (ObservedEvidence != null)
-        {
-            RenderTexture activeRenderTexture = RenderTexture.active;
-            RenderTexture.active = PhoneCamera.GetComponent<Camera>().targetTexture;
+        if (!CameraReady || ObservedEvidence == null)
+            return;
 
-            PhoneCamera.GetComponent<Camera>().Render();
-            
-            Texture2D image = new Texture2D(PhoneCamera.GetComponent<Camera>().targetTexture.width, PhoneCamera.GetComponent<Camera>().targetTexture.height);
-            image.ReadPixels(new Rect(0, 0, PhoneCamera.GetComponent<Camera>().targetTexture.width, PhoneCamera.GetComponent<Camera>().targetTexture.height), 0, 0);
-            image.Apply();
-            RenderTexture.active = activeRenderTexture;
+        var ev = ObservedEvidence.GetComponent<Evidence>();
+        if (ev == null)
+            return;
 
-            byte[] bytes = image.EncodeToPNG();
-            Destroy(image);
-            
-            var photoname = ObservedEvidence.name;
+        // --- Render camera to texture ---
+        var cam = PhoneCamera.GetComponent<Camera>();
+        RenderTexture active = RenderTexture.active;
+        RenderTexture.active = cam.targetTexture;
 
-            var filepath = Application.persistentDataPath + "/Phone/0/DCIM/";
+        cam.Render();
 
-            System.IO.FileInfo file = new System.IO.FileInfo(filepath);
+        Texture2D image = new Texture2D(cam.targetTexture.width, cam.targetTexture.height, TextureFormat.RGB24, false);
+        image.ReadPixels(new Rect(0, 0, cam.targetTexture.width, cam.targetTexture.height), 0, 0);
+        image.Apply();
 
+        RenderTexture.active = active;
 
-            DirectoryInfo di = Directory.CreateDirectory(filepath);
-
-
-            var filenameString = file.FullName + photoname + ".png";
-
-            var nameForEvidenceFile = photoname + ".png";
-
-            System.IO.File.WriteAllBytes(filenameString, bytes);
+        byte[] bytes = image.EncodeToPNG();
+        Destroy(image);
 
 
-            ObservedEvidence.GetComponent<Evidence>().CollectEvidence();
+        
+        string dcimDir     = Path.Combine(Application.persistentDataPath, "Phone/0/DCIM");
+        string evidenceDir = Path.Combine(Application.persistentDataPath, "Phone/0/Evidence");
 
-            CameraReadyFrame.color = Color.black;
-            CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
-            CameraSavedText.GetComponent<CanvasGroup>().alpha = 1;
-            CameraReady = false;
+        if (!Directory.Exists(dcimDir)) Directory.CreateDirectory(dcimDir);
+        if (!Directory.Exists(evidenceDir)) Directory.CreateDirectory(evidenceDir);
 
-            StartCoroutine(SavedPhoto());
-            
-            // 
-            if (!GameMaster.Instance.OnboardingManager.TESTEVIDENCECOLLECTED)
-            {
-                GameMaster.Instance.OnboardingManager.CollectTestEvidence();
-            }
-        }
+        string photoFileName = ev.EvidenceName + ".png";
+        string photoPath     = Path.Combine(dcimDir, photoFileName);
+
+        // save photo
+        File.WriteAllBytes(photoPath, bytes);
+
+
+        
+        string evidencedate = System.DateTime.Now.ToString("dd/MM/yyyy, HH:mm");
+
+        string quackFileName = ev.EvidenceName + ".quack";
+        string quackPath     = Path.Combine(evidenceDir, quackFileName);
+
+        string slug = "";
+        slug += ev.EvidenceName + "\n";
+        slug += photoFileName + "\n";
+        slug += evidencedate + "\n";
+        slug += ev.EvidenceFake + "\n";
+        slug += ev.EvidenceQuality + "\n";
+        slug += ev.EvidenceDetails + "\n";
+
+        File.WriteAllText(quackPath, slug);
+
+        // register runtime lookup
+        if (!GameMaster.Instance.EvidenceFound.ContainsKey(ev.EvidenceName))
+            GameMaster.Instance.EvidenceFound.Add(ev.EvidenceName, quackPath);
+
+        // mark collected + gameplay effects
+        ev.CollectEvidence();
+
+        // UI feedback
+        CameraReadyFrame.color = Color.black;
+        CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
+        CameraSavedText.GetComponent<CanvasGroup>().alpha = 1;
+        CameraReady = false;
+
+        StartCoroutine(SavedPhoto());
     }
 
+    
+    
 
 
 

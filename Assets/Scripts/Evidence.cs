@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.IO;
+using Newtonsoft.Json;
 
 public class Evidence : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class Evidence : MonoBehaviour
 
     [Header("Does player photograph it?")]
     public bool PhotographableEvidence;
-
+    
 
     [Header("Dialogue to use")] 
     public DialogueName selectedDialogue;
@@ -42,64 +43,22 @@ public class Evidence : MonoBehaviour
         EvidenceRenderer = GetComponent<Renderer>();
     }
 
-
     public void CollectEvidence()
     {
+        if (EvidenceCollected)
+            return;
 
+        PhotographableEvidence = false;
+        EvidenceCollected = true;
 
-        if (!GameMaster.Instance.EvidenceFound.ContainsKey(gameObject.name))
-        {
+        GameMaster.EQThisLevel += EvidenceQuality;
+        StoredPrefs.SetInt("EQLevel" + GameMaster.Instance.THISLEVEL, GameMaster.EQThisLevel);
+        StoredPrefs.Save();
 
-            var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
-            var evidencedate = System.DateTime.Now.ToString("dd/MM/yyyy, HH:mm");
-
-            if (gameObject.layer == 5)
-            {
-                Debug.Log("Digital Evidence");
-            }
-
-            DirectoryInfo di = Directory.CreateDirectory(filepath);
-
-
-            var EvidenceFilename = transform.name + ".quack";
-            var EvidencePhotoFilename = transform.name + ".png";
-            var EvidenceSlug = EvidenceName + "\n";
-
-            EvidenceSlug += EvidencePhotoFilename + "\n";
-            EvidenceSlug += evidencedate + "\n";
-            EvidenceSlug += EvidenceFake + "\n";
-            EvidenceSlug += EvidenceQuality + "\n";
-            EvidenceSlug += EvidenceDetails + "\n";
-
-
-
-            System.IO.File.WriteAllText(filepath + EvidenceFilename, EvidenceSlug);
-
-            GameMaster.Instance.EvidenceFound.Add(transform.name, filepath);
-
-            gameObject.GetComponent<Evidence>().PhotographableEvidence = false;
-            gameObject.GetComponent<Evidence>().EvidenceCollected = true;
-
-
-
-            // if evidence definitely collected, increment Evidence Quotient
-
-            GameMaster.EQThisLevel += EvidenceQuality;
-            StoredPrefs.SetInt("EQLevel" + GameMaster.Instance.THISLEVEL.ToString(), GameMaster.EQThisLevel);
-            StoredPrefs.Save();
-            EvidenceBar.EQReadout();
-
-            // output notification to player
-            GiveFeedback();
-
-        }
-        else
-        {
-            // if the evidence has already been found before, silence it.
-            gameObject.GetComponent<Evidence>().PhotographableEvidence = false;
-            gameObject.GetComponent<Evidence>().EvidenceCollected = true;
-        }
+        EvidenceBar.EQReadout();
+        GiveFeedback();
     }
+
 
 
     // todo: dialogue database 
@@ -112,3 +71,16 @@ public class Evidence : MonoBehaviour
 
 
 }
+
+[System.Serializable]
+public class EvidenceRecord
+{
+    public string Name;
+    public string Photo;
+    public string DateFound;
+    public bool IsFake;
+    public int Quality;
+    public string Details;
+    public string Level;
+}
+

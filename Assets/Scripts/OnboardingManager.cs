@@ -2,12 +2,14 @@ using System.Collections;
 using UnityEngine;
 using System.IO;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using TMPro;
 using UnityEngine.UI;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+
 
 public class OnboardingManager : MonoBehaviour
 {
@@ -55,26 +57,24 @@ public class OnboardingManager : MonoBehaviour
     // Nora proclaims she is ready to go.
     public DialogueName readyMessage = DialogueName.NoraReadyToGo;
         
+    
+    
     public Image MyFirstEvidence;
     public TextMeshProUGUI EvidenceDesc;
     
     
-    
-    
-    
     void Awake()
     {
-
         EventManager.OnPlayerDataLoaded += RunOnboardingChecks;
-
     }
 
     private void RunOnboardingChecks()
     {
+        Debug.Log("run onboarding checks");
+        
         
         ONBOARDINGCOMPLETE = StoredPrefs.GetInt("ONBOARDINGCOMPLETE", 0) != 0;
         
-        // If onboarding was previously marked as complete, we can go ahead and true the rest as these, canonically, all precede ONBOARDINGCOMPLETE
         if (DEBUGGERY || ONBOARDINGCOMPLETE)
         {
             TORCHCOLLECTED = true;
@@ -84,15 +84,12 @@ public class OnboardingManager : MonoBehaviour
             PHONEACCESSED = true;
         }
 
-        // 
         TORCHCOLLECTED = StoredPrefs.GetInt("TORCHCOLLECTED", 0) != 0;
         NOTEPADCOLLECTED = StoredPrefs.GetInt("NOTEPADCOLLECTED", 0) != 0;
         PHONECOLLECTED = StoredPrefs.GetInt("PHONECOLLECTED", 0) != 0;
         TESTEVIDENCECOLLECTED = StoredPrefs.GetInt("TESTEVIDENCECOLLECTED", 0) != 0;
         PHONEACCESSED = StoredPrefs.GetInt("PHONEACCESSED", 0) != 0;
 
-        
-        
         if (GameMaster.Instance.THISLEVEL == GAMELEVEL.NorasFlat)
         {
             if (PHONECOLLECTED)
@@ -116,14 +113,11 @@ public class OnboardingManager : MonoBehaviour
 
             if (TESTEVIDENCECOLLECTED) { evidenceTick.alpha = 1; } else { evidenceTick.alpha = 0; }
             
-
-            // Todo: Refactor evidence levels 
             GameMaster.ExpectedEQThisLevel = GameMaster.ExpectedEQ_Level0;
                 
             UpdateChalkboard();
         }
-        
-    }
+    } 
 
     public async void CollectTorch()
     {
@@ -228,52 +222,67 @@ public class OnboardingManager : MonoBehaviour
         UpdateChalkboard();
     }
     
-
     public void UpdateChalkboard()
     {
-        Debug.Log("UpdateChalkboard");
-        if (GameMaster.Instance.EvidenceFound.Count > 0)
+        Debug.Log("UpdateChalkboard()");
+
+        // We specifically care about WineBottle
+        const string evidenceId = "WineBottle";
+
+        // Make sure it's actually been collected
+        if (!GameMaster.Instance.EvidenceFound.ContainsKey(evidenceId))
         {
-            Debug.Log("UpdateChalkboard EvidenceFound.Count > 0");
-            // lets get the files
-            var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
-
-
-            DirectoryInfo dir = new DirectoryInfo(filepath);
-            if (dir.Exists)
-            {
-                FileInfo[] info = dir.GetFiles("*.quack");
-                var lines = System.IO.File.ReadAllLines(info[0].FullName);
-
-                var photopath = Application.persistentDataPath + "/Phone/0/DCIM/";
-
-                // Read image bytes
-                byte[] imageData = File.ReadAllBytes(photopath + lines[1]);
-
-                // Create new Texture2D (size will auto-resize)
-                Texture2D tempTexture = new Texture2D(2, 2);
-                tempTexture.LoadImage(imageData);
-
-                // Convert Texture2D to Sprite for Image component
-                Sprite newSprite = Sprite.Create(
-                    tempTexture,
-                    new Rect(0, 0, tempTexture.width, tempTexture.height),
-                    new Vector2(0.5f, 0.5f)
-                );
-
-                // Assign Sprite to Image component
-                MyFirstEvidence.GetComponent<Image>().sprite = newSprite;
-
-                // Set description and tick
-                EvidenceDesc.text = lines[5];
-                evidenceTick.alpha = 1;
-            }
+            Debug.Log("WineBottle has not been collected yet.");
+            return;
         }
+
+        // StoredPrefs key
+        string key = GameMaster.Instance.EvidenceFound[evidenceId];
+
+        string json = StoredPrefs.GetString(key, "");
+        if (string.IsNullOrEmpty(json))
+        {
+            Debug.LogWarning($"No StoredPrefs JSON found for {key}");
+            return;
+        }
+
+        // Deserialize the save data
+        EvidenceRecord data = JsonConvert.DeserializeObject<EvidenceRecord>(json);
+
+        // ---- IMAGE ----
+        // Evidence photos always live here: Phone/0/DCIM/<filename>
+        string photoPath = Path.Combine(Application.persistentDataPath, "Phone/0/DCIM", data.Photo);
+
+        Debug.Log($"Looking for WineBottle image at: {photoPath}");
+
+        if (File.Exists(photoPath))
+        {
+            byte[] bytes = File.ReadAllBytes(photoPath);
+
+            Texture2D tex = new Texture2D(2, 2);
+            tex.LoadImage(bytes);
+
+            Sprite sprite = Sprite.Create(
+                tex,
+                new Rect(0, 0, tex.width, tex.height),
+                new Vector2(0.5f, 0.5f)
+            );
+
+            MyFirstEvidence.sprite = sprite;
+        }
+        else
+        {
+            Debug.LogWarning($"WineBottle image missing at: {photoPath}");
+        }
+
+        // ---- DESCRIPTION ----
+        EvidenceDesc.text = data.Details;
+
+        // Mark checklist
+        evidenceTick.alpha = 1;
     }
+
     
-        
-
-
 
     IEnumerator NoraReady()
     {
@@ -285,25 +294,37 @@ public class OnboardingManager : MonoBehaviour
 
     }
 
-
     public void GarbageRun()
     {
-        
-        string rootPath = Application.persistentDataPath + "/Phone/0/";
-        if (Directory.Exists(rootPath))
+        Debug.Log("GarbageRun");
+
+        // ---- CLEAR EVIDENCE KEYS ----
+        var keys = StoredPrefs.GetAllKeys();
+
+        foreach (var key in keys)
         {
-            Directory.Delete(rootPath, true);
+            if (key.StartsWith("Evidence/"))
+                StoredPrefs.DeleteKey(key);
         }
-        Directory.CreateDirectory(rootPath);
-        
+
+        // ---- RESET EQ ----
         StoredPrefs.SetInt("EQLevelNorasFlat", 0);
         StoredPrefs.SetInt("EQLevel1", 0);
         StoredPrefs.SetInt("EQLevel2", 0);
-        
-        // Re-load after wipe if needed (or just clear dictionary)
+
+        // ---- OPTIONAL: clear DCIM images ----
+        string dcim = Application.persistentDataPath + "/Phone/0/Evidence/";
+        if (Directory.Exists(dcim))
+            Directory.Delete(dcim, true);
+
+        Directory.CreateDirectory(dcim);
+
+        StoredPrefs.Save();
+
+        // Clear runtime dictionary
         GameMaster.Instance.EvidenceFound.Clear();
-        
     }
+
     
 
 
@@ -415,3 +436,10 @@ public class OnboardingManagerEditor : Editor
     }
 }
 #endif
+
+[System.Serializable]
+public class EvidenceSaveData
+{
+    public string photoPath;
+    public string description;
+}

@@ -72,6 +72,14 @@ public class Player : Singleton<Player>
         speed = walkspeed;
     }
 
+    void Start()
+    {
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        
+    }
+    
     void OnEnable()
     {
         moveAction?.action.Enable();
@@ -140,7 +148,12 @@ public class Player : Singleton<Player>
             // Jump
             if (jumpRequested)
             {
-                moveDirection.y = jumpForce; // jump strength
+                //
+                if (!GameMaster.Instance.FROZEN)
+                {
+                    moveDirection.y = jumpForce; 
+                }
+                // jump strength
                 jumpRequested = false;
             }
         }
@@ -164,9 +177,9 @@ public class Player : Singleton<Player>
     private void OnCrouchToggle(InputAction.CallbackContext ctx)
     {
         if (climbing) return;
-
-        if (!crouching)
-            Crouch();
+        if (GameMaster.Instance.FROZEN) return;
+        
+        if (!crouching) Crouch();
         else
         {
             if (!Physics.Raycast(MainCam.transform.position, Vector3.up, 2.5f))

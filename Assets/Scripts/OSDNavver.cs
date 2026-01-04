@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class OSDNavver : MonoBehaviour
 {
@@ -18,6 +19,9 @@ public class OSDNavver : MonoBehaviour
     public int columns = 3;   // 3 across
     public int rows = 4;      // 4 down
 
+    public Color originalColor = new Color(0,200,0,150);
+    public Color hoverColor = new Color(0,200,0,150);
+    
     private int currentIndex = 0;
 
     private void OnEnable()
@@ -52,7 +56,13 @@ public class OSDNavver : MonoBehaviour
 
     private void Start()
     {
-        HighlightOnly(currentIndex);
+        // sample orig color
+        if (GridButtons[0] != null)
+        {
+            originalColor = GridButtons[0].GetComponent<Button>().image.color;
+        }
+        
+        Highlight(currentIndex);
     }
 
     // --- NAVIGATION HANDLERS ---
@@ -94,16 +104,17 @@ public class OSDNavver : MonoBehaviour
     private void MoveTo(int newIndex)
     {
         currentIndex = Mathf.Clamp(newIndex, 0, GridButtons.Count - 1);
-        HighlightOnly(currentIndex);
+        Highlight(currentIndex);
     }
 
-    private void HighlightOnly(int index)
+    private void Highlight(int index)
     {
         for (int i = 0; i < GridButtons.Count; i++)
         {
             if (GridButtons[i] == null) continue;
 
             GridButtons[i].AppOutline.SetActive(i == index);
+            GridButtons[i].GetComponent<Button>().image.color = i == index ? hoverColor : originalColor;
         }
     }
 
@@ -112,7 +123,6 @@ public class OSDNavver : MonoBehaviour
         if (SelectedButton < 0 || SelectedButton >= GridButtons.Count)
             return;
 
-        if (GridButtons[SelectedButton] != null)
-            GridButtons[SelectedButton].ExecuteCommand();
+        if (GridButtons[SelectedButton] != null) GridButtons[SelectedButton].ExecuteCommand();
     }
 }

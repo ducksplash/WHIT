@@ -38,17 +38,6 @@ public class FirstPersonLook : MonoBehaviour
     
     void FixedUpdate()
     {
-        if (GameMaster.Instance.INMENU)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-
         if (!GameMaster.Instance.FROZEN)
         {
             transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);

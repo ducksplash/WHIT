@@ -69,12 +69,15 @@ public class OSDNavver : MonoBehaviour
 
     private void OnUp(InputAction.CallbackContext ctx)
     {
+        if (!GameMaster.Instance.PHONEOUT) return;
+        
         int next = currentIndex - columns;
         if (next >= 0) MoveTo(next);
     }
 
     private void OnDown(InputAction.CallbackContext ctx)
     {
+        if (!GameMaster.Instance.PHONEOUT) return;
         int next = currentIndex + columns;
         if (next < GridButtons.Count)
             MoveTo(next);
@@ -82,6 +85,7 @@ public class OSDNavver : MonoBehaviour
 
     private void OnLeft(InputAction.CallbackContext ctx)
     {
+        if (!GameMaster.Instance.PHONEOUT) return;
         // stay within row
         bool isAtRowStart = (currentIndex % columns) == 0;
         if (!isAtRowStart) MoveTo(currentIndex - 1);
@@ -89,6 +93,7 @@ public class OSDNavver : MonoBehaviour
 
     private void OnRight(InputAction.CallbackContext ctx)
     {
+        if (!GameMaster.Instance.PHONEOUT) return;
         bool isAtRowEnd = ((currentIndex % columns) == columns - 1);
         
         if (!isAtRowEnd && currentIndex + 1 < GridButtons.Count) MoveTo(currentIndex + 1);
@@ -96,6 +101,7 @@ public class OSDNavver : MonoBehaviour
 
     private void OnSubmit(InputAction.CallbackContext ctx)
     {
+        if (!GameMaster.Instance.PHONEOUT) return;
         ActivateOSDButton(currentIndex);
     }
 

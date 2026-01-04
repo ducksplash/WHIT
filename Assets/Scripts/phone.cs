@@ -429,6 +429,8 @@ public class Phone : MonoBehaviour
 
     public void OpenApp(PhoneApps SelectedApp)
     {
+        if (!GameMaster.Instance.PHONEOUT) return;
+        
         switch (SelectedApp)
         {
             case PhoneApps.Telephone:
@@ -710,7 +712,6 @@ public class Phone : MonoBehaviour
 
     public void GalleryButton()
     {
-
         changeScreen(GalleryScreen);
 
         
@@ -806,6 +807,8 @@ public class Phone : MonoBehaviour
 
     public void GalleryNextAction(InputAction.CallbackContext callbackContext)
     {
+        if (!GameMaster.Instance.PHONEOUT) return;
+        
         int next = currentpage + 1;
 
         if (next < PhotosInGallery)
@@ -818,6 +821,8 @@ public class Phone : MonoBehaviour
     
     public void GalleryBackAction(InputAction.CallbackContext callbackContext)
     {
+        if (!GameMaster.Instance.PHONEOUT) return;
+        
         int prev = currentpage - 1;
 
         if (prev >= 0)
@@ -827,8 +832,7 @@ public class Phone : MonoBehaviour
         }
     }
 
-
-
+    
     public void GalleryBackNext(string direction)
     {
 
@@ -855,6 +859,8 @@ public class Phone : MonoBehaviour
 
     public void GalleryViewPhoto(InputAction.CallbackContext callbackContext)
     {
+        if (!GameMaster.Instance.PHONEOUT) return;
+        
         viewingPhoto = !viewingPhoto;
 
         if (viewingPhoto)

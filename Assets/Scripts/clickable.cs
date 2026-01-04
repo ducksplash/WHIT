@@ -56,12 +56,17 @@ public class clickable : Singleton<clickable>
     {
         pointerPosition?.action.Enable();
         rightClick?.action.Enable();
+        
+        rightClick.action.performed += HandleClick;
     }
 
     void OnDisable()
     {
         pointerPosition?.action.Disable();
         rightClick?.action.Disable();
+        
+        rightClick.action.performed -= HandleClick;
+        
     }
 
     void FixedUpdate()
@@ -113,7 +118,6 @@ public class clickable : Singleton<clickable>
 
             ApplyHover(currentHit);
 
-            if (rightClick != null && rightClick.action.WasReleasedThisFrame()) HandleClick();
         }
         else
         {
@@ -179,7 +183,7 @@ public class clickable : Singleton<clickable>
         SetCursor(idlesprite, "");
     }
 
-    private void HandleClick()
+    private void HandleClick(InputAction.CallbackContext callbackContext)
     {
         if (!hasHit) return;
 

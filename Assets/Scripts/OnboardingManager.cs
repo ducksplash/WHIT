@@ -303,8 +303,7 @@ public class OnboardingManager : MonoBehaviour
 
         foreach (var key in keys)
         {
-            if (key.StartsWith("Evidence/"))
-                StoredPrefs.DeleteKey(key);
+            if (key.StartsWith("Evidence/")) StoredPrefs.DeleteKey(key);
         }
 
         // ---- RESET EQ ----
@@ -314,8 +313,7 @@ public class OnboardingManager : MonoBehaviour
 
         // ---- OPTIONAL: clear DCIM images ----
         string dcim = Application.persistentDataPath + "/Phone/0/Evidence/";
-        if (Directory.Exists(dcim))
-            Directory.Delete(dcim, true);
+        if (Directory.Exists(dcim)) Directory.Delete(dcim, true);
 
         Directory.CreateDirectory(dcim);
 

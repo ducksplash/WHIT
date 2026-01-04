@@ -77,17 +77,19 @@ public class Phone : MonoBehaviour
     public Button galleryBack;
     public Button galleryNext;
     public int PhotosInGallery;
-
+    
     private GameObject ObservedEvidence;
 
     public InputActionReference togglePhonePC;
     
-    public InputActionReference takePhotograph;
+    public InputActionReference SubmitAction; // multi-button
     
     public InputActionReference goBack;
     
     public InputActionReference listBackButton;
     public InputActionReference listNextButton;
+
+    public bool viewingPhoto;
     
     public DialogueName phoneTutorialFirstPhoto = DialogueName.phoneTutorialFirstPhoto;
     
@@ -96,13 +98,14 @@ public class Phone : MonoBehaviour
 
     private void Awake()
     {
-        togglePhonePC.action.performed += ActionTogglePhone;
-        takePhotograph.action.performed += TakePhoto;
         goBack.action.performed += ConsolePhoneButtonAction;
         togglePhonePC.action.performed += ActionTogglePhone;
         
+        
+        
         listBackButton.action.performed += GalleryBackAction;
         listNextButton.action.performed += GalleryNextAction;
+        
     }
     
     
@@ -175,6 +178,7 @@ public class Phone : MonoBehaviour
         {
             CameraOpen = false;
             GameMaster.Instance.FROZEN = true;
+            SubmitAction.action.performed -= TakePhoto;
         }
         
 
@@ -359,9 +363,6 @@ public class Phone : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             
-
-
-            
             PutAwayPhone();
         }
     }
@@ -395,7 +396,7 @@ public class Phone : MonoBehaviour
     }
 
 
-    private void PutAwayPhone()
+    public void PutAwayPhone()
     {
         if (!GameMaster.Instance.PHONEOUT) return;
         changeScreen(HomeScreen);
@@ -671,6 +672,9 @@ public class Phone : MonoBehaviour
         
         changeScreen(CameraScreen);
 
+        
+        SubmitAction.action.performed += TakePhoto;
+        
         if (TorchLight.enabled)
         {
             Torch.torchToggle = false;
@@ -709,6 +713,7 @@ public class Phone : MonoBehaviour
 
         changeScreen(GalleryScreen);
 
+        
         if (TorchLight.enabled)
         {
             Torch.torchToggle = false;
@@ -773,6 +778,8 @@ public class Phone : MonoBehaviour
             }
             GalleryScreen.GetComponent<CanvasGroup>().alpha = 1;
             GalleryScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
+            SubmitAction.action.performed += GalleryViewPhoto;
+
         }
         else
         {
@@ -846,6 +853,21 @@ public class Phone : MonoBehaviour
     }
 
 
+    public void GalleryViewPhoto(InputAction.CallbackContext callbackContext)
+    {
+        viewingPhoto = !viewingPhoto;
+
+        if (viewingPhoto)
+        {
+            GalleryClosePhoto();
+        }
+        else
+        {
+            GalleryEnlargePhoto();
+        }
+    }
+    
+    
 
     public void GalleryEnlargePhoto()
     {

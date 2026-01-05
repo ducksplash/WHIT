@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -24,7 +25,7 @@ public class OSDNavver : MonoBehaviour
     
     private int currentIndex = 0;
 
-    private void OnEnable()
+    private void SubscribeEvents()
     {
         UpAction.action.performed += OnUp;
         DownAction.action.performed += OnDown;
@@ -37,6 +38,11 @@ public class OSDNavver : MonoBehaviour
         LeftAction.action.Enable();
         RightAction.action.Enable();
         SubmitAction.action.Enable();
+    }
+
+    private void OnEnable()
+    {
+        SubscribeEvents();
     }
 
     private void OnDisable()
@@ -63,6 +69,7 @@ public class OSDNavver : MonoBehaviour
         }
         
         Highlight(currentIndex);
+        SubscribeEvents();
     }
 
     // --- NAVIGATION HANDLERS ---
@@ -101,12 +108,11 @@ public class OSDNavver : MonoBehaviour
 
     private void OnSubmit(InputAction.CallbackContext ctx)
     {
+        Debug.Log("submitty");
         if (!GameMaster.Instance.PHONEOUT) return;
         ActivateOSDButton(currentIndex);
     }
-
-    // --- LOGIC ---
-
+    
     private void MoveTo(int newIndex)
     {
         currentIndex = Mathf.Clamp(newIndex, 0, GridButtons.Count - 1);
@@ -120,15 +126,19 @@ public class OSDNavver : MonoBehaviour
             if (GridButtons[i] == null) continue;
 
             GridButtons[i].AppOutline.SetActive(i == index);
-            GridButtons[i].GetComponent<Button>().image.color = i == index ? hoverColor : originalColor;
+
+            var btn = GridButtons[i].GetComponent<Button>();
+
+            btn.image.color = i == index ? hoverColor : originalColor;
+
+            if (i == index) { GridButtons[i].GetComponent<OSDButton>().OnHover(); } else { GridButtons[i].GetComponent<OSDButton>().OffHover(); }
         }
     }
 
+
     public void ActivateOSDButton(int SelectedButton)
     {
-        if (SelectedButton < 0 || SelectedButton >= GridButtons.Count)
-            return;
-
+        if (SelectedButton < 0 || SelectedButton >= GridButtons.Count) return;
         if (GridButtons[SelectedButton] != null) GridButtons[SelectedButton].ExecuteCommand();
     }
 }

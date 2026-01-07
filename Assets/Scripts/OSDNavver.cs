@@ -16,9 +16,12 @@ public class OSDNavver : MonoBehaviour
     [Header("Grid (populate in inspector, index order top → bottom, left → right)")]
     public List<OSDButton> GridButtons = new List<OSDButton>();
 
+    [Header("Navigation Layout")]
+    public NavigationLayout Layout = NavigationLayout.Grid;
+
     [Header("Grid Size")]
-    public int columns = 3;   // 3 across
-    public int rows = 4;      // 4 down
+    public int columns = 3;
+    public int rows = 4;
 
     public Color originalColor = new Color(0,200,0,150);
     public Color hoverColor = new Color(0,200,0,150);
@@ -72,38 +75,93 @@ public class OSDNavver : MonoBehaviour
         SubscribeEvents();
     }
 
-    // --- NAVIGATION HANDLERS ---
-
     private void OnUp(InputAction.CallbackContext ctx)
     {
         if (!GameMaster.Instance.PHONEOUT) return;
-        
-        int next = currentIndex - columns;
-        if (next >= 0) MoveTo(next);
+
+        switch (Layout)
+        {
+            case NavigationLayout.Grid:
+                int nextGridUp = currentIndex - columns;
+                if (nextGridUp >= 0) MoveTo(nextGridUp);
+                break;
+
+            case NavigationLayout.TopToBottom:
+                int nextUp = currentIndex - 1;
+                if (nextUp >= 0) MoveTo(nextUp);
+                break;
+
+            case NavigationLayout.LeftToRight:
+                // ignore up
+                break;
+        }
     }
 
     private void OnDown(InputAction.CallbackContext ctx)
     {
         if (!GameMaster.Instance.PHONEOUT) return;
-        int next = currentIndex + columns;
-        if (next < GridButtons.Count)
-            MoveTo(next);
+
+        switch (Layout)
+        {
+            case NavigationLayout.Grid:
+                int nextGridDown = currentIndex + columns;
+                if (nextGridDown < GridButtons.Count) MoveTo(nextGridDown);
+                break;
+
+            case NavigationLayout.TopToBottom:
+                int nextDown = currentIndex + 1;
+                if (nextDown < GridButtons.Count) MoveTo(nextDown);
+                break;
+
+            case NavigationLayout.LeftToRight:
+                // ignore down
+                break;
+        }
     }
 
     private void OnLeft(InputAction.CallbackContext ctx)
     {
         if (!GameMaster.Instance.PHONEOUT) return;
-        // stay within row
-        bool isAtRowStart = (currentIndex % columns) == 0;
-        if (!isAtRowStart) MoveTo(currentIndex - 1);
+
+        switch (Layout)
+        {
+            case NavigationLayout.Grid:
+                bool isAtRowStart = (currentIndex % columns) == 0;
+                if (!isAtRowStart) MoveTo(currentIndex - 1);
+                break;
+
+            case NavigationLayout.TopToBottom:
+                // ignore
+                break;
+
+            case NavigationLayout.LeftToRight:
+                int leftIndex = currentIndex - 1;
+                if (leftIndex >= 0) MoveTo(leftIndex);
+                break;
+        }
     }
 
     private void OnRight(InputAction.CallbackContext ctx)
     {
         if (!GameMaster.Instance.PHONEOUT) return;
-        bool isAtRowEnd = ((currentIndex % columns) == columns - 1);
-        
-        if (!isAtRowEnd && currentIndex + 1 < GridButtons.Count) MoveTo(currentIndex + 1);
+
+        switch (Layout)
+        {
+            case NavigationLayout.Grid:
+                bool isAtRowEnd = ((currentIndex % columns) == columns - 1);
+                if (!isAtRowEnd && currentIndex + 1 < GridButtons.Count)
+                    MoveTo(currentIndex + 1);
+                break;
+
+            case NavigationLayout.TopToBottom:
+                // ignore
+                break;
+
+            case NavigationLayout.LeftToRight:
+                int rightIndex = currentIndex + 1;
+                if (rightIndex < GridButtons.Count) MoveTo(rightIndex);
+                break;
+        }
     }
 
     private void OnSubmit(InputAction.CallbackContext ctx)
@@ -141,4 +199,11 @@ public class OSDNavver : MonoBehaviour
         if (SelectedButton < 0 || SelectedButton >= GridButtons.Count) return;
         if (GridButtons[SelectedButton] != null) GridButtons[SelectedButton].ExecuteCommand();
     }
+}
+
+public enum NavigationLayout
+{
+    Grid,
+    TopToBottom,
+    LeftToRight
 }

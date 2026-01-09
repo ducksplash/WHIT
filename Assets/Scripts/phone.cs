@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
-using Button = UnityEngine.UI.Button;
-using Cursor = UnityEngine.Cursor;
-using Image = UnityEngine.UI.Image;
 
 public class Phone : MonoBehaviour
 {
@@ -27,6 +24,7 @@ public class Phone : MonoBehaviour
     public OSDNavver DiallerScreenNavver;
     public GameObject GalleryScreen;
     public GameObject CallingScreen;
+    public OSDNavver CallingScreenNavver;
     public GameObject MapsScreen;
     public GameObject MessagesScreen;
     public GameObject InboxPane;
@@ -74,6 +72,7 @@ public class Phone : MonoBehaviour
     public GameObject MiniMapCam;
 
 
+    
     public bool gotfiles;
     public int currentpage;
     public int nextpage;
@@ -92,7 +91,7 @@ public class Phone : MonoBehaviour
 
     public InputActionReference togglePhonePC;
 
-    //public InputActionReference SubmitAction; // multi-button
+    public InputActionReference InteractAction; // multi-button
 
     public InputActionReference goBack;
 
@@ -112,15 +111,21 @@ public class Phone : MonoBehaviour
     public InputActionReference numPadStar;
     public InputActionReference numPadHash;
     public InputActionReference numBackSpace;
+    private GameObject currentScreen;
 
     public bool viewingPhoto;
 
     public DialogueName phoneTutorialFirstPhoto = DialogueName.phoneTutorialFirstPhoto;
 
+    private Coroutine CallCoroutine;
+    
+    public List<GalleryItem> galleryItems = new List<GalleryItem>();
+    public bool galleryLoaded = false;
+    
     // Make Call Coroutine
 
 
-    private void Awake()
+    private void OnEnable()
     {
         goBack.action.performed += ConsolePhoneButtonAction;
         togglePhonePC.action.performed += ActionTogglePhone;
@@ -146,6 +151,31 @@ public class Phone : MonoBehaviour
     }
 
 
+    private void OnDisable()
+    {
+        goBack.action.performed -= ConsolePhoneButtonAction;
+        togglePhonePC.action.performed -= ActionTogglePhone;
+
+
+        listBackButton.action.performed -= GalleryBackAction;
+        listNextButton.action.performed -= GalleryNextAction;
+
+
+        numPad0.action.performed -= a0Button;
+        numPad1.action.performed -= a1Button;
+        numPad2.action.performed -= a2Button;
+        numPad3.action.performed -= a3Button;
+        numPad4.action.performed -= a4Button;
+        numPad5.action.performed -= a5Button;
+        numPad6.action.performed -= a6Button;
+        numPad7.action.performed -= a7Button;
+        numPad8.action.performed -= a8Button;
+        numPad9.action.performed -= a9Button;
+        numPadStar.action.performed -= asButton;
+        numPadHash.action.performed -= ahButton;
+        numBackSpace.action.performed -= backspaceButton;
+    }
+
     void Start()
     {
         WaitingForPhone = true;
@@ -164,144 +194,101 @@ public class Phone : MonoBehaviour
 
         PhoneCamera.GetComponent<Camera>().enabled = false;
         MiniMapCam.SetActive(false);
-        
-        
-        CallTitleText.text = "Phone";
+
+        LoadGallery();
+
     }
 
-
-    IEnumerator CallContact()
-    {
-        // disable DiallerScreen
-        DiallerScreen.GetComponent<CanvasGroup>().alpha = 0.0f;
-        DiallerScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
-
-        // disable ContactsScreen
-        ContactsScreen.GetComponent<CanvasGroup>().alpha = 0.0f;
-        ContactsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
-
-        // enable CallingScreen
-        CallingScreen.GetComponent<CanvasGroup>().alpha = 1.0f;
-        CallingScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
-
-        callingContact = true;
-
-        yield return null;
-    }
 
 
     void changeScreen(GameObject useThisScreen)
     {
-        Transform[] allScreens = MobilePhone.GetComponentsInChildren<Transform>();
-
-        Transform[] useTheseScreens = useThisScreen.GetComponentsInChildren<Transform>();
-
-        PhoneCamera.GetComponent<Camera>().enabled = false;
-        
-        if (MiniMapCam.activeSelf)
-        {
-            MiniMapCam.SetActive(false);
-            GameMaster.Instance.FROZEN = true;
-        }
-
-        if (CameraOpen)
-        {
-            CameraOpen = false;
-            GameMaster.Instance.FROZEN = true;
-            //SubmitAction.action.performed -= TakePhoto;
-        }
-
-
-        CameraLeftFlash.enabled = false;
-        CameraRightFlash.enabled = false;
-
-
-        var readyForNewScreen = false;
-
-
-        foreach (Transform screen in allScreens)
-        {
-            if (!screen.name.Contains("SCREENPANEL"))
-            {
-                if (screen.GetComponent<CanvasGroup>())
-                {
-                    screen.GetComponent<CanvasGroup>().alpha = 0.0f;
-                    screen.GetComponent<CanvasGroup>().blocksRaycasts = false;
-
-                    readyForNewScreen = true;
-                }
-                else if (screen.GetComponent<TMPro.TextMeshPro>())
-                {
-                    if (!screen.name.Contains("clock") && !screen.name.Contains("network"))
-                    {
-                        screen.GetComponent<TMPro.TextMeshPro>().enabled = false;
-                        //screen.GetComponent<CanvasGroup>().blocksRaycasts = false;	
-                        Debug.Log("TMPro.TextMeshPro");
-                        readyForNewScreen = true;
-                    }
-                }
-                else if (screen.GetComponent<TMPro.TextMeshProUGUI>())
-                {
-                    if (!screen.name.Contains("clock") && !screen.name.Contains("network"))
-                    {
-                        screen.GetComponent<TMPro.TextMeshProUGUI>().enabled = false;
-                        //screen.GetComponent<CanvasGroup>().blocksRaycasts = false;	
-                        readyForNewScreen = true;
-                    }
-                }
-                else
-                {
-                    readyForNewScreen = true;
-                }
-            }
-        }
-
-
-        if (readyForNewScreen)
-        {
-            foreach (Transform thisScreen in useTheseScreens)
-            {
-                if (thisScreen.GetComponent<CanvasGroup>())
-                {
-                    thisScreen.GetComponent<CanvasGroup>().alpha = 1.0f;
-                    thisScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
-                }
-                else if (thisScreen.GetComponent<TMPro.TextMeshPro>())
-                {
-                    thisScreen.GetComponent<TMPro.TextMeshPro>().enabled = true;
-                }
-                else if (thisScreen.GetComponent<TMPro.TextMeshProUGUI>())
-                {
-                    thisScreen.GetComponent<TMPro.TextMeshProUGUI>().enabled = true;
-                }
-                else
-                {
-                    //shush you
-                    //Debug.Log("don't got it");
-                }
-            }
-        }
-        
-        
         DisableNavvers();
         
+        Transform[] allScreens = MobilePhone.GetComponentsInChildren<Transform>(true);
+        Transform[] useTheseScreens = useThisScreen.GetComponentsInChildren<Transform>(true);
 
-        if (HomeScreen.GetComponent<CanvasGroup>().alpha > 0.9f)
+        PhoneCamera.GetComponent<Camera>().enabled = false;
+
+        // FIX: prevent Gallery panes from being reset
+        foreach (Transform screen in allScreens)
+        {
+            if (screen.IsChildOf(useThisScreen.transform) && !screen.name.Contains("SCREENPANEL")) continue;
+
+            if (!screen.name.Contains("SCREENPANEL"))
+            {
+                CanvasGroup cg = screen.GetComponent<CanvasGroup>();
+                if (cg)
+                {
+                    cg.alpha = 0f;
+                    cg.blocksRaycasts = false;
+                    cg.interactable = false;
+                }
+
+                var tmp = screen.GetComponent<TextMeshProUGUI>();
+                if (tmp && !screen.name.Contains("clock") && !screen.name.Contains("network"))
+                    tmp.enabled = false;
+            }
+        }
+
+        foreach (Transform screen in useTheseScreens)
+        {
+            CanvasGroup cg = screen.GetComponent<CanvasGroup>();
+            if (cg)
+            {
+                cg.alpha = 1f;
+                cg.blocksRaycasts = true;
+                cg.interactable = true;
+            }
+
+            var tmp = screen.GetComponent<TextMeshProUGUI>();
+            if (tmp) tmp.enabled = true;
+        }
+
+
+        if (HomeScreen.GetComponent<CanvasGroup>()?.alpha > 0.9f)
         {
             HomeScreenNavver.gameObject.SetActive(true);
         }
 
-        if (DiallerScreen.GetComponent<CanvasGroup>().alpha > 0.9f)
-        {
-            DiallerScreenNavver.gameObject.SetActive(true);
-        }
-
-        if (ContactsScreen.GetComponent<CanvasGroup>().alpha > 0.9f)
+        if (ContactsScreen.GetComponent<CanvasGroup>()?.alpha > 0.9f)
         {
             ContactsScreenNavver.gameObject.SetActive(true);
         }
 
+        if (DiallerScreen.GetComponent<CanvasGroup>()?.alpha > 0.9f)
+        {
+            DiallerScreenNavver.gameObject.SetActive(true);
+        }
+
+        if (CallingScreen.GetComponent<CanvasGroup>()?.alpha > 0.9f)
+        {
+            CallingScreenNavver.gameObject.SetActive(true);
+        }
+
+        if (GalleryScreen.GetComponent<CanvasGroup>()?.alpha < 0.9f)
+        {
+            InteractAction.action.performed -= GalleryViewPhoto;
+        }
+
+        if (CameraScreen.GetComponent<CanvasGroup>()?.alpha < 0.9f)
+        {
+            CameraLeftFlash.enabled = false;
+            CameraRightFlash.enabled = false;
+        }
+
         
+        
+        
+        if (useThisScreen != GalleryScreen)
+        {
+            InteractAction.action.performed -= GalleryViewPhoto;
+            viewingPhoto = false;
+            SetBigPhotoVisible(false);
+        }
+        
+        currentScreen = useThisScreen;
+        Debug.Log("currentScreen "+currentScreen);
     }
 
     private void DisableNavvers()
@@ -309,6 +296,7 @@ public class Phone : MonoBehaviour
         HomeScreenNavver.gameObject.SetActive(false);
         DiallerScreenNavver.gameObject.SetActive(false);
         ContactsScreenNavver.gameObject.SetActive(false);
+        CallingScreenNavver.gameObject.SetActive(false);
     }
     
     
@@ -318,7 +306,7 @@ public class Phone : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!GameMaster.Instance.OnboardingManager.PHONECOLLECTED) return;
+       //if (!GameMaster.Instance.OnboardingManager.PHONECOLLECTED) return;
 
         DateTime nowDateTime = DateTime.Now;
         string anHour = nowDateTime.Hour.ToString().PadLeft(2, '0');
@@ -345,7 +333,7 @@ public class Phone : MonoBehaviour
 
     private void TakeOutPhone()
     {
-        DisableNavvers();
+        changeScreen(HomeScreen);
         HomeScreenNavver.gameObject.SetActive(true);
         
         GameMaster.Instance.EventManager.PhoneOpened();
@@ -403,9 +391,6 @@ public class Phone : MonoBehaviour
             Torch.torchToggle = true;
             TorchLight.enabled = true;
         }
-
-        CameraLeftFlash.enabled = false;
-        CameraRightFlash.enabled = false;
     }
 
 
@@ -420,6 +405,7 @@ public class Phone : MonoBehaviour
             case PhonerGriddle.Camera: CameraButton(); break;
             case PhonerGriddle.Map: MapsButton(); break;
             case PhonerGriddle.Messages: MessagesButton(); break;
+            case PhonerGriddle.Notes: MessagesButton(101); break;
             case PhonerGriddle.Gallery: GalleryButton(); break;
             
             // Dialler
@@ -436,16 +422,16 @@ public class Phone : MonoBehaviour
             case PhonerGriddle.NumStar: asButton(); break;
             case PhonerGriddle.NumHash: ahButton(); break;
             case PhonerGriddle.NumBack: backspaceButton(); break;
-            case PhonerGriddle.NumCall: callButton(); break;
+            case PhonerGriddle.NumCall: CallNumber(); break;
             
             // Contacts
             case PhonerGriddle.Dialpad: DiallerButton(); break;
-            case PhonerGriddle.Kieron: callKieron(); break;
-            case PhonerGriddle.Darragh: callDarragh(); break;
-            case PhonerGriddle.Mary: callMary(); break;
-            case PhonerGriddle.Tom: callTom(); break;
-            case PhonerGriddle.Work: callWork(); break;
-            case PhonerGriddle.Unknown: callAnon(); break;
+            case PhonerGriddle.Kieron: CallContact(PhonerGriddle.Kieron); break;
+            case PhonerGriddle.Darragh: CallContact(PhonerGriddle.Darragh); break;
+            case PhonerGriddle.Mary: CallContact(PhonerGriddle.Mary); break;
+            case PhonerGriddle.Tom: CallContact(PhonerGriddle.Tom); break;
+            case PhonerGriddle.Work: CallContact(PhonerGriddle.Work); break;
+            case PhonerGriddle.Unknown: CallContact(PhonerGriddle.Unknown); break;
         }
     }
 
@@ -630,7 +616,7 @@ public class Phone : MonoBehaviour
         changeScreen(CameraScreen);
 
 
-        //SubmitAction.action.performed += TakePhoto;
+        InteractAction.action.performed += TakePhoto;
 
         if (TorchLight.enabled)
         {
@@ -666,128 +652,109 @@ public class Phone : MonoBehaviour
     {
         changeScreen(GalleryScreen);
 
+        // --- Reset gallery state ---
+        viewingPhoto = false;
+        SetBigPhotoVisible(false);
 
-        if (TorchLight.enabled)
+        if (!galleryLoaded) LoadGallery();
+
+        CanvasGroup[] panes = GalleryScreen.GetComponentsInChildren<CanvasGroup>(true);
+
+        if (galleryLoaded)
         {
-            Torch.torchToggle = false;
-            TorchLight.enabled = false;
-        }
-
-        // lets get the files
-        // we're only counting them here, the fishing will take place elsewhere
-        var filepath = Application.persistentDataPath + "/Phone/0/Evidence/";
-
-
-        DirectoryInfo dir = new DirectoryInfo(filepath);
-        if (dir.Exists)
-        {
-            FileInfo[] info = dir.GetFiles("*.quack");
-
-            if (info.Length > 0)
+            // Show gallery list panes
+            foreach (CanvasGroup pane in panes)
             {
-                gotfiles = true;
+                if (pane.CompareTag("GALLERYPANE"))
+                {
+                    pane.alpha = 1f;
+                    pane.blocksRaycasts = true;
+                    pane.interactable = true;
+                }
+                else if (pane.CompareTag("EMPTYPANE"))
+                {
+                    pane.alpha = 0f;
+                    pane.blocksRaycasts = false;
+                    pane.interactable = false;
+                }
             }
-            else
-            {
-                gotfiles = false;
-            }
+
+            currentpage = 0;
+            DisplayGalleryPage(currentpage);
         }
         else
         {
-            gotfiles = false;
-        }
-
-
-        // get the panels
-        CanvasGroup[] GalleryPanes = GalleryScreen.GetComponentsInChildren<CanvasGroup>();
-
-
-        // gallery got stuff?
-
-        // we have to temp it cos we haven't built all the back end for the photos and evidence yet :P
-
-
-        // got at least one photo?
-        if (gotfiles)
-        {
-            foreach (CanvasGroup screen in GalleryPanes)
+            // Show empty gallery pane
+            foreach (CanvasGroup pane in panes)
             {
-                if (screen.name.Contains("GALLERYPANE"))
+                if (pane.CompareTag("EMPTYPANE"))
                 {
-                    screen.alpha = 1;
-                    screen.blocksRaycasts = true;
-                    GalleryGetContent();
+                    pane.alpha = 1f;
+                    pane.blocksRaycasts = true;
                 }
-                else
+                else if (pane.CompareTag("GALLERYPANE"))
                 {
-                    screen.alpha = 0;
-                    screen.blocksRaycasts = false;
+                    pane.alpha = 0f;
+                    pane.blocksRaycasts = false;
                 }
             }
-
-            GalleryScreen.GetComponent<CanvasGroup>().alpha = 1;
-            GalleryScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
-            //SubmitAction.action.performed += GalleryViewPhoto;
         }
-        else
-        {
-            foreach (CanvasGroup screen in GalleryPanes)
-            {
-                if (screen.name.Contains("EMPTYPANE"))
-                {
-                    screen.alpha = 1;
-                    screen.blocksRaycasts = true;
-                }
-                else
-                {
-                    screen.alpha = 0;
-                    screen.blocksRaycasts = false;
-                }
-            }
 
-            GalleryScreen.GetComponent<CanvasGroup>().alpha = 1;
-            GalleryScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
-        }
+        // IMPORTANT: delay input binding so the same Interact press
+        // that opened the gallery does NOT open the big photo
+        StartCoroutine(EnableGalleryInteractNextFrame());
     }
 
+    
+    private IEnumerator EnableGalleryInteractNextFrame()
+    {
+        yield return null; 
+        InteractAction.action.performed += GalleryViewPhoto;
+    }
+
+    private void SetBigPhotoVisible(bool visible)
+    {
+        var cg = GalleryBigPhoto.GetComponent<CanvasGroup>();
+        cg.alpha = visible ? 1f : 0f;
+        cg.blocksRaycasts = visible;
+    }
+
+    
+    
+    
     public void GalleryNextAction(InputAction.CallbackContext callbackContext)
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
-
-        int next = currentpage + 1;
-
-        if (next < PhotosInGallery)
+        if (GalleryScreen.GetComponent<CanvasGroup>().alpha < 0.9f) return;
+        
+        if (currentpage < galleryItems.Count - 1)
         {
-            currentpage = next;
-            GalleryGetContent(currentpage);
+            currentpage++;
+            DisplayGalleryPage(currentpage);
         }
     }
 
-
-    public void GalleryBackAction(InputAction.CallbackContext callbackContext)
+    public void GalleryBackAction(InputAction.CallbackContext callbackContext) 
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
-
-        int prev = currentpage - 1;
-
-        if (prev >= 0)
+        if (GalleryScreen.GetComponent<CanvasGroup>().alpha < 0.9f) return;
+        
+        if (currentpage > 0)
         {
-            currentpage = prev;
-            GalleryGetContent(currentpage);
+            currentpage--;
+            DisplayGalleryPage(currentpage);
         }
     }
-
+    
 
     public void GalleryBackNext(string direction)
     {
-        if (GalleryScreen.GetComponent<CanvasGroup>().alpha < 0f) return; 
+        if (GalleryScreen.GetComponent<CanvasGroup>().alpha < 0.9f) return;
         
         if (direction.Equals("back"))
         {
             Debug.Log("This Page: " + currentpage + "\nThis Page -1 : " + (currentpage - 1));
             if (currentpage > 0)
             {
-                GalleryGetContent(currentpage - 1);
+                DisplayGalleryPage(currentpage - 1);
                 currentpage--;
             }
         }
@@ -796,118 +763,47 @@ public class Phone : MonoBehaviour
         {
             if (currentpage < PhotosInGallery)
             {
-                GalleryGetContent(currentpage + 1);
+                DisplayGalleryPage(currentpage + 1);
                 currentpage++;
             }
         }
     }
 
 
-    public void GalleryViewPhoto(InputAction.CallbackContext callbackContext)
+
+    public void GalleryViewPhoto(InputAction.CallbackContext ctx)
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (GalleryScreen.GetComponent<CanvasGroup>().alpha < 0.9f) return;
 
         viewingPhoto = !viewingPhoto;
 
-        if (viewingPhoto)
-        {
-            GalleryClosePhoto();
-        }
-        else
-        {
-            GalleryEnlargePhoto();
-        }
+        GalleryBigPhoto.GetComponent<CanvasGroup>().alpha = viewingPhoto ? 1f : 0f;
+        GalleryBigPhoto.GetComponent<CanvasGroup>().blocksRaycasts = viewingPhoto;
     }
 
+    
 
-    public void GalleryEnlargePhoto()
+    private void DisplayGalleryPage(int page)
     {
-        GalleryBigPhoto.GetComponent<CanvasGroup>().alpha = 1f;
-        GalleryBigPhoto.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        if (page < 0 || page >= galleryItems.Count)
+            return;
+        
+        GalleryItem item = galleryItems[page];
+
+        byte[] imageData = File.ReadAllBytes(item.photoFullPath);
+        Texture2D tex = new Texture2D(2, 2);
+        tex.LoadImage(imageData);
+
+        galleryEvidencePhoto.texture = tex;
+        GalleryBigPhoto.GetComponent<RawImage>().texture = tex;
+
+        galleryEvidenceName.text = item.evidenceName;
+        galleryEvidenceDate.text = item.date;
+        galleryEvidenceDetails.text = item.details;
+
+        galleryBack.interactable = page > 0;
+        galleryNext.interactable = page < galleryItems.Count - 1;
     }
-
-
-    public void GalleryClosePhoto()
-    {
-        GalleryBigPhoto.GetComponent<CanvasGroup>().alpha = 0f;
-        GalleryBigPhoto.GetComponent<CanvasGroup>().blocksRaycasts = false;
-    }
-
-
-    void GalleryGetContent(int page = 0)
-    {
-        // lets get the files
-        var filepath = Path.Combine(Application.persistentDataPath, "Phone/0/Evidence");
-
-
-        DirectoryInfo dir = new DirectoryInfo(filepath);
-        if (dir.Exists)
-        {
-            FileInfo[] info = dir.GetFiles("*.quack");
-
-            var lines = System.IO.File.ReadAllLines(info[page].FullName);
-
-            PhotosInGallery = info.Length;
-
-
-            if (page < 1)
-            {
-                galleryBack.interactable = false;
-            }
-            else
-            {
-                galleryBack.interactable = true;
-            }
-
-            if (page + 1 >= PhotosInGallery)
-            {
-                galleryNext.interactable = false;
-            }
-            else
-            {
-                galleryNext.interactable = true;
-            }
-
-
-            MemoryStream dest = new MemoryStream();
-
-            var photopath = Path.Combine(Application.persistentDataPath, "Phone/0/DCIM");
-
-            string fileName = lines[1].Trim();
-
-            string fullPhotoPath = Path.Combine(photopath, fileName);
-
-            if (!File.Exists(fullPhotoPath))
-            {
-                Debug.LogError("PHOTO NOT FOUND: " + fullPhotoPath);
-                return;
-            }
-
-            byte[] imageData = File.ReadAllBytes(fullPhotoPath);
-
-            //Create new Texture2D
-            Texture2D tempTexture = new Texture2D(100, 100);
-
-            //Load the Image Byte to Texture2D
-            tempTexture.LoadImage(imageData);
-
-
-            var finaltexture = tempTexture;
-
-            //Load to Rawmage?
-            galleryEvidencePhoto.texture = finaltexture;
-            GalleryBigPhoto.GetComponent<RawImage>().texture = finaltexture;
-
-
-            // the script that saves these
-            // is in "Evidence.cs".
-            galleryEvidenceName.text = lines[0];
-            galleryEvidenceDate.text = lines[2];
-            galleryEvidenceDate.text = lines[2];
-            galleryEvidenceDetails.text = lines[5];
-        }
-    }
-
 
     // Dialler.
     public void DiallerButton()
@@ -1011,87 +907,87 @@ public class Phone : MonoBehaviour
         }
     }
 
-    public void callButton(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
+    
+    public void CallNumber()
     {
-        if (DialBar.text == "*#06#")
-        {
-            CallTitleText.text = "Seriously?";
-            CallText.text = "What did you expect?\na real IMEI number?\n\neejit.";
-        }
-        else if (DialBar.text == "999" || DialBar.text == "112" || DialBar.text == "911")
-        {
-            CallTitleText.text = "That won't work";
-            CallText.text = "If you have a real emergency, please use a real phone.";
-        }
-        else
-        {
-            CallTitleText.text = "Calling...";
-            CallText.text = DialBar.text;
-        }
-
-
+        if (DialBar.text.Length < 1) return;
+        
         changeScreen(CallingScreen);
+        
+        callingContact = true;
+        
+        CallScreenCallingText.text = "Calling\n";
+        CallText.text = DialBar.text;
+
+        if (CallCoroutine != null)
+        {
+            StopCoroutine(CallCoroutine);
+            CallCoroutine = null;
+        }
+        
+        CallCoroutine = StartCoroutine(CallingContact("Calling\n"+DialBar.text));
     }
 
-
-    public void callAnon()
+    
+    public void CallContact(PhonerGriddle contactName = PhonerGriddle.Kieron)
     {
-        CallTitleText.text = "Calling\n?";
-        CallText.text = anonNum.text;
-
-        StartCoroutine("CallContact");
+        changeScreen(CallingScreen);
+        
+        callingContact = true;
+        
+        CallScreenCallingText.text = "Calling\n"+contactName;
+        
+        if (CallCoroutine != null)
+        {
+            StopCoroutine(CallCoroutine);
+            CallCoroutine = null;
+        }
+        
+        CallCoroutine = StartCoroutine(CallingContact("Calling\n"+contactName));
     }
 
-
-    public void callDarragh()
+    private IEnumerator CallingContact(string callingcontactSlug)
     {
-        CallTitleText.text = "Calling\nDarragh";
-        CallText.text = darraghNum.text;
+        string baseText = callingcontactSlug;
+        int maxDots = 3;
 
-        StartCoroutine("CallContact");
+        float allowedTime = 5f;
+        float elapsedTime = 0f;
+
+        int dotCount = 0;
+        float tick = 0.5f;
+
+        // ringing noise
+        
+        while (elapsedTime < allowedTime)
+        {
+            CallScreenCallingText.text = baseText + "\n" + new string('.', dotCount);
+
+            dotCount = (dotCount + 1) % (maxDots + 1);
+
+            elapsedTime += tick;
+            yield return new WaitForSeconds(tick);
+        }
+
+        CallScreenCallingText.text = "No Answer";
+        // boop boop boop noise
+        yield return new WaitForSeconds(1.5f);
+        
+        // boot back to contacts
+        changeScreen(ContactsScreen);
+        callingContact = false;
     }
-
-
-    public void callKieron()
-    {
-        CallTitleText.text = "Calling\nKieron";
-        CallText.text = kieronNum.text;
-
-        StartCoroutine("CallContact");
-    }
-
-
-    public void callMary()
-    {
-        CallTitleText.text = "Calling\nMary";
-        CallText.text = maryNum.text;
-
-        StartCoroutine("CallContact");
-    }
-
-
-    public void callTom()
-    {
-        CallTitleText.text = "Calling\nTom";
-        CallText.text = tomNum.text;
-
-        StartCoroutine("CallContact");
-    }
-
-
-    public void callWork()
-    {
-        CallTitleText.text = "Calling\nWork";
-        CallText.text = workNum.text;
-
-        StartCoroutine("CallContact");
-    }
-
 
     public void BackButton()
     {
         Debug.Log("BAKK");
-        Debug.Log(HomeScreen.GetComponent<CanvasGroup>().alpha);
+        
+        if (CallCoroutine != null)
+        {
+            StopCoroutine(CallCoroutine);
+            CallCoroutine = null;
+        }
+        
         if (HomeScreen.GetComponent<CanvasGroup>().alpha < 0.9f)
         {
             Debug.Log("changeScreen");
@@ -1103,6 +999,9 @@ public class Phone : MonoBehaviour
             Debug.Log("PutAwayPhone");
             PutAwayPhone();
         }
+        
+        
+        InteractAction.action.performed -= GalleryViewPhoto;
 
     }
 
@@ -1238,6 +1137,42 @@ public class Phone : MonoBehaviour
         StartCoroutine(SavedPhoto());
     }
 
+    
+    
+    private void LoadGallery()
+    {
+        galleryItems.Clear();
+
+        string evidencePath = Path.Combine(Application.persistentDataPath, "Phone/0/Evidence");
+        string dcimPath = Path.Combine(Application.persistentDataPath, "Phone/0/DCIM");
+
+        if (!Directory.Exists(evidencePath))
+            return;
+
+        FileInfo[] files = new DirectoryInfo(evidencePath).GetFiles("*.quack");
+
+        foreach (FileInfo file in files)
+        {
+            string[] lines = File.ReadAllLines(file.FullName);
+            if (lines.Length < 6) continue;
+
+            string photoPath = Path.Combine(dcimPath, lines[1].Trim());
+            if (!File.Exists(photoPath)) continue;
+
+            galleryItems.Add(new GalleryItem
+            {
+                evidenceName = lines[0],
+                photoFileName = lines[1],
+                date = lines[2],
+                details = lines[5],
+                photoFullPath = photoPath
+            });
+        }
+
+        PhotosInGallery = galleryItems.Count;
+        galleryLoaded = PhotosInGallery > 0;
+    }
+
 
     IEnumerator SavedPhoto()
     {
@@ -1296,4 +1231,13 @@ public enum PhoneMessageType
 {
     Inbox = 100,
     SentItems = 101
+}
+[Serializable]
+public class GalleryItem
+{
+    public string evidenceName;
+    public string photoFileName;
+    public string date;
+    public string details;
+    public string photoFullPath;
 }

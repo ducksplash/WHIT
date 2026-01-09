@@ -35,12 +35,6 @@ public class OSDNavver : MonoBehaviour
         LeftAction.action.performed += OnLeft;
         RightAction.action.performed += OnRight;
         SubmitAction.action.performed += OnSubmit;
-
-        UpAction.action.Enable();
-        DownAction.action.Enable();
-        LeftAction.action.Enable();
-        RightAction.action.Enable();
-        SubmitAction.action.Enable();
     }
 
     private void OnEnable()
@@ -55,12 +49,6 @@ public class OSDNavver : MonoBehaviour
         LeftAction.action.performed -= OnLeft;
         RightAction.action.performed -= OnRight;
         SubmitAction.action.performed -= OnSubmit;
-
-        UpAction.action.Disable();
-        DownAction.action.Disable();
-        LeftAction.action.Disable();
-        RightAction.action.Disable();
-        SubmitAction.action.Disable();
     }
 
     private void Start()

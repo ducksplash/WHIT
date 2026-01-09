@@ -277,22 +277,6 @@ public enum DialogueName
     NoraOutsideRoark = 307 //
 }
 
-
-public enum Dialanguage
-{
-    EN, // ENGLISH
-    IE, // IRISH
-    FR, // FRENCH
-    DE, // GERMAN
-    ES, // SPANISH (SPAIN)
-    KR, // KOREAN
-    AR, // ARABIC
-    JP, // JAPANESE
-    CN, // CHINESE
-    RU // RUSSIAN
-}
-
-
 #if UNITY_EDITOR
 
 
@@ -301,7 +285,7 @@ public class DialogueManagerEditor : Editor
 {
     private DialogueName selectedDialogue = DialogueName.None;
     private DialogueType dialogueType = DialogueType.Standard;
-    private Dialanguage language = Dialanguage.EN;
+    private Languages language = Languages.EN;
 
     public override void OnInspectorGUI()
     {
@@ -311,7 +295,7 @@ public class DialogueManagerEditor : Editor
         GUILayout.Label("Test Dialogue", EditorStyles.boldLabel);
 
         selectedDialogue = (DialogueName)EditorGUILayout.EnumPopup("Dialogue", selectedDialogue);
-        language = (Dialanguage)EditorGUILayout.EnumPopup("Language", language); // Stub, not implemented
+        language = (Languages)EditorGUILayout.EnumPopup("Language", language); // Stub, not implemented
 
         if (GUILayout.Button("Play Dialogue"))
         {

@@ -19,7 +19,7 @@ public class Dialogue : ScriptableObject
     public string DialogueText; // This is in English
     
     [Header("Localisation")] 
-    public Dialanguage DialogueLanguage = Dialanguage.EN; // English for default
+    public Languages DialogueLanguage = Languages.EN; // English for default
     
     [Header("Irish Text")]
     [TextArea(3, 10)]

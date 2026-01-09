@@ -196,6 +196,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "OSD Interact",
+                    "type": "Button",
+                    "id": "d34f171c-2d0c-4063-8dd2-56317859f75b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "OSD Exit",
                     "type": "Button",
                     "id": "43c5b094-8b82-4650-8e82-da0a918a5cbd",
@@ -639,17 +648,6 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Attack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "886e731e-7071-4ae4-95c0-e61739dad6fd",
-                    "path": "<Touchscreen>/primaryTouch/tap",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Touch",
                     "action": "Attack",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1179,6 +1177,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "OSD Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "172b53b4-50a7-4321-8878-804a79dbad38",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "OSD Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0cc80cf5-0639-44ae-a1d9-3ef16ac03815",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OSD Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

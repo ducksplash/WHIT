@@ -27,6 +27,8 @@ public class Phone : MonoBehaviour
     public OSDNavver CallingScreenNavver;
     public GameObject MapsScreen;
     public GameObject MessagesScreen;
+    public OSDNavver MessagesScreenNavver;
+    public OSDNavver NotesScreenNavver;
     public GameObject InboxPane;
     public GameObject SentPane;
     public GameObject BigMessageScreen;
@@ -297,6 +299,8 @@ public class Phone : MonoBehaviour
         DiallerScreenNavver.gameObject.SetActive(false);
         ContactsScreenNavver.gameObject.SetActive(false);
         CallingScreenNavver.gameObject.SetActive(false);
+        MessagesScreenNavver.gameObject.SetActive(false);
+        NotesScreenNavver.gameObject.SetActive(false);
     }
     
     
@@ -394,9 +398,34 @@ public class Phone : MonoBehaviour
     }
 
 
-    public void SelectPhoneGridItem(PhonerGriddle SelectedGridSquare)
+    public void SelectPhoneGridItem(PhonerGriddle SelectedGridSquare, DialogueName selectedDialogue = DialogueName.None)
     {
         if (!GameMaster.Instance.PHONEOUT) return;
+
+
+        if (selectedDialogue != DialogueName.None)
+        {
+            Debug.Log("selectedDialogue:begin:");
+            Debug.Log(selectedDialogue);
+            Debug.Log("selectedDialogue:end:");
+        }
+        
+        
+        Dialogue retrievedDialogue = null;
+            
+        if (selectedDialogue != DialogueName.None)
+        {
+            // We have an extra parameter to deal with, a message, let's find it and route it.
+            retrievedDialogue = GameMaster.Instance.DialogueManager.Dialogues.FirstOrDefault(d => d.DialogueName == selectedDialogue);
+        }
+        
+        if (selectedDialogue != DialogueName.None)
+        {
+            Debug.Log("msg select::");
+            Debug.Log(retrievedDialogue.DialogueName);
+            Debug.Log(retrievedDialogue.DialogueText);
+            Debug.Log("msg select::");
+        }
         
         switch (SelectedGridSquare)
         {
@@ -407,6 +436,21 @@ public class Phone : MonoBehaviour
             case PhonerGriddle.Messages: MessagesButton(); break;
             case PhonerGriddle.Notes: MessagesButton(101); break;
             case PhonerGriddle.Gallery: GalleryButton(); break;
+            
+            // Sub Menus
+
+            case PhonerGriddle.ViewInboxMessage:
+            {
+                if (BigMessageScreen.GetComponent<CanvasGroup>().alpha < 0.9f)
+                {
+                    BigMessage(retrievedDialogue.Contact.ToString(), retrievedDialogue.DialogueText); 
+                }
+                else
+                {
+                    CloseBigMessage();
+                }
+                
+            } break;
             
             // Dialler
             case PhonerGriddle.Num0: a0Button(); break;
@@ -491,6 +535,8 @@ public class Phone : MonoBehaviour
 
     public void BigMessage(string Sender, string Message, PhoneMessageType msgType = PhoneMessageType.Inbox)
     {
+        
+        
         BigMessageScreen.GetComponent<CanvasGroup>().alpha = 1;
         BigMessageScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
@@ -511,6 +557,8 @@ public class Phone : MonoBehaviour
 
         Messagelist.transform.parent.parent.GetComponent<CanvasGroup>().alpha = 0f;
         Messagelist.transform.parent.parent.GetComponent<CanvasGroup>().blocksRaycasts = false;
+        
+        
     }
 
     public void CloseBigMessage()
@@ -529,14 +577,15 @@ public class Phone : MonoBehaviour
     public void GetMessages()
     {
         CloseBigMessage();
-
-
+        
         InboxPane.GetComponent<CanvasGroup>().alpha = 1f;
         InboxPane.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
         SentPane.GetComponent<CanvasGroup>().alpha = 0f;
         SentPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
+        NotesScreenNavver.ResetList();
+        
         //var itty = 0;
         foreach (DialogueName entry in GameMaster.Instance.DialogueSeen)
         {
@@ -549,6 +598,13 @@ public class Phone : MonoBehaviour
                 GameObject messageBlock = Instantiate(MessageBlockPrefab, buttonPosition, Quaternion.identity);
                 messageBlock.transform.SetParent(Messagelist.transform, false);
 
+                OSDButton messageNavverButton = messageBlock.GetComponent<OSDButton>();
+                messageNavverButton.selectedDialogue = entry;
+                
+                // add navver things. 
+                MessagesScreenNavver.GridButtons.Add(messageNavverButton);
+                
+                
 
                 messageBlock.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = selectedDialogue.Contact.ToString();
 
@@ -565,19 +621,24 @@ public class Phone : MonoBehaviour
                 messageBlock.GetComponent<Button>().onClick.AddListener(delegate { BigMessage(selectedDialogue.Contact.ToString(), selectedDialogue.DialogueText); });
             }
         }
+        
+        MessagesScreenNavver.gameObject.SetActive(true);
     }
 
 
     public void SentItems()
     {
         CloseBigMessage();
-
+        
         InboxPane.GetComponent<CanvasGroup>().alpha = 0f;
         InboxPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
         SentPane.GetComponent<CanvasGroup>().alpha = 1f;
         SentPane.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
+
+        NotesScreenNavver.ResetList();
+        
         //var itty = 0;
         foreach (DialogueName entry in GameMaster.Instance.DialogueSeen)
         {
@@ -590,8 +651,13 @@ public class Phone : MonoBehaviour
 
                 GameObject messageBlock = Instantiate(NoteBlockPrefab, buttonPosition, Quaternion.identity);
                 messageBlock.transform.SetParent(Sentlist.transform, false);
-
-
+                
+                OSDButton notesNavverButton = messageBlock.GetComponent<OSDButton>();
+                notesNavverButton.selectedDialogue = entry;
+                
+                // add navver things. 
+                NotesScreenNavver.GridButtons.Add(notesNavverButton);
+                
                 messageBlock.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text = selectedDialogue.Contact.ToString();
 
                 var messageBit = selectedDialogue.DialogueText;
@@ -607,6 +673,8 @@ public class Phone : MonoBehaviour
                 messageBlock.GetComponent<Button>().onClick.AddListener(delegate { BigMessage(selectedDialogue.Contact.ToString(), selectedDialogue.DialogueText, PhoneMessageType.SentItems); });
             }
         }
+        
+        NotesScreenNavver.gameObject.SetActive(true);
     }
 
 
@@ -1198,6 +1266,10 @@ public enum PhonerGriddle
     Recorder = 1009,
     Help = 1010,
     Calendar = 1011,
+    
+    // SUB Menu Stuff
+    ViewInboxMessage = 1100,
+    ViewSentMessage = 1101,
     
     // DIAL PAD
     Num0 = 0,

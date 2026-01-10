@@ -10,6 +10,8 @@ public class OSDButton : MonoBehaviour
     public Vector3 origScale;
     public float scaleUp = 1.1f;
     private bool onHovver;
+
+    public DialogueName selectedDialogue;
     
     void Start()
     {
@@ -32,6 +34,6 @@ public class OSDButton : MonoBehaviour
     public void ExecuteCommand()
     {
         Debug.Log("ExecuteCommand("+ThisItem+")");
-        Player.Instance.PlayerPhone.SelectPhoneGridItem(ThisItem);
+        Player.Instance.PlayerPhone.SelectPhoneGridItem(ThisItem, selectedDialogue);
     }
 }

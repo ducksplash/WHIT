@@ -17,9 +17,12 @@ public class PauseManager : MonoBehaviour
 
     public void TogglePause(InputAction.CallbackContext callbackContext)
     {
+
+        IsPaused = !IsPaused;
+        
+        
         if (!GameMaster.Instance.PHONEOUT)
         {
-            IsPaused = !IsPaused;
             GameMaster.Instance.INMENU = IsPaused;
             pauseUnderlay.alpha = IsPaused ? 1 : 0;
             GameMaster.Instance.FROZEN = IsPaused;
@@ -31,5 +34,11 @@ public class PauseManager : MonoBehaviour
         {
             Player.Instance.PlayerPhone.PutAwayPhone();
         }
+        
+        
+        Cursor.lockState = IsPaused ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = IsPaused;
+        Debug.Log("Cursor.visible "+Cursor.visible);
+
     }
 }

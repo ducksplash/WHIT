@@ -971,6 +971,7 @@ MonoBehaviour:
   scaleUpButton: 1
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
+  selectedDialogue: 0
 --- !u!1 &11813258
 GameObject:
   m_ObjectHideFlags: 0
@@ -4553,6 +4554,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &120856433
 GameObject:
   m_ObjectHideFlags: 0
@@ -5764,6 +5766,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &174269534
 GameObject:
   m_ObjectHideFlags: 0
@@ -8078,6 +8081,7 @@ MonoBehaviour:
   scaleUpButton: 1
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
+  selectedDialogue: 0
 --- !u!1 &233594116
 GameObject:
   m_ObjectHideFlags: 0
@@ -11285,6 +11289,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &368821715
 GameObject:
   m_ObjectHideFlags: 0
@@ -12635,6 +12640,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &397450604
 GameObject:
   m_ObjectHideFlags: 0
@@ -13891,6 +13897,7 @@ RectTransform:
   m_LocalScale: {x: 0.40000007, y: 0.40000007, z: 0.39999995}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 903177419}
   - {fileID: 1305665672}
   - {fileID: 1360267583}
   - {fileID: 1225254533}
@@ -13909,7 +13916,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 443153145}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -14419,6 +14426,70 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 465603704}
   m_Mesh: {fileID: 6320420854252439281, guid: e27d342a6c7563a4d8e0ba9754e5b8ea, type: 3}
+--- !u!1 &466086721
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 466086722}
+  - component: {fileID: 466086723}
+  m_Layer: 5
+  m_Name: messagesNAVVER
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &466086722
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 466086721}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.000014009755}
+  m_LocalScale: {x: 3.3044195, y: 2.499999, z: 2.499849}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1110278850}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 124.60514, y: -127.499535}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &466086723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 466086721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feeae8a706677e346a0dfa4a8215f8b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  UpAction: {fileID: 3642985609635455809, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  DownAction: {fileID: 5905334870462324265, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  LeftAction: {fileID: 6015128987140842579, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  RightAction: {fileID: 310176053375570818, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  SubmitAction: {fileID: -4902151775068343606, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  GridButtons: []
+  Layout: 2
+  columns: 1
+  rows: 4
+  originalColor: {r: 0, g: 200, b: 0, a: 150}
+  hoverColor: {r: 0, g: 200, b: 0, a: 150}
 --- !u!1 &468622870
 GameObject:
   m_ObjectHideFlags: 0
@@ -17900,6 +17971,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &564869597
 GameObject:
   m_ObjectHideFlags: 0
@@ -18042,6 +18114,7 @@ MonoBehaviour:
   scaleUpButton: 1
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
+  selectedDialogue: 0
 --- !u!1 &567288901
 GameObject:
   m_ObjectHideFlags: 0
@@ -18814,6 +18887,7 @@ MonoBehaviour:
   scaleUpButton: 1
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
+  selectedDialogue: 0
 --- !u!1 &588896090
 GameObject:
   m_ObjectHideFlags: 0
@@ -19574,6 +19648,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &595909746
 GameObject:
   m_ObjectHideFlags: 0
@@ -19715,6 +19790,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &596524795
 GameObject:
   m_ObjectHideFlags: 0
@@ -20217,6 +20293,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &619094390
 GameObject:
   m_ObjectHideFlags: 0
@@ -22265,6 +22342,7 @@ MonoBehaviour:
   scaleUpButton: 1
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
+  selectedDialogue: 0
 --- !u!1 &710234235
 GameObject:
   m_ObjectHideFlags: 0
@@ -26769,6 +26847,7 @@ MonoBehaviour:
   scaleUpButton: 1
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
+  selectedDialogue: 0
 --- !u!1 &845159377
 GameObject:
   m_ObjectHideFlags: 0
@@ -27471,6 +27550,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &873841744
 GameObject:
   m_ObjectHideFlags: 0
@@ -28558,6 +28638,70 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 902377878}
   m_CullTransparentMesh: 1
+--- !u!1 &903177418
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 903177419}
+  - component: {fileID: 903177420}
+  m_Layer: 5
+  m_Name: notesNAVVER
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &903177419
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 903177418}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.00003047116}
+  m_LocalScale: {x: 3.3044186, y: 2.4999995, z: 2.4998474}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 443153146}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 124.60235, y: -127.49955}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &903177420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 903177418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feeae8a706677e346a0dfa4a8215f8b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  UpAction: {fileID: 3642985609635455809, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  DownAction: {fileID: 5905334870462324265, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  LeftAction: {fileID: 6015128987140842579, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  RightAction: {fileID: 310176053375570818, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  SubmitAction: {fileID: -4902151775068343606, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  GridButtons: []
+  Layout: 2
+  columns: 1
+  rows: 4
+  originalColor: {r: 0, g: 200, b: 0, a: 150}
+  hoverColor: {r: 0, g: 200, b: 0, a: 150}
 --- !u!1 &914946487
 GameObject:
   m_ObjectHideFlags: 0
@@ -28699,6 +28843,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &918221338
 GameObject:
   m_ObjectHideFlags: 0
@@ -29993,6 +30138,7 @@ MonoBehaviour:
   scaleUpButton: 1
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
+  selectedDialogue: 0
 --- !u!1 &949612334
 GameObject:
   m_ObjectHideFlags: 0
@@ -30134,6 +30280,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &953665290
 GameObject:
   m_ObjectHideFlags: 0
@@ -33406,6 +33553,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &1049870165
 GameObject:
   m_ObjectHideFlags: 0
@@ -34643,6 +34791,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &1099580490
 GameObject:
   m_ObjectHideFlags: 0
@@ -35030,6 +35179,7 @@ RectTransform:
   m_LocalScale: {x: 0.40000007, y: 0.40000007, z: 0.39999995}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 466086722}
   - {fileID: 461937721}
   - {fileID: 279506894}
   - {fileID: 324802100}
@@ -35048,7 +35198,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1110278849}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -38390,6 +38540,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!114 &1229754408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45095,6 +45246,7 @@ MonoBehaviour:
   scaleUpButton: 1
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
+  selectedDialogue: 0
 --- !u!1 &1428056160
 GameObject:
   m_ObjectHideFlags: 0
@@ -46182,10 +46334,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!65 &1472779749
 BoxCollider:
@@ -46503,6 +46655,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &1482264634
 GameObject:
   m_ObjectHideFlags: 0
@@ -48698,6 +48851,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &1538000182
 GameObject:
   m_ObjectHideFlags: 0
@@ -53534,6 +53688,7 @@ MonoBehaviour:
   scaleUpButton: 1
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
+  selectedDialogue: 0
 --- !u!1 &1710065485
 GameObject:
   m_ObjectHideFlags: 0
@@ -54047,6 +54202,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &1736882777
 GameObject:
   m_ObjectHideFlags: 0
@@ -55858,6 +56014,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &1787246327
 GameObject:
   m_ObjectHideFlags: 0
@@ -56459,6 +56616,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &1797909661
 GameObject:
   m_ObjectHideFlags: 0
@@ -60360,6 +60518,7 @@ MonoBehaviour:
   scaleUpButton: 1
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
+  selectedDialogue: 0
 --- !u!1 &1884402496
 GameObject:
   m_ObjectHideFlags: 0
@@ -61900,6 +62059,7 @@ MonoBehaviour:
   scaleUpButton: 1
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
+  selectedDialogue: 0
 --- !u!1 &1924975991
 GameObject:
   m_ObjectHideFlags: 0
@@ -62143,6 +62303,7 @@ MonoBehaviour:
   scaleUpButton: 1
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
+  selectedDialogue: 0
 --- !u!1 &1926350788
 GameObject:
   m_ObjectHideFlags: 0
@@ -62704,6 +62865,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &1951482236
 GameObject:
   m_ObjectHideFlags: 0
@@ -65191,6 +65353,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &2034228244
 GameObject:
   m_ObjectHideFlags: 0
@@ -67467,6 +67630,7 @@ MonoBehaviour:
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1
+  selectedDialogue: 0
 --- !u!1 &2136336956
 GameObject:
   m_ObjectHideFlags: 0
@@ -81804,15 +81968,17 @@ MonoBehaviour:
   CallingScreenNavver: {fileID: 1499755770}
   MapsScreen: {fileID: 1994814303}
   MessagesScreen: {fileID: 1284103683}
+  MessagesScreenNavver: {fileID: 466086723}
+  NotesScreenNavver: {fileID: 903177420}
   InboxPane: {fileID: 1110278849}
   SentPane: {fileID: 443153145}
   BigMessageScreen: {fileID: 1137844401}
   theDialler: {fileID: 1493420702}
   Messagelist: {fileID: 1854544907}
   Sentlist: {fileID: 860819258}
-  MessageBlockPrefab: {fileID: 665735234014314487, guid: b007774684484474898f2c4f7da5b71e,
+  MessageBlockPrefab: {fileID: 7608543686148711220, guid: b007774684484474898f2c4f7da5b71e,
     type: 3}
-  NoteBlockPrefab: {fileID: 665735234014314487, guid: 00d7c8f6a179c9740ad63a8c40d17b31,
+  NoteBlockPrefab: {fileID: 6603647563790585129, guid: 00d7c8f6a179c9740ad63a8c40d17b31,
     type: 3}
   CameraReadyFrame: {fileID: 1863090943}
   CameraReadyText: {fileID: 557693715}

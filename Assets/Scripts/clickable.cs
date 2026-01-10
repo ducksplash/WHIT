@@ -190,7 +190,7 @@ public class clickable : Singleton<clickable>
         // 1. Prioritize pickup first
         if (currentHit.transform.gameObject.layer == pickuplayer)
         {
-            GameMaster.Instance.Pickup.PickupItem(currentHit.transform);
+            // handled in the Pickup script
             return;
         }
 

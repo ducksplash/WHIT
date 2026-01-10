@@ -64,10 +64,12 @@ public class Pickup : MonoBehaviour
     {
         rotateInput = Vector2.zero;
     }
+    
+    
 
-    private void OnPickupDrop(InputAction.CallbackContext ctx)
+    private void OnPickupDrop(InputAction.CallbackContext ctx = new InputAction.CallbackContext())
     {
-        if (!ctx.performed) return;
+        //if (!ctx.performed) return;
 
         if (!GameMaster.Instance.HASITEM && clickable.Instance != null && clickable.Instance.IsHoveringPickup())
         {
@@ -106,6 +108,8 @@ public class Pickup : MonoBehaviour
     {
         if (GameMaster.Instance.PHONEOUT || GameMaster.Instance.FROZEN || GameMaster.Instance.HASITEM) return;
 
+        GameMaster.Instance.HASITEM = true;
+        
         if (obj.CompareTag("COLLECTABLE"))
         {
             if (obj.name.Contains("TORCH")) GameMaster.Instance.OnboardingManager.CollectTorch();
@@ -128,7 +132,6 @@ public class Pickup : MonoBehaviour
         if (rb != null) rb.constraints = RigidbodyConstraints.FreezeAll;
 
         obj.gameObject.AddComponent<GetHeldObjectCollisions>();
-        GameMaster.Instance.HASITEM = true;
 
         Evidence e = obj.GetComponent<Evidence>();
         if (e != null && e.EvidenceQuality > 1) e.EvidenceQuality--;

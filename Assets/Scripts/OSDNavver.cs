@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -25,16 +26,18 @@ public class OSDNavver : MonoBehaviour
 
     public Color originalColor = new Color(0,200,0,150);
     public Color hoverColor = new Color(0,200,0,150);
-    
+    private Coroutine enablementCo;
     private int currentIndex = 0;
 
     private void SubscribeEvents()
     {
-        UpAction.action.performed += OnUp;
-        DownAction.action.performed += OnDown;
-        LeftAction.action.performed += OnLeft;
-        RightAction.action.performed += OnRight;
-        SubmitAction.action.performed += OnSubmit;
+        if (enablementCo != null)
+        {
+            StopCoroutine(EnableButtons());
+            enablementCo = null;
+        }
+
+        enablementCo = StartCoroutine(EnableButtons());
     }
 
     private void OnEnable()
@@ -48,13 +51,14 @@ public class OSDNavver : MonoBehaviour
         DownAction.action.performed -= OnDown;
         LeftAction.action.performed -= OnLeft;
         RightAction.action.performed -= OnRight;
+        
         SubmitAction.action.performed -= OnSubmit;
     }
 
     private void Start()
     {
         // sample orig color
-        if (GridButtons[0] != null)
+        if (GridButtons.Count > 0)
         {
             originalColor = GridButtons[0].GetComponent<Button>().image.color;
         }
@@ -79,11 +83,16 @@ public class OSDNavver : MonoBehaviour
                 if (nextUp >= 0) MoveTo(nextUp);
                 break;
 
+            case NavigationLayout.BottomToTop:
+                int nextDownReverse = currentIndex + 1;
+                if (nextDownReverse < GridButtons.Count) MoveTo(nextDownReverse);
+                break;
+
             case NavigationLayout.LeftToRight:
-                // ignore up
                 break;
         }
     }
+
 
     private void OnDown(InputAction.CallbackContext ctx)
     {
@@ -101,8 +110,12 @@ public class OSDNavver : MonoBehaviour
                 if (nextDown < GridButtons.Count) MoveTo(nextDown);
                 break;
 
+            case NavigationLayout.BottomToTop:
+                int nextUpReverse = currentIndex - 1;
+                if (nextUpReverse >= 0) MoveTo(nextUpReverse);
+                break;
+
             case NavigationLayout.LeftToRight:
-                // ignore down
                 break;
         }
     }
@@ -187,11 +200,28 @@ public class OSDNavver : MonoBehaviour
         if (SelectedButton < 0 || SelectedButton >= GridButtons.Count) return;
         if (GridButtons[SelectedButton] != null) GridButtons[SelectedButton].ExecuteCommand();
     }
+
+    public IEnumerator EnableButtons()
+    {
+        yield return new WaitForEndOfFrame();
+        UpAction.action.performed += OnUp;
+        DownAction.action.performed += OnDown;
+        LeftAction.action.performed += OnLeft;
+        RightAction.action.performed += OnRight;
+        SubmitAction.action.performed += OnSubmit;
+        
+    }
+
+    public void ResetList()
+    {
+        GridButtons = new List<OSDButton>();
+    }
 }
 
 public enum NavigationLayout
 {
     Grid,
     TopToBottom,
+    BottomToTop,
     LeftToRight
 }

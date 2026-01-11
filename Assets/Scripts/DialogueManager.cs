@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEditor.Build.Content;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -167,6 +168,8 @@ public class DialogueManager : MonoBehaviour
                 GameMaster.Instance.DialogueSeen.Add(dialogueName);
             }
         }
+        
+        GameMaster.Instance.SaveWhatYouSee();
     }
 
 

@@ -24,7 +24,8 @@ public class Cutscene : MonoBehaviour
     
     [Header("Collider that triggers the cutscene")]
     public GameObject ColliderCube;
-    
+
+    private bool Saved;
     
 
     void Start() 
@@ -45,11 +46,10 @@ public class Cutscene : MonoBehaviour
                 
                 // we don't want to await, that's why we're not awaiting. ignore this 'hint' 
                 
+                GameMaster.CutSceneSeen.TryAdd(selectedMessage.ToString(), ContactName.ToString());
                 
                 StartCoroutine(GameMaster.Instance.CutsceneManager.ExecuteCutscene(duration, panTime, targetObject, selectedMessage));
                 
-                
-                GameMaster.CutSceneSeen.TryAdd(selectedMessage.ToString(), ContactName.ToString());
             }
         }
     }

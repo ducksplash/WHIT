@@ -278,8 +278,6 @@ public class Phone : MonoBehaviour
             CameraLeftFlash.enabled = false;
             CameraRightFlash.enabled = false;
         }
-
-        
         
         
         if (useThisScreen != GalleryScreen)
@@ -287,6 +285,12 @@ public class Phone : MonoBehaviour
             InteractAction.action.performed -= GalleryViewPhoto;
             viewingPhoto = false;
             SetBigPhotoVisible(false);
+        }
+        
+        if (CallCoroutine != null)
+        {
+            StopCoroutine(CallCoroutine);
+            CallCoroutine = null;
         }
         
         currentScreen = useThisScreen;
@@ -394,6 +398,12 @@ public class Phone : MonoBehaviour
         {
             Torch.torchToggle = true;
             TorchLight.enabled = true;
+        }
+        
+        if (CallCoroutine != null)
+        {
+            StopCoroutine(CallCoroutine);
+            CallCoroutine = null;
         }
     }
 

@@ -108,6 +108,9 @@ public class GameMaster : MonoBehaviour
 
         // ALWAYS load existing evidence first
         LoadExistingEvidence();
+        
+        // load historical dialogues
+        LoadWhatYouSee();
 
         // Mark collected evidence objects in scene
         foreach (var evidence in EvidenceFound)
@@ -118,8 +121,6 @@ public class GameMaster : MonoBehaviour
                 ev.EvidenceCollected = true;
             }
         }
-
-
 
         if (DEBUGGERY)
         {
@@ -196,6 +197,22 @@ public class GameMaster : MonoBehaviour
 
         Debug.Log("Init Evidence (StoredPrefs) - " + EvidenceFound.Count);
         EventManager.PlayerDataLoaded();
+    }
+
+    public void SaveWhatYouSee()
+    {
+        StoredPrefs.SetCollection("DialogueSeen", DialogueSeen, CollectionType.list);
+        StoredPrefs.SetCollection("CutSceneSeen", CutSceneSeen, CollectionType.dictionary);
+        
+    }
+    public void LoadWhatYouSee()
+    {
+        Debug.Log("LoadWhatYouSee");
+        
+        DialogueSeen = StoredPrefs.GetCollection<List<DialogueName>>("DialogueSeen");
+        CutSceneSeen = StoredPrefs.GetCollection<Dictionary<string,string>>("CutSceneSeen");
+        
+        Debug.Log("LoadedWhatYouSee");
     }
 
 }

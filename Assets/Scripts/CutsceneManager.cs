@@ -78,6 +78,8 @@ public class CutsceneManager : MonoBehaviour
         Player.Instance.FirstPersonLook.SetPlayerRotation(new Vector2(yaw, pitch));
         CutsceneInProgress = false;
 
+        
+        GameMaster.Instance.SaveWhatYouSee();
     }
 
     private IEnumerator CutsceneZoomSequence(float zoomTime, float holdTime, float unzoomTime)

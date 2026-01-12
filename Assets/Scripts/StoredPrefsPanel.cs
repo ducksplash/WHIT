@@ -75,12 +75,12 @@ public class StoredPrefsPanel : MonoBehaviour
         keyEntries.Clear();
 
         // Get all keys
-        var allKeys = StoredPrefs.GetAllKeys();
+        var allKeys = StoredPrefs.Instance.GetAllKeys();
         allKeys.Sort(); // Optional: sort alphabetically
 
         foreach (var key in allKeys)
         {
-            string value = StoredPrefs.GetString(key);
+            string value = StoredPrefs.Instance.GetString(key);
             GameObject go = Instantiate(keyEntryPrefab, contentParent);
             var ui = go.GetComponent<KeyEntryUI>();
             if (ui != null)
@@ -93,13 +93,13 @@ public class StoredPrefsPanel : MonoBehaviour
 
     private void OnKeyChanged(string key, string newValue)
     {
-        StoredPrefs.SetString(key, newValue);
-        StoredPrefs.Save();
+        StoredPrefs.Instance.SetString(key, newValue);
+        StoredPrefs.Instance.Save();
     }
 
     private void OnKeyDeleted(string key)
     {
-        StoredPrefs.DeleteKey(key);
+        StoredPrefs.Instance.DeleteKey(key);
         // No need to call RefreshKeys; the OnPrefsSaved event will trigger it
     }
 
@@ -111,8 +111,8 @@ public class StoredPrefsPanel : MonoBehaviour
         if (string.IsNullOrEmpty(key))
             return;
 
-        StoredPrefs.SetString(key, value);
-        StoredPrefs.Save();
+        StoredPrefs.Instance.SetString(key, value);
+        StoredPrefs.Instance.Save();
 
         newKeyInput.text = "";
         newValueInput.text = "";
@@ -120,6 +120,6 @@ public class StoredPrefsPanel : MonoBehaviour
 
     private void ResetAllPrefs()
     {
-        StoredPrefs.ResetAll();
+        StoredPrefs.Instance.ResetAll();
     }
 }

@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEditor.Build.Content;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -25,11 +25,22 @@ public class DialogueManager : MonoBehaviour
     public Image timebar;
     public float messagetimer = 0f;
     public bool currentDialogueIsCutscene;
+    private readonly SemaphoreSlim dialogueSaveLock = new(1, 1);
 
     public List<Dialogue> Dialogues = new List<Dialogue>();
     private Dictionary<DialogueName, Dialogue> DialogueDict = new Dictionary<DialogueName, Dialogue>();
 
     private Dictionary<string, string> EregiDict = new Dictionary<string, string>();
+    
+    [Header("History")]
+    // Dialog log
+
+    // The main purpose is to prevent duplicates.
+    // A secondary use is within the phone, as a message log.
+    // The main dictionary is split into NoraSpeak - The player dialogue, and 'Messages' (from others)
+    // 
+
+    public List<DialogueName> DialogueSeen = new List<DialogueName>();
     
     public bool queueDropFlag;
 
@@ -105,71 +116,52 @@ public class DialogueManager : MonoBehaviour
         tcs.SetResult(true);
     }
 
-    public async Task CreateDialogue(DialogueName dialogueName, float displaytimer)
+    public async Task CreateDialogue(DialogueName dialogueName, float displaytimer, bool isCutSceneDialogue = false)
     {
-        Contacts contact = Contacts.System; 
-        string message = "..."; 
+        if (DialogueSeen.Contains(dialogueName)) return;
+
+        Contacts contact = Contacts.System;
+        string message = "...";
 
         if (DialogueDict.ContainsKey(dialogueName))
         {
             Dialogue selectedDialogue = DialogueDict[dialogueName];
-
             contact = selectedDialogue.Contact;
             message = selectedDialogue.DialogueText;
 
-            // ✅ Perform replacement only if EregiReplace is true
             if (selectedDialogue.EregiReplace)
             {
                 foreach (var kvp in EregiDict)
                 {
-                    if (!string.IsNullOrEmpty(message))
-                        message = message.Replace(kvp.Key, kvp.Value);
+                    if (!string.IsNullOrEmpty(message)) message = message.Replace(kvp.Key, kvp.Value);
                 }
             }
         }
 
+        messagetimer = displaytimer;
+        DialogInProgress = true;
+
         if (contact == Contacts.System)
         {
-            if (!GameMaster.Instance.DialogueSeen.Contains(dialogueName))
-            {
-                messagetimer = displaytimer;
-                DialogInProgress = true;
-                SystemMessage.text = message;
-
-                await SystemTimer(displaytimer);
-
-                GameMaster.Instance.DialogueSeen.Add(dialogueName);
-            }
+            SystemMessage.text = message;
+            await SystemTimer(displaytimer);
         }
         else if (contact == Contacts.Nora)
         {
-            if (!GameMaster.Instance.DialogueSeen.Contains(dialogueName))
-            {
-                messagetimer = displaytimer;
-                DialogInProgress = true;
-                NoraMessage.text = "NORA: " + message;
-
-                await NoraTimer(displaytimer);
-
-                GameMaster.Instance.DialogueSeen.Add(dialogueName);
-            }
+            NoraMessage.text = "NORA: " + message;
+            await NoraTimer(displaytimer);
         }
         else
         {
-            if (!GameMaster.Instance.DialogueSeen.Contains(dialogueName))
-            {
-                messagetimer = displaytimer;
-                DialogInProgress = true;
-                ContactName.text = contact.ToString();
-                ReceivedMessage.text = message;
-
-                await MessageTimer(displaytimer);
-
-                GameMaster.Instance.DialogueSeen.Add(dialogueName);
-            }
+            ContactName.text = contact.ToString();
+            ReceivedMessage.text = message;
+            await MessageTimer(displaytimer);
         }
-        
-        GameMaster.Instance.SaveWhatYouSee();
+
+        DialogueSeen.Add(dialogueName);
+        SaveWhatYouSee();
+
+        dialogueSaveLock.Release(); // if using lock - otherwise remove
     }
 
 
@@ -238,6 +230,28 @@ public class DialogueManager : MonoBehaviour
         DialogInProgress = false;
     }
 
+    
+    
+        
+    
+    public void SaveWhatYouSee()
+    {
+        Debug.Log("save what you see");
+        
+        StoredPrefs.Instance.SetCollection("DialogueSeen", DialogueSeen, CollectionType.list);
+        StoredPrefs.Instance.Save();
+        //StoredPrefs.SetCollection("CutSceneSeen", CutSceneSeen, CollectionType.dictionary);
+        
+    }
+    public void LoadWhatYouSee()
+    {
+        Debug.Log("LoadWhatYouSee");
+        
+        DialogueSeen = StoredPrefs.Instance.GetCollection<List<DialogueName>>("DialogueSeen");
+        //CutSceneSeen = StoredPrefs.GetCollection<Dictionary<string,string>>("CutSceneSeen");
+        
+        Debug.Log("LoadedWhatYouSee");
+    }
 
 }
 

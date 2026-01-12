@@ -58,43 +58,10 @@ public class GameMaster : MonoBehaviour
     public Vector3 SPAWNPOINTTAWLEYMEATS;
     public Vector3 SPAWNPOINTROARKOUTSIDE;
     public Vector3 SPAWNPOINTROARKINSIDE;
-
     
     public static bool GarbageRun;
-    
-    
-    // Evidence Quotient
-    
-    
-    public static int EQThisLevel;
-    public static int ExpectedEQThisLevel;
-
-    // EQ Expected for the different levels (due to be refactored)
-    public static int ExpectedEQ_Level0 = 1;
-    public static int ExpectedEQ_Level1 = 18;
-    public static int ExpectedEQ_Level2 = 19;
-
 
     
-    // Dialog log
-
-    // The main purpose is to prevent duplicates.
-    // A secondary use is within the phone, as a message log.
-    // The main dictionary is split into NoraSpeak - The player dialogue, and 'Messages' (from others)
-    // 
-
-    public List<DialogueName> DialogueSeen = new List<DialogueName>();
-
-    // now again for cutscenes
-
-    public static Dictionary<string, string> CutSceneSeen = new Dictionary<string, string>();
-
-    // Evidence Log
-    // Again, mainly preventing duplication
-    // With the secondary use being in the phone again, as an "Evidence Log" in the "Gallery App"
-
-    public Dictionary<string, string> EvidenceFound = new Dictionary<string, string>();
-
     void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -106,21 +73,11 @@ public class GameMaster : MonoBehaviour
         SPAWNPOINTROARKOUTSIDE = new Vector3(90, 5, 252);
         SPAWNPOINTROARKINSIDE = new Vector3(69, 16, 310);
 
+        // load historical dialogues and cutscenes
+        CutsceneManager.LoadWhatYouSee();
+        DialogueManager.LoadWhatYouSee();
         // ALWAYS load existing evidence first
-        LoadExistingEvidence();
-        
-        // load historical dialogues
-        LoadWhatYouSee();
 
-        // Mark collected evidence objects in scene
-        foreach (var evidence in EvidenceFound)
-        {
-            GameObject obj = GameObject.Find(evidence.Key);
-            if (obj != null && obj.TryGetComponent<Evidence>(out var ev))
-            {
-                ev.EvidenceCollected = true;
-            }
-        }
 
         if (DEBUGGERY)
         {
@@ -131,90 +88,11 @@ public class GameMaster : MonoBehaviour
 
     void Start()
     {
-
-
         Application.targetFrameRate = 60;
-
-
-
-
-
-
-        if (THISLEVEL == GAMELEVEL.TawleyMeats)
-        {
-
-            ExpectedEQThisLevel = ExpectedEQ_Level1;
-            ExpectedEQThisLevel = ExpectedEQ_Level1;
-
-
-
-        }
-
-
-
-        if (THISLEVEL == GAMELEVEL.RoarkInside)
-        {
-
-            ExpectedEQThisLevel = ExpectedEQ_Level2;
-            ExpectedEQThisLevel = ExpectedEQ_Level2;
-
-
-
-        }
-
-        // 1; Tawley Meats
-        //  if (THISLEVEL == "1")
-        //  {
-        //      INCINERATOR_ENABLED = true;
-        //  }
-
     }
 
 
-
-    private void LoadExistingEvidence()
-    {
-        EvidenceFound.Clear();
-
-        // Get all StoredPrefs keys
-        List<string> keys = StoredPrefs.GetAllKeys();
-
-        foreach (string key in keys)
-        {
-            // We only care about Evidence entries
-            if (!key.StartsWith("Evidence/"))
-                continue;
-
-            // Evidence/<ID> → extract ID
-            string evidenceId = key.Substring("Evidence/".Length);
-
-            if (!EvidenceFound.ContainsKey(evidenceId))
-            {
-                EvidenceFound.Add(evidenceId, key);
-                Debug.Log($"Loaded evidence: {evidenceId}");
-            }
-        }
-
-        Debug.Log("Init Evidence (StoredPrefs) - " + EvidenceFound.Count);
-        EventManager.PlayerDataLoaded();
-    }
-
-    public void SaveWhatYouSee()
-    {
-        StoredPrefs.SetCollection("DialogueSeen", DialogueSeen, CollectionType.list);
-        StoredPrefs.SetCollection("CutSceneSeen", CutSceneSeen, CollectionType.dictionary);
-        
-    }
-    public void LoadWhatYouSee()
-    {
-        Debug.Log("LoadWhatYouSee");
-        
-        DialogueSeen = StoredPrefs.GetCollection<List<DialogueName>>("DialogueSeen");
-        CutSceneSeen = StoredPrefs.GetCollection<Dictionary<string,string>>("CutSceneSeen");
-        
-        Debug.Log("LoadedWhatYouSee");
-    }
-
+    
 }
 
 public enum GAMELEVEL

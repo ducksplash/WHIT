@@ -597,7 +597,7 @@ public class Phone : MonoBehaviour
         NotesScreenNavver.ResetList();
         
         //var itty = 0;
-        foreach (DialogueName entry in GameMaster.Instance.DialogueSeen)
+        foreach (DialogueName entry in GameMaster.Instance.DialogueManager.DialogueSeen)
         {
             Dialogue selectedDialogue = GameMaster.Instance.DialogueManager.Dialogues.FirstOrDefault(d => d.DialogueName == entry);
 
@@ -650,7 +650,7 @@ public class Phone : MonoBehaviour
         NotesScreenNavver.ResetList();
         
         //var itty = 0;
-        foreach (DialogueName entry in GameMaster.Instance.DialogueSeen)
+        foreach (DialogueName entry in GameMaster.Instance.DialogueManager.DialogueSeen)
         {
             Dialogue selectedDialogue = GameMaster.Instance.DialogueManager.Dialogues.FirstOrDefault(d => d.DialogueName == entry);
 
@@ -710,7 +710,7 @@ public class Phone : MonoBehaviour
         // todo: input action references
         // string camerakey = InputManager.GetKeyName("camera");
 
-        if (GameMaster.Instance.EvidenceFound.Count < 1)
+        if (GameMaster.Instance.EvidenceManager.EvidenceFound.Count < 1)
         {
             GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstPhoto, 5);
         }
@@ -1199,11 +1199,9 @@ public class Phone : MonoBehaviour
 
         File.WriteAllText(quackPath, slug);
 
-        // register runtime lookup
-        if (!GameMaster.Instance.EvidenceFound.ContainsKey(ev.EvidenceName))
-            GameMaster.Instance.EvidenceFound.Add(ev.EvidenceName, quackPath);
+        
+        GameMaster.Instance.EvidenceManager.EvidenceFound.TryAdd(ev.EvidenceName, quackPath);
 
-        // mark collected + gameplay effects
         ev.CollectEvidence();
 
         // UI feedback

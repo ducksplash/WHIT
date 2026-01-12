@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -22,6 +23,14 @@ public class CutsceneManager : MonoBehaviour
     public bool CutsceneInProgress;
     public GameObject ColliderCube;
 
+    
+
+    // now again for cutscenes
+
+    public Dictionary<string, string> CutSceneSeen = new Dictionary<string, string>();
+
+
+    
     public void Start()
     {
         Debug.Log("UInstance Start");
@@ -79,7 +88,7 @@ public class CutsceneManager : MonoBehaviour
         CutsceneInProgress = false;
 
         
-        GameMaster.Instance.SaveWhatYouSee();
+        SaveWhatYouSee();
     }
 
     private IEnumerator CutsceneZoomSequence(float zoomTime, float holdTime, float unzoomTime)
@@ -125,5 +134,24 @@ public class CutsceneManager : MonoBehaviour
     public async Task CutsceneDialogue(DialogueName selectedMessage, float duration)
     {
         await GameMaster.Instance.DialogueManager.NewDialogue(selectedMessage, duration, true);
+    }
+    
+    
+        
+    public void SaveWhatYouSee()
+    {
+        Debug.Log("save what you see");
+        
+        StoredPrefs.Instance.SetCollection("CutSceneSeen", CutSceneSeen, CollectionType.dictionary);
+        StoredPrefs.Instance.Save();
+        
+    }
+    public void LoadWhatYouSee()
+    {
+        Debug.Log("LoadWhatYouSee");
+        
+        CutSceneSeen = StoredPrefs.Instance.GetCollection<Dictionary<string,string>>("CutSceneSeen");
+        
+        Debug.Log("LoadedWhatYouSee");
     }
 }

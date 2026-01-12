@@ -17,12 +17,13 @@ public class PauseManager : MonoBehaviour
 
     public void TogglePause(InputAction.CallbackContext callbackContext)
     {
-
-        IsPaused = !IsPaused;
+        if (GameMaster.Instance.CutsceneManager.CutsceneInProgress) return;
+        
         
         
         if (!GameMaster.Instance.PHONEOUT)
         {
+            IsPaused = !IsPaused;
             GameMaster.Instance.INMENU = IsPaused;
             pauseUnderlay.alpha = IsPaused ? 1 : 0;
             GameMaster.Instance.FROZEN = IsPaused;
@@ -30,10 +31,7 @@ public class PauseManager : MonoBehaviour
             Player.Instance.FirstPersonLook.sensitivity = IsPaused ? GameMaster.Instance.MouseSensitivity * 10 : GameMaster.Instance.MouseSensitivity;
             GameMaster.Instance.EventManager.GamePaused(IsPaused);
         }
-        else
-        {
-            Player.Instance.PlayerPhone.PutAwayPhone();
-        }
+        else { Player.Instance.PlayerPhone.PutAwayPhone(); }
         
         
         Cursor.lockState = IsPaused ? CursorLockMode.None : CursorLockMode.Locked;

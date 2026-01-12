@@ -7,7 +7,7 @@ public class Evidence : MonoBehaviour
 
 
     [Header("Evidence Setup")]
-    public string EvidenceName;
+    public EvidenceName EvidenceName;
     public string EvidenceDetails;
 
     [Header("Evidence Veracity")]
@@ -34,10 +34,10 @@ public class Evidence : MonoBehaviour
     public Rigidbody EvidenceRigidbody;
     public Renderer EvidenceRenderer;
 
-
     
     private void Start()
     {
+        EventManager.OnAutoCollectEvidence += AutoCollectEvidence;
         EvidenceTransform = transform;
         EvidenceRigidbody = GetComponent<Rigidbody>();
         EvidenceRenderer = GetComponent<Renderer>();
@@ -45,18 +45,43 @@ public class Evidence : MonoBehaviour
 
     public void CollectEvidence()
     {
-        if (EvidenceCollected)
-            return;
+        if (EvidenceCollected) return;
 
         PhotographableEvidence = false;
         EvidenceCollected = true;
 
-        GameMaster.EQThisLevel += EvidenceQuality;
-        StoredPrefs.SetInt("EQLevel" + GameMaster.Instance.THISLEVEL, GameMaster.EQThisLevel);
-        StoredPrefs.Save();
+        GameMaster.Instance.EvidenceManager.EQThisLevel += EvidenceQuality;
+        StoredPrefs.Instance.SetInt("EQLevel" + GameMaster.Instance.THISLEVEL, GameMaster.Instance.EvidenceManager.EQThisLevel);
+        StoredPrefs.Instance.Save();
 
         EvidenceBar.EQReadout();
         GiveFeedback();
+
+        if (EvidenceName == GameMaster.Instance.OnboardingManager.FirstOnboardingEvidence)
+        {
+            GameMaster.Instance.OnboardingManager.CollectTestEvidence();
+            
+        }
+        
+    }
+
+    public void AutoCollectEvidence(EvidenceName evidenceName)
+    {
+        Debug.Log("autocollect");
+        if (EvidenceName != evidenceName) return;
+        if (EvidenceCollected) return;
+
+        Debug.Log("autocollect");
+        
+        PhotographableEvidence = false;
+        EvidenceCollected = true;
+        EvidenceBar.EQReadout();
+        
+        GameMaster.Instance.EventManager.EvidenceCollected();
+        //GameMaster.Instance.EvidenceManager.EQThisLevel += EvidenceQuality;
+        //StoredPrefs.Instance.SetInt("EQLevel" + GameMaster.Instance.THISLEVEL, GameMaster.Instance.EvidenceManager.EQThisLevel);
+        //StoredPrefs.Instance.Save();
+        //GiveFeedback();
     }
 
 
@@ -71,16 +96,3 @@ public class Evidence : MonoBehaviour
 
 
 }
-
-[System.Serializable]
-public class EvidenceRecord
-{
-    public string Name;
-    public string Photo;
-    public string DateFound;
-    public bool IsFake;
-    public int Quality;
-    public string Details;
-    public string Level;
-}
-

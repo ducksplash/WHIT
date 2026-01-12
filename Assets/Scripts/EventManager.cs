@@ -7,7 +7,10 @@ public class EventManager : MonoBehaviour
     public static event Action OnPhoneCollected = () => { };
     public static event Action OnNotepadCollected = () => { };
     public static event Action OnPlayerDataLoaded = () => { };
+    public static event Action OnEvidenceLoaded = () => { };
+    public static event Action OnEvidenceCollected = () => { };
     public static event Action OnPhoneOpened = () => { };
+    public static event Action<EvidenceName> OnAutoCollectEvidence = (EvidenceName) => { };
     public static event Action<bool> OnPaused = (GamePaused) => { };
     
     //public static event Action OnLightSwitchClick = () => { };
@@ -47,6 +50,21 @@ public class EventManager : MonoBehaviour
     {
         Debug.Log("PhoneOpened");
         OnPhoneOpened.Invoke();
+    }
+    public void EvidenceLoaded()
+    {
+        Debug.Log("EvidenceLoaded");
+        OnEvidenceLoaded.Invoke();
+    }
+    public void EvidenceCollected()
+    {
+        Debug.Log("EvidenceCollected");
+        OnEvidenceCollected.Invoke();
+    }
+    public void AutocollectEvidence(EvidenceName evidenceName)
+    {
+        Debug.Log("AutocollectEvidence");
+        OnAutoCollectEvidence.Invoke(evidenceName);
     }
     
 }

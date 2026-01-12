@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -27,7 +28,6 @@ public class Cutscene : MonoBehaviour
 
     private bool Saved;
     
-
     void Start() 
     {
         ColliderCube.SetActive(false);
@@ -39,14 +39,14 @@ public class Cutscene : MonoBehaviour
     {
         if (other.gameObject.layer == 3) 
         {
-            if (!GameMaster.CutSceneSeen.ContainsKey(selectedMessage.ToString()))
+            if (!GameMaster.Instance.CutsceneManager.CutSceneSeen.ContainsKey(selectedMessage.ToString()))
             {
                 GameMaster.Instance.CutsceneManager.cameraZoom.enabled = false;
                 GameMaster.Instance.CutsceneManager.elapsedCutsceneTime = 0.0f;
                 
                 // we don't want to await, that's why we're not awaiting. ignore this 'hint' 
                 
-                GameMaster.CutSceneSeen.TryAdd(selectedMessage.ToString(), ContactName.ToString());
+                GameMaster.Instance.CutsceneManager.CutSceneSeen.TryAdd(selectedMessage.ToString(), ContactName.ToString());
                 
                 StartCoroutine(GameMaster.Instance.CutsceneManager.ExecuteCutscene(duration, panTime, targetObject, selectedMessage));
                 

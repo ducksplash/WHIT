@@ -26,7 +26,7 @@ public class StoredPrefs : MonoBehaviour
 
     public static event Action OnPrefsSaved;
 
-    private const string COLLECTION_PREFIX = "__collection__:";
+    private const string COLLECTION_PREFIX = "logs:";
 
     void Awake()
     {
@@ -44,7 +44,7 @@ public class StoredPrefs : MonoBehaviour
 
     // ===================== LOAD SAFETY =====================
 
-    private static void EnsureLoaded()
+    private void EnsureLoaded()
     {
         if (isLoaded)
             return;
@@ -57,7 +57,7 @@ public class StoredPrefs : MonoBehaviour
             LoadStatic();
     }
 
-    private static void LoadStatic()
+    private void LoadStatic()
     {
         if (!File.Exists(FilePath))
         {
@@ -74,29 +74,32 @@ public class StoredPrefs : MonoBehaviour
         {
             data = new PlayerData();
         }
+
+        GameMaster.Instance.EventManager.PlayerDataLoaded();
+    
     }
 
     // ===================== BASIC PREF API =====================
 
-    public static void SetString(string key, string value)
+    public void SetString(string key, string value)
     {
         EnsureLoaded();
         data.PlayerDatum[key] = value;
     }
 
-    public static string GetString(string key, string defaultValue = "")
+    public string GetString(string key, string defaultValue = "")
     {
         EnsureLoaded();
         return data.PlayerDatum.TryGetValue(key, out var v) ? v : defaultValue;
     }
 
-    public static void SetInt(string key, int value)
+    public void SetInt(string key, int value)
     {
         EnsureLoaded();
         data.PlayerDatum[key] = value.ToString();
     }
 
-    public static int GetInt(string key, int defaultValue = 0)
+    public int GetInt(string key, int defaultValue = 0)
     {
         EnsureLoaded();
         return data.PlayerDatum.TryGetValue(key, out var v) && int.TryParse(v, out var r)
@@ -104,13 +107,13 @@ public class StoredPrefs : MonoBehaviour
             : defaultValue;
     }
 
-    public static void SetFloat(string key, float value)
+    public void SetFloat(string key, float value)
     {
         EnsureLoaded();
         data.PlayerDatum[key] = value.ToString(CultureInfo.InvariantCulture);
     }
 
-    public static float GetFloat(string key, float defaultValue = 0f)
+    public float GetFloat(string key, float defaultValue = 0f)
     {
         EnsureLoaded();
         return data.PlayerDatum.TryGetValue(key, out var v) &&
@@ -119,14 +122,13 @@ public class StoredPrefs : MonoBehaviour
             : defaultValue;
     }
 
-    public static void DeleteKey(string key)
+    public void DeleteKey(string key)
     {
         EnsureLoaded();
-        if (data.PlayerDatum.Remove(key))
-            Save();
+        if (data.PlayerDatum.Remove(key)) Save();
     }
 
-    public static List<string> GetAllKeys()
+    public List<string> GetAllKeys()
     {
         EnsureLoaded();
         return new List<string>(data.PlayerDatum.Keys);
@@ -134,7 +136,7 @@ public class StoredPrefs : MonoBehaviour
 
     // ===================== COLLECTION API =====================
 
-    public static void SetCollection<T>(string key, T collection, CollectionType type)
+    public void SetCollection<T>(string key, T collection, CollectionType type)
     {
         EnsureLoaded();
 
@@ -143,27 +145,15 @@ public class StoredPrefs : MonoBehaviour
 
         switch (type)
         {
-            case CollectionType.dictionary:
-                if (!(collection is System.Collections.IDictionary))
-                    throw new ArgumentException("Expected Dictionary");
-                break;
-
-            case CollectionType.list:
-                if (!(collection is System.Collections.IList))
-                    throw new ArgumentException("Expected List");
-                break;
-
-            case CollectionType.array:
-                if (!collection.GetType().IsArray)
-                    throw new ArgumentException("Expected Array");
-                break;
+            case CollectionType.dictionary: if (!(collection is System.Collections.IDictionary)) throw new ArgumentException("Expected Dictionary"); break;
+            case CollectionType.list: if (!(collection is System.Collections.IList)) throw new ArgumentException("Expected List"); break;
+            case CollectionType.array: if (!collection.GetType().IsArray) throw new ArgumentException("Expected Array"); break;
         }
 
-        data.PlayerDatum[COLLECTION_PREFIX + key] =
-            JsonConvert.SerializeObject(collection, Formatting.None);
+        data.PlayerDatum[COLLECTION_PREFIX + key] = JsonConvert.SerializeObject(collection, Formatting.None);
     }
 
-    public static T GetCollection<T>(string key) where T : new()
+    public T GetCollection<T>(string key) where T : new()
     {
         EnsureLoaded();
 
@@ -186,8 +176,9 @@ public class StoredPrefs : MonoBehaviour
 
     // ===================== SAVE / LOAD =====================
 
-    public static void Save()
+    public void Save()
     {
+        Debug.Log("save called");
         EnsureLoaded();
 
         string json = JsonConvert.SerializeObject(data, Formatting.Indented);
@@ -195,13 +186,13 @@ public class StoredPrefs : MonoBehaviour
         if (Instance != null && Instance.useEncryption)
             json = Encrypt(json);
 
-        Directory.CreateDirectory(Path.GetDirectoryName(FilePath));
+        Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
         File.WriteAllText(FilePath, json);
 
         OnPrefsSaved?.Invoke();
     }
 
-    private static void Load()
+    private void Load()
     {
         if (!File.Exists(FilePath))
         {
@@ -223,9 +214,10 @@ public class StoredPrefs : MonoBehaviour
         }
 
         OnPrefsSaved?.Invoke();
+        GameMaster.Instance.EventManager.PlayerDataLoaded();
     }
 
-    public static void ResetAll()
+    public void ResetAll()
     {
         data = new PlayerData();
         isLoaded = true;
@@ -247,9 +239,11 @@ public class StoredPrefs : MonoBehaviour
     }
 
     public static string Decrypt(string text) => Encrypt(text);
+    
+    
+
 }
 
-// ===================== DATA =====================
 
 [Serializable]
 public class PlayerData

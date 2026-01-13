@@ -55964,70 +55964,6 @@ MonoBehaviour:
   ExpectedEQ_Level0: 1
   ExpectedEQ_Level1: 18
   ExpectedEQ_Level2: 19
---- !u!1 &1557012517
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1557012518}
-  - component: {fileID: 1557012519}
-  m_Layer: 5
-  m_Name: MapsScreenNAVVER
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!224 &1557012518
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1557012517}
-  m_LocalRotation: {x: 0.000000007474567, y: -0, z: 0.000000013154928, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.3725995, y: 1.042855, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1994814304}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50, y: -61}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1557012519
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1557012517}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: feeae8a706677e346a0dfa4a8215f8b3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  UpAction: {fileID: 3642985609635455809, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  DownAction: {fileID: 5905334870462324265, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  LeftAction: {fileID: 6015128987140842579, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  RightAction: {fileID: 310176053375570818, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  SubmitAction: {fileID: -4902151775068343606, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  GridButtons: []
-  Layout: 1
-  columns: 3
-  rows: 4
-  originalColor: {r: 0, g: 200, b: 0, a: 150}
-  hoverColor: {r: 0, g: 200, b: 0, a: 150}
 --- !u!1 &1557558660
 GameObject:
   m_ObjectHideFlags: 0
@@ -72356,7 +72292,6 @@ RectTransform:
   m_LocalScale: {x: 0.94687, y: 0.85903895, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 1557012518}
   - {fileID: 1064525987}
   - {fileID: 1285200661}
   - {fileID: 425332956}
@@ -90771,7 +90706,6 @@ MonoBehaviour:
   CallingScreen: {fileID: 1390963742}
   CallingScreenNavver: {fileID: 1499755770}
   MapsScreen: {fileID: 1994814303}
-  MapsScreenNavver: {fileID: 1557012519}
   MessagesScreen: {fileID: 1284103683}
   MessagesScreenNavver: {fileID: 466086723}
   NotesScreenNavver: {fileID: 903177420}

@@ -26,6 +26,7 @@ public class Phone : MonoBehaviour
     public GameObject CallingScreen;
     public OSDNavver CallingScreenNavver;
     public GameObject MapsScreen;
+    public OSDNavver MapsScreenNavver;
     public GameObject MessagesScreen;
     public OSDNavver MessagesScreenNavver;
     public OSDNavver NotesScreenNavver;
@@ -273,6 +274,12 @@ public class Phone : MonoBehaviour
             InteractAction.action.performed -= GalleryViewPhoto;
         }
 
+        if (MapsScreen.GetComponent<CanvasGroup>()?.alpha < 0.9f)
+        {
+            // for now, map screen navver is a placeholder.
+            MapsScreenNavver.gameObject.SetActive(true);
+        }
+
         if (CameraScreen.GetComponent<CanvasGroup>()?.alpha < 0.9f)
         {
             CameraLeftFlash.enabled = false;
@@ -305,6 +312,7 @@ public class Phone : MonoBehaviour
         CallingScreenNavver.gameObject.SetActive(false);
         MessagesScreenNavver.gameObject.SetActive(false);
         NotesScreenNavver.gameObject.SetActive(false);
+        MapsScreenNavver.gameObject.SetActive(false);
     }
     
     

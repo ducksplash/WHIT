@@ -295,6 +295,47 @@ public class OnboardingManager : MonoBehaviour
         GameMaster.Instance.EvidenceManager.EvidenceFound.Clear();
     }
 
+    public void DeepClean()
+    {
+        string root = Application.persistentDataPath;
+
+        Debug.Log($"[OnboardingEditor] FULL WIPE: {root}");
+
+        try
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, true);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[OnboardingEditor] Failed to delete persistent data: {e}");
+        }
+
+        // Recreate base directory so systems don’t crash
+        Directory.CreateDirectory(root);
+
+        // Clear runtime state
+        if (GameMaster.Instance != null)
+        {
+            if (GameMaster.Instance.EvidenceManager != null) GameMaster.Instance.EvidenceManager.EvidenceFound.Clear();
+        }
+
+        // Reset scene objects safely
+        ResetSceneObjects();
+
+        Debug.Log("[OnboardingEditor] Persistent data wipe complete.");
+    }
+
+    private void ResetSceneObjects()
+    {
+        if (phonePickup) phonePickup.SetActive(true);
+        if (notepadPickup) notepadPickup.SetActive(true);
+        if (torchPickup) torchPickup.SetActive(true);
+
+        if (phoneTick) phoneTick.alpha = 0;
+        if (notepadTick) notepadTick.alpha = 0;
+        if (torchTick) torchTick.alpha = 0;
+        if (evidenceTick) evidenceTick.alpha = 0;
+    }
     
 
 
@@ -314,96 +355,114 @@ public class OnboardingManagerEditor : Editor
         OnboardingManager mgr = (OnboardingManager)target;
 
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("::Onboarding Debug Tools", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField(":: Onboarding Debug Tools", EditorStyles.boldLabel);
 
-        EditorGUILayout.LabelField("Current Status", EditorStyles.miniBoldLabel);
-        EditorGUILayout.Toggle("Torch Collected", mgr.TORCHCOLLECTED);
-        EditorGUILayout.Toggle("Notepad Collected", mgr.NOTEPADCOLLECTED);
-        EditorGUILayout.Toggle("Phone Collected", mgr.PHONECOLLECTED);
-        EditorGUILayout.Toggle("Phone Accessed", mgr.PHONEACCESSED);
-        EditorGUILayout.Toggle("Test Evidence Collected", mgr.TESTEVIDENCECOLLECTED);
-        EditorGUILayout.Toggle("Onboarding Complete", mgr.ONBOARDINGCOMPLETE);
-
-        EditorGUILayout.Space();
-
-        if (GUILayout.Button("Test Step: Collect Torch"))
-        {
-            mgr.CollectTorch();
-        }
-        if (GUILayout.Button("Test Step: Collect Notepad"))
-        {
-            mgr.CollectNotepad();
-        }
-        if (GUILayout.Button("Test Step: Collect Phone"))
-        {
-            mgr.CollectPhone();
-        }
-        if (GUILayout.Button("Test Step: Open Phone"))
-        {
-            mgr.OpenedPhone();
-        }
-        if (GUILayout.Button("Test Step: Collect Test Evidence"))
-        {
-            mgr.CollectTestEvidence();
-        }
-
-        EditorGUILayout.Space();
-
-        if (GUILayout.Button("Reset Torch"))
-        {
-            StoredPrefs.Instance.SetInt("TORCHCOLLECTED", 0);
-        }
-        if (GUILayout.Button("Reset Notepad"))
-        {
-            StoredPrefs.Instance.SetInt("NOTEPADCOLLECTED", 0);
-        }
-        if (GUILayout.Button("Reset Phone"))
-        {
-            StoredPrefs.Instance.SetInt("PHONECOLLECTED", 0);
-        }
-        if (GUILayout.Button("Reset Phone Accessed"))
-        {
-            StoredPrefs.Instance.SetInt("PHONEACCESSED", 0);
-        }
-        if (GUILayout.Button("Reset Test Evidence"))
-        {
-            StoredPrefs.Instance.SetInt("TESTEVIDENCECOLLECTED", 0);
-        }
-        if (GUILayout.Button("Reset Onboarding Complete"))
-        {
-            StoredPrefs.Instance.SetInt("ONBOARDINGCOMPLETE", 0);
-        }
-
-        EditorGUILayout.Space();
-
-        if (GUILayout.Button("Reset All Onboarding StoredPrefs"))
-        {
-            StoredPrefs.Instance.DeleteKey("TORCHCOLLECTED");
-            StoredPrefs.Instance.DeleteKey("NOTEPADCOLLECTED");
-            StoredPrefs.Instance.DeleteKey("PHONECOLLECTED");
-            StoredPrefs.Instance.DeleteKey("PHONEACCESSED");
-            StoredPrefs.Instance.DeleteKey("TESTEVIDENCECOLLECTED");
-            StoredPrefs.Instance.DeleteKey("ONBOARDINGCOMPLETE");
-            StoredPrefs.Instance.Save();
-            
-            mgr.phonePickup.SetActive(true); 
-            mgr.phoneTick.alpha = 0;
-            
-            mgr.torchPickup.SetActive(true); 
-            mgr.torchTick.alpha = 0;
-            
-            mgr.notepadPickup.SetActive(true); 
-            mgr.notepadTick.alpha = 0;
-            
-            mgr.GarbageRun();
-
-        }
+        DrawStatus(mgr);
+        DrawTestActions(mgr);
+        DrawResetTools(mgr);
 
         if (GUI.changed)
         {
             EditorUtility.SetDirty(target);
         }
     }
+
+    private void DrawStatus(OnboardingManager mgr)
+    {
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Current Runtime Status", EditorStyles.miniBoldLabel);
+
+        EditorGUILayout.Toggle("Torch Collected", mgr.TORCHCOLLECTED);
+        EditorGUILayout.Toggle("Notepad Collected", mgr.NOTEPADCOLLECTED);
+        EditorGUILayout.Toggle("Phone Collected", mgr.PHONECOLLECTED);
+        EditorGUILayout.Toggle("Phone Accessed", mgr.PHONEACCESSED);
+        EditorGUILayout.Toggle("Test Evidence Collected", mgr.TESTEVIDENCECOLLECTED);
+        EditorGUILayout.Toggle("Onboarding Complete", mgr.ONBOARDINGCOMPLETE);
+    }
+
+    private void DrawTestActions(OnboardingManager mgr)
+    {
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Simulate Steps", EditorStyles.miniBoldLabel);
+
+        if (GUILayout.Button("Collect Torch"))
+            mgr.CollectTorch();
+
+        if (GUILayout.Button("Collect Notepad"))
+            mgr.CollectNotepad();
+
+        if (GUILayout.Button("Collect Phone"))
+            mgr.CollectPhone();
+
+        if (GUILayout.Button("Open Phone"))
+            mgr.OpenedPhone();
+
+        if (GUILayout.Button("Collect Test Evidence"))
+            mgr.CollectTestEvidence();
+    }
+
+    private void DrawResetTools(OnboardingManager mgr)
+    {
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Danger Zone", EditorStyles.boldLabel);
+
+        GUI.backgroundColor = Color.red;
+
+        if (GUILayout.Button("RESET ALL ONBOARDING + DELETE ALL SAVE DATA"))
+        {
+            if (EditorUtility.DisplayDialog(
+                "Full Data Wipe",
+                "This will DELETE EVERYTHING in Application.persistentDataPath.\n\nThis cannot be undone.",
+                "Delete Everything",
+                "Cancel"))
+            {
+                FullPersistentDataWipe(mgr);
+            }
+        }
+
+        GUI.backgroundColor = Color.white;
+    }
+
+    public void FullPersistentDataWipe(OnboardingManager mgr)
+    {
+        string root = Application.persistentDataPath;
+
+        Debug.Log($"[OnboardingEditor] FULL WIPE: {root}");
+
+        try
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, true);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[OnboardingEditor] Failed to delete persistent data: {e}");
+        }
+
+        // Recreate base directory so systems don’t crash
+        Directory.CreateDirectory(root);
+
+        // Clear runtime state
+        if (GameMaster.Instance != null)
+        {
+            if (GameMaster.Instance.EvidenceManager != null) GameMaster.Instance.EvidenceManager.EvidenceFound.Clear();
+        }
+
+        // Reset scene objects safely
+        ResetSceneObjects(mgr);
+
+        Debug.Log("[OnboardingEditor] Persistent data wipe complete.");
+    }
+
+    private void ResetSceneObjects(OnboardingManager mgr)
+    {
+        if (mgr.phonePickup) mgr.phonePickup.SetActive(true);
+        if (mgr.notepadPickup) mgr.notepadPickup.SetActive(true);
+        if (mgr.torchPickup) mgr.torchPickup.SetActive(true);
+
+        if (mgr.phoneTick) mgr.phoneTick.alpha = 0;
+        if (mgr.notepadTick) mgr.notepadTick.alpha = 0;
+        if (mgr.torchTick) mgr.torchTick.alpha = 0;
+        if (mgr.evidenceTick) mgr.evidenceTick.alpha = 0;
+    }
 }
 #endif
-

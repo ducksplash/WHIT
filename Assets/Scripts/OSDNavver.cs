@@ -24,10 +24,14 @@ public class OSDNavver : MonoBehaviour
     public int columns = 3;
     public int rows = 4;
 
-    public Color originalColor = new Color(0,200,0,150);
-    public Color hoverColor = new Color(0,200,0,150);
+    public Color originalColor = new Color(0, 200, 0, 150);
+    public Color hoverColor = new Color(0, 200, 0, 150);
+
     private Coroutine enablementCo;
     private int currentIndex = 0;
+
+    // NEW: Remember last hovered index
+    private int lastHoveredIndex = 0;
 
     private void SubscribeEvents()
     {
@@ -43,6 +47,22 @@ public class OSDNavver : MonoBehaviour
     private void OnEnable()
     {
         SubscribeEvents();
+        StartCoroutine(HoverLastOrDefaultNextFrame());
+    }
+
+    private IEnumerator HoverLastOrDefaultNextFrame()
+    {
+        yield return null; // wait one frame to ensure GridButtons populated
+        HoverLastOrDefault();
+    }
+
+    public void HoverLastOrDefault()
+    {
+        if (GridButtons.Count == 0) return;
+
+        // Use lastHoveredIndex if valid, otherwise 0
+        currentIndex = Mathf.Clamp(lastHoveredIndex, 0, GridButtons.Count - 1);
+        Highlight(currentIndex);
     }
 
     private void OnDisable()
@@ -51,7 +71,7 @@ public class OSDNavver : MonoBehaviour
         DownAction.action.performed -= OnDown;
         LeftAction.action.performed -= OnLeft;
         RightAction.action.performed -= OnRight;
-        
+
         SubmitAction.action.performed -= OnSubmit;
     }
 
@@ -62,7 +82,7 @@ public class OSDNavver : MonoBehaviour
         {
             originalColor = GridButtons[0].GetComponent<Button>().image.color;
         }
-        
+
         Highlight(currentIndex);
         SubscribeEvents();
     }
@@ -71,110 +91,101 @@ public class OSDNavver : MonoBehaviour
     {
         if (!GameMaster.Instance.PHONEOUT) return;
 
+        int newIndex = currentIndex;
         switch (Layout)
         {
             case NavigationLayout.Grid:
-                int nextGridUp = currentIndex - columns;
-                if (nextGridUp >= 0) MoveTo(nextGridUp);
+                newIndex = currentIndex - columns;
                 break;
-
             case NavigationLayout.TopToBottom:
-                int nextUp = currentIndex - 1;
-                if (nextUp >= 0) MoveTo(nextUp);
+                newIndex = currentIndex - 1;
                 break;
-
             case NavigationLayout.BottomToTop:
-                int nextDownReverse = currentIndex + 1;
-                if (nextDownReverse < GridButtons.Count) MoveTo(nextDownReverse);
-                break;
-
-            case NavigationLayout.LeftToRight:
+                newIndex = currentIndex + 1;
                 break;
         }
-    }
 
+        if (newIndex >= 0 && newIndex < GridButtons.Count)
+            MoveTo(newIndex);
+    }
 
     private void OnDown(InputAction.CallbackContext ctx)
     {
         if (!GameMaster.Instance.PHONEOUT) return;
 
+        int newIndex = currentIndex;
         switch (Layout)
         {
             case NavigationLayout.Grid:
-                int nextGridDown = currentIndex + columns;
-                if (nextGridDown < GridButtons.Count) MoveTo(nextGridDown);
+                newIndex = currentIndex + columns;
                 break;
-
             case NavigationLayout.TopToBottom:
-                int nextDown = currentIndex + 1;
-                if (nextDown < GridButtons.Count) MoveTo(nextDown);
+                newIndex = currentIndex + 1;
                 break;
-
             case NavigationLayout.BottomToTop:
-                int nextUpReverse = currentIndex - 1;
-                if (nextUpReverse >= 0) MoveTo(nextUpReverse);
-                break;
-
-            case NavigationLayout.LeftToRight:
+                newIndex = currentIndex - 1;
                 break;
         }
+
+        if (newIndex >= 0 && newIndex < GridButtons.Count)
+            MoveTo(newIndex);
     }
 
     private void OnLeft(InputAction.CallbackContext ctx)
     {
         if (!GameMaster.Instance.PHONEOUT) return;
 
+        int newIndex = currentIndex;
         switch (Layout)
         {
             case NavigationLayout.Grid:
-                bool isAtRowStart = (currentIndex % columns) == 0;
-                if (!isAtRowStart) MoveTo(currentIndex - 1);
+                if ((currentIndex % columns) != 0)
+                    newIndex = currentIndex - 1;
                 break;
-
-            case NavigationLayout.TopToBottom:
-                // ignore
-                break;
-
             case NavigationLayout.LeftToRight:
-                int leftIndex = currentIndex - 1;
-                if (leftIndex >= 0) MoveTo(leftIndex);
+                if (currentIndex - 1 >= 0)
+                    newIndex = currentIndex - 1;
                 break;
         }
+
+        if (newIndex != currentIndex)
+            MoveTo(newIndex);
     }
 
     private void OnRight(InputAction.CallbackContext ctx)
     {
         if (!GameMaster.Instance.PHONEOUT) return;
 
+        int newIndex = currentIndex;
         switch (Layout)
         {
             case NavigationLayout.Grid:
-                bool isAtRowEnd = ((currentIndex % columns) == columns - 1);
-                if (!isAtRowEnd && currentIndex + 1 < GridButtons.Count)
-                    MoveTo(currentIndex + 1);
+                if ((currentIndex % columns) != columns - 1 && currentIndex + 1 < GridButtons.Count)
+                    newIndex = currentIndex + 1;
                 break;
-
-            case NavigationLayout.TopToBottom:
-                // ignore
-                break;
-
             case NavigationLayout.LeftToRight:
-                int rightIndex = currentIndex + 1;
-                if (rightIndex < GridButtons.Count) MoveTo(rightIndex);
+                if (currentIndex + 1 < GridButtons.Count)
+                    newIndex = currentIndex + 1;
                 break;
         }
+
+        if (newIndex != currentIndex)
+            MoveTo(newIndex);
     }
 
     private void OnSubmit(InputAction.CallbackContext ctx)
     {
-        Debug.Log("submitty");
         if (!GameMaster.Instance.PHONEOUT) return;
         ActivateOSDButton(currentIndex);
     }
-    
+
     private void MoveTo(int newIndex)
     {
         currentIndex = Mathf.Clamp(newIndex, 0, GridButtons.Count - 1);
+
+        // NEW: update last hovered index
+        lastHoveredIndex = currentIndex;
+
         Highlight(currentIndex);
     }
 
@@ -187,13 +198,12 @@ public class OSDNavver : MonoBehaviour
             GridButtons[i].AppOutline.SetActive(i == index);
 
             var btn = GridButtons[i].GetComponent<Button>();
-
             btn.image.color = i == index ? hoverColor : originalColor;
 
-            if (i == index) { GridButtons[i].GetComponent<OSDButton>().OnHover(); } else { GridButtons[i].GetComponent<OSDButton>().OffHover(); }
+            if (i == index) GridButtons[i].OnHover();
+            else GridButtons[i].OffHover();
         }
     }
-
 
     public void ActivateOSDButton(int SelectedButton)
     {
@@ -209,7 +219,6 @@ public class OSDNavver : MonoBehaviour
         LeftAction.action.performed += OnLeft;
         RightAction.action.performed += OnRight;
         SubmitAction.action.performed += OnSubmit;
-        
     }
 
     public void ResetList()

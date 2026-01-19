@@ -297,6 +297,7 @@ public class OnboardingManager : MonoBehaviour
 
     public void DeepClean()
     {
+        if (GameMaster.Instance.PHONEOUT) return;
         string root = Application.persistentDataPath;
 
         Debug.Log($"[OnboardingEditor] FULL WIPE: {root}");

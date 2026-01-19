@@ -31,6 +31,7 @@ public class GameMaster : MonoBehaviour
     public EvidenceManager EvidenceManager;
     public LanguageManager LanguageManager;
     public DeviceType DeviceType;
+    public InputManager InputManager;
     public int DefaultFOV;
 
 

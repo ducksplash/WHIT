@@ -5,14 +5,13 @@ using UnityEngine.InputSystem;
 public class PauseManager : MonoBehaviour
 {
     public bool IsPaused;
-    public InputActionReference pauseAction;
     public CanvasGroup pauseUnderlay;
     public GameObject VirtualCursor;
-    
+
     
     private void Start()
     {
-        pauseAction.action.performed += TogglePause;
+        GameMaster.Instance.InputManager.PauseAction.action.performed += TogglePause;
     }
 
     public void TogglePause(InputAction.CallbackContext callbackContext)

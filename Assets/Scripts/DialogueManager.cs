@@ -28,7 +28,9 @@ public class DialogueManager : MonoBehaviour
     private readonly SemaphoreSlim dialogueSaveLock = new(1, 1);
 
     public List<Dialogue> Dialogues = new List<Dialogue>();
+    public List<OSDText> OSDTexts = new List<OSDText>();
     private Dictionary<DialogueName, Dialogue> DialogueDict = new Dictionary<DialogueName, Dialogue>();
+    private Dictionary<OSDTextName, OSDText> OSDTextDict = new Dictionary<OSDTextName, OSDText>();
 
     private Dictionary<string, string> EregiDict = new Dictionary<string, string>();
     
@@ -55,6 +57,7 @@ public class DialogueManager : MonoBehaviour
         SystemMessage.text = "";
         
         PopulateDialogues();
+        PopulateOSDTexts();
         CreateEregiDictionary();
     }
 
@@ -62,9 +65,23 @@ public class DialogueManager : MonoBehaviour
     private void CreateEregiDictionary()
     {
         // for now we'll do a dumb collection of the replaceables, later we'll try to make it dynamic.
+        // we can use new Input Manager to supply input names
 
-        EregiDict.Add("+phonekey+","Y or P");
-        EregiDict.Add("+torchkey+","H or Press R Stick");
+        if (GameMaster.Instance.DeviceType.selectedDeviceType == PlayerDeviceType.SteamOS)
+        {
+            EregiDict.TryAdd("+phonekey+","X");
+            EregiDict.TryAdd("+torchkey+","Right Stick Button");
+            EregiDict.TryAdd("+camerakey+","A");
+            EregiDict.TryAdd("+melee+","R2");
+        }
+        else
+        {
+            EregiDict.TryAdd("+phonekey+","P");
+            EregiDict.TryAdd("+torchkey+","H");
+            EregiDict.TryAdd("+camerakey+","Enter");
+            EregiDict.TryAdd("+melee+","Left Click");
+        }
+
 
     }
     
@@ -74,6 +91,15 @@ public class DialogueManager : MonoBehaviour
         foreach (Dialogue Dialogue in Dialogues)
         {
             DialogueDict.TryAdd(Dialogue.DialogueName, Dialogue);
+        }
+    }
+
+    
+    private void PopulateOSDTexts()
+    {
+        foreach (OSDText osdText in OSDTexts)
+        {
+            OSDTextDict.TryAdd(osdText.OSDTextName, osdText);
         }
     }
 
@@ -131,10 +157,7 @@ public class DialogueManager : MonoBehaviour
 
             if (selectedDialogue.EregiReplace)
             {
-                foreach (var kvp in EregiDict)
-                {
-                    if (!string.IsNullOrEmpty(message)) message = message.Replace(kvp.Key, kvp.Value);
-                }
+                message = GetReplacedString(message);
             }
         }
 
@@ -165,6 +188,22 @@ public class DialogueManager : MonoBehaviour
     }
 
 
+
+    public string GetReplacedString(string message)
+    {
+        if (string.IsNullOrEmpty(message))
+            return message;
+
+        foreach (var kvp in EregiDict)
+        {
+            message = message.Replace(kvp.Key, kvp.Value);
+        }
+
+        Debug.Log("Replaced message: " + message);
+        return message;
+    }
+
+    
 
     public IEnumerator Fader(CanvasGroup ThisCanvas, int direction)
     {
@@ -230,6 +269,30 @@ public class DialogueManager : MonoBehaviour
         DialogInProgress = false;
     }
 
+
+    public string RetrieveOSDText(OSDTextName requestedOSDText)
+    {
+        string messageString = ".";
+        
+        
+        if (OSDTextDict.ContainsKey(requestedOSDText))
+        {
+            OSDText selectedOSDText = OSDTextDict[requestedOSDText];
+            messageString = selectedOSDText.OSDTextString;
+            
+            
+            if (selectedOSDText.EregiReplace)
+            {
+                foreach (var kvp in EregiDict)
+                {
+                    if (!string.IsNullOrEmpty(messageString)) messageString = messageString.Replace(kvp.Key, kvp.Value);
+                }
+            }
+        }
+
+        return messageString;
+    }
+    
     
     
         
@@ -262,6 +325,11 @@ public enum DialogueType
     Cutscene
 }
 
+public enum OSDTextName
+{
+    TakePhoto = 101,
+    SavedPhoto = 102
+}
 
 public enum DialogueName
 {

@@ -43,6 +43,8 @@ public class Phone : MonoBehaviour
     public Image CameraReadyFrame;
     public TextMeshProUGUI CameraReadyText;
     public TextMeshProUGUI CameraSavedText;
+    public TextMeshProUGUI CameraReadyTextBG;
+    public TextMeshProUGUI CameraSavedTextBG;
     public bool CameraReady;
     public TextMeshProUGUI DialBar;
     public TextMeshProUGUI CallText;
@@ -70,11 +72,10 @@ public class Phone : MonoBehaviour
     public int resHeight = 1000;
     public Camera getCamera;
     public bool WaitingForPhone;
-
+    private bool BigMessageOpen;
+    private bool BigMessageCanOpen;
 
     public GameObject MiniMapCam;
-
-
     
     public bool gotfiles;
     public int currentpage;
@@ -206,7 +207,12 @@ public class Phone : MonoBehaviour
 
     void changeScreen(GameObject useThisScreen)
     {
+        if (currentScreen == useThisScreen) return;
+        
         DisableNavvers();
+
+        BigMessageCanOpen = false;
+        BigMessageOpen = false;
         
         Transform[] allScreens = MobilePhone.GetComponentsInChildren<Transform>(true);
         Transform[] useTheseScreens = useThisScreen.GetComponentsInChildren<Transform>(true);
@@ -218,7 +224,7 @@ public class Phone : MonoBehaviour
         {
             if (screen.IsChildOf(useThisScreen.transform) && !screen.name.Contains("SCREENPANEL")) continue;
 
-            if (!screen.name.Contains("SCREENPANEL"))
+            if (!screen.name.Contains("SCREENPANEL") && !screen.name.Contains("BIGOPENMSG"))
             {
                 CanvasGroup cg = screen.GetComponent<CanvasGroup>();
                 if (cg)
@@ -254,6 +260,12 @@ public class Phone : MonoBehaviour
             HomeScreenNavver.gameObject.SetActive(true);
         }
 
+
+        if (BigMessageScreen.GetComponent<CanvasGroup>()?.alpha > 0.9f)
+        {
+            BigMessageScreen.GetComponent<CanvasGroup>().alpha = 0;
+        }
+
         if (ContactsScreen.GetComponent<CanvasGroup>()?.alpha > 0.9f)
         {
             ContactsScreenNavver.gameObject.SetActive(true);
@@ -274,10 +286,22 @@ public class Phone : MonoBehaviour
             InteractAction.action.performed -= GalleryViewPhoto;
         }
 
-        if (MapsScreen.GetComponent<CanvasGroup>()?.alpha < 0.9f)
+        if (MapsScreen.GetComponent<CanvasGroup>()?.alpha > 0.9f)
         {
             // for now, map screen navver is a placeholder.
             MapsScreenNavver.gameObject.SetActive(true);
+        }
+
+        if (SentPane.GetComponent<CanvasGroup>()?.alpha < 0.9f)
+        {
+            // for now, map screen navver is a placeholder.
+            NotesScreenNavver.gameObject.SetActive(false);
+        }
+
+        if (InboxPane.GetComponent<CanvasGroup>()?.alpha < 0.9f)
+        {
+            // for now, map screen navver is a placeholder.
+            NotesScreenNavver.gameObject.SetActive(false);
         }
 
         if (CameraScreen.GetComponent<CanvasGroup>()?.alpha < 0.9f)
@@ -456,18 +480,36 @@ public class Phone : MonoBehaviour
             case PhonerGriddle.Gallery: GalleryButton(); break;
             
             // Sub Menus
-
             case PhonerGriddle.ViewInboxMessage:
             {
-                if (BigMessageScreen.GetComponent<CanvasGroup>().alpha < 0.9f)
+                if (!BigMessageCanOpen) return;
+    
+                if (!BigMessageOpen)
                 {
-                    BigMessage(retrievedDialogue.Contact.ToString(), retrievedDialogue.DialogueText); 
+                    BigMessageOpen = true;
+                    MessagesScreenNavver.gameObject.SetActive(false);
+                    string dialogueText = GameMaster.Instance.DialogueManager.GetReplacedString(retrievedDialogue.DialogueText);
+                    BigMessage(retrievedDialogue.Contact.ToString(), dialogueText); 
+    
+                    InteractAction.action.performed -= CloseBigMessage;
+                    InteractAction.action.performed += CloseBigMessage;
                 }
-                else
-                {
-                    CloseBigMessage();
+            } break;
+
+            case PhonerGriddle.ViewSentMessage:
+            {
+                if (!BigMessageCanOpen) return;
+    
+                if (!BigMessageOpen)
+                {           
+                    BigMessageOpen = true;         
+                    NotesScreenNavver.gameObject.SetActive(false);
+                    InteractAction.action.performed -= CloseBigMessage;
+                    InteractAction.action.performed += CloseBigMessage;
+    
+                    string dialogueText = GameMaster.Instance.DialogueManager.GetReplacedString(retrievedDialogue.DialogueText);
+                    BigMessage(retrievedDialogue.Contact.ToString(), dialogueText, PhoneMessageType.SentItems); 
                 }
-                
             } break;
             
             // Dialler
@@ -536,16 +578,16 @@ public class Phone : MonoBehaviour
 
         changeScreen(MessagesScreen);
 
-        if (msgtype == PhoneMessageType.SentItems)
-        {
-            SentItems();
-        }
 
         if (msgtype == PhoneMessageType.Inbox)
         {
             GetMessages();
         }
 
+        if (msgtype == PhoneMessageType.SentItems)
+        {
+            SentItems();
+        }
 
         Debug.Log("Messages button");
     }
@@ -553,11 +595,10 @@ public class Phone : MonoBehaviour
 
     public void BigMessage(string Sender, string Message, PhoneMessageType msgType = PhoneMessageType.Inbox)
     {
-        
-        
+        Debug.Log("bigmessage called");
         BigMessageScreen.GetComponent<CanvasGroup>().alpha = 1;
         BigMessageScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
-
+        
         if (msgType == PhoneMessageType.Inbox)
         {
             BigMessageScreen.transform.Find("fromPREFIX").GetComponent<TextMeshProUGUI>().text = "From:";
@@ -579,8 +620,18 @@ public class Phone : MonoBehaviour
         
     }
 
-    public void CloseBigMessage()
+
+
+    public void OnCloseBigMessage()
     {
+        CloseBigMessage();
+    }
+    
+
+    public void CloseBigMessage(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
+    {
+        Debug.Log("CloseBigMessage called");
+    
         BigMessageScreen.GetComponent<CanvasGroup>().alpha = 0;
         BigMessageScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
@@ -589,20 +640,38 @@ public class Phone : MonoBehaviour
 
         Messagelist.transform.parent.parent.GetComponent<CanvasGroup>().alpha = 1f;
         Messagelist.transform.parent.parent.GetComponent<CanvasGroup>().blocksRaycasts = true;
+    
+        // Reactivate the appropriate navver based on which pane is visible
+        if (InboxPane.GetComponent<CanvasGroup>().alpha > 0.9f)
+        {
+            MessagesScreenNavver.gameObject.SetActive(true);
+            Debug.Log("Reactivated MessagesScreenNavver");
+        }
+        else if (SentPane.GetComponent<CanvasGroup>().alpha > 0.9f)
+        {
+            NotesScreenNavver.gameObject.SetActive(true);
+            Debug.Log("Reactivated NotesScreenNavver");
+        }
+    
+        BigMessageOpen = false;
+        InteractAction.action.performed -= CloseBigMessage;
     }
 
-
+    
     public void GetMessages()
     {
-        CloseBigMessage();
-        
         InboxPane.GetComponent<CanvasGroup>().alpha = 1f;
         InboxPane.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
         SentPane.GetComponent<CanvasGroup>().alpha = 0f;
         SentPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
+        
+        MessagesScreenNavver.ResetList();
+        
+        DisableNavvers();
 
-        NotesScreenNavver.ResetList();
+
+        GameMaster.Instance.DialogueManager.DialogueSeen.Reverse();
         
         //var itty = 0;
         foreach (DialogueName entry in GameMaster.Instance.DialogueManager.DialogueSeen)
@@ -636,18 +705,20 @@ public class Phone : MonoBehaviour
 
                 messageBlock.transform.Find("bitofMSG").GetComponent<TextMeshProUGUI>().text = messageBit;
 
-                messageBlock.GetComponent<Button>().onClick.AddListener(delegate { BigMessage(selectedDialogue.Contact.ToString(), selectedDialogue.DialogueText); });
+                //messageBlock.GetComponent<Button>().onClick.AddListener(delegate { BigMessage(selectedDialogue.Contact.ToString(), selectedDialogue.DialogueText); });
             }
         }
-        
         MessagesScreenNavver.gameObject.SetActive(true);
+        
+        StartCoroutine(EnableMessagesInteractNextFrame());
     }
 
 
     public void SentItems()
     {
-        CloseBigMessage();
+        NotesScreenNavver.ResetList();
         
+        DisableNavvers();
         InboxPane.GetComponent<CanvasGroup>().alpha = 0f;
         InboxPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
@@ -655,7 +726,7 @@ public class Phone : MonoBehaviour
         SentPane.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
 
-        NotesScreenNavver.ResetList();
+        GameMaster.Instance.DialogueManager.DialogueSeen.Reverse();
         
         //var itty = 0;
         foreach (DialogueName entry in GameMaster.Instance.DialogueManager.DialogueSeen)
@@ -688,11 +759,12 @@ public class Phone : MonoBehaviour
 
                 messageBlock.transform.Find("bitofMSG").GetComponent<TextMeshProUGUI>().text = messageBit;
 
-                messageBlock.GetComponent<Button>().onClick.AddListener(delegate { BigMessage(selectedDialogue.Contact.ToString(), selectedDialogue.DialogueText, PhoneMessageType.SentItems); });
+                //messageBlock.GetComponent<Button>().onClick.AddListener(delegate { BigMessage(selectedDialogue.Contact.ToString(), selectedDialogue.DialogueText, PhoneMessageType.SentItems); });
             }
         }
         
         NotesScreenNavver.gameObject.SetActive(true);
+        StartCoroutine(EnableMessagesInteractNextFrame());
     }
 
 
@@ -725,6 +797,8 @@ public class Phone : MonoBehaviour
 
         CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
         CameraSavedText.GetComponent<CanvasGroup>().alpha = 0;
+        CameraReadyTextBG.GetComponent<CanvasGroup>().alpha = 0;
+        CameraSavedTextBG.GetComponent<CanvasGroup>().alpha = 0;
         PhoneCamera.GetComponent<Camera>().enabled = true;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -789,6 +863,13 @@ public class Phone : MonoBehaviour
         // IMPORTANT: delay input binding so the same Interact press
         // that opened the gallery does NOT open the big photo
         StartCoroutine(EnableGalleryInteractNextFrame());
+    }
+
+    
+    private IEnumerator EnableMessagesInteractNextFrame()
+    {
+        yield return new WaitForSeconds(0.5f);
+        BigMessageCanOpen = true;
     }
 
     
@@ -1127,12 +1208,13 @@ public class Phone : MonoBehaviour
                         {
                             CameraReadyFrame.color = Color.green;
                             CameraReadyText.GetComponent<CanvasGroup>().alpha = 1;
+                            CameraReadyTextBG.GetComponent<CanvasGroup>().alpha = 1;
 
 
                             // todo: input action references, dialogue
-                            //string camerakey = InputManager.GetKeyName("camera");
 
-                            //CameraReadyText.text = "press " + camerakey + " to photograph evidence";
+                            CameraReadyText.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.TakePhoto);
+                            CameraReadyTextBG.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.TakePhoto);
                             CameraReady = true;
                             ObservedEvidence = other.gameObject;
                         }
@@ -1148,6 +1230,7 @@ public class Phone : MonoBehaviour
         {
             CameraReadyFrame.color = Color.black;
             CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
+            CameraReadyTextBG.GetComponent<CanvasGroup>().alpha = 0;
             CameraReady = false;
             ObservedEvidence = null;
         }
@@ -1215,7 +1298,8 @@ public class Phone : MonoBehaviour
         // UI feedback
         CameraReadyFrame.color = Color.black;
         CameraReadyText.GetComponent<CanvasGroup>().alpha = 0;
-        CameraSavedText.GetComponent<CanvasGroup>().alpha = 1;
+        CameraReadyTextBG.GetComponent<CanvasGroup>().alpha = 0;
+
         CameraReady = false;
 
         StartCoroutine(SavedPhoto());
@@ -1259,10 +1343,16 @@ public class Phone : MonoBehaviour
 
 
     IEnumerator SavedPhoto()
-    {
-        CameraSavedText.alpha = 1;
+    { 
+        CameraSavedText.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.SavedPhoto);
+        CameraSavedTextBG.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.SavedPhoto);
+        CameraSavedText.GetComponent<CanvasGroup>().alpha = 1;
+        CameraSavedTextBG.GetComponent<CanvasGroup>().alpha = 1;
+        yield return new WaitForSeconds(0.5f);
+        LoadGallery();
         yield return new WaitForSeconds(3f);
-        CameraSavedText.alpha = 0;
+        CameraSavedText.GetComponent<CanvasGroup>().alpha = 0;
+        CameraSavedTextBG.GetComponent<CanvasGroup>().alpha = 0;
     }
 }
 

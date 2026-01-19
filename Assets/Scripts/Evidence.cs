@@ -54,6 +54,8 @@ public class Evidence : MonoBehaviour
         StoredPrefs.Instance.SetInt("EQLevel" + GameMaster.Instance.THISLEVEL, GameMaster.Instance.EvidenceManager.EQThisLevel);
         StoredPrefs.Instance.Save();
 
+        
+        
         EvidenceBar.EQReadout();
         GiveFeedback();
 

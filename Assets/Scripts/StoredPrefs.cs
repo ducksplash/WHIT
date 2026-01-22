@@ -16,8 +16,7 @@ public class StoredPrefs : MonoBehaviour
     [Header("Storage")]
     public bool useEncryption = true;
 
-    public static string FilePath =>
-        Path.Combine(Application.persistentDataPath, "PlayerData.json");
+    public static string FilePath => Path.Combine(Application.persistentDataPath, "PlayerData.json");
 
     public const string EncryptionKey = "SomeVerySimpleKey";
 
@@ -46,40 +45,17 @@ public class StoredPrefs : MonoBehaviour
 
     private void EnsureLoaded()
     {
-        if (isLoaded)
+        if (isLoaded) return;
+
+        // If called too early, don't lock us into a "loaded" state.
+        if (Instance == null)
             return;
 
-        isLoaded = true; // CRITICAL: prevent recursion
-
-        if (Instance != null)
-            Load();
-        else
-            LoadStatic();
+        isLoaded = true;
+        Load();
     }
 
-    private void LoadStatic()
-    {
-        if (!File.Exists(FilePath))
-        {
-            data = new PlayerData();
-            return;
-        }
-
-        try
-        {
-            string json = File.ReadAllText(FilePath);
-            data = JsonConvert.DeserializeObject<PlayerData>(json) ?? new PlayerData();
-        }
-        catch
-        {
-            data = new PlayerData();
-        }
-
-        GameMaster.Instance.EventManager.PlayerDataLoaded();
     
-    }
-
-    // ===================== BASIC PREF API =====================
 
     public void SetString(string key, string value)
     {

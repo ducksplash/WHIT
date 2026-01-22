@@ -50,38 +50,91 @@ public class OnboardingManager : MonoBehaviour
     public Image MyFirstEvidence;
     public TextMeshProUGUI EvidenceDesc;
 
+    private bool _restoredThisScene;
+    
     private void Awake()
     {
         EventManager.OnEvidenceLoaded += RunOnboardingChecks;
         EventManager.OnEvidenceCollected += RunOnboardingChecks;
     }
 
+    private void OnEnable()
+    {
+        EventManager.OnEvidenceLoaded += RunOnboardingChecks;
+        EventManager.OnEvidenceCollected += RunOnboardingChecks;
+
+        // If you added a player-data-loaded event, subscribe here too
+        // EventManager.OnPlayerDataLoaded += RunOnboardingChecks;
+
+        StartCoroutine(DeferredInit());
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnEvidenceLoaded -= RunOnboardingChecks;
+        EventManager.OnEvidenceCollected -= RunOnboardingChecks;
+        // EventManager.OnPlayerDataLoaded -= RunOnboardingChecks;
+    }
+
+    private System.Collections.IEnumerator DeferredInit()
+    {
+        // wait a frame so other Awake/OnEnable happen first
+        yield return null;
+
+        // optionally wait until singletons exist (max a few frames)
+        int safety = 30;
+        while ((StoredPrefs.Instance == null || GameMaster.Instance == null) && safety-- > 0)
+            yield return null;
+
+        RunOnboardingChecks();
+    }
+
+
+    
     private void RunOnboardingChecks()
     {
-        ONBOARDINGCOMPLETE = StoredPrefs.Instance.GetInt("ONBOARDINGCOMPLETE", 0) != 0;
+        if (StoredPrefs.Instance == null || GameMaster.Instance == null)
+            return;
 
-        TORCHCOLLECTED = StoredPrefs.Instance.GetInt("TORCHCOLLECTED", 0) != 0;
-        NOTEPADCOLLECTED = StoredPrefs.Instance.GetInt("NOTEPADCOLLECTED", 0) != 0;
-        PHONECOLLECTED = StoredPrefs.Instance.GetInt("PHONECOLLECTED", 0) != 0;
-        TESTEVIDENCECOLLECTED = StoredPrefs.Instance.GetInt("TESTEVIDENCECOLLECTED", 0) != 0;
-        PHONEACCESSED = StoredPrefs.Instance.GetInt("PHONEACCESSED", 0) != 0;
+        // read saved flags
+        ONBOARDINGCOMPLETE      = StoredPrefs.Instance.GetInt("ONBOARDINGCOMPLETE", 0) != 0;
+        TORCHCOLLECTED          = StoredPrefs.Instance.GetInt("TORCHCOLLECTED", 0) != 0;
+        NOTEPADCOLLECTED        = StoredPrefs.Instance.GetInt("NOTEPADCOLLECTED", 0) != 0;
+        PHONECOLLECTED          = StoredPrefs.Instance.GetInt("PHONECOLLECTED", 0) != 0;
+        TESTEVIDENCECOLLECTED   = StoredPrefs.Instance.GetInt("TESTEVIDENCECOLLECTED", 0) != 0;
+        PHONEACCESSED           = StoredPrefs.Instance.GetInt("PHONEACCESSED", 0) != 0;
 
         if (GameMaster.Instance.THISLEVEL != GAMELEVEL.NorasFlat)
             return;
 
-        phonePickup.SetActive(!PHONECOLLECTED);
-        phoneTick.alpha = PHONECOLLECTED ? 1 : 0;
+        // --- IMPORTANT: restore side-effects ONCE per scene load ---
+        if (!_restoredThisScene)
+        {
+            _restoredThisScene = true;
 
-        torchPickup.SetActive(!TORCHCOLLECTED);
-        torchTick.alpha = TORCHCOLLECTED ? 1 : 0;
+            if (PHONECOLLECTED)    RestorePhoneCollected();
+            if (TORCHCOLLECTED)    RestoreTorchCollected();
+            if (NOTEPADCOLLECTED)  RestoreNotepadCollected();
 
-        notepadPickup.SetActive(!NOTEPADCOLLECTED);
-        notepadTick.alpha = NOTEPADCOLLECTED ? 1 : 0;
+            // If you also need evidence tick restored:
+            if (evidenceTick) evidenceTick.alpha = TESTEVIDENCECOLLECTED ? 1 : 0;
+        }
 
-        evidenceTick.alpha = TESTEVIDENCECOLLECTED ? 1 : 0;
+        // Keep visuals consistent (safe even after restore)
+        if (phonePickup) phonePickup.SetActive(!PHONECOLLECTED);
+        if (phoneTick) phoneTick.alpha = PHONECOLLECTED ? 1 : 0;
+
+        if (torchPickup) torchPickup.SetActive(!TORCHCOLLECTED);
+        if (torchTick) torchTick.alpha = TORCHCOLLECTED ? 1 : 0;
+
+        if (notepadPickup) notepadPickup.SetActive(!NOTEPADCOLLECTED);
+        if (notepadTick) notepadTick.alpha = NOTEPADCOLLECTED ? 1 : 0;
+
+        if (evidenceTick) evidenceTick.alpha = TESTEVIDENCECOLLECTED ? 1 : 0;
 
         UpdateChalkboard();
     }
+
 
     public void UpdateChalkboard()
     {
@@ -338,6 +391,37 @@ public class OnboardingManager : MonoBehaviour
         if (evidenceTick) evidenceTick.alpha = 0;
     }
     
+
+    private void RestorePhoneCollected()
+    {
+        PHONECOLLECTED = true;
+
+        if (phonePickup) phonePickup.SetActive(false);
+        if (phoneTick) phoneTick.alpha = 1;
+
+        // Fire any runtime events you rely on
+        GameMaster.Instance.EventManager.PhoneCollectedEvent();
+    }
+
+    private void RestoreTorchCollected()
+    {
+        TORCHCOLLECTED = true;
+
+        if (torchPickup) torchPickup.SetActive(false);
+        if (torchTick) torchTick.alpha = 1;
+
+        GameMaster.Instance.EventManager.TorchCollectedEvent();
+    }
+
+    private void RestoreNotepadCollected()
+    {
+        NOTEPADCOLLECTED = true;
+
+        if (notepadPickup) notepadPickup.SetActive(false);
+        if (notepadTick) notepadTick.alpha = 1;
+
+        GameMaster.Instance.EventManager.NotepadCollectedEvent();
+    }
 
 
 }

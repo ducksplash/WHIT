@@ -1,4 +1,5 @@
 ﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -34,12 +35,10 @@ public class Phone : MonoBehaviour
     public GameObject SentPane;
     public GameObject BigMessageScreen;
     public GameObject theDialler;
-
     public GameObject Messagelist;
     public GameObject Sentlist;
     public GameObject MessageBlockPrefab;
     public GameObject NoteBlockPrefab;
-
     public Image CameraReadyFrame;
     public TextMeshProUGUI CameraReadyText;
     public TextMeshProUGUI CameraSavedText;
@@ -50,20 +49,14 @@ public class Phone : MonoBehaviour
     public TextMeshProUGUI CallText;
     public TextMeshProUGUI CallTitleText;
     public TextMeshProUGUI CallScreenCallingText;
-
     public CanvasGroup CrosshairCanvas;
-
-    // contacts' nums
     private bool callingContact = false;
     public TextMeshProUGUI anonNum;
     public TextMeshProUGUI kieronNum;
     public TextMeshProUGUI maryNum;
     public TextMeshProUGUI tomNum;
     public TextMeshProUGUI workNum;
-
     public TextMeshProUGUI darraghNum;
-
-    // Start is called before the first frame update
     public bool CameraOpen;
     public Light CameraLeftFlash;
     public Light CameraRightFlash;
@@ -74,14 +67,11 @@ public class Phone : MonoBehaviour
     public bool WaitingForPhone;
     private bool BigMessageOpen;
     private bool BigMessageCanOpen;
-
     public GameObject MiniMapCam;
-
     public bool gotfiles;
     public int currentpage;
     public int nextpage;
     public int lastpage;
-
     public RawImage galleryEvidencePhoto;
     public GameObject GalleryBigPhoto;
     public TextMeshProUGUI galleryEvidenceName;
@@ -90,18 +80,12 @@ public class Phone : MonoBehaviour
     public Button galleryBack;
     public Button galleryNext;
     public int PhotosInGallery;
-
     private GameObject ObservedEvidence;
-
     public InputActionReference togglePhonePC;
-
-    public InputActionReference InteractAction; // multi-button
-
+    public InputActionReference InteractAction;
     public InputActionReference goBack;
-
     public InputActionReference listBackButton;
     public InputActionReference listNextButton;
-
     public InputActionReference numPad0;
     public InputActionReference numPad1;
     public InputActionReference numPad2;
@@ -116,18 +100,11 @@ public class Phone : MonoBehaviour
     public InputActionReference numPadHash;
     public InputActionReference numBackSpace;
     private GameObject currentScreen;
-
     public bool viewingPhoto;
-
     public DialogueName phoneTutorialFirstPhoto = DialogueName.phoneTutorialFirstPhoto;
-
     private Coroutine CallCoroutine;
-
     public List<GalleryItem> galleryItems = new List<GalleryItem>();
     public bool galleryLoaded = false;
-
-    // Make Call Coroutine
-
     private CanvasGroup phoneCanvasGroup;
     private CapsuleCollider phoneCollider;
     private Camera phoneCameraComponent;
@@ -244,16 +221,12 @@ public class Phone : MonoBehaviour
     {
         WaitingForPhone = true;
 
-        //Debug.Log(Application.persistentDataPath);
-
-
         if (galleryBigPhotoCanvas != null)
         {
             galleryBigPhotoCanvas.alpha = 0f;
             galleryBigPhotoCanvas.blocksRaycasts = false;
         }
 
-        // evidence camera collider
         if (phoneCollider != null)
             phoneCollider.enabled = false;
 
@@ -266,8 +239,7 @@ public class Phone : MonoBehaviour
 
     void changeScreen(GameObject useThisScreen)
     {
-        if (currentScreen == useThisScreen)
-            return;
+        if (currentScreen == useThisScreen) return;
 
         DisableNavvers();
 
@@ -280,7 +252,6 @@ public class Phone : MonoBehaviour
         if (phoneCameraComponent != null)
             phoneCameraComponent.enabled = false;
 
-        // FIX: prevent Gallery panes from being reset
         foreach (Transform screen in allScreens)
         {
             if (screen.IsChildOf(useThisScreen.transform) && !screen.name.Contains("SCREENPANEL"))
@@ -349,19 +320,19 @@ public class Phone : MonoBehaviour
 
         if (mapsScreenGroup != null && mapsScreenGroup.alpha > 0.9f)
         {
-            // for now, map screen navver is a placeholder.
+
             MapsScreenNavver.gameObject.SetActive(true);
         }
 
         if (sentPaneGroup != null && sentPaneGroup.alpha < 0.9f)
         {
-            // for now, map screen navver is a placeholder.
+
             NotesScreenNavver.gameObject.SetActive(false);
         }
 
         if (inboxPaneGroup != null && inboxPaneGroup.alpha < 0.9f)
         {
-            // for now, map screen navver is a placeholder.
+
             NotesScreenNavver.gameObject.SetActive(false);
         }
 
@@ -399,10 +370,8 @@ public class Phone : MonoBehaviour
         MapsScreenNavver.gameObject.SetActive(false);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        //if (!GameMaster.Instance.OnboardingManager.PHONECOLLECTED) return;
 
         if (clockText == null)
             return;
@@ -437,15 +406,8 @@ public class Phone : MonoBehaviour
 
         GameMaster.Instance.EventManager.PhoneOpened();
 
-        if (
-            !GameMaster.Instance.INMENU
-            && !GameMaster.Instance.HASITEM
-            && !GameMaster.Instance.ISWRITING
-        )
+        if (!GameMaster.Instance.INMENU && !GameMaster.Instance.HASITEM && !GameMaster.Instance.ISWRITING)
         {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-
             GameMaster.Instance.PHONEOUT = true;
             GameMaster.Instance.INMENU = true;
             GameMaster.Instance.FROZEN = true;
@@ -455,52 +417,37 @@ public class Phone : MonoBehaviour
                 GameMaster.Instance.OnboardingManager.OpenedPhone();
             }
 
-            MobilePhone.transform.localPosition = new Vector3(
-                MobilePhone.transform.localPosition.x,
-                MobilePhone.transform.localPosition.y + 1,
-                MobilePhone.transform.localPosition.z
-            );
+            MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 1, MobilePhone.transform.localPosition.z);
 
-            if (phoneCanvasGroup != null)
-                phoneCanvasGroup.alpha = 1.0f;
+            if (phoneCanvasGroup != null) phoneCanvasGroup.alpha = 1.0f;
 
             CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
 
-            if (phoneCollider != null)
-                phoneCollider.enabled = true;
+            if (phoneCollider != null) phoneCollider.enabled = true;
         }
     }
 
     public void PutAwayPhone()
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
+        
         changeScreen(HomeScreen);
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
 
         GameMaster.Instance.PHONEOUT = false;
         GameMaster.Instance.INMENU = false;
         GameMaster.Instance.FROZEN = false;
 
-        if (phoneCollider != null)
-            phoneCollider.enabled = false;
-        MobilePhone.transform.localPosition = new Vector3(
-            MobilePhone.transform.localPosition.x,
-            MobilePhone.transform.localPosition.y - 1,
-            MobilePhone.transform.localPosition.z
-        );
+        if (phoneCollider != null) phoneCollider.enabled = false;
+        
+        MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y - 1, MobilePhone.transform.localPosition.z);
 
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;
 
-        if (phoneCanvasGroup != null)
-            phoneCanvasGroup.alpha = 0.0f;
+        if (phoneCanvasGroup != null) phoneCanvasGroup.alpha = 0.0f;
 
-        if (phoneZoom != null)
-            phoneZoom.DefaultFOV();
+        if (phoneZoom != null) phoneZoom.DefaultFOV();
 
         if (!TorchLight.enabled)
         {
@@ -513,11 +460,12 @@ public class Phone : MonoBehaviour
             StopCoroutine(CallCoroutine);
             CallCoroutine = null;
         }
+        
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
-    public void SelectPhoneGridItem(
-        PhonerGriddle SelectedGridSquare,
-        DialogueName selectedDialogue = DialogueName.None
+    public void SelectPhoneGridItem(PhonerGriddle SelectedGridSquare, DialogueName selectedDialogue = DialogueName.None
     )
     {
         if (!GameMaster.Instance.PHONEOUT)
@@ -534,7 +482,7 @@ public class Phone : MonoBehaviour
 
         if (selectedDialogue != DialogueName.None)
         {
-            // We have an extra parameter to deal with, a message, let's find it and route it.
+
             retrievedDialogue = GameMaster.Instance.DialogueManager.Dialogues.FirstOrDefault(
                 d => d.DialogueName == selectedDialogue
             );
@@ -550,27 +498,14 @@ public class Phone : MonoBehaviour
 
         switch (SelectedGridSquare)
         {
-            // Main Menu
-            case PhonerGriddle.Telephone:
-                ContactsButton();
-                break;
-            case PhonerGriddle.Camera:
-                CameraButton();
-                break;
-            case PhonerGriddle.Map:
-                MapsButton();
-                break;
-            case PhonerGriddle.Messages:
-                MessagesButton();
-                break;
-            case PhonerGriddle.Notes:
-                MessagesButton(101);
-                break;
-            case PhonerGriddle.Gallery:
-                GalleryButton();
-                break;
 
-            // Sub Menus
+            case PhonerGriddle.Telephone: ContactsButton(); break;
+            case PhonerGriddle.Camera: CameraButton(); break;
+            case PhonerGriddle.Map: MapsButton(); break;
+            case PhonerGriddle.Messages: MessagesButton(); break;
+            case PhonerGriddle.Notes: MessagesButton(101); break;
+            case PhonerGriddle.Gallery: GalleryButton(); break;
+
             case PhonerGriddle.ViewInboxMessage:
 
                 {
@@ -617,76 +552,31 @@ public class Phone : MonoBehaviour
                 }
                 break;
 
-            // Dialler
-            case PhonerGriddle.Num0:
-                a0Button();
-                break;
-            case PhonerGriddle.Num1:
-                a1Button();
-                break;
-            case PhonerGriddle.Num2:
-                a2Button();
-                break;
-            case PhonerGriddle.Num3:
-                a3Button();
-                break;
-            case PhonerGriddle.Num4:
-                a4Button();
-                break;
-            case PhonerGriddle.Num5:
-                a5Button();
-                break;
-            case PhonerGriddle.Num6:
-                a6Button();
-                break;
-            case PhonerGriddle.Num7:
-                a7Button();
-                break;
-            case PhonerGriddle.Num8:
-                a8Button();
-                break;
-            case PhonerGriddle.Num9:
-                a9Button();
-                break;
-            case PhonerGriddle.NumStar:
-                asButton();
-                break;
-            case PhonerGriddle.NumHash:
-                ahButton();
-                break;
-            case PhonerGriddle.NumBack:
-                backspaceButton();
-                break;
-            case PhonerGriddle.NumCall:
-                CallNumber();
-                break;
+            case PhonerGriddle.Num0: a0Button(); break;
+            case PhonerGriddle.Num1: a1Button(); break;
+            case PhonerGriddle.Num2: a2Button(); break;
+            case PhonerGriddle.Num3: a3Button(); break;
+            case PhonerGriddle.Num4: a4Button(); break;
+            case PhonerGriddle.Num5: a5Button(); break;
+            case PhonerGriddle.Num6: a6Button(); break;
+            case PhonerGriddle.Num7: a7Button(); break;
+            case PhonerGriddle.Num8: a8Button(); break;
+            case PhonerGriddle.Num9: a9Button(); break;
+            case PhonerGriddle.NumStar: asButton(); break;
+            case PhonerGriddle.NumHash: ahButton(); break;
+            case PhonerGriddle.NumBack: backspaceButton(); break;
+            case PhonerGriddle.NumCall: CallNumber(); break;
 
-            // Contacts
-            case PhonerGriddle.Dialpad:
-                DiallerButton();
-                break;
-            case PhonerGriddle.Kieron:
-                CallContact(PhonerGriddle.Kieron);
-                break;
-            case PhonerGriddle.Darragh:
-                CallContact(PhonerGriddle.Darragh);
-                break;
-            case PhonerGriddle.Mary:
-                CallContact(PhonerGriddle.Mary);
-                break;
-            case PhonerGriddle.Tom:
-                CallContact(PhonerGriddle.Tom);
-                break;
-            case PhonerGriddle.Work:
-                CallContact(PhonerGriddle.Work);
-                break;
-            case PhonerGriddle.Unknown:
-                CallContact(PhonerGriddle.Unknown);
-                break;
+            case PhonerGriddle.Dialpad: DiallerButton(); break;
+            case PhonerGriddle.Kieron: CallContact(PhonerGriddle.Kieron); break;
+            case PhonerGriddle.Darragh: CallContact(PhonerGriddle.Darragh); break;
+            case PhonerGriddle.Mary: CallContact(PhonerGriddle.Mary); break;
+            case PhonerGriddle.Tom: CallContact(PhonerGriddle.Tom); break;
+            case PhonerGriddle.Work: CallContact(PhonerGriddle.Work); break;
+            case PhonerGriddle.Unknown: CallContact(PhonerGriddle.Unknown); break;
         }
     }
 
-    // Contacts menu incorporating CallScreen, Dialler.
     public void ContactsButton()
     {
         changeScreen(ContactsScreen);
@@ -694,7 +584,6 @@ public class Phone : MonoBehaviour
         Debug.Log("contacts button");
     }
 
-    // Contacts menu incorporating CallScreen, Dialler.
     public void MapsButton()
     {
         changeScreen(MapsScreen);
@@ -783,7 +672,6 @@ public class Phone : MonoBehaviour
         Messagelist.transform.parent.parent.GetComponent<CanvasGroup>().alpha = 1f;
         Messagelist.transform.parent.parent.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
-        // Reactivate the appropriate navver based on which pane is visible
         if (InboxPane.GetComponent<CanvasGroup>().alpha > 0.9f)
         {
             MessagesScreenNavver.gameObject.SetActive(true);
@@ -813,7 +701,6 @@ public class Phone : MonoBehaviour
 
         GameMaster.Instance.DialogueManager.DialogueSeen.Reverse();
 
-        //var itty = 0;
         foreach (DialogueName entry in GameMaster.Instance.DialogueManager.DialogueSeen)
         {
             Dialogue selectedDialogue =
@@ -839,7 +726,6 @@ public class Phone : MonoBehaviour
                 OSDButton messageNavverButton = messageBlock.GetComponent<OSDButton>();
                 messageNavverButton.selectedDialogue = entry;
 
-                // add navver things.
                 MessagesScreenNavver.GridButtons.Add(messageNavverButton);
 
                 messageBlock.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text =
@@ -855,7 +741,6 @@ public class Phone : MonoBehaviour
                 messageBlock.transform.Find("bitofMSG").GetComponent<TextMeshProUGUI>().text =
                     messageBit;
 
-                //messageBlock.GetComponent<Button>().onClick.AddListener(delegate { BigMessage(selectedDialogue.Contact.ToString(), selectedDialogue.DialogueText); });
             }
         }
         MessagesScreenNavver.gameObject.SetActive(true);
@@ -876,7 +761,6 @@ public class Phone : MonoBehaviour
 
         GameMaster.Instance.DialogueManager.DialogueSeen.Reverse();
 
-        //var itty = 0;
         foreach (DialogueName entry in GameMaster.Instance.DialogueManager.DialogueSeen)
         {
             Dialogue selectedDialogue =
@@ -902,7 +786,6 @@ public class Phone : MonoBehaviour
                 OSDButton notesNavverButton = messageBlock.GetComponent<OSDButton>();
                 notesNavverButton.selectedDialogue = entry;
 
-                // add navver things.
                 NotesScreenNavver.GridButtons.Add(notesNavverButton);
 
                 messageBlock.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text =
@@ -918,7 +801,6 @@ public class Phone : MonoBehaviour
                 messageBlock.transform.Find("bitofMSG").GetComponent<TextMeshProUGUI>().text =
                     messageBit;
 
-                //messageBlock.GetComponent<Button>().onClick.AddListener(delegate { BigMessage(selectedDialogue.Contact.ToString(), selectedDialogue.DialogueText, PhoneMessageType.SentItems); });
             }
         }
 
@@ -926,7 +808,6 @@ public class Phone : MonoBehaviour
         StartCoroutine(EnableMessagesInteractNextFrame());
     }
 
-    // Contacts menu incorporating CallScreen, Dialler.
     public void CameraButton()
     {
         changeScreen(CameraScreen);
@@ -942,39 +823,29 @@ public class Phone : MonoBehaviour
         CameraLeftFlash.enabled = true;
         CameraRightFlash.enabled = true;
 
-        GameMaster.Instance.FROZEN = false; // allow player move ToDo: inform player can move
-
-        // todo: input action references
-        // string camerakey = InputManager.GetKeyName("camera");
+        GameMaster.Instance.FROZEN = false;
 
         if (GameMaster.Instance.EvidenceManager.EvidenceFound.Count < 1)
         {
             GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstPhoto, 5);
         }
 
-        if (cameraReadyTextGroup != null)
-            cameraReadyTextGroup.alpha = 0;
-        if (cameraSavedTextGroup != null)
-            cameraSavedTextGroup.alpha = 0;
-        if (cameraReadyTextBgGroup != null)
-            cameraReadyTextBgGroup.alpha = 0;
-        if (cameraSavedTextBgGroup != null)
-            cameraSavedTextBgGroup.alpha = 0;
-        if (phoneCameraComponent != null)
-            phoneCameraComponent.enabled = true;
+        if (cameraReadyTextGroup != null) cameraReadyTextGroup.alpha = 0;
+        if (cameraSavedTextGroup != null) cameraSavedTextGroup.alpha = 0;
+        if (cameraReadyTextBgGroup != null) cameraReadyTextBgGroup.alpha = 0;
+        if (cameraSavedTextBgGroup != null) cameraSavedTextBgGroup.alpha = 0;
+        if (phoneCameraComponent != null) phoneCameraComponent.enabled = true;
+        
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        
         CameraOpen = true;
     }
-
-    // GALLERY
-
 
     public void GalleryButton()
     {
         changeScreen(GalleryScreen);
 
-        // --- Reset gallery state ---
         viewingPhoto = false;
         SetBigPhotoVisible(false);
 
@@ -985,7 +856,7 @@ public class Phone : MonoBehaviour
 
         if (galleryLoaded)
         {
-            // Show gallery list panes
+
             foreach (CanvasGroup pane in panes)
             {
                 if (pane.CompareTag("GALLERYPANE"))
@@ -1007,7 +878,7 @@ public class Phone : MonoBehaviour
         }
         else
         {
-            // Show empty gallery pane
+
             foreach (CanvasGroup pane in panes)
             {
                 if (pane.CompareTag("EMPTYPANE"))
@@ -1023,14 +894,12 @@ public class Phone : MonoBehaviour
             }
         }
 
-        // IMPORTANT: delay input binding so the same Interact press
-        // that opened the gallery does NOT open the big photo
         StartCoroutine(EnableGalleryInteractNextFrame());
     }
 
     private IEnumerator EnableMessagesInteractNextFrame()
     {
-        // Only block the same-frame input that opened Messages.
+
         yield return null;
         BigMessageCanOpen = true;
     }
@@ -1136,7 +1005,6 @@ public class Phone : MonoBehaviour
         galleryNext.interactable = page < galleryItems.Count - 1;
     }
 
-    // Dialler.
     public void DiallerButton()
     {
         Debug.Log("dialler button");
@@ -1158,109 +1026,77 @@ public class Phone : MonoBehaviour
 
     public void a1Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
         DialBar.text += "1";
     }
 
     public void a2Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
         DialBar.text += "2";
     }
 
     public void a3Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
         DialBar.text += "3";
     }
 
-    public void a4Button(
-        InputAction.CallbackContext callbackContext = new InputAction.CallbackContext()
-    )
+    public void a4Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
         DialBar.text += "4";
     }
 
-    public void a5Button(
-        InputAction.CallbackContext callbackContext = new InputAction.CallbackContext()
-    )
+    public void a5Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
         DialBar.text += "5";
     }
 
-    public void a6Button(
-        InputAction.CallbackContext callbackContext = new InputAction.CallbackContext()
-    )
+    public void a6Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
         DialBar.text += "6";
     }
 
-    public void a7Button(
-        InputAction.CallbackContext callbackContext = new InputAction.CallbackContext()
-    )
+    public void a7Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
         DialBar.text += "7";
     }
 
-    public void a8Button(
-        InputAction.CallbackContext callbackContext = new InputAction.CallbackContext()
-    )
+    public void a8Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
         DialBar.text += "8";
     }
 
-    public void a9Button(
-        InputAction.CallbackContext callbackContext = new InputAction.CallbackContext()
-    )
+    public void a9Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
         DialBar.text += "9";
     }
 
-    public void a0Button(
-        InputAction.CallbackContext callbackContext = new InputAction.CallbackContext()
-    )
+    public void a0Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
         DialBar.text += "0";
     }
 
-    public void asButton(
-        InputAction.CallbackContext callbackContext = new InputAction.CallbackContext()
-    )
+    public void asButton(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
         DialBar.text += "*";
     }
 
-    public void ahButton(
-        InputAction.CallbackContext callbackContext = new InputAction.CallbackContext()
-    )
+    public void ahButton(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return;
         DialBar.text += "#";
     }
 
-    public void backspaceButton(
-        InputAction.CallbackContext callbackContext = new InputAction.CallbackContext()
-    )
+    public void backspaceButton(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
         if (DialBar.text.Length > 0)
         {
@@ -1318,8 +1154,6 @@ public class Phone : MonoBehaviour
         int dotCount = 0;
         float tick = 0.5f;
 
-        // ringing noise
-
         while (elapsedTime < allowedTime)
         {
             CallScreenCallingText.text = baseText + "\n" + new string('.', dotCount);
@@ -1331,10 +1165,9 @@ public class Phone : MonoBehaviour
         }
 
         CallScreenCallingText.text = "No Answer";
-        // boop boop boop noise
+
         yield return new WaitForSeconds(1.5f);
 
-        // boot back to contacts
         changeScreen(ContactsScreen);
         callingContact = false;
     }
@@ -1364,15 +1197,21 @@ public class Phone : MonoBehaviour
         InteractAction.action.performed -= GalleryViewPhoto;
     }
 
-    public void ConsolePhoneButtonAction(InputAction.CallbackContext callbackContext)
+    public void ConsolePhoneButtonAction(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
         if (GameMaster.Instance.PHONEOUT)
         {
+            
             Debug.Log(homeScreenGroup != null ? homeScreenGroup.alpha : 0f);
             if (homeScreenGroup != null && homeScreenGroup.alpha < 0.9f)
+            {
                 changeScreen(HomeScreen);
+            }
             else
+            {
                 PutAwayPhone();
+            }
+            
         }
         else
         {
@@ -1397,21 +1236,11 @@ public class Phone : MonoBehaviour
                         if (!other.gameObject.GetComponent<Evidence>().EvidenceCollected)
                         {
                             CameraReadyFrame.color = Color.green;
-                            if (cameraReadyTextGroup != null)
-                                cameraReadyTextGroup.alpha = 1;
-                            if (cameraReadyTextBgGroup != null)
-                                cameraReadyTextBgGroup.alpha = 1;
+                            if (cameraReadyTextGroup != null) cameraReadyTextGroup.alpha = 1;
+                            if (cameraReadyTextBgGroup != null) cameraReadyTextBgGroup.alpha = 1;
 
-                            // todo: input action references, dialogue
-
-                            CameraReadyText.text =
-                                GameMaster.Instance.DialogueManager.RetrieveOSDText(
-                                    OSDTextName.TakePhoto
-                                );
-                            CameraReadyTextBG.text =
-                                GameMaster.Instance.DialogueManager.RetrieveOSDText(
-                                    OSDTextName.TakePhoto
-                                );
+                            CameraReadyText.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.TakePhoto);
+                            CameraReadyTextBG.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.TakePhoto);
                             CameraReady = true;
                             ObservedEvidence = other.gameObject;
                         }
@@ -1426,10 +1255,8 @@ public class Phone : MonoBehaviour
         if (CameraOpen)
         {
             CameraReadyFrame.color = Color.black;
-            if (cameraReadyTextGroup != null)
-                cameraReadyTextGroup.alpha = 0;
-            if (cameraReadyTextBgGroup != null)
-                cameraReadyTextBgGroup.alpha = 0;
+            if (cameraReadyTextGroup != null) cameraReadyTextGroup.alpha = 0;
+            if (cameraReadyTextBgGroup != null) cameraReadyTextBgGroup.alpha = 0;
             CameraReady = false;
             ObservedEvidence = null;
         }
@@ -1437,70 +1264,15 @@ public class Phone : MonoBehaviour
 
     public void TakePhoto(InputAction.CallbackContext ctx)
     {
-        if (!CameraReady || ObservedEvidence == null)
-            return;
+        if (!CameraReady || ObservedEvidence == null) return;
 
         var ev = ObservedEvidence.GetComponent<Evidence>();
-        if (ev == null)
-            return;
+        if (ev == null) return;
 
-        // --- Render camera to texture ---
         var cam = phoneCameraComponent;
-        if (cam == null)
-            return;
-        RenderTexture active = RenderTexture.active;
-        RenderTexture.active = cam.targetTexture;
+        if (cam == null) return;
+        GameMaster.Instance.EvidenceManager.RecordEvidence(cam, ev);
 
-        cam.Render();
-
-        Texture2D image = new Texture2D(
-            cam.targetTexture.width,
-            cam.targetTexture.height,
-            TextureFormat.RGB24,
-            false
-        );
-        image.ReadPixels(new Rect(0, 0, cam.targetTexture.width, cam.targetTexture.height), 0, 0);
-        image.Apply();
-
-        RenderTexture.active = active;
-
-        byte[] bytes = image.EncodeToPNG();
-        Destroy(image);
-
-        string dcimDir = Path.Combine(Application.persistentDataPath, "Phone/0/DCIM");
-        string evidenceDir = Path.Combine(Application.persistentDataPath, "Phone/0/Evidence");
-
-        if (!Directory.Exists(dcimDir))
-            Directory.CreateDirectory(dcimDir);
-        if (!Directory.Exists(evidenceDir))
-            Directory.CreateDirectory(evidenceDir);
-
-        string photoFileName = ev.EvidenceName + ".png";
-        string photoPath = Path.Combine(dcimDir, photoFileName);
-
-        // save photo
-        File.WriteAllBytes(photoPath, bytes);
-
-        string evidencedate = System.DateTime.Now.ToString("dd/MM/yyyy, HH:mm");
-
-        string quackFileName = ev.EvidenceName + ".quack";
-        string quackPath = Path.Combine(evidenceDir, quackFileName);
-
-        string slug = "";
-        slug += ev.EvidenceName + "\n";
-        slug += photoFileName + "\n";
-        slug += evidencedate + "\n";
-        slug += ev.EvidenceFake + "\n";
-        slug += ev.EvidenceQuality + "\n";
-        slug += ev.EvidenceDetails + "\n";
-
-        File.WriteAllText(quackPath, slug);
-
-        GameMaster.Instance.EvidenceManager.EvidenceFound.TryAdd(ev.EvidenceName, quackPath);
-
-        ev.CollectEvidence();
-
-        // UI feedback
         CameraReadyFrame.color = Color.black;
         if (cameraReadyTextGroup != null)
             cameraReadyTextGroup.alpha = 0;
@@ -1527,12 +1299,10 @@ public class Phone : MonoBehaviour
         foreach (FileInfo file in files)
         {
             string[] lines = File.ReadAllLines(file.FullName);
-            if (lines.Length < 6)
-                continue;
+            if (lines.Length < 6) continue;
 
             string photoPath = Path.Combine(dcimPath, lines[1].Trim());
-            if (!File.Exists(photoPath))
-                continue;
+            if (!File.Exists(photoPath)) continue;
 
             galleryItems.Add(
                 new GalleryItem
@@ -1552,29 +1322,23 @@ public class Phone : MonoBehaviour
 
     IEnumerator SavedPhoto()
     {
-        CameraSavedText.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(
-            OSDTextName.SavedPhoto
-        );
-        CameraSavedTextBG.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(
-            OSDTextName.SavedPhoto
-        );
-        if (cameraSavedTextGroup != null)
-            cameraSavedTextGroup.alpha = 1;
-        if (cameraSavedTextBgGroup != null)
-            cameraSavedTextBgGroup.alpha = 1;
+        CameraSavedText.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.SavedPhoto);
+        CameraSavedTextBG.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.SavedPhoto);
+
+        if (cameraSavedTextGroup != null) cameraSavedTextGroup.alpha = 1;
+        if (cameraSavedTextBgGroup != null)cameraSavedTextBgGroup.alpha = 1;
+
         yield return new WaitForSeconds(0.5f);
         LoadGallery();
         yield return new WaitForSeconds(3f);
-        if (cameraSavedTextGroup != null)
-            cameraSavedTextGroup.alpha = 0;
-        if (cameraSavedTextBgGroup != null)
-            cameraSavedTextBgGroup.alpha = 0;
+        if (cameraSavedTextGroup != null) cameraSavedTextGroup.alpha = 0;
+        if (cameraSavedTextBgGroup != null) cameraSavedTextBgGroup.alpha = 0;
     }
 }
 
 public enum PhonerGriddle
 {
-    // MAIN MENU
+
     Telephone = 1000,
     Messages = 1001,
     Email = 1002,
@@ -1588,11 +1352,9 @@ public enum PhonerGriddle
     Help = 1010,
     Calendar = 1011,
 
-    // SUB Menu Stuff
     ViewInboxMessage = 1100,
     ViewSentMessage = 1101,
 
-    // DIAL PAD
     Num0 = 0,
     Num1 = 1,
     Num2 = 2,
@@ -1608,7 +1370,6 @@ public enum PhonerGriddle
     NumCall = 12,
     NumBack = 13,
 
-    // CONTACTS
     Dialpad = 2100,
     Kieron = 2000,
     Darragh = 2001,

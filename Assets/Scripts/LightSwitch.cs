@@ -6,9 +6,10 @@ public class LightSwitch : MonoBehaviour
     public List<WorldLight> LightList = new List<WorldLight>();
     [SerializeField] private Material[] switchMats;
     public bool rotateOnClick;
-
     private Renderer rend;
-
+    private bool _isOnVisual;
+    
+    
     private void Start()
     {
         rend = GetComponent<Renderer>();
@@ -54,9 +55,14 @@ public class LightSwitch : MonoBehaviour
         if (rotateOnClick) RotateSwitch();
     }
     
-    	public void RotateSwitch()
-        {
-		    transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, -transform.localScale.z);
+    public void RotateSwitch()
+    {
+        Vector3 e = transform.localEulerAngles;
 
-	    }
+        // Add 180 to current X (same as subtracting 180, modulo 360)
+        e.x = (e.x + 180f) % 360f;
+
+        transform.localEulerAngles = e;
+    }
+
 }

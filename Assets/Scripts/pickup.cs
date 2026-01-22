@@ -73,7 +73,7 @@ public class Pickup : MonoBehaviour
 
         if (!GameMaster.Instance.HASITEM && clickable.Instance != null && clickable.Instance.IsHoveringPickup())
         {
-            PickupItem(clickable.Instance.GetCurrentHit().transform);
+            PickupItem(clickable.Instance.GetCurrentTarget());
         }
         else if (GameMaster.Instance.HASITEM)
         {

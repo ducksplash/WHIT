@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,8 +16,6 @@ public class EvidenceManager : MonoBehaviour
     
     private Coroutine DataLoadedCoroutine;
     
-    
-
     // Evidence Quotient
     public int EQThisLevel;
     public int ExpectedEQThisLevel;
@@ -117,11 +116,64 @@ public class EvidenceManager : MonoBehaviour
         ApplyCollectedEvidence();
     }
     
-    public static string EvidencePrefsKey(EvidenceName name)
-    {
-        return $"Evidence/{name}";
-    }
 
+    public void RecordEvidence(Camera cam, Evidence ev)
+    {
+        if (cam == null || ev == null)
+            return;
+
+        RenderTexture active = RenderTexture.active;
+        RenderTexture.active = cam.targetTexture;
+
+        cam.Render();
+
+        Texture2D image = new Texture2D(
+            cam.targetTexture.width,
+            cam.targetTexture.height,
+            TextureFormat.RGB24,
+            false
+        );
+        image.ReadPixels(new Rect(0, 0, cam.targetTexture.width, cam.targetTexture.height), 0, 0);
+        image.Apply();
+
+        RenderTexture.active = active;
+
+        byte[] bytes = image.EncodeToPNG();
+        Destroy(image);
+
+        string dcimDir = Path.Combine(Application.persistentDataPath, "Phone/0/DCIM");
+        string evidenceDir = Path.Combine(Application.persistentDataPath, "Phone/0/Evidence");
+
+        if (!Directory.Exists(dcimDir))
+            Directory.CreateDirectory(dcimDir);
+        if (!Directory.Exists(evidenceDir))
+            Directory.CreateDirectory(evidenceDir);
+
+        string photoFileName = ev.EvidenceName + ".png";
+        string photoPath = Path.Combine(dcimDir, photoFileName);
+
+        File.WriteAllBytes(photoPath, bytes);
+
+        string evidencedate = DateTime.Now.ToString("dd/MM/yyyy, HH:mm");
+
+        string quackFileName = ev.EvidenceName + ".quack";
+        string quackPath = Path.Combine(evidenceDir, quackFileName);
+
+        string slug = "";
+        slug += ev.EvidenceName + "\n";
+        slug += photoFileName + "\n";
+        slug += evidencedate + "\n";
+        slug += ev.EvidenceFake + "\n";
+        slug += ev.EvidenceQuality + "\n";
+        slug += ev.EvidenceDetails + "\n";
+
+        File.WriteAllText(quackPath, slug);
+
+        if (!EvidenceFound.ContainsKey(ev.EvidenceName))
+            EvidenceFound.Add(ev.EvidenceName, quackPath);
+
+        ev.CollectEvidence();
+    }
 }
 
 public enum EvidenceName

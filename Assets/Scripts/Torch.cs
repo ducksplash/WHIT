@@ -85,6 +85,7 @@ public class Torch : MonoBehaviour
     {
         if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED) return;
         if (GameMaster.Instance.INMENU || GameMaster.Instance.FROZEN || GameMaster.Instance.HASITEM || isSwinging) return;
+        
         isSwinging = true;
 
         if (torchAnimator != null)

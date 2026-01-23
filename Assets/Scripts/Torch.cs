@@ -21,10 +21,6 @@ public class Torch : MonoBehaviour
     public InputActionReference toggleAction;
     public bool isSwinging;
 
-    void Awake()
-    {
-        EventManager.OnTorchCollected += OnTorchCollected;
-    }
 
     void Start()
     {
@@ -35,6 +31,8 @@ public class Torch : MonoBehaviour
 
     void OnEnable()
     {
+        EventManager.OnTorchCollected += OnTorchCollected;
+
         if (swingAction != null)
         {
             swingAction.action.Enable();
@@ -50,6 +48,8 @@ public class Torch : MonoBehaviour
 
     void OnDisable()
     {
+        EventManager.OnTorchCollected -= OnTorchCollected;
+
         if (swingAction != null)
             swingAction.action.performed -= OnSwing;
 
@@ -57,10 +57,11 @@ public class Torch : MonoBehaviour
             toggleAction.action.performed -= OnToggle;
     }
 
+
     public void OnTorchCollected()
     {
         Debug.Log("Torch collected, activating torch");
-        theTorch.SetActive(true);
+        theTorch?.SetActive(true);
         torchAnimator = theTorch.GetComponentInChildren<Animator>();
         lightBeam = theTorch.GetComponentInChildren<Light>();
         torchimg.GetComponent<CanvasGroup>().alpha = 1f;

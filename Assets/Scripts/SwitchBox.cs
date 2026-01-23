@@ -82,146 +82,146 @@ public class SwitchBox : MonoBehaviour
 	}
 
 
-
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(1))
-		{  
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);  
-			RaycastHit hit;  
-			if (Physics.Raycast(ray, out hit)) 
-			{  
-				if (hit.distance <= 3f)
-				{
-				
-					if (hit.transform.name.Equals(thisDoorName))
-					{  
-					
-						var theDoorCollider = hit.transform.GetComponent<BoxCollider>();
-							
-						if (!isOpen)
-						{
-							doorAnimator.SetTrigger("opened");
-							StartCoroutine(weeWait(1,theDoorCollider));
-							isOpen = true;
-						}
-						else
-						{
-							doorAnimator.SetTrigger("closed");
-							StartCoroutine(weeWait(1,theDoorCollider));
-							isOpen = false;
-							doorAnimator.SetTrigger("idle");
-						}
-					}
-				
-				
-					if (isOpen)
-					{
-						if (hit.transform.name.Equals(thisSwitchName))
-						{
-
-							if (!switchIsOn)
-							{
-								switchAnimator.SetTrigger("switchon");
-								switchIsOn = true;
-
-								GameMaster.Instance.POWER_SUPPLY_ENABLED = true;
-								
-
-								GameMaster.Instance.INCINERATOR_ENABLED = true;
-
-
-								foreach (GameObject thisIndicator in thisIndicatorSet)
-								{
-									var ledRenderer = thisIndicator.GetComponent<Renderer>();
-
-									var nuCol = new Color(0, 1, 0, 1);
-
-									ledRenderer.material.SetColor("_Color", nuCol);
-									ledRenderer.material.SetColor("_EmissiveColor", nuCol * 5);
-
-								}
-							}
-							else
-							{
-								switchAnimator.SetTrigger("switchoff");
-								switchIsOn = false;
-								switchAnimator.SetTrigger("switchidle");
-
-								GameMaster.Instance.POWER_SUPPLY_ENABLED = false;
-
-								foreach (GameObject thisIndicator in thisIndicatorSet)
-								{
-									var ledRenderer = thisIndicator.GetComponent<Renderer>();
-
-									ledRenderer.material.SetColor("_Color", Color.black);
-									ledRenderer.material.SetColor("_EmissiveColor", Color.black);
-								}
-
-
-								GameMaster.Instance.INCINERATOR_ENABLED = false;
-
-
-								foreach (Light aLight in allTheLights)
-								{
-
-									if (aLight.tag != "TORCH" && aLight.tag != "STREETLAMP" && aLight.tag != "HOUSELIGHTS")
-									{
-
-										aLight.enabled = false;
-
-									}
-								}
-							}
-						}
-
-
-
-
-
-
-						if (hit.transform.name.Equals(thatSwitchName))
-						{
-
-							if (!incineratorIsOn)
-							{
-
-								if (GameMaster.Instance.POWER_SUPPLY_ENABLED)
-								{
-
-									thatSwitchAnimator.SetTrigger("switchoff");
-									incineratorIsOn = true;
-									thatSwitchAnimator.SetTrigger("switchidle");
-
-									GameMaster.Instance.INCINERATOR_ENABLED = true;
-
-									var nuCol = new Color(0, 1, 0, 1);
-
-
-									thatIndicator.GetComponent<Renderer>().material.SetColor("_Color", nuCol);
-									thatIndicator.GetComponent<Renderer>().material.SetColor("_EmissiveColor", nuCol * 5);
-
-								}
-							}
-							else
-							{
-
-
-
-								thatSwitchAnimator.SetTrigger("switchon");
-								incineratorIsOn = false;
-								thatSwitchAnimator.SetTrigger("switchidle");
-
-								GameMaster.Instance.INCINERATOR_ENABLED = false;
-
-								thatIndicator.GetComponent<Renderer>().material.SetColor("_Color", Color.black);
-								thatIndicator.GetComponent<Renderer>().material.SetColor("_EmissiveColor", Color.black * 0); 
-								
-							}
-						}
-					}
-				}  				
-			}  
-		} 
-    }
+  //
+  //   void Update()
+  //   {
+  //       if (Input.GetMouseButtonDown(1))
+		// {  
+		// 	Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);  
+		// 	RaycastHit hit;  
+		// 	if (Physics.Raycast(ray, out hit)) 
+		// 	{  
+		// 		if (hit.distance <= 3f)
+		// 		{
+		// 		
+		// 			if (hit.transform.name.Equals(thisDoorName))
+		// 			{  
+		// 			
+		// 				var theDoorCollider = hit.transform.GetComponent<BoxCollider>();
+		// 					
+		// 				if (!isOpen)
+		// 				{
+		// 					doorAnimator.SetTrigger("opened");
+		// 					StartCoroutine(weeWait(1,theDoorCollider));
+		// 					isOpen = true;
+		// 				}
+		// 				else
+		// 				{
+		// 					doorAnimator.SetTrigger("closed");
+		// 					StartCoroutine(weeWait(1,theDoorCollider));
+		// 					isOpen = false;
+		// 					doorAnimator.SetTrigger("idle");
+		// 				}
+		// 			}
+		// 		
+		// 		
+		// 			if (isOpen)
+		// 			{
+		// 				if (hit.transform.name.Equals(thisSwitchName))
+		// 				{
+  //
+		// 					if (!switchIsOn)
+		// 					{
+		// 						switchAnimator.SetTrigger("switchon");
+		// 						switchIsOn = true;
+  //
+		// 						GameMaster.Instance.POWER_SUPPLY_ENABLED = true;
+		// 						
+  //
+		// 						GameMaster.Instance.INCINERATOR_ENABLED = true;
+  //
+  //
+		// 						foreach (GameObject thisIndicator in thisIndicatorSet)
+		// 						{
+		// 							var ledRenderer = thisIndicator.GetComponent<Renderer>();
+  //
+		// 							var nuCol = new Color(0, 1, 0, 1);
+  //
+		// 							ledRenderer.material.SetColor("_Color", nuCol);
+		// 							ledRenderer.material.SetColor("_EmissiveColor", nuCol * 5);
+  //
+		// 						}
+		// 					}
+		// 					else
+		// 					{
+		// 						switchAnimator.SetTrigger("switchoff");
+		// 						switchIsOn = false;
+		// 						switchAnimator.SetTrigger("switchidle");
+  //
+		// 						GameMaster.Instance.POWER_SUPPLY_ENABLED = false;
+  //
+		// 						foreach (GameObject thisIndicator in thisIndicatorSet)
+		// 						{
+		// 							var ledRenderer = thisIndicator.GetComponent<Renderer>();
+  //
+		// 							ledRenderer.material.SetColor("_Color", Color.black);
+		// 							ledRenderer.material.SetColor("_EmissiveColor", Color.black);
+		// 						}
+  //
+  //
+		// 						GameMaster.Instance.INCINERATOR_ENABLED = false;
+  //
+  //
+		// 						foreach (Light aLight in allTheLights)
+		// 						{
+  //
+		// 							if (aLight.tag != "TORCH" && aLight.tag != "STREETLAMP" && aLight.tag != "HOUSELIGHTS")
+		// 							{
+  //
+		// 								aLight.enabled = false;
+  //
+		// 							}
+		// 						}
+		// 					}
+		// 				}
+  //
+  //
+  //
+  //
+  //
+  //
+		// 				if (hit.transform.name.Equals(thatSwitchName))
+		// 				{
+  //
+		// 					if (!incineratorIsOn)
+		// 					{
+  //
+		// 						if (GameMaster.Instance.POWER_SUPPLY_ENABLED)
+		// 						{
+  //
+		// 							thatSwitchAnimator.SetTrigger("switchoff");
+		// 							incineratorIsOn = true;
+		// 							thatSwitchAnimator.SetTrigger("switchidle");
+  //
+		// 							GameMaster.Instance.INCINERATOR_ENABLED = true;
+  //
+		// 							var nuCol = new Color(0, 1, 0, 1);
+  //
+  //
+		// 							thatIndicator.GetComponent<Renderer>().material.SetColor("_Color", nuCol);
+		// 							thatIndicator.GetComponent<Renderer>().material.SetColor("_EmissiveColor", nuCol * 5);
+  //
+		// 						}
+		// 					}
+		// 					else
+		// 					{
+  //
+  //
+  //
+		// 						thatSwitchAnimator.SetTrigger("switchon");
+		// 						incineratorIsOn = false;
+		// 						thatSwitchAnimator.SetTrigger("switchidle");
+  //
+		// 						GameMaster.Instance.INCINERATOR_ENABLED = false;
+  //
+		// 						thatIndicator.GetComponent<Renderer>().material.SetColor("_Color", Color.black);
+		// 						thatIndicator.GetComponent<Renderer>().material.SetColor("_EmissiveColor", Color.black * 0); 
+		// 						
+		// 					}
+		// 				}
+		// 			}
+		// 		}  				
+		// 	}  
+		// } 
+  //   }
 }

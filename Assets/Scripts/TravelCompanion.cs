@@ -1,11 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
-using Image = UnityEngine.UI.Image;
 
 public class TravelCompanion : MonoBehaviour
 {
@@ -49,6 +52,8 @@ public class TravelCompanion : MonoBehaviour
 
 	private void InitialiseLocations()
 	{
+
+		if (scrollViewContent == null) return;
 		
 		foreach (Transform child in scrollViewContent.transform)
 		{
@@ -101,31 +106,16 @@ public class TravelCompanion : MonoBehaviour
 		}
 	}
 
-	private void OnDestroy()
+	private void OnDisable()
 	{
-		// Unsubscribe from the sceneLoaded event
 		SceneManager.sceneLoaded -= OnSceneLoaded;
 	}
 
-	void Update()
-	{
-			// this first
-		if (CompanionOpen)
-		{
-			if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.P))
-			{
-				LaunchCompanion();
-			}
-		}
-	}
 
 	public void LaunchCompanion()
 	{
 		if (launchAvailable)
 		{
-
-			
-			
 			if (!GameMaster.Instance.OnboardingManager.TESTEVIDENCECOLLECTED)
 			{
 				GameMaster.Instance.OnboardingManager.EvidenceNotCollected();
@@ -137,7 +127,6 @@ public class TravelCompanion : MonoBehaviour
 				GameMaster.Instance.OnboardingManager.NotReadyYet();
 				return;
 			}
-			
 			
 			
 			if (!CompanionOpen)
@@ -154,6 +143,8 @@ public class TravelCompanion : MonoBehaviour
 				evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.0f;
 				crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
 
+				Cursor.lockState = CursorLockMode.None;
+				Cursor.visible = true;
 			}
 			else
 			{
@@ -169,14 +160,13 @@ public class TravelCompanion : MonoBehaviour
 				CompanionOpen = false;
 				evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.9f;
 				crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
+			
+				Cursor.lockState = CursorLockMode.Locked;
+				Cursor.visible = false;
 
 			}
 			
 			StartCoroutine(LaunchCooldown());
-			
-			
-			
-			
 		}
 	}
 	
@@ -221,10 +211,6 @@ public class TravelCompanion : MonoBehaviour
 
 	IEnumerator ChangeSceneAsync(GAMELEVEL levelName)
 	{
-
-		
-		//LaunchCompanion();
-		//CompanionOpen = false;
 		
 		loadingpanel.alpha = 1;
 
@@ -293,15 +279,9 @@ public class TravelCompanion : MonoBehaviour
 
 	private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 	{
-		// Reset companion state when a new scene is loaded
-		if (CompanionOpen)
-		{
-			LaunchCompanion(); // Launch companion if
-		}
-		
-		
 		GameMaster.Instance.INMENU = false;
 		GameMaster.Instance.FROZEN = false;
+		if (CompanionOpen) LaunchCompanion();
 	}
 
 	public string MonthDay(string day)

@@ -5,6 +5,7 @@ using UnityEngine;
 public class UInstance : Singleton<UInstance>
 {
     public CanvasGroup cutsceneBarsCanvas;
+    public CanvasGroup HudCanvas;
 
 
     public void Start()
@@ -26,6 +27,7 @@ public class UInstance : Singleton<UInstance>
         {
             t += Time.smoothDeltaTime /  (panTime / 2);
             cutsceneBarsCanvas.alpha = Mathf.Lerp(0f, 1f, t);
+            HudCanvas.alpha = Mathf.Lerp(1f, 0f, t);
             yield return new WaitForEndOfFrame();
             
         }
@@ -40,6 +42,7 @@ public class UInstance : Singleton<UInstance>
         {
             t += Time.smoothDeltaTime;
             cutsceneBarsCanvas.alpha = Mathf.Lerp(1f, 0f, t);
+            HudCanvas.alpha = Mathf.Lerp(0f, 1f, t);
             yield return new WaitForEndOfFrame();
             
         }

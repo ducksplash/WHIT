@@ -20,6 +20,6 @@ public class NotepadButton : MonoBehaviour
     {
         if (!GameMaster.Instance.TravelCompanion.CompanionOpen) return;
         Debug.Log("disabled to work on phone; was triggering while in phone.");
-        //GameMaster.Instance.TravelCompanion.ChangeScene(targetScene);
+        GameMaster.Instance.TravelCompanion.ChangeScene(targetScene);
     }
 }

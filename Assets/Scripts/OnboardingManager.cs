@@ -93,28 +93,26 @@ public class OnboardingManager : MonoBehaviour
     
     private void RunOnboardingChecks()
     {
-        if (StoredPrefs.Instance == null || GameMaster.Instance == null)
-            return;
+        if (StoredPrefs.Instance == null || GameMaster.Instance == null) return;
 
         // read saved flags
-        ONBOARDINGCOMPLETE      = StoredPrefs.Instance.GetInt("ONBOARDINGCOMPLETE", 0) != 0;
-        TORCHCOLLECTED          = StoredPrefs.Instance.GetInt("TORCHCOLLECTED", 0) != 0;
-        NOTEPADCOLLECTED        = StoredPrefs.Instance.GetInt("NOTEPADCOLLECTED", 0) != 0;
-        PHONECOLLECTED          = StoredPrefs.Instance.GetInt("PHONECOLLECTED", 0) != 0;
-        TESTEVIDENCECOLLECTED   = StoredPrefs.Instance.GetInt("TESTEVIDENCECOLLECTED", 0) != 0;
-        PHONEACCESSED           = StoredPrefs.Instance.GetInt("PHONEACCESSED", 0) != 0;
+        ONBOARDINGCOMPLETE = StoredPrefs.Instance.GetInt("ONBOARDINGCOMPLETE", 0) != 0;
+        TORCHCOLLECTED = StoredPrefs.Instance.GetInt("TORCHCOLLECTED", 0) != 0;
+        NOTEPADCOLLECTED = StoredPrefs.Instance.GetInt("NOTEPADCOLLECTED", 0) != 0;
+        PHONECOLLECTED = StoredPrefs.Instance.GetInt("PHONECOLLECTED", 0) != 0;
+        TESTEVIDENCECOLLECTED = StoredPrefs.Instance.GetInt("TESTEVIDENCECOLLECTED", 0) != 0;
+        PHONEACCESSED = StoredPrefs.Instance.GetInt("PHONEACCESSED", 0) != 0;
 
-        if (GameMaster.Instance.THISLEVEL != GAMELEVEL.NorasFlat)
-            return;
+        if (GameMaster.Instance.THISLEVEL != GAMELEVEL.NorasFlat) return;
 
         // --- IMPORTANT: restore side-effects ONCE per scene load ---
         if (!_restoredThisScene)
         {
             _restoredThisScene = true;
 
-            if (PHONECOLLECTED)    RestorePhoneCollected();
-            if (TORCHCOLLECTED)    RestoreTorchCollected();
-            if (NOTEPADCOLLECTED)  RestoreNotepadCollected();
+            if (PHONECOLLECTED) RestorePhoneCollected();
+            if (TORCHCOLLECTED) RestoreTorchCollected();
+            if (NOTEPADCOLLECTED) RestoreNotepadCollected();
 
             // If you also need evidence tick restored:
             if (evidenceTick) evidenceTick.alpha = TESTEVIDENCECOLLECTED ? 1 : 0;

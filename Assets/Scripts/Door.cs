@@ -23,8 +23,7 @@ public class Door : MonoBehaviour
 
     private void Awake()
     {
-        if (doorAnimator == null)
-            doorAnimator = GetComponentInChildren<Animator>();
+        if (doorAnimator == null) doorAnimator = GetComponentInChildren<Animator>();
 
         UpdateIndicatorLights();
     }
@@ -71,9 +70,9 @@ public class Door : MonoBehaviour
 
     private void HandleStandardDoor(Collider hitCollider)
     {
-        if (isLocked)
-            return;
-
+        
+        
+        if (isLocked) return;
         ToggleDoor(hitCollider);
     }
 

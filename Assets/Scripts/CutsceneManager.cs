@@ -21,10 +21,7 @@ public class CutsceneManager : MonoBehaviour
     public float elapsedCutsceneTime;
     
     public bool CutsceneInProgress;
-    public GameObject ColliderCube;
-
     
-
     // now again for cutscenes
 
     public Dictionary<string, string> CutSceneSeen = new Dictionary<string, string>();

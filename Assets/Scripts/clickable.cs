@@ -46,21 +46,14 @@ public class clickable : Singleton<clickable>
         slidingdoorlayer = LayerMask.NameToLayer("slidingdoor");
 
         SetCursor(idlesprite, "");
-    }
-
-    void OnEnable()
-    {
+        
+        
         pointerPosition?.action.Enable();
         rightClick?.action.Enable();
         rightClick.action.performed += HandleClick;
     }
+    
 
-    void OnDisable()
-    {
-        pointerPosition?.action.Disable();
-        rightClick?.action.Disable();
-        rightClick.action.performed -= HandleClick;
-    }
 
     void FixedUpdate()
     {
@@ -242,6 +235,8 @@ public class clickable : Singleton<clickable>
 
         if (currentHit.transform.GetComponentInParent<Door>() is Door door)
         {
+            Debug.Log("door clicked");
+            
             door.TryUseDoor(currentHit.collider);
             return;
         }

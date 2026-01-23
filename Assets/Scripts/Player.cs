@@ -13,7 +13,7 @@ public class Player : Singleton<Player>
     private float speed;
     private Vector2 moveInput;
     private CharacterController thisCharController;
-    private Camera MainCam;
+    public Camera MainCam;
     public float RayCastDistance = 4;
 
     public bool crouching;
@@ -64,17 +64,13 @@ public class Player : Singleton<Player>
     private bool jumpRequested = false;
     private bool sprinting = false;
 
-    void Awake()
-    {
-        thisCharController = GetComponent<CharacterController>();
-        MainCam = Camera.main;
-        SpawnPoint = transform.position;
-        speed = walkspeed;
-    }
 
     void Start()
     {
 
+        thisCharController = GetComponent<CharacterController>();
+        SpawnPoint = transform.position;
+        speed = walkspeed;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         

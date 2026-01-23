@@ -20,7 +20,7 @@ public class electroshock : MonoBehaviour
 
     void Start()
     {
-        cameraTransform = Camera.main.transform;
+        cameraTransform = Player.Instance.MainCam.transform;
 
         orignalCameraPos = cameraTransform.localPosition;
 
@@ -33,73 +33,73 @@ public class electroshock : MonoBehaviour
         }
 
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-        if (canShake)
-        {
-            StartCameraShakeEffect();
-        }
-
-        if (!WaitingForPower)
-        {
-            if (GameMaster.Instance.POWER_SUPPLY_ENABLED)
-            {
-                shockParticles.SetActive(true);
-                WaitingForPower = true;
-            }
-        }
-
-
-    }
-
-    public void ShakeCamera()
-    {
-        canShake = true;
-        ShakinTime = ShakeDuration;
-    }
-
-    public void StartCameraShakeEffect()
-    {
-        GameMaster.Instance.FROZEN = true;
-
-
-        if (ShakinTime > 0)
-        {
-            cameraTransform.localPosition = orignalCameraPos + Random.insideUnitSphere * ShakeIntensity;
-            ShakinTime -= Time.deltaTime;
-        }
-        else
-        {
-            ShakinTime = 0f;
-            cameraTransform.localPosition = orignalCameraPos;
-            canShake = false;
-        }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-
-
-        if (other.name.Contains("Player"))
-        {
-            ShakeCamera();
-            StartCoroutine(DoDeath(other));
-        }
-    }
-
-
-
-    IEnumerator DoDeath(Collider theplayer)
-    {
-        yield return new WaitForSeconds(2f);
-
-        Player.Instance.CauseDeath("electrocution");
-
-
-    }
+    //
+    // // Update is called once per frame
+    // void Update()
+    // {
+    //
+    //     if (canShake)
+    //     {
+    //         StartCameraShakeEffect();
+    //     }
+    //
+    //     if (!WaitingForPower)
+    //     {
+    //         if (GameMaster.Instance.POWER_SUPPLY_ENABLED)
+    //         {
+    //             shockParticles.SetActive(true);
+    //             WaitingForPower = true;
+    //         }
+    //     }
+    //
+    //
+    // }
+    //
+    // public void ShakeCamera()
+    // {
+    //     canShake = true;
+    //     ShakinTime = ShakeDuration;
+    // }
+    //
+    // public void StartCameraShakeEffect()
+    // {
+    //     GameMaster.Instance.FROZEN = true;
+    //
+    //
+    //     if (ShakinTime > 0)
+    //     {
+    //         cameraTransform.localPosition = orignalCameraPos + Random.insideUnitSphere * ShakeIntensity;
+    //         ShakinTime -= Time.deltaTime;
+    //     }
+    //     else
+    //     {
+    //         ShakinTime = 0f;
+    //         cameraTransform.localPosition = orignalCameraPos;
+    //         canShake = false;
+    //     }
+    // }
+    //
+    // private void OnTriggerEnter(Collider other)
+    // {
+    //
+    //
+    //     if (other.name.Contains("Player"))
+    //     {
+    //         ShakeCamera();
+    //         StartCoroutine(DoDeath(other));
+    //     }
+    // }
+    //
+    //
+    //
+    // IEnumerator DoDeath(Collider theplayer)
+    // {
+    //     yield return new WaitForSeconds(2f);
+    //
+    //     Player.Instance.CauseDeath("electrocution");
+    //
+    //
+    // }
 
 
 }

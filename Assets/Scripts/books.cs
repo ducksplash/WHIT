@@ -29,25 +29,25 @@ public class books : MonoBehaviour
 	}
 
 
-	void Update()
-	{
-		if (!PlayerClicked)
-		{
-			if (Input.GetMouseButtonUp(1))
-			{
-				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-				RaycastHit hit;
-				if (Physics.Raycast(ray, out hit, Player.Instance.RayCastDistance))
-				{
-					if (hit.transform.name.Equals(thisBookName))
-					{
-						DoBook(hit);
-						PlayerClicked = true;
-					}
-				}
-			}
-		}
-	}
+	// void Update()
+	// {
+	// 	if (!PlayerClicked)
+	// 	{
+	// 		if (Input.GetMouseButtonUp(1))
+	// 		{
+	// 			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+	// 			RaycastHit hit;
+	// 			if (Physics.Raycast(ray, out hit, Player.Instance.RayCastDistance))
+	// 			{
+	// 				if (hit.transform.name.Equals(thisBookName))
+	// 				{
+	// 					DoBook(hit);
+	// 					PlayerClicked = true;
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
 	
 		public void DoBook(RaycastHit hit)
 		{

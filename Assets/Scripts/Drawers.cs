@@ -14,7 +14,8 @@ public class Drawers : MonoBehaviour
     public void Interact()
     {
         if (isLocked) return;
-
+        if (GameMaster.Instance.CutsceneManager.CutsceneInProgress) return;
+        
         if (!isOpen)
         {
             drawerAnimator.SetTrigger("opened");

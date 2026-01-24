@@ -50,7 +50,7 @@ public class Player : Singleton<Player>
     public InputActionReference moveAction;
     public InputActionReference jumpAction;
     public InputActionReference crouchAction;
-    public InputActionReference sprintAction;
+    public InputActionReference walkAction;
     public InputActionReference climbUpAction;
     public InputActionReference climbDownAction;
     public InputActionReference exitLadderAction;
@@ -62,7 +62,7 @@ public class Player : Singleton<Player>
     
     private Vector3 moveDirection = Vector3.zero;
     private bool jumpRequested = false;
-    private bool sprinting = false;
+    private bool walking = false;
 
 
     void Start()
@@ -70,7 +70,7 @@ public class Player : Singleton<Player>
 
         thisCharController = GetComponent<CharacterController>();
         SpawnPoint = transform.position;
-        speed = walkspeed;
+        speed = sprintspeed;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         
@@ -81,15 +81,15 @@ public class Player : Singleton<Player>
         moveAction?.action.Enable();
         jumpAction?.action.Enable();
         crouchAction?.action.Enable();
-        sprintAction?.action.Enable();
+        walkAction?.action.Enable();
         climbUpAction?.action.Enable();
         climbDownAction?.action.Enable();
         exitLadderAction?.action.Enable();
 
         jumpAction.action.performed += OnJump;
         crouchAction.action.performed += OnCrouchToggle;
-        sprintAction.action.performed += ctx => sprinting = true;
-        sprintAction.action.canceled += ctx => sprinting = false;
+        walkAction.action.performed += ctx => walking = true;
+        walkAction.action.canceled += ctx => walking = false;
     }
 
     void OnDisable()
@@ -117,7 +117,7 @@ public class Player : Singleton<Player>
 
         Vector3 desiredMove = forward * moveInput.y + right * moveInput.x;
 
-        speed = crouching ? walkspeed : (sprinting ? sprintspeed : walkspeed);
+        speed = crouching ? walkspeed : (walking ? walkspeed : sprintspeed);
 
         // ----- CLIMBING -----
         if (climbing)

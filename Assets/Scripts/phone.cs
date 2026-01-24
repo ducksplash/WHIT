@@ -355,6 +355,16 @@ public class Phone : MonoBehaviour
             CallCoroutine = null;
         }
 
+        if (useThisScreen != CameraScreen)
+        {
+            CameraOpen = false;
+            CameraReady = false;
+            CameraSavedText.text = "";
+            CameraSavedTextBG.text = "";                            
+            CameraReadyText.text = "";
+            CameraReadyTextBG.text = "";
+        }
+
         currentScreen = useThisScreen;
         Debug.Log("currentScreen " + currentScreen);
     }
@@ -1239,6 +1249,9 @@ public class Phone : MonoBehaviour
                             if (cameraReadyTextGroup != null) cameraReadyTextGroup.alpha = 1;
                             if (cameraReadyTextBgGroup != null) cameraReadyTextBgGroup.alpha = 1;
 
+                            CameraSavedText.text = "";
+                            CameraSavedTextBG.text = "";
+        
                             CameraReadyText.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.TakePhoto);
                             CameraReadyTextBG.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.TakePhoto);
                             CameraReady = true;
@@ -1322,6 +1335,9 @@ public class Phone : MonoBehaviour
 
     IEnumerator SavedPhoto()
     {
+        CameraReadyText.text = "";
+        CameraReadyTextBG.text = "";
+        
         CameraSavedText.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.SavedPhoto);
         CameraSavedTextBG.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.SavedPhoto);
 

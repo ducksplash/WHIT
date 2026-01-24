@@ -45,7 +45,7 @@ public class OnboardingManager : MonoBehaviour
     public DialogueName readyMessage = DialogueName.NoraReadyToGo;
 
     [Header("First Evidence")]
-    public EvidenceName FirstOnboardingEvidence = EvidenceName.WineBottle;
+    public EvidenceName FirstOnboardingEvidence = EvidenceName.Wine;
 
     public Image MyFirstEvidence;
     public TextMeshProUGUI EvidenceDesc;

@@ -179,14 +179,14 @@ public class EvidenceManager : MonoBehaviour
 public enum EvidenceName
 {
     // Evidence Nora's House
-    WineBottle = 1000,
+    Wine = 1000,
 
     // Evidence Tawley Meats
-    BrokenPhone = 2001,
+    Phone = 2001,
     Skull = 2002,
     Blood = 2003,
-    ManagersEmails = 2004,
-    HighTechPanel = 2005
+    Emails = 2004,
+    Terminal = 2005
 
     // Evidence Roark (future)
 }

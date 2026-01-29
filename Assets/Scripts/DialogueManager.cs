@@ -106,6 +106,8 @@ public class DialogueManager : MonoBehaviour
 
     private void Update()
     {
+        if (!DialogInProgress) return;
+        
         if (messagetimer > 0)
         { 
             timebar.fillAmount -= 1.0f / messagetimer * Time.deltaTime;

@@ -10,6 +10,8 @@ public class GetHeldObjectCollisions : MonoBehaviour
     
     private void Update()
     {
+        
+        
         if (!colliding)
         {
             collisionTimer = 0f;

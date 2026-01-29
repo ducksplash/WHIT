@@ -44,20 +44,7 @@ public class EvidenceBar : MonoBehaviour
 
 
     }
-
-
-    private void Update()
-    {
-
- 
-          //  EQReadout();
-        
-
-
-    }
-
-
-
+    
 
     public static void EQReadout()
     {

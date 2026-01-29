@@ -76,7 +76,6 @@ public class clickable : Singleton<clickable>
             return;
         }
 
-        // Fix B: ignore self/player hits
         hits = System.Array.FindAll(hits, h =>
             h.collider != null &&
             !h.transform.IsChildOf(Player.Instance.transform)

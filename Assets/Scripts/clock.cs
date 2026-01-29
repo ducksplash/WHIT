@@ -12,7 +12,7 @@ public class clock : MonoBehaviour
 
     void LateUpdate()
     {
-
+        
 
 
         DateTime nowDateTime = DateTime.Now;

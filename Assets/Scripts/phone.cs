@@ -230,8 +230,7 @@ public class Phone : MonoBehaviour
         if (phoneCollider != null)
             phoneCollider.enabled = false;
 
-        if (phoneCameraComponent != null)
-            phoneCameraComponent.enabled = false;
+        if (phoneCameraComponent != null) phoneCameraComponent.enabled = false;
         MiniMapCam.SetActive(false);
 
         LoadGallery();
@@ -365,6 +364,11 @@ public class Phone : MonoBehaviour
             CameraReadyTextBG.text = "";
         }
 
+        if (useThisScreen != MapsScreen)
+        {
+            MiniMapCam.SetActive(false);
+        }
+
         currentScreen = useThisScreen;
         Debug.Log("currentScreen " + currentScreen);
     }
@@ -382,9 +386,9 @@ public class Phone : MonoBehaviour
 
     void Update()
     {
-
-        if (clockText == null)
-            return;
+        if (!GameMaster.Instance.PHONEOUT) return; 
+        
+        if (clockText == null) return;
 
         DateTime nowDateTime = DateTime.Now;
         if (nowDateTime.Minute != lastClockMinute || nowDateTime.Hour != lastClockHour)

@@ -22,6 +22,7 @@ public class FirstPersonLook : MonoBehaviour
     private void Start()
     {
         sensitivity = GameMaster.Instance.MouseSensitivity;
+        EventManager.OnStartComputer += LookAtPC;
         lookAction.action.Enable();
     }
     
@@ -43,8 +44,7 @@ public class FirstPersonLook : MonoBehaviour
         Vector2 rawMouse = lookAction.action.ReadValue<Vector2>();
 
         // Apply smoothing + sensitivity
-        Vector2 smoothMouseDelta =
-            Vector2.Scale(rawMouse, Vector2.one * sensitivity * smoothing);
+        Vector2 smoothMouseDelta = Vector2.Scale(rawMouse, Vector2.one * sensitivity * smoothing);
 
         appliedMouseDelta = Vector2.Lerp(appliedMouseDelta, smoothMouseDelta, 1f / smoothing);
 
@@ -55,5 +55,10 @@ public class FirstPersonLook : MonoBehaviour
     public void SetPlayerRotation(Vector2 rotation)
     {
         currentMouseLook = rotation;
+    }
+
+    public void LookAtPC(Transform ComputerTransform)
+    {
+        transform.LookAt(ComputerTransform);
     }
 }

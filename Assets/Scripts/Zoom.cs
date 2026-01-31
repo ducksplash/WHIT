@@ -19,21 +19,22 @@ public class Zoom : MonoBehaviour
     public bool zoomAllowed = false;
 
     private Camera cam;
+    private Coroutine zoomRoutine;
 
     private void Awake()
     {
         cam = GetComponent<Camera>();
+        EventManager.OnStartComputer += AutoZoomIn;
+        EventManager.OnStopComputer += AutoZoomOut;
     }
 
-    void Start()
+    private void Start()
     {
         EventManager.OnPhoneOpened += SetDefaultFOV;
-        
-        SetDefaultFOV();
 
+        SetDefaultFOV();
         StartCoroutine(WaitForGameMaster());
 
-        // Enable actions and subscribe to events
         if (zoomInInput != null)
         {
             zoomInInput.action.Enable();
@@ -47,15 +48,8 @@ public class Zoom : MonoBehaviour
         }
     }
 
-    private void SetDefaultFOV()
+    private void OnDisable()
     {
-        zoomAmount = 0;
-        UpdateFOV();
-    }
-
-    void OnDisable()
-    {
-        // Unsubscribe and disable actions
         if (zoomInInput != null)
         {
             zoomInInput.action.performed -= OnZoomInPerformed;
@@ -67,6 +61,14 @@ public class Zoom : MonoBehaviour
             zoomOutInput.action.performed -= OnZoomOutPerformed;
             zoomOutInput.action.Disable();
         }
+    }
+
+    private void SetDefaultFOV()
+    {
+        if (zoomRoutine != null) StopCoroutine(zoomRoutine);
+
+        zoomAmount = 0f;
+        UpdateFOV();
     }
 
     private void OnZoomInPerformed(InputAction.CallbackContext context)
@@ -98,5 +100,41 @@ public class Zoom : MonoBehaviour
             yield return null;
 
         zoomAllowed = true;
+    }
+
+    public void AutoZoomIn(Transform pcTransform)
+    {
+        if (!zoomAllowed) return;
+
+        float targetFOV = defaultFOV * 0.53f;
+
+        if (zoomRoutine != null) StopCoroutine(zoomRoutine);
+        zoomRoutine = StartCoroutine(SmoothFOV(targetFOV, 0.15f));
+    }
+
+    public void AutoZoomOut()
+    {
+        if (!zoomAllowed) return;
+
+        if (zoomRoutine != null) StopCoroutine(zoomRoutine);
+        zoomRoutine = StartCoroutine(SmoothFOV(defaultFOV, 0.15f));
+    }
+
+    private IEnumerator SmoothFOV(float targetFOV, float duration)
+    {
+        float startFOV = cam.fieldOfView;
+        float t = 0f;
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            cam.fieldOfView = Mathf.Lerp(startFOV, targetFOV, t / duration);
+            yield return null;
+        }
+
+        cam.fieldOfView = targetFOV;
+
+        // Keep scroll zoom in sync
+        zoomAmount = Mathf.InverseLerp(defaultFOV, maxZoom, cam.fieldOfView);
     }
 }

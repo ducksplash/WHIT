@@ -8,6 +8,7 @@ public class clickable : Singleton<clickable>
     [Header("Cursor")]
     public Image selectcursor;
     public Sprite clickablesprite, clickablespritegreen, clickablespritered;
+    public Sprite terminalspritegreen, terminalspritered;
     public Sprite idlesprite, enemysprite, unknownsprite;
     public Sprite doorsprite, doorspritegreen;
     public Sprite drawersprite, drawerspritegreen, lockeddrawersprite;
@@ -24,6 +25,7 @@ public class clickable : Singleton<clickable>
 
     int doorlayer, drawerlayer, clickablelayer, enemylayer;
     int pickuplayer, evidencelayer, staticevidencelayer, slidingdoorlayer;
+    int terminallayer;
 
     private RaycastHit currentHit;
     private bool hasHit;
@@ -44,6 +46,7 @@ public class clickable : Singleton<clickable>
         evidencelayer = LayerMask.NameToLayer("evidence");
         staticevidencelayer = LayerMask.NameToLayer("staticevidence");
         slidingdoorlayer = LayerMask.NameToLayer("slidingdoor");
+        terminallayer = LayerMask.NameToLayer("terminal");
 
         SetCursor(idlesprite, "");
         
@@ -137,7 +140,7 @@ public class clickable : Singleton<clickable>
 
             bool isInteractableLayer =
                 layer == pickuplayer || layer == drawerlayer || layer == doorlayer || layer == slidingdoorlayer ||
-                layer == clickablelayer || layer == enemylayer || layer == evidencelayer || layer == staticevidencelayer;
+                layer == clickablelayer || layer == enemylayer || layer == evidencelayer || layer == staticevidencelayer || layer == terminallayer;
 
             if (isInteractableLayer)
                 return p;
@@ -218,6 +221,13 @@ public class clickable : Singleton<clickable>
             return;
         }
 
+
+        if (layer == terminallayer)
+        {
+            SetCursor(terminalspritegreen, "", "green");
+            return;
+        }
+
         SetCursor(idlesprite, "");
     }
 
@@ -243,6 +253,13 @@ public class clickable : Singleton<clickable>
         if (currentHit.transform.GetComponentInParent<LightSwitch>() is LightSwitch sw)
         {
             sw.ToggleLightswitch();
+        }
+        
+        
+        if (currentHit.transform.GetComponentInParent<ComputerSystem>() is ComputerSystem pc)
+        {
+            pc.OnStartComputer();
+            Debug.Log("this is pooter");
         }
     }
 

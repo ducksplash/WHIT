@@ -12,9 +12,6 @@ public class clock : MonoBehaviour
 
     void LateUpdate()
     {
-        
-
-
         DateTime nowDateTime = DateTime.Now;
         string anHour = nowDateTime.Hour.ToString().PadLeft(2, '0');
         string aMinute = nowDateTime.Minute.ToString().PadLeft(2, '0');

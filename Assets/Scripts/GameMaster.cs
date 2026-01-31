@@ -47,6 +47,7 @@ public class GameMaster : MonoBehaviour
     public bool INMENU;
     public bool HASITEM;
     public bool PHONEOUT;
+    public bool ONPC;
     public bool  ISWRITING;
     public bool ONBOARDINGCOMPLETED;
     

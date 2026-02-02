@@ -18,7 +18,7 @@ public class OSDNavver : MonoBehaviour
     public List<OSDButton> GridButtons = new List<OSDButton>();
 
     [Header("Navigation Layout")]
-    public NavigationLayout Layout = NavigationLayout.Grid;
+    public PhoneNavigationLayout Layout = PhoneNavigationLayout.Grid;
 
     [Header("Grid Size")]
     public int columns = 3;
@@ -94,13 +94,13 @@ public class OSDNavver : MonoBehaviour
         int newIndex = currentIndex;
         switch (Layout)
         {
-            case NavigationLayout.Grid:
+            case PhoneNavigationLayout.Grid:
                 newIndex = currentIndex - columns;
                 break;
-            case NavigationLayout.TopToBottom:
+            case PhoneNavigationLayout.TopToBottom:
                 newIndex = currentIndex - 1;
                 break;
-            case NavigationLayout.BottomToTop:
+            case PhoneNavigationLayout.BottomToTop:
                 newIndex = currentIndex + 1;
                 break;
         }
@@ -116,13 +116,13 @@ public class OSDNavver : MonoBehaviour
         int newIndex = currentIndex;
         switch (Layout)
         {
-            case NavigationLayout.Grid:
+            case PhoneNavigationLayout.Grid:
                 newIndex = currentIndex + columns;
                 break;
-            case NavigationLayout.TopToBottom:
+            case PhoneNavigationLayout.TopToBottom:
                 newIndex = currentIndex + 1;
                 break;
-            case NavigationLayout.BottomToTop:
+            case PhoneNavigationLayout.BottomToTop:
                 newIndex = currentIndex - 1;
                 break;
         }
@@ -138,11 +138,11 @@ public class OSDNavver : MonoBehaviour
         int newIndex = currentIndex;
         switch (Layout)
         {
-            case NavigationLayout.Grid:
+            case PhoneNavigationLayout.Grid:
                 if ((currentIndex % columns) != 0)
                     newIndex = currentIndex - 1;
                 break;
-            case NavigationLayout.LeftToRight:
+            case PhoneNavigationLayout.LeftToRight:
                 if (currentIndex - 1 >= 0)
                     newIndex = currentIndex - 1;
                 break;
@@ -159,11 +159,11 @@ public class OSDNavver : MonoBehaviour
         int newIndex = currentIndex;
         switch (Layout)
         {
-            case NavigationLayout.Grid:
+            case PhoneNavigationLayout.Grid:
                 if ((currentIndex % columns) != columns - 1 && currentIndex + 1 < GridButtons.Count)
                     newIndex = currentIndex + 1;
                 break;
-            case NavigationLayout.LeftToRight:
+            case PhoneNavigationLayout.LeftToRight:
                 if (currentIndex + 1 < GridButtons.Count)
                     newIndex = currentIndex + 1;
                 break;
@@ -227,7 +227,7 @@ public class OSDNavver : MonoBehaviour
     }
 }
 
-public enum NavigationLayout
+public enum PhoneNavigationLayout
 {
     Grid,
     TopToBottom,

@@ -73,7 +73,7 @@ public class Zoom : MonoBehaviour
 
     private void OnZoomInPerformed(InputAction.CallbackContext context)
     {
-        if (!zoomAllowed || GameMaster.Instance.PHONEOUT || GameMaster.Instance.TravelCompanion.CompanionIsOpen)
+        if (!zoomAllowed || GameMaster.Instance.PHONEOUT || GameMaster.Instance.ONPC || GameMaster.Instance.TravelCompanion.CompanionIsOpen)
             return;
 
         zoomAmount = Mathf.Clamp01(zoomAmount + zoomStep);
@@ -82,7 +82,7 @@ public class Zoom : MonoBehaviour
 
     private void OnZoomOutPerformed(InputAction.CallbackContext context)
     {
-        if (!zoomAllowed || GameMaster.Instance.PHONEOUT || GameMaster.Instance.TravelCompanion.CompanionIsOpen)
+        if (!zoomAllowed || GameMaster.Instance.PHONEOUT || GameMaster.Instance.ONPC || GameMaster.Instance.TravelCompanion.CompanionIsOpen)
             return;
 
         zoomAmount = Mathf.Clamp01(zoomAmount - zoomStep);
@@ -106,7 +106,7 @@ public class Zoom : MonoBehaviour
     {
         if (!zoomAllowed) return;
 
-        float targetFOV = defaultFOV * 0.53f;
+        float targetFOV = defaultFOV * 0.40f;
 
         if (zoomRoutine != null) StopCoroutine(zoomRoutine);
         zoomRoutine = StartCoroutine(SmoothFOV(targetFOV, 0.15f));

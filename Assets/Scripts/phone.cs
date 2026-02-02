@@ -401,6 +401,8 @@ public class Phone : MonoBehaviour
 
     private void ActionTogglePhone(InputAction.CallbackContext callbackContext)
     {
+        if (GameMaster.Instance.ONPC) return;
+        
         currentpage = 0;
 
         if (!GameMaster.Instance.PHONEOUT)
@@ -415,6 +417,8 @@ public class Phone : MonoBehaviour
 
     private void TakeOutPhone()
     {
+        if (GameMaster.Instance.PHONEOUT) return;
+        
         changeScreen(HomeScreen);
         HomeScreenNavver.gameObject.SetActive(true);
 

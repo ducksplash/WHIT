@@ -28,6 +28,7 @@ public class GameMaster : MonoBehaviour
     public Pickup Pickup;
     public OnboardingManager OnboardingManager;
     public EventManager EventManager;
+    public TerminalEventManager TerminalEventManager;
     public EvidenceManager EvidenceManager;
     public LanguageManager LanguageManager;
     public DeviceType DeviceType;

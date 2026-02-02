@@ -20,6 +20,7 @@ public class DeviceType : MonoBehaviour
         {
             devText.text = "Windows";
             selectedDeviceType = PlayerDeviceType.DesktopPC;
+            SetResolution(1920,1080, FullScreenMode.FullScreenWindow);
         }
 
 
@@ -27,6 +28,7 @@ public class DeviceType : MonoBehaviour
         {
             devText.text = "SteamOS";
             selectedDeviceType = PlayerDeviceType.SteamOS;
+            SetResolution(1280,800, FullScreenMode.FullScreenWindow);
         }
         
         SetDeviceType();
@@ -50,6 +52,12 @@ public class DeviceType : MonoBehaviour
         }
     }
     
+    
+    public void SetResolution(int width, int height, FullScreenMode mode)
+    {
+        Screen.SetResolution(width, height, mode);
+    }
+
     
     
 }

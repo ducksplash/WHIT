@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class ComputerSystem : MonoBehaviour
 {
@@ -36,6 +38,7 @@ public class ComputerSystem : MonoBehaviour
     public List<TextMeshProUGUI> AudioText;
     
     public TextMeshProUGUI SystemText;
+    public CanvasGroup CrosshairCanvas;
 
     public bool IsLoggedIn;
     public TextMeshProUGUI PasswordSource;
@@ -43,48 +46,102 @@ public class ComputerSystem : MonoBehaviour
 
     public Transform ViewableArea;
 
+    public Collider PCCollider;
+    
+    public InputActionReference ClosePCInput;
+    public InputActionReference goBack;
+    
     void Start()
     {
         IncorrectPasswordText.gameObject.SetActive(false);
         EventManager.OnStopComputer += OnStopComputer;
+        ClosePCInput.action.performed += InputStopComputer;
+        goBack.action.performed += InputStopComputer;
+        TerminalEventManager.OnPCGridClick += SelectMenuItem;
     }
 
 
     public void OnStartComputer()
     {
+        if (GameMaster.Instance.PHONEOUT) return;
+        if (GameMaster.Instance.ONPC) return;
+        
         Debug.Log("StartPC");
+        PCCollider.enabled = false;
         NearestChair.gameObject.SetActive(false);
         GameMaster.Instance.INMENU = true;
         GameMaster.Instance.FROZEN = true;
         GameMaster.Instance.ONPC = true;
         GameMaster.Instance.EventManager.StartComputer(ViewableArea);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
     }
 
 
     public void OnStopComputer()
     {
+        if (GameMaster.Instance.PHONEOUT) return;
+        if (!GameMaster.Instance.ONPC) return;
+        
         Debug.Log("StopPC");
+        PCCollider.enabled = true;
         NearestChair.gameObject.SetActive(true);
         GameMaster.Instance.INMENU = false;
         GameMaster.Instance.FROZEN = false;
         GameMaster.Instance.ONPC = false;
+        IncorrectPasswordText.gameObject.SetActive(false);
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 1.0f;
     }
 
-
+    public void InputStopComputer(InputAction.CallbackContext callbackContext)
+    {
+        GameMaster.Instance.EventManager.StopComputer();
+    }
     
 
     public void LogOn()
     {
-        if (PasswordInput.text.Trim().Equals(PasswordSource.text.Trim()))
+        Debug.Log("log on");
+        Debug.Log(PasswordInput.text);
+        Debug.Log(PasswordSource.text);
+        if (PasswordInput.text.ToString().Trim().Equals(PasswordSource.text.ToString().Trim()))
         {
+            Debug.Log("in");
             ChangeScreen(ComputerScreen.Desktop);
+            TogglePCLock(false);
         }
         else
         {
+            Debug.Log("no");
+            TogglePCLock(true);
             IncorrectPasswordText.gameObject.SetActive(true);
         }
     }
 
+
+
+    public void SelectMenuItem(PCGriddle pcGriddle)
+    {
+        Debug.Log("GO TO "+pcGriddle);
+        
+        switch (pcGriddle)
+        {
+
+            case PCGriddle.None: 
+                // do nothing
+                break;
+            case PCGriddle.LogOn: LogOn(); break;
+
+        }
+        
+    }
+    
+    
+    
+    
 
 
     public void ChangeScreen(ComputerScreen ScreenToOpen)
@@ -115,6 +172,16 @@ public class ComputerSystem : MonoBehaviour
             ThisScreen.blocksRaycasts = false;
             
         }
+    }
+    public void TogglePCLock(bool isLocked)
+    {
+        LockScreen.alpha = isLocked ? 1 : 0;
+        LockScreen.interactable = isLocked;
+        LockScreen.blocksRaycasts = isLocked;
+        
+        DesktopScreen.alpha = isLocked ? 0 : 1;
+        DesktopScreen.interactable = !isLocked;
+        DesktopScreen.blocksRaycasts = !isLocked;
     }
     
 }
@@ -147,4 +214,24 @@ public enum FileFolder
     O = 2007,
     DCIM = 2008,
     Evidence = 2009
+}
+
+
+public enum PCGriddle
+{
+    None = 4000,
+    LogOn = 4001,
+    
+    
+
+    LockScreen = 10001,
+    Desktop = 10002,
+    Files = 10002,
+    Phone = 10003,
+    Emails = 10004,
+    Web = 10005,
+    Hacking = 10006,
+    Games = 10007,
+    Settings = 10008
+
 }

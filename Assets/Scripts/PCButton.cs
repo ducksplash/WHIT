@@ -10,35 +10,19 @@ public class PCButton : MonoBehaviour
     public Vector3 origScale;
     public float scaleUp = 1.1f;
     private bool onHovver;
-
+    public Color outlineColor;
     public DialogueName selectedDialogue;
     
     void Start()
     {
         origScale = transform.localScale;
+        outlineColor = AppOutline.GetComponent<Image>().color;
     }
 
-    public void OnHover()
-    {
-        if (onHovver) return;
-        onHovver = true;
-        if (scaleUpButton) transform.localScale = Vector3.one * scaleUp;
-    }
-    public void OffHover()
-    {
-        if (!onHovver) return;
-        onHovver = false;
-        if (scaleUpButton) transform.localScale = origScale;
-    }
-    
     public void ExecuteCommand()
     {
-        Debug.Log("ExecuteCommand("+ThisItem+")");
-
+        GameMaster.Instance.TerminalEventManager.OverrideClick();
+        AppOutline.SetActive(true);
         GameMaster.Instance.TerminalEventManager.PCGridClick(ThisItem);
-
-        //Player.Instance.PlayerPhone.SelectPhoneGridItem(ThisItem, selectedDialogue);
-
-
     }
 }

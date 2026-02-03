@@ -76,6 +76,10 @@ public class ComputerSystem : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
+
+
+        ChangeScreen(IsLoggedIn ? ComputerScreen.Desktop : ComputerScreen.LockScreen);
+        
     }
 
 
@@ -111,13 +115,14 @@ public class ComputerSystem : MonoBehaviour
         {
             Debug.Log("in");
             ChangeScreen(ComputerScreen.Desktop);
-            TogglePCLock(false);
+            IsLoggedIn = true;
         }
         else
         {
             Debug.Log("no");
-            TogglePCLock(true);
+            ChangeScreen(ComputerScreen.LockScreen);
             IncorrectPasswordText.gameObject.SetActive(true);
+            IsLoggedIn = false;
         }
     }
 
@@ -134,6 +139,36 @@ public class ComputerSystem : MonoBehaviour
                 // do nothing
                 break;
             case PCGriddle.LogOn: LogOn(); break;
+            
+            
+            
+            case PCGriddle.Files:
+
+                break;
+
+            case PCGriddle.Phone:
+
+                break;
+
+
+            case PCGriddle.Web:
+
+                break;
+
+
+            case PCGriddle.Hacking:
+
+                break;
+
+
+            case PCGriddle.Games:
+
+                break;
+            
+
+            case PCGriddle.Settings:
+
+                break;
 
         }
         
@@ -154,9 +189,14 @@ public class ComputerSystem : MonoBehaviour
             {            
                 CanvasGroup SelectedScreen = AllProgrammeScreens[i].GetComponent<CanvasGroup>();
 
-                SelectedScreen.alpha = 0;
-                SelectedScreen.interactable = false;
-                SelectedScreen.blocksRaycasts = false;
+                SelectedScreen.alpha = 1;
+                SelectedScreen.interactable = true;
+                SelectedScreen.blocksRaycasts = true;
+
+                PCScreen thisScreen = AllProgrammeScreens[i].GetComponent<PCScreen>();
+
+                thisScreen.PCNavver.enabled = true;
+
             }
         }
     }
@@ -171,17 +211,13 @@ public class ComputerSystem : MonoBehaviour
             ThisScreen.interactable = false;
             ThisScreen.blocksRaycasts = false;
             
+            PCScreen thisScreen = AllProgrammeScreens[i].GetComponent<PCScreen>();
+            
+            thisScreen.PCNavver.enabled = false;
+
+            Debug.Log("Closed: "+AllProgrammeScreens[i].gameObject.name);
+
         }
-    }
-    public void TogglePCLock(bool isLocked)
-    {
-        LockScreen.alpha = isLocked ? 1 : 0;
-        LockScreen.interactable = isLocked;
-        LockScreen.blocksRaycasts = isLocked;
-        
-        DesktopScreen.alpha = isLocked ? 0 : 1;
-        DesktopScreen.interactable = !isLocked;
-        DesktopScreen.blocksRaycasts = !isLocked;
     }
     
 }

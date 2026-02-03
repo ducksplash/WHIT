@@ -25,7 +25,6 @@ public class PCNavver : MonoBehaviour
     public int columns = 3;
     public int rows = 4;
 
-    public Color originalColor = new Color(0f, 0.78f, 1f, 1f);
     public Color hoverColor    = new Color(0f, 0.78f, 0f, 1f);
 
 
@@ -37,6 +36,8 @@ public class PCNavver : MonoBehaviour
 
     private void SubscribeEvents()
     {
+        TerminalEventManager.OnOverrideClick += DisableAllOutlines;
+        
         if (enablementCo != null)
         {
             StopCoroutine(EnableButtons());
@@ -172,6 +173,7 @@ public class PCNavver : MonoBehaviour
 
     private void OnSubmit(InputAction.CallbackContext ctx)
     {
+        
         if (!GameMaster.Instance.ONPC) return;
 
         if (TryFocusInputField(currentIndex))
@@ -217,12 +219,16 @@ public class PCNavver : MonoBehaviour
             if (GridButtons[i] == null) continue;
 
             GridButtons[i].AppOutline.SetActive(i == index);
+        }
+    }
 
-            var btn = GridButtons[i].GetComponentInChildren<Button>();
-            btn.image.color = i == index ? hoverColor : originalColor;
+    private void DisableAllOutlines()
+    {
+        for (int i = 0; i < GridButtons.Count; i++)
+        {
+            if (GridButtons[i] == null) continue;
 
-            if (i == index) GridButtons[i].OnHover();
-            else GridButtons[i].OffHover();
+            GridButtons[i].AppOutline.SetActive(false);
         }
     }
 
@@ -242,10 +248,10 @@ public class PCNavver : MonoBehaviour
         SubmitAction.action.performed += OnSubmit;
     }
 
-    public void ResetList()
-    {
-        GridButtons = new List<PCButton>();
-    }
+    // public void ResetList()
+    // {
+    //     GridButtons = new List<PCButton>();
+    // }
 }
 
 public enum PCNavigationLayout

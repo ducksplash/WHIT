@@ -11,13 +11,13 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cf1dab834d4ec34195b920ea7bbf9ec, type: 3}
   m_Name: HDRenderPipelineAsset
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.HDRenderPipelineAsset
   m_RenderPipelineSettings:
     supportShadowMask: 1
     supportSSR: 0
     supportSSRTransparent: 0
     supportSSAO: 1
-    supportSSGI: 1
+    supportSSGI: 0
     supportSubsurfaceScattering: 1
     subsurfaceScatteringAttenuation: 1
     sssSampleBudget:
@@ -30,7 +30,7 @@ MonoBehaviour:
         m_Id: With3Levels
     supportVolumetrics: 1
     supportVolumetricClouds: 0
-    supportLightLayers: 1
+    supportLightLayers: 0
     renderingLayerMaskBuffer: 0
     supportWater: 0
     waterSimulationResolution: 128
@@ -54,9 +54,9 @@ MonoBehaviour:
     supportCustomPass: 1
     supportVariableRateShading: 1
     customBufferFormat: 8
-    supportedLitShaderMode: 3
+    supportedLitShaderMode: 2
     planarReflectionResolution:
-      m_Values: 000100000004000000040000
+      m_Values: 000100000004000000080000
       m_SchemaId:
         m_Id: With3Levels
     cubeReflectionResolution:
@@ -66,17 +66,17 @@ MonoBehaviour:
     supportDecals: 1
     supportDecalLayers: 0
     supportSurfaceGradient: 1
-    decalNormalBufferHP: 1
+    decalNormalBufferHP: 0
     supportHighQualityLineRendering: 0
     highQualityLineRenderingMemoryBudget: 128
-    msaaSampleCount: 8
+    msaaSampleCount: 1
     supportMotionVectors: 1
     supportScreenSpaceLensFlare: 1
     supportDataDrivenLensFlare: 1
-    supportDitheringCrossFade: 1
+    supportDitheringCrossFade: 0
     supportRuntimeAOVAPI: 0
     supportTerrainHole: 0
-    lightProbeSystem: 0
+    lightProbeSystem: 1
     oldLightProbeSystem: 0
     probeVolumeMemoryBudget: 1024
     supportProbeVolumeGPUStreaming: 0
@@ -85,7 +85,7 @@ MonoBehaviour:
     supportProbeVolumeScenarios: 0
     supportProbeVolumeScenarioBlending: 1
     probeVolumeBlendingMemoryBudget: 128
-    supportRayTracing: 1
+    supportRayTracing: 0
     supportVFXRayTracing: 0
     supportedRayTracingMode: 3
     lightLoopSettings:
@@ -93,10 +93,10 @@ MonoBehaviour:
       cookieFormat: 74
       cookieAtlasLastValidMip: 0
       cookieTexArraySize: 1
-      planarReflectionAtlasSize: 1024
-      reflectionProbeCacheSize: 32
-      reflectionCubemapSize: 128
-      maxEnvLightsOnScreen: 64
+      planarReflectionAtlasSize: 0
+      reflectionProbeCacheSize: 0
+      reflectionCubemapSize: 0
+      maxEnvLightsOnScreen: 0
       reflectionCacheCompressed: 0
       reflectionProbeFormat: 74
       reflectionProbeTexCacheSize: 4096
@@ -109,29 +109,29 @@ MonoBehaviour:
         m_Bits: 0
       supportFabricConvolution: 0
       maxDirectionalLightsOnScreen: 16
-      maxPunctualLightsOnScreen: 1000
+      maxPunctualLightsOnScreen: 512
       maxAreaLightsOnScreen: 64
-      maxCubeReflectionOnScreen: 64
-      maxPlanarReflectionOnScreen: 16
+      maxCubeReflectionOnScreen: 32
+      maxPlanarReflectionOnScreen: 8
       maxDecalsOnScreen: 512
       maxLightsPerClusterCell: 8
-      maxLocalVolumetricFogSize: 32
-      maxLocalVolumetricFogOnScreen: 101
+      maxLocalVolumetricFogSize: 0
+      maxLocalVolumetricFogOnScreen: 256
     hdShadowInitParams:
-      maxShadowRequests: 2000
+      maxShadowRequests: 128
       directionalShadowsDepthBits: 32
-      punctualShadowFilteringQuality: 2
-      directionalShadowFilteringQuality: 2
-      areaShadowFilteringQuality: 1
+      punctualShadowFilteringQuality: 1
+      directionalShadowFilteringQuality: 1
+      areaShadowFilteringQuality: 0
       punctualLightShadowAtlas:
-        shadowAtlasResolution: 8192
+        shadowAtlasResolution: 4096
         shadowAtlasDepthBits: 32
         useDynamicViewportRescale: 1
       areaLightShadowAtlas:
         shadowAtlasResolution: 4096
         shadowAtlasDepthBits: 32
         useDynamicViewportRescale: 1
-      cachedPunctualLightShadowAtlas: 4096
+      cachedPunctualLightShadowAtlas: 2048
       cachedAreaLightShadowAtlas: 1024
       allowDirectionalMixedCachedShadows: 0
       shadowResolutionDirectional:
@@ -139,7 +139,7 @@ MonoBehaviour:
         m_SchemaId:
           m_Id: With4Levels
       shadowResolutionPunctual:
-        m_Values: 80000000000100000002000000040000
+        m_Values: 00010000000200000004000000080000
         m_SchemaId:
           m_Id: With4Levels
       shadowResolutionArea:
@@ -147,9 +147,9 @@ MonoBehaviour:
         m_SchemaId:
           m_Id: With4Levels
       maxDirectionalShadowMapResolution: 2048
-      maxPunctualShadowMapResolution: 4096
-      maxAreaShadowMapResolution: 8192
-      supportScreenSpaceShadows: 1
+      maxPunctualShadowMapResolution: 2048
+      maxAreaShadowMapResolution: 2048
+      supportScreenSpaceShadows: 0
       maxScreenSpaceShadowSlots: 4
       screenSpaceShadowBufferFormat: 48
     decalSettings:
@@ -160,7 +160,7 @@ MonoBehaviour:
         m_Values: 000100000002000000040000
         m_SchemaId:
           m_Id: With3Levels
-      perChannelMask: 1
+      perChannelMask: 0
     postProcessSettings:
       m_LutSize: 32
       lutFormat: 48
@@ -168,7 +168,7 @@ MonoBehaviour:
     dynamicResolutionSettings:
       enabled: 0
       useMipBias: 0
-      advancedUpscalersByPriority: 
+      advancedUpscalersByPriority: 02
       DLSSPerfQualitySetting: 0
       DLSSInjectionPoint: 0
       TAAUInjectionPoint: 0
@@ -202,7 +202,7 @@ MonoBehaviour:
       singlePass: 1
       occlusionMesh: 1
       cameraJitter: 0
-      allowMotionBlur: 1
+      allowMotionBlur: 0
     postProcessQualitySettings:
       NearBlurSampleCount: 030000000500000008000000
       NearBlurMaxRadius:
@@ -229,7 +229,7 @@ MonoBehaviour:
       ChromaticAberrationMaxSamples: 03000000060000000c000000
     lightSettings:
       useContactShadow:
-        m_Values: 010101
+        m_Values: 000001
         m_SchemaId:
           m_Id: With3Levels
     maximumLODLevel:
@@ -341,7 +341,7 @@ MonoBehaviour:
   availableMaterialQualityLevels: -1
   m_DefaultMaterialQualityLevel: 4
   diffusionProfileSettings: {fileID: 0}
-  m_VolumeProfile: {fileID: 11400000, guid: fc03b1ba577c32d41840212611a4480c, type: 2}
+  m_VolumeProfile: {fileID: 0}
   virtualTexturingSettings:
     streamingCpuCacheSizeInMegaBytes: 256
     streamingMipPreloadTexturesPerFrame: 0

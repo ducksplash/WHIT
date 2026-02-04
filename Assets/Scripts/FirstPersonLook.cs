@@ -9,8 +9,8 @@ public class FirstPersonLook : MonoBehaviour
     Vector2 currentMouseLook;
     Vector2 appliedMouseDelta;
 
-    public float sensitivity = 1f;
-    public float smoothing = 2f;
+    public float sensitivity = 0.01f;
+    public float smoothing = 5f;
 
 
     private void Awake()

@@ -46,7 +46,7 @@ public class EvidenceManager : MonoBehaviour
             if (NorasFlatEvidence.Contains(evidence.Key))
             {
                 
-                Debug.Log("autocollect evidence.Key "+evidence.Key);
+                //Debug.Log("autocollect evidence.Key "+evidence.Key);
                 GameMaster.Instance.EventManager.AutocollectEvidence(evidence.Key);
             }
         }
@@ -83,7 +83,7 @@ public class EvidenceManager : MonoBehaviour
                 if (!EvidenceFound.ContainsKey(evidenceName))
                 {
                     EvidenceFound.Add(evidenceName, filePath);
-                    Debug.Log($"[EvidenceManager] Loaded evidence from disk: {evidenceName}");
+                    //Debug.Log($"[EvidenceManager] Loaded evidence from disk: {evidenceName}");
                 }
             }
             else
@@ -107,7 +107,7 @@ public class EvidenceManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1);
 
-        Debug.Log($"[EvidenceManager] Init complete — Evidence count: {EvidenceFound.Count}");
+        //Debug.Log($"[EvidenceManager] Init complete — Evidence count: {EvidenceFound.Count}");
 
         // only in nora's flat
         GameMaster.Instance.EventManager.EvidenceLoaded();

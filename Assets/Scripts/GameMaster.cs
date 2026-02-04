@@ -1,11 +1,9 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.IO;
 using System.Threading.Tasks;
-using UnityEngine.UI;
-using TMPro;
+using Steamworks;
+
 
 
 public class GameMaster : MonoBehaviour
@@ -64,12 +62,30 @@ public class GameMaster : MonoBehaviour
     public Vector3 SPAWNPOINTROARKINSIDE;
     
     public static bool GarbageRun;
-
     
+    // steam init
+    private bool m_bInitialized;
+    public static bool Initialized => Instance.m_bInitialized;
+
     void Awake()
     {
         DontDestroyOnLoad(gameObject);
 
+        
+        m_bInitialized = SteamAPI.Init();
+        
+        if (!m_bInitialized) 
+        {
+            Debug.LogError("[Steamworks.NET] SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.", this);
+        }
+        else
+        {
+            CSteamID steamId = SteamUser.GetSteamID();
+            string username = SteamFriends.GetPersonaName();
+            Debug.Log("Steam User: "+username);
+        }
+        
+        
         Debug.Log($"This script is active in scene: {SceneManager.GetActiveScene().name}");
 
         SPAWNPOINTNORASFLAT = new Vector3(65, 2, 486);
@@ -94,8 +110,7 @@ public class GameMaster : MonoBehaviour
     {
         Application.targetFrameRate = 60;
     }
-
-
+    
     
 }
 

@@ -125,6 +125,7 @@ public class CutsceneManager : MonoBehaviour
         StartCoroutine(UInstance.Instance.FadeOutCutsceneBars());
 
         cameraZoom.enabled = true;
+        cameraZoom.AttachListeners();
         GameMaster.Instance.FROZEN = false;
     }
 
@@ -137,7 +138,7 @@ public class CutsceneManager : MonoBehaviour
         
     public void SaveWhatYouSee()
     {
-        Debug.Log("save what you see");
+        //Debug.Log("save what you see");
         
         StoredPrefs.Instance.SetCollection("CutSceneSeen", CutSceneSeen, CollectionType.dictionary);
         StoredPrefs.Instance.Save();
@@ -145,10 +146,10 @@ public class CutsceneManager : MonoBehaviour
     }
     public void LoadWhatYouSee()
     {
-        Debug.Log("LoadWhatYouSee");
+        //Debug.Log("LoadWhatYouSee");
         
         CutSceneSeen = StoredPrefs.Instance.GetCollection<Dictionary<string,string>>("CutSceneSeen");
         
-        Debug.Log("LoadedWhatYouSee");
+        //Debug.Log("LoadedWhatYouSee");
     }
 }

@@ -34,7 +34,17 @@ public class Zoom : MonoBehaviour
 
         SetDefaultFOV();
         StartCoroutine(WaitForGameMaster());
+        AttachListeners();
+    }
 
+    private void OnEnable()
+    {
+        AttachListeners();
+    }
+
+    public void AttachListeners()
+    {
+        
         if (zoomInInput != null)
         {
             zoomInInput.action.Enable();

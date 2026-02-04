@@ -45,7 +45,7 @@ public class EventManager : MonoBehaviour
     }
     public void PlayerDataLoaded()
     {
-        Debug.Log("PlayerDataLoaded");
+        //Debug.Log("PlayerDataLoaded");
         OnPlayerDataLoaded.Invoke();
     }
     public void PhoneOpened()

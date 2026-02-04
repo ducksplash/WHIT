@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
+  m_Name: fps volume
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.VolumeProfile
+  components:
+  - {fileID: 7580569523253527756}
+--- !u!114 &7580569523253527756
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97d35e829a540ea418afe63fdbdee77f, type: 3}
+  m_Name: DitherPostProcess
+  m_EditorClassIdentifier: Assembly-CSharp::DitherPostProcess
+  active: 1
+  shader: {fileID: 4800000, guid: c3a272ce444b462458cc508df6717e87, type: 3}
+  intensity:
+    m_OverrideState: 1
+    m_Value: 0.623
+  steps:
+    m_OverrideState: 1
+    m_Value: 10
+  pixelScale:
+    m_OverrideState: 1
+    m_Value: 2

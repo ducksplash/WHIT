@@ -50,6 +50,7 @@ public class ComputerSystem : MonoBehaviour
     
     public InputActionReference ClosePCInput;
     public InputActionReference goBack;
+    public InputActionReference rightClickExit;
     
     void Start()
     {
@@ -77,6 +78,7 @@ public class ComputerSystem : MonoBehaviour
         Cursor.visible = true;
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
 
+        rightClickExit.action.performed += InputStopComputer;
 
         ChangeScreen(IsLoggedIn ? ComputerScreen.Desktop : ComputerScreen.LockScreen);
         
@@ -87,6 +89,8 @@ public class ComputerSystem : MonoBehaviour
     {
         if (GameMaster.Instance.PHONEOUT) return;
         if (!GameMaster.Instance.ONPC) return;
+        
+        rightClickExit.action.performed -= InputStopComputer;
         
         Debug.Log("StopPC");
         PCCollider.enabled = true;

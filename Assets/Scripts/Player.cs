@@ -100,11 +100,11 @@ public class Player : Singleton<Player>
 
     void Update()
     {
-        if (!GameMaster.Instance.FROZEN)
-        {
-            HandleMovement();
-        }
+        if (GameMaster.Instance.PHONEOUT) jumpRequested = false;
+
+        if (!GameMaster.Instance.FROZEN) HandleMovement();
     }
+
 
     private void HandleMovement()
     {
@@ -134,25 +134,18 @@ public class Player : Singleton<Player>
             return;
         }
 
-        // ----- GROUNDED CHECK -----
         if (thisCharController.isGrounded)
         {
-            // Keep us grounded
             if (moveDirection.y < 0)
                 moveDirection.y = -2f;
 
-            // Jump
             if (jumpRequested)
             {
-                //
-                if (!GameMaster.Instance.FROZEN)
-                {
-                    moveDirection.y = jumpForce; 
-                }
-                // jump strength
+                moveDirection.y = jumpForce;
                 jumpRequested = false;
             }
         }
+
 
         // Horizontal movement
         thisCharController.Move(desiredMove * speed * Time.deltaTime);
@@ -167,8 +160,14 @@ public class Player : Singleton<Player>
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        if (!climbing && !crouching) jumpRequested = true;
+        if (GameMaster.Instance.FROZEN) return;
+        if (GameMaster.Instance.PHONEOUT) return; 
+        if (climbing) return;
+        if (crouching) return;
+
+        jumpRequested = true;
     }
+
 
     private void OnCrouchToggle(InputAction.CallbackContext ctx)
     {

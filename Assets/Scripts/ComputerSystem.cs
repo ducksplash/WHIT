@@ -147,7 +147,7 @@ public class ComputerSystem : MonoBehaviour
             
             
             case PCGriddle.Files:
-
+                ChangeScreen(ComputerScreen.Files);
                 break;
 
             case PCGriddle.Phone:
@@ -199,7 +199,7 @@ public class ComputerSystem : MonoBehaviour
 
                 PCScreen thisScreen = AllProgrammeScreens[i].GetComponent<PCScreen>();
 
-                thisScreen.PCNavver.enabled = true;
+                if (thisScreen.PCNavver != null) thisScreen.PCNavver.enabled = true;
 
             }
         }
@@ -217,7 +217,7 @@ public class ComputerSystem : MonoBehaviour
             
             PCScreen thisScreen = AllProgrammeScreens[i].GetComponent<PCScreen>();
             
-            thisScreen.PCNavver.enabled = false;
+            if (thisScreen.PCNavver != null) thisScreen.PCNavver.enabled = false;
 
             Debug.Log("Closed: "+AllProgrammeScreens[i].gameObject.name);
 
@@ -242,28 +242,11 @@ public enum ComputerScreen
     
 }
 
-public enum FileFolder
-{
-    User = 2000,
-    Documents = 2001,
-    Downloads = 2002,
-    Photos = 2003,
-    Videos = 2004,
-    Audio = 2005,
-    Phone = 2006,
-    O = 2007,
-    DCIM = 2008,
-    Evidence = 2009
-}
-
 
 public enum PCGriddle
 {
     None = 4000,
     LogOn = 4001,
-    
-    
-
     LockScreen = 10001,
     Desktop = 10002,
     Files = 10002,

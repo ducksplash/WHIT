@@ -1,5 +1,4 @@
 ﻿using System;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -707,6 +706,13 @@ public class Phone : MonoBehaviour
 
     public void GetMessages()
     {
+        // Defensive null checks (helps you find bad wiring in the Inspector too)
+        if (InboxPane == null || SentPane == null || Messagelist == null || MessageBlockPrefab == null || MessagesScreenNavver == null)
+        {
+            Debug.LogError("Phone.GetMessages: Missing references (InboxPane/SentPane/Messagelist/MessageBlockPrefab/MessagesScreenNavver).");
+            return;
+        }
+
         InboxPane.GetComponent<CanvasGroup>().alpha = 1f;
         InboxPane.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
@@ -714,112 +720,136 @@ public class Phone : MonoBehaviour
         SentPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
         MessagesScreenNavver.ResetList();
-
         DisableNavvers();
 
-        GameMaster.Instance.DialogueManager.DialogueSeen.Reverse();
-
-        foreach (DialogueName entry in GameMaster.Instance.DialogueManager.DialogueSeen)
+        var dm = GameMaster.Instance?.DialogueManager;
+        if (dm == null || dm.DialogueSeen == null || dm.Dialogues == null)
         {
-            Dialogue selectedDialogue =
-                GameMaster.Instance.DialogueManager.Dialogues.FirstOrDefault(
-                    d => d.DialogueName == entry
-                );
-
-            if (selectedDialogue.Contact != Contacts.Nora)
-            {
-                var buttonPosition = new Vector3(
-                    Messagelist.transform.localPosition.x,
-                    Messagelist.transform.localPosition.y,
-                    Messagelist.transform.localPosition.z
-                );
-
-                GameObject messageBlock = Instantiate(
-                    MessageBlockPrefab,
-                    buttonPosition,
-                    Quaternion.identity
-                );
-                messageBlock.transform.SetParent(Messagelist.transform, false);
-
-                OSDButton messageNavverButton = messageBlock.GetComponent<OSDButton>();
-                messageNavverButton.selectedDialogue = entry;
-
-                MessagesScreenNavver.GridButtons.Add(messageNavverButton);
-
-                messageBlock.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text =
-                    selectedDialogue.Contact.ToString();
-
-                var messageBit = selectedDialogue.DialogueText;
-
-                if (messageBit.Length > 32)
-                {
-                    messageBit = messageBit.Substring(0, 32) + "...";
-                }
-
-                messageBlock.transform.Find("bitofMSG").GetComponent<TextMeshProUGUI>().text =
-                    messageBit;
-
-            }
+            Debug.LogError("Phone.GetMessages: DialogueManager / DialogueSeen / Dialogues is null.");
+            return;
         }
-        MessagesScreenNavver.gameObject.SetActive(true);
 
+        // DON'T reverse in place (every call flips order). Use a reverse iterator instead.
+        for (int i = dm.DialogueSeen.Count - 1; i >= 0; i--)
+        {
+            DialogueName entry = dm.DialogueSeen[i];
+
+            Dialogue selectedDialogue = dm.Dialogues.FirstOrDefault(d => d.DialogueName == entry);
+            if (selectedDialogue == null)
+            {
+                Debug.LogWarning($"Phone.GetMessages: Dialogue '{entry}' was seen but not found in Dialogues list. Skipping.");
+                continue;
+            }
+
+            if (selectedDialogue.Contact == Contacts.Nora)
+                continue;
+
+            GameObject messageBlock = Instantiate(MessageBlockPrefab, Messagelist.transform, false);
+
+            OSDButton messageNavverButton = messageBlock.GetComponent<OSDButton>();
+            if (messageNavverButton == null)
+            {
+                Debug.LogError("Phone.GetMessages: MessageBlockPrefab is missing OSDButton component.");
+                Destroy(messageBlock);
+                continue;
+            }
+
+            messageNavverButton.selectedDialogue = entry;
+            MessagesScreenNavver.GridButtons.Add(messageNavverButton);
+
+            var from = messageBlock.transform.Find("fromFROM")?.GetComponent<TextMeshProUGUI>();
+            var bit = messageBlock.transform.Find("bitofMSG")?.GetComponent<TextMeshProUGUI>();
+
+            if (from == null || bit == null)
+            {
+                Debug.LogError("Phone.GetMessages: Prefab is missing 'fromFROM' or 'bitofMSG' TextMeshProUGUI.");
+                Destroy(messageBlock);
+                continue;
+            }
+
+            from.text = selectedDialogue.Contact.ToString();
+
+            string messageBit = selectedDialogue.DialogueText ?? "";
+            if (messageBit.Length > 32) messageBit = messageBit.Substring(0, 32) + "...";
+            bit.text = messageBit;
+        }
+
+        MessagesScreenNavver.gameObject.SetActive(true);
         StartCoroutine(EnableMessagesInteractNextFrame());
     }
 
     public void SentItems()
     {
-        NotesScreenNavver.ResetList();
+        // Defensive reference checks
+        if (SentPane == null || InboxPane == null || Sentlist == null || NoteBlockPrefab == null || NotesScreenNavver == null)
+        {
+            Debug.LogError("Phone.SentItems: Missing references (SentPane/InboxPane/Sentlist/NoteBlockPrefab/NotesScreenNavver).");
+            return;
+        }
 
+        NotesScreenNavver.ResetList();
         DisableNavvers();
+
+        // Toggle panes
         InboxPane.GetComponent<CanvasGroup>().alpha = 0f;
         InboxPane.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
         SentPane.GetComponent<CanvasGroup>().alpha = 1f;
         SentPane.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
-        GameMaster.Instance.DialogueManager.DialogueSeen.Reverse();
-
-        foreach (DialogueName entry in GameMaster.Instance.DialogueManager.DialogueSeen)
+        var dm = GameMaster.Instance?.DialogueManager;
+        if (dm == null || dm.DialogueSeen == null || dm.Dialogues == null)
         {
-            Dialogue selectedDialogue =
-                GameMaster.Instance.DialogueManager.Dialogues.FirstOrDefault(
-                    d => d.DialogueName == entry
-                );
+            Debug.LogError("Phone.SentItems: DialogueManager / DialogueSeen / Dialogues is null.");
+            return;
+        }
 
-            if (selectedDialogue.Contact == Contacts.Nora)
+        // Iterate in reverse WITHOUT mutating the list
+        for (int i = dm.DialogueSeen.Count - 1; i >= 0; i--)
+        {
+            DialogueName entry = dm.DialogueSeen[i];
+
+            Dialogue selectedDialogue = dm.Dialogues.FirstOrDefault(d => d.DialogueName == entry);
+            if (selectedDialogue == null)
             {
-                var buttonPosition = new Vector3(
-                    Sentlist.transform.localPosition.x,
-                    Sentlist.transform.localPosition.y,
-                    Sentlist.transform.localPosition.z
-                );
-
-                GameObject messageBlock = Instantiate(
-                    NoteBlockPrefab,
-                    buttonPosition,
-                    Quaternion.identity
-                );
-                messageBlock.transform.SetParent(Sentlist.transform, false);
-
-                OSDButton notesNavverButton = messageBlock.GetComponent<OSDButton>();
-                notesNavverButton.selectedDialogue = entry;
-
-                NotesScreenNavver.GridButtons.Add(notesNavverButton);
-
-                messageBlock.transform.Find("fromFROM").GetComponent<TextMeshProUGUI>().text =
-                    selectedDialogue.Contact.ToString();
-
-                var messageBit = selectedDialogue.DialogueText;
-
-                if (messageBit.Length > 32)
-                {
-                    messageBit = messageBit.Substring(0, 32) + "...";
-                }
-
-                messageBlock.transform.Find("bitofMSG").GetComponent<TextMeshProUGUI>().text =
-                    messageBit;
-
+                Debug.LogWarning($"Phone.SentItems: Dialogue '{entry}' was seen but not found in Dialogues list. Skipping.");
+                continue;
             }
+
+            // Sent items are Nora in your logic
+            if (selectedDialogue.Contact != Contacts.Nora)
+                continue;
+
+            // Instantiate under Sentlist
+            GameObject messageBlock = Instantiate(NoteBlockPrefab, Sentlist.transform, false);
+
+            OSDButton notesNavverButton = messageBlock.GetComponent<OSDButton>();
+            if (notesNavverButton == null)
+            {
+                Debug.LogError("Phone.SentItems: NoteBlockPrefab is missing OSDButton component.");
+                Destroy(messageBlock);
+                continue;
+            }
+
+            notesNavverButton.selectedDialogue = entry;
+            NotesScreenNavver.GridButtons.Add(notesNavverButton);
+
+            // Grab TMP fields safely
+            var from = messageBlock.transform.Find("fromFROM")?.GetComponent<TextMeshProUGUI>();
+            var bit = messageBlock.transform.Find("bitofMSG")?.GetComponent<TextMeshProUGUI>();
+
+            if (from == null || bit == null)
+            {
+                Debug.LogError("Phone.SentItems: Prefab is missing 'fromFROM' or 'bitofMSG' TextMeshProUGUI.");
+                Destroy(messageBlock);
+                continue;
+            }
+
+            from.text = selectedDialogue.Contact.ToString();
+
+            string messageBit = selectedDialogue.DialogueText ?? "";
+            if (messageBit.Length > 32) messageBit = messageBit.Substring(0, 32) + "...";
+            bit.text = messageBit;
         }
 
         NotesScreenNavver.gameObject.SetActive(true);

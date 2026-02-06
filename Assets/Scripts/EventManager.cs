@@ -12,6 +12,7 @@ public class EventManager : MonoBehaviour
     public static event Action OnPhoneOpened = () => { };
     public static event Action<Transform> OnStartComputer = (ComputerTransform) => { };
     public static event Action OnStopComputer = () => { };
+    public static event Action OnStopPhone = () => { };
     public static event Action<EvidenceName> OnAutoCollectEvidence = (EvidenceName) => { };
     public static event Action<bool> OnPaused = (GamePaused) => { };
     
@@ -76,6 +77,10 @@ public class EventManager : MonoBehaviour
     public void StopComputer()
     {
         OnStopComputer.Invoke();
+    }
+    public void StopPhone()
+    {
+        OnStopPhone.Invoke();
     }
     
 }

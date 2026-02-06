@@ -179,7 +179,7 @@ public class incinerator : MonoBehaviour
                     StartCoroutine(weeWait(1, doorcollider));
                     GetComponentInChildren<Animator>().SetTrigger("idle");
 
-                    GameMaster.Instance.FROZEN = true;
+                    GameMaster.Instance.PLAYERBUSY = true;
 
 
                         FlameControl(true);

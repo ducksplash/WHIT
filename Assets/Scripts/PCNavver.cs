@@ -87,7 +87,7 @@ public class PCNavver : MonoBehaviour
 
     private void OnUp(InputAction.CallbackContext ctx)
     {
-        if (!GameMaster.Instance.ONPC) return;
+        if (!GameMaster.Instance.PLAYERBUSY) return;
 
         int newIndex = currentIndex;
         switch (Layout)
@@ -109,7 +109,7 @@ public class PCNavver : MonoBehaviour
 
     private void OnDown(InputAction.CallbackContext ctx)
     {
-        if (!GameMaster.Instance.ONPC) return;
+        if (!GameMaster.Instance.PLAYERBUSY) return;
 
         int newIndex = currentIndex;
         switch (Layout)
@@ -131,7 +131,7 @@ public class PCNavver : MonoBehaviour
 
     private void OnLeft(InputAction.CallbackContext ctx)
     {
-        if (!GameMaster.Instance.ONPC) return;
+        if (!GameMaster.Instance.PLAYERBUSY) return;
 
         int newIndex = currentIndex;
         switch (Layout)
@@ -152,7 +152,7 @@ public class PCNavver : MonoBehaviour
 
     private void OnRight(InputAction.CallbackContext ctx)
     {
-        if (!GameMaster.Instance.ONPC) return;
+        if (!GameMaster.Instance.PLAYERBUSY) return;
 
         int newIndex = currentIndex;
         switch (Layout)
@@ -174,7 +174,7 @@ public class PCNavver : MonoBehaviour
     private void OnSubmit(InputAction.CallbackContext ctx)
     {
         
-        if (!GameMaster.Instance.ONPC) return;
+        if (!GameMaster.Instance.PLAYERBUSY) return;
 
         if (TryFocusInputField(currentIndex))
             return;

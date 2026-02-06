@@ -70,7 +70,7 @@ public class Torch : MonoBehaviour
     private void OnToggle(InputAction.CallbackContext ctx)
     {
         if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED) return;
-        if (GameMaster.Instance.INMENU || GameMaster.Instance.FROZEN) return;
+        if (GameMaster.Instance.PLAYERBUSY) return;
 
         torchToggle = !torchToggle;
 
@@ -85,7 +85,7 @@ public class Torch : MonoBehaviour
     private void OnSwing(InputAction.CallbackContext ctx)
     {
         if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED) return;
-        if (GameMaster.Instance.INMENU || GameMaster.Instance.FROZEN || GameMaster.Instance.HASITEM || isSwinging) return;
+        if (GameMaster.Instance.PLAYERBUSY || isSwinging) return;
         
         isSwinging = true;
 

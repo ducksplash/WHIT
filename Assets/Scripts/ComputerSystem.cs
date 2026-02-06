@@ -190,16 +190,13 @@ public class ComputerSystem : MonoBehaviour
 
     public void OnStartComputer()
     {
-        if (GameMaster.Instance.PHONEOUT) return;
-        if (GameMaster.Instance.ONPC) return;
-
+        if (GameMaster.Instance.PLAYERBUSY) return;
+        GameMaster.Instance.PLAYERBUSY = true;
+        
         FacePlayerOnY();
 
         PCCollider.enabled = false;
         NearestChair.gameObject.SetActive(false);
-        GameMaster.Instance.INMENU = true;
-        GameMaster.Instance.FROZEN = true;
-        GameMaster.Instance.ONPC = true;
         GameMaster.Instance.EventManager.StartComputer(ViewableArea);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -217,8 +214,7 @@ public class ComputerSystem : MonoBehaviour
 
     public void OnStopComputer()
     {
-        if (GameMaster.Instance.PHONEOUT) return;
-        if (!GameMaster.Instance.ONPC) return;
+        if (!GameMaster.Instance.PLAYERBUSY) return;
 
         RotBack();
 
@@ -227,21 +223,19 @@ public class ComputerSystem : MonoBehaviour
 
         PCCollider.enabled = true;
         NearestChair.gameObject.SetActive(true);
-        GameMaster.Instance.INMENU = false;
-        GameMaster.Instance.FROZEN = false;
-        GameMaster.Instance.ONPC = false;
         IncorrectPasswordText.gameObject.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 1.0f;
 
+        GameMaster.Instance.PLAYERBUSY = false;
         ClosePasswordFieldCompletely();
     }
 
     private bool CanHandlePCInput(InputAction.CallbackContext ctx)
     {
         // Only handle inputs while the PC is actually open
-        if (!GameMaster.Instance.ONPC) return false;
+        if (!GameMaster.Instance.PLAYERBUSY) return false;
         if (!ctx.performed) return false;
         return true;
     }

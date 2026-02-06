@@ -89,7 +89,7 @@ public class OSDNavver : MonoBehaviour
 
     private void OnUp(InputAction.CallbackContext ctx)
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!GameMaster.Instance.PLAYERBUSY) return;
 
         int newIndex = currentIndex;
         switch (Layout)
@@ -111,7 +111,7 @@ public class OSDNavver : MonoBehaviour
 
     private void OnDown(InputAction.CallbackContext ctx)
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!GameMaster.Instance.PLAYERBUSY) return;
 
         int newIndex = currentIndex;
         switch (Layout)
@@ -133,7 +133,7 @@ public class OSDNavver : MonoBehaviour
 
     private void OnLeft(InputAction.CallbackContext ctx)
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!GameMaster.Instance.PLAYERBUSY) return;
 
         int newIndex = currentIndex;
         switch (Layout)
@@ -154,7 +154,7 @@ public class OSDNavver : MonoBehaviour
 
     private void OnRight(InputAction.CallbackContext ctx)
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!GameMaster.Instance.PLAYERBUSY) return;
 
         int newIndex = currentIndex;
         switch (Layout)
@@ -175,7 +175,7 @@ public class OSDNavver : MonoBehaviour
 
     private void OnSubmit(InputAction.CallbackContext ctx)
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!GameMaster.Instance.PLAYERBUSY) return;
         ActivateOSDButton(currentIndex);
     }
 

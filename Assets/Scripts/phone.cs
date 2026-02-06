@@ -130,6 +130,8 @@ public class Phone : MonoBehaviour
     private int lastClockMinute = -1;
     private int lastClockHour = -1;
 
+    private bool PhoneOpened;
+    
     private void Awake()
     {
         phoneCollider = GetComponent<CapsuleCollider>();
@@ -174,6 +176,7 @@ public class Phone : MonoBehaviour
     {
         goBack.action.performed += ConsolePhoneButtonAction;
         togglePhonePC.action.performed += ActionTogglePhone;
+        EventManager.OnStopPhone += EventStopPhone;
 
         listBackButton.action.performed += GalleryBackAction;
         listNextButton.action.performed += GalleryNextAction;
@@ -385,7 +388,7 @@ public class Phone : MonoBehaviour
 
     void Update()
     {
-        if (!GameMaster.Instance.PHONEOUT) return; 
+        if (!PhoneOpened) return; 
         
         if (clockText == null) return;
 
@@ -398,13 +401,16 @@ public class Phone : MonoBehaviour
         }
     }
 
+    private void EventStopPhone()
+    {
+        if (PhoneOpened) PutAwayPhone();
+    }
+    
     private void ActionTogglePhone(InputAction.CallbackContext callbackContext)
     {
-        if (GameMaster.Instance.ONPC) return;
-        
         currentpage = 0;
 
-        if (!GameMaster.Instance.PHONEOUT)
+        if (!PhoneOpened)
         {
             TakeOutPhone();
         }
@@ -416,45 +422,39 @@ public class Phone : MonoBehaviour
 
     private void TakeOutPhone()
     {
-        if (GameMaster.Instance.PHONEOUT) return;
+        if (GameMaster.Instance.PLAYERBUSY) return;
+        if (PhoneOpened) return;
         
         changeScreen(HomeScreen);
         HomeScreenNavver.gameObject.SetActive(true);
 
         GameMaster.Instance.EventManager.PhoneOpened();
 
-        if (!GameMaster.Instance.INMENU && !GameMaster.Instance.HASITEM && !GameMaster.Instance.ISWRITING)
+        GameMaster.Instance.PLAYERBUSY = PhoneOpened = true;
+        
+        if (!GameMaster.Instance.OnboardingManager.PHONEACCESSED)
         {
-            GameMaster.Instance.PHONEOUT = true;
-            GameMaster.Instance.INMENU = true;
-            GameMaster.Instance.FROZEN = true;
-
-            if (!GameMaster.Instance.OnboardingManager.PHONEACCESSED)
-            {
-                GameMaster.Instance.OnboardingManager.OpenedPhone();
-            }
-
-            MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 1, MobilePhone.transform.localPosition.z);
-
-            if (phoneCanvasGroup != null) phoneCanvasGroup.alpha = 1.0f;
-
-            CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-
-            if (phoneCollider != null) phoneCollider.enabled = true;
+            GameMaster.Instance.OnboardingManager.OpenedPhone();
         }
+
+        MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 1, MobilePhone.transform.localPosition.z);
+
+        if (phoneCanvasGroup != null) phoneCanvasGroup.alpha = 1.0f;
+
+        CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        if (phoneCollider != null) phoneCollider.enabled = true;
     }
 
     public void PutAwayPhone()
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         
         changeScreen(HomeScreen);
 
-        GameMaster.Instance.PHONEOUT = false;
-        GameMaster.Instance.INMENU = false;
-        GameMaster.Instance.FROZEN = false;
+        GameMaster.Instance.PLAYERBUSY = PhoneOpened = false;
 
         if (phoneCollider != null) phoneCollider.enabled = false;
         
@@ -482,11 +482,9 @@ public class Phone : MonoBehaviour
         Cursor.visible = false;
     }
 
-    public void SelectPhoneGridItem(PhonerGriddle SelectedGridSquare, DialogueName selectedDialogue = DialogueName.None
-    )
+    public void SelectPhoneGridItem(PhonerGriddle SelectedGridSquare, DialogueName selectedDialogue = DialogueName.None)
     {
-        if (!GameMaster.Instance.PHONEOUT)
-            return;
+        if (!PhoneOpened) return;
 
         if (selectedDialogue != DialogueName.None)
         {
@@ -605,7 +603,6 @@ public class Phone : MonoBehaviour
     {
         changeScreen(MapsScreen);
         MiniMapCam.SetActive(true);
-        GameMaster.Instance.FROZEN = false;
 
         Debug.Log("maps button");
     }
@@ -871,8 +868,6 @@ public class Phone : MonoBehaviour
         CameraLeftFlash.enabled = true;
         CameraRightFlash.enabled = true;
 
-        GameMaster.Instance.FROZEN = false;
-
         if (GameMaster.Instance.EvidenceManager.EvidenceFound.Count < 1)
         {
             GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstPhoto, 5);
@@ -1074,73 +1069,73 @@ public class Phone : MonoBehaviour
 
     public void a1Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         DialBar.text += "1";
     }
 
     public void a2Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         DialBar.text += "2";
     }
 
     public void a3Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         DialBar.text += "3";
     }
 
     public void a4Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         DialBar.text += "4";
     }
 
     public void a5Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         DialBar.text += "5";
     }
 
     public void a6Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         DialBar.text += "6";
     }
 
     public void a7Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         DialBar.text += "7";
     }
 
     public void a8Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         DialBar.text += "8";
     }
 
     public void a9Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         DialBar.text += "9";
     }
 
     public void a0Button(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         DialBar.text += "0";
     }
 
     public void asButton(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         DialBar.text += "*";
     }
 
     public void ahButton(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (!GameMaster.Instance.PHONEOUT) return;
+        if (!PhoneOpened) return;
         DialBar.text += "#";
     }
 
@@ -1247,10 +1242,9 @@ public class Phone : MonoBehaviour
 
     public void ConsolePhoneButtonAction(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        if (GameMaster.Instance.ONPC) return;
         if (GameMaster.Instance.TravelCompanion.CompanionOpen) return;
         
-        if (GameMaster.Instance.PHONEOUT)
+        if (PhoneOpened)
         {
             
             Debug.Log(homeScreenGroup != null ? homeScreenGroup.alpha : 0f);

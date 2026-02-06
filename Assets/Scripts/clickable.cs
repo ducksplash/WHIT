@@ -230,14 +230,13 @@ public class clickable : Singleton<clickable>
 
     private void TryAimAssistSnapAndLock(Camera cam, RaycastHit hit, Transform target)
     {
-        if (GameMaster.Instance.ONPC || GameMaster.Instance.PHONEOUT || GameMaster.Instance.TravelCompanion.CompanionOpen) return;
+        if (GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.TravelCompanion.CompanionOpen) return;
         if (!enableAimAssistOnSteamOS) return;
         if (GameMaster.Instance == null) return;
 
         // Optional device gate:
         // if (GameMaster.Instance.DeviceTypeSelector.selectedDeviceType != PlayerDeviceType.SteamOS) return;
 
-        if (GameMaster.Instance.FROZEN) return;
         if (Time.time < _nextAssistTime) return;
 
         var look = Player.Instance.FirstPersonLook;

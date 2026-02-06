@@ -37,7 +37,6 @@ public class TravelCompanion : MonoBehaviour
     {
 
 	    SceneManager.sceneLoaded += OnSceneLoaded;
-        GameMaster.Instance.FROZEN = false;
         Notepad = Player.Instance.TravelNotepad;
 
         Debug.Log("travel companion");
@@ -125,7 +124,7 @@ public class TravelCompanion : MonoBehaviour
 
 	public void LaunchCompanion()
 	{
-		if (GameMaster.Instance.PHONEOUT || GameMaster.Instance.ONPC) return;
+		if (GameMaster.Instance.PLAYERBUSY && !CompanionOpen) return;
 
 		if (!GameMaster.Instance.OnboardingManager.TESTEVIDENCECOLLECTED)
 		{
@@ -148,8 +147,7 @@ public class TravelCompanion : MonoBehaviour
 			Notepad.SetActive(true);
 			TravelCanvas.alpha = 1f;
 			TravelCanvas.blocksRaycasts = true;
-			GameMaster.Instance.INMENU = true;
-			GameMaster.Instance.FROZEN = true;
+			GameMaster.Instance.PLAYERBUSY = true;
 			CompanionOpen = true;
 			evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.0f;
 			crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
@@ -166,8 +164,7 @@ public class TravelCompanion : MonoBehaviour
 
 			TravelCanvas.alpha = 0f;
 			TravelCanvas.blocksRaycasts = false;
-			GameMaster.Instance.INMENU = false;
-			GameMaster.Instance.FROZEN = false;
+			GameMaster.Instance.PLAYERBUSY = false;
 			CompanionOpen = false;
 			evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.9f;
 			crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
@@ -187,8 +184,7 @@ public class TravelCompanion : MonoBehaviour
 		// rb.isKinematic = false;
 		// rb.useGravity = false;
 		
-		GameMaster.Instance.INMENU = false;
-		GameMaster.Instance.FROZEN = true;
+		GameMaster.Instance.PLAYERBUSY = false;
 		StartCoroutine(ChangeSceneAsync(SceneName));
 	}
 
@@ -200,8 +196,7 @@ public class TravelCompanion : MonoBehaviour
 		// rb.isKinematic = false;
 		// rb.useGravity = false;
 		
-		GameMaster.Instance.INMENU = false;
-		GameMaster.Instance.FROZEN = true;
+		GameMaster.Instance.PLAYERBUSY = false;
 		StartCoroutine(ChangeSceneAsync(SceneName));
 	}
 
@@ -277,8 +272,7 @@ public class TravelCompanion : MonoBehaviour
 
 	private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 	{
-		GameMaster.Instance.INMENU = false;
-		GameMaster.Instance.FROZEN = false;
+		GameMaster.Instance.PLAYERBUSY = false;
 		if (CompanionOpen) LaunchCompanion();
 	}
 

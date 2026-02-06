@@ -100,9 +100,9 @@ public class Player : Singleton<Player>
 
     void Update()
     {
-        if (GameMaster.Instance.PHONEOUT) jumpRequested = false;
+        if (GameMaster.Instance.PLAYERBUSY) jumpRequested = false;
 
-        if (!GameMaster.Instance.FROZEN) HandleMovement();
+        if (!GameMaster.Instance.PLAYERBUSY) HandleMovement();
     }
 
 
@@ -160,8 +160,7 @@ public class Player : Singleton<Player>
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        if (GameMaster.Instance.FROZEN) return;
-        if (GameMaster.Instance.PHONEOUT) return; 
+        if (GameMaster.Instance.PLAYERBUSY) return;
         if (climbing) return;
         if (crouching) return;
 
@@ -172,7 +171,7 @@ public class Player : Singleton<Player>
     private void OnCrouchToggle(InputAction.CallbackContext ctx)
     {
         if (climbing) return;
-        if (GameMaster.Instance.FROZEN) return;
+        if (GameMaster.Instance.PLAYERBUSY) return;
         
         if (!crouching) Crouch();
         else
@@ -216,8 +215,7 @@ public class Player : Singleton<Player>
 
     public void CauseDeath(string cause)
     {
-        GameMaster.Instance.INMENU = true;
-        GameMaster.Instance.FROZEN = true;
+        GameMaster.Instance.PLAYERBUSY = true;
         StartCoroutine(SlowDeath(cause));
     }
 

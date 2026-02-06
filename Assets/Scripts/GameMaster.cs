@@ -42,16 +42,12 @@ public class GameMaster : MonoBehaviour
     
     // Game Globals
 
+    public bool PLAYERBUSY;
+
+    
     public bool POWER_SUPPLY_ENABLED;
     public bool INCINERATOR_ENABLED;
-    public bool FROZEN;
     public bool ONLADDER;
-    public bool INMENU;
-    public bool HASITEM;
-    public bool PHONEOUT;
-    public bool ONPC;
-    public bool  ISWRITING;
-    public bool ONBOARDINGCOMPLETED;
     
     public GAMELEVEL THISLEVEL;
     

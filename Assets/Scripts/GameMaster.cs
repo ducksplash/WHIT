@@ -35,6 +35,8 @@ public class GameMaster : MonoBehaviour
     public int DefaultFOV;
 
 
+    public string NORASPCPASSWORD = "1629";
+    
     public float MouseSensitivity = 0.2f;
     
     // Game Globals

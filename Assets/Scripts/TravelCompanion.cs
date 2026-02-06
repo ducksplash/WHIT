@@ -28,6 +28,7 @@ public class TravelCompanion : MonoBehaviour
 	private float launchCooldown = 0.5f;
 	public GameObject notepadButtonPrefab;
 	public RectTransform scrollViewContent;
+	public InputActionReference exitButton;
 
 
 	
@@ -40,6 +41,9 @@ public class TravelCompanion : MonoBehaviour
         Notepad = Player.Instance.TravelNotepad;
 
         Debug.Log("travel companion");
+        
+        exitButton?.action.Enable();
+        exitButton.action.performed += CloseCompanionInput;
         
 		InitialiseLocations();
     }
@@ -111,6 +115,12 @@ public class TravelCompanion : MonoBehaviour
 		SceneManager.sceneLoaded -= OnSceneLoaded;
 	}
 
+
+	private void CloseCompanionInput(InputAction.CallbackContext callbackContext)
+	{
+		if (CompanionOpen) LaunchCompanion();
+	}
+	
 
 	public void LaunchCompanion()
 	{

@@ -23,6 +23,18 @@ public class clickable : Singleton<clickable>
     public InputActionReference pointerPosition;
     public InputActionReference rightClick;
 
+    [Header("Aim Assist (Steam Deck)")]
+    public bool enableAimAssistOnSteamOS = true;
+
+    [Tooltip("Max yaw angle difference (degrees) to trigger assist.")]
+    public float aimAssistMaxAngle = 30f;
+
+    [Tooltip("How long to disable look input after snapping.")]
+    public float aimAssistLockSeconds = 0.5f;
+
+    [Tooltip("Cooldown after an assist triggers (prevents repeated locks).")]
+    public float aimAssistCooldown = 0.35f;
+
     int doorlayer, drawerlayer, clickablelayer, enemylayer;
     int pickuplayer, evidencelayer, staticevidencelayer, slidingdoorlayer;
     int terminallayer;
@@ -33,7 +45,10 @@ public class clickable : Singleton<clickable>
     private Sprite currentSprite;
     private string currentText, currentTextColor;
     private Transform currentTarget;
-    
+
+    private Transform _lastAssistTarget;
+    private float _nextAssistTime;
+
     void Start()
     {
         selectcursor = GetComponent<Image>();
@@ -49,14 +64,11 @@ public class clickable : Singleton<clickable>
         terminallayer = LayerMask.NameToLayer("terminal");
 
         SetCursor(idlesprite, "");
-        
-        
+
         pointerPosition?.action.Enable();
         rightClick?.action.Enable();
         rightClick.action.performed += HandleClick;
     }
-    
-
 
     void FixedUpdate()
     {
@@ -92,47 +104,39 @@ public class clickable : Singleton<clickable>
 
         System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
-        // Find the first hit that resolves to an interactable target.
-        // This keeps LOS blocking: we still walk hits in distance order.
         for (int i = 0; i < hits.Length; i++)
         {
             var hit = hits[i];
 
-            // Anything in front blocks LOS unless it's "non-blocking" by your design.
-            // If this hit is NOT interactable (even after parent checks), we stop here.
             Transform target = ResolveInteractableTarget(hit);
             if (target == null)
             {
-                // blocked by something non-interactable
                 ClearHit();
                 return;
             }
 
-            // Interactable found
             currentHit = hit;
             currentTarget = target;
             hasHit = true;
 
             ApplyHoverToTarget(currentHit, currentTarget);
+
+            // NEW: simple snap + lock aim assist
+            TryAimAssistSnapAndLock(cam, currentHit, currentTarget);
+
             return;
         }
 
         ClearHit();
     }
 
-
-    // Helper: decide what the interactable "root" is for a hit
     private Transform ResolveInteractableTarget(RaycastHit hit)
     {
         if (hit.collider == null) return null;
 
-        // First: direct collider object
         Transform t = hit.collider.transform;
-
-        // PICKUPS: allow tag-based (your Pickup script uses COLLECTABLE)
         if (t.CompareTag("COLLECTABLE")) return t;
 
-        // Or if the pickup layer is on a parent, walk up to find it
         Transform p = t;
         while (p != null)
         {
@@ -142,36 +146,30 @@ public class clickable : Singleton<clickable>
                 layer == pickuplayer || layer == drawerlayer || layer == doorlayer || layer == slidingdoorlayer ||
                 layer == clickablelayer || layer == enemylayer || layer == evidencelayer || layer == staticevidencelayer || layer == terminallayer;
 
-            if (isInteractableLayer)
-                return p;
-
-            // Also treat COLLECTABLE on a parent as pickup
-            if (p.CompareTag("COLLECTABLE"))
-                return p;
+            if (isInteractableLayer) return p;
+            if (p.CompareTag("COLLECTABLE")) return p;
 
             p = p.parent;
         }
 
-        // Not interactable (therefore it blocks LOS)
         return null;
     }
 
     private void ClearHit()
     {
-        if (hasHit)
-        {
-            hasHit = false;
-            currentTarget = null;
-            SetCursor(idlesprite, "");
-        }
+        if (!hasHit) return;
+
+        hasHit = false;
+        currentTarget = null;
+        SetCursor(idlesprite, "");
+
+        _lastAssistTarget = null;
     }
 
-    // NEW: hover logic should use the resolved target, not the raw collider layer
     private void ApplyHoverToTarget(RaycastHit hit, Transform target)
     {
         int layer = target.gameObject.layer;
 
-        // Pickup: either pickup layer OR COLLECTABLE tag
         if (layer == pickuplayer || target.CompareTag("COLLECTABLE"))
         {
             SetCursor(IsCloseEnough(hit) ? pickupcloseenoughsprite : pickupsprite);
@@ -221,7 +219,6 @@ public class clickable : Singleton<clickable>
             return;
         }
 
-
         if (layer == terminallayer)
         {
             SetCursor(terminalspritegreen, "", "green");
@@ -231,6 +228,57 @@ public class clickable : Singleton<clickable>
         SetCursor(idlesprite, "");
     }
 
+    private void TryAimAssistSnapAndLock(Camera cam, RaycastHit hit, Transform target)
+    {
+        if (!enableAimAssistOnSteamOS) return;
+        if (GameMaster.Instance == null) return;
+
+        // Optional device gate:
+        // if (GameMaster.Instance.DeviceTypeSelector.selectedDeviceType != PlayerDeviceType.SteamOS) return;
+
+        if (GameMaster.Instance.FROZEN) return;
+        if (Time.time < _nextAssistTime) return;
+
+        var look = Player.Instance.FirstPersonLook;
+        if (look == null) return;
+
+        // Don't repeatedly lock the exact same thing every frame
+        if (target == _lastAssistTarget) return;
+
+        Vector3 aimPoint = GetAimAssistPoint(target, hit);
+
+        float yawAngle = FlatAngle(cam.transform.forward, aimPoint - cam.transform.position);
+        if (yawAngle > aimAssistMaxAngle) return;
+
+        // Snap yaw and disable look input briefly
+        look.SnapYawTowardWorldPoint(aimPoint);
+        look.AimAssistLock(aimAssistLockSeconds);
+
+        _lastAssistTarget = target;
+        _nextAssistTime = Time.time + aimAssistCooldown;
+    }
+
+    private Vector3 GetAimAssistPoint(Transform target, RaycastHit hit)
+    {
+        if (hit.collider != null)
+            return hit.collider.bounds.center;
+
+        Collider c = target.GetComponentInChildren<Collider>();
+        if (c != null) return c.bounds.center;
+
+        Renderer r = target.GetComponentInChildren<Renderer>();
+        if (r != null) return r.bounds.center;
+
+        return target.position;
+    }
+
+    private float FlatAngle(Vector3 forward, Vector3 toTarget)
+    {
+        Vector3 a = new Vector3(forward.x, 0f, forward.z);
+        Vector3 b = new Vector3(toTarget.x, 0f, toTarget.z);
+        if (a.sqrMagnitude < 0.000001f || b.sqrMagnitude < 0.000001f) return 0f;
+        return Vector3.Angle(a, b);
+    }
 
     private void HandleClick(InputAction.CallbackContext callbackContext)
     {
@@ -245,7 +293,6 @@ public class clickable : Singleton<clickable>
         if (currentHit.transform.GetComponentInParent<Door>() is Door door)
         {
             Debug.Log("door clicked");
-            
             door.TryUseDoor(currentHit.collider);
             return;
         }
@@ -254,8 +301,7 @@ public class clickable : Singleton<clickable>
         {
             sw.ToggleLightswitch();
         }
-        
-        
+
         if (currentHit.transform.GetComponentInParent<ComputerSystem>() is ComputerSystem pc)
         {
             pc.OnStartComputer();
@@ -284,6 +330,7 @@ public class clickable : Singleton<clickable>
             currentTextColor = color;
         }
     }
+
     public bool IsHoveringPickup()
     {
         if (!hasHit || currentTarget == null) return false;
@@ -291,10 +338,8 @@ public class clickable : Singleton<clickable>
     }
 
     public RaycastHit GetCurrentHit() => currentHit;
-
-// Optional: if you want the actual interactable Transform:
     public Transform GetCurrentTarget() => currentTarget;
-    
+
     private void INFOTEXT(string text, string textcolor = "white")
     {
         infotext.text = text;

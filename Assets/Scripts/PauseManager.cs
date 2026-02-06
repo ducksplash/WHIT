@@ -20,7 +20,7 @@ public class PauseManager : MonoBehaviour
         
         
         
-        if (GameMaster.Instance.ONPC || GameMaster.Instance.PHONEOUT)
+        if (GameMaster.Instance.ONPC || GameMaster.Instance.PHONEOUT || GameMaster.Instance.TravelCompanion.CompanionIsOpen)
         {
             if (GameMaster.Instance.ONPC)
             {
@@ -30,6 +30,13 @@ public class PauseManager : MonoBehaviour
             {
                 Player.Instance.PlayerPhone.ConsolePhoneButtonAction();
             }
+            if (GameMaster.Instance.TravelCompanion.CompanionIsOpen)
+            {
+                GameMaster.Instance.TravelCompanion.LaunchCompanion();
+            }
+            
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
         else
         {

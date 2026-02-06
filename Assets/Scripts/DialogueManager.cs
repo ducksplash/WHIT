@@ -30,8 +30,9 @@ public class DialogueManager : MonoBehaviour
     public List<Dialogue> Dialogues = new List<Dialogue>();
     public List<OSDText> OSDTexts = new List<OSDText>();
     private Dictionary<DialogueName, Dialogue> DialogueDict = new Dictionary<DialogueName, Dialogue>();
+    public List<DialogueName> RepeatableDialogues = new List<DialogueName>();
     private Dictionary<OSDTextName, OSDText> OSDTextDict = new Dictionary<OSDTextName, OSDText>();
-
+    
     private Dictionary<string, string> EregiDict = new Dictionary<string, string>();
     
     [Header("History")]
@@ -146,7 +147,10 @@ public class DialogueManager : MonoBehaviour
 
     public async Task CreateDialogue(DialogueName dialogueName, float displaytimer, bool isCutSceneDialogue = false)
     {
-        if (DialogueSeen.Contains(dialogueName)) return;
+        if (DialogueSeen.Contains(dialogueName))
+        {
+            if (!RepeatableDialogues.Contains(dialogueName)) return;
+        }
 
         Contacts contact = Contacts.System;
         string message = "...";

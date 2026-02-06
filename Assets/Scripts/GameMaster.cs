@@ -31,6 +31,7 @@ public class GameMaster : MonoBehaviour
     public LanguageManager LanguageManager;
     public DeviceType DeviceType;
     public InputManager InputManager;
+    public PauseManager PauseManager;
     public Player Player;
     public int DefaultFOV;
 

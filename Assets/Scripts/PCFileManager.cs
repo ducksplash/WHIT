@@ -67,18 +67,17 @@ public class PCFileManager : MonoBehaviour
     }
 
 
-    
-    
-    
-
     public void ChangeScreen(FolderScreen ScreenToOpen)
     {
+        // ✅ keep CurrentFolder in sync with the visible folder screen
+        CurrentFolder = (FileGriddle)ScreenToOpen;
+
         CloseAllScreens();
-        
+
         for (var i = 0; i < AllFolderScreens.Count; i++)
         {
             if (AllFolderScreens[i].GetComponent<FileManagerScreen>().ThisFileFolder.Equals(ScreenToOpen))
-            {            
+            {
                 CanvasGroup SelectedScreen = AllFolderScreens[i].GetComponent<CanvasGroup>();
 
                 SelectedScreen.alpha = 1;
@@ -86,12 +85,11 @@ public class PCFileManager : MonoBehaviour
                 SelectedScreen.blocksRaycasts = true;
 
                 FileManagerScreen thisScreen = AllFolderScreens[i].GetComponent<FileManagerScreen>();
-
                 thisScreen.FileNavver.enabled = true;
-
             }
         }
     }
+
 
     public void CloseAllScreens()
     {

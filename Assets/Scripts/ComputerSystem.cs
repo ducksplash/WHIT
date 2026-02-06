@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Steamworks;
+using UnityEngine.EventSystems;
 
 public class ComputerSystem : MonoBehaviour
 {
@@ -49,7 +49,9 @@ public class ComputerSystem : MonoBehaviour
 
     public Collider PCCollider;
 
-    public InputActionReference ClosePCInput;
+    // Only two inputs now:
+    // - goBack: step back (Files sub-screen -> Files root -> Desktop) then close PC if pressed again on Desktop/Lock
+    // - rightClickExit: always close PC immediately
     public InputActionReference goBack;
     public InputActionReference rightClickExit;
 
@@ -57,11 +59,12 @@ public class ComputerSystem : MonoBehaviour
     public Transform PlayerTransform;
     private Quaternion defaultRotation;
 
-    // -------------------- Steam Deck Keyboard --------------------
     private Callback<GamepadTextInputDismissed_t> _gamepadTextDismissed;
     private TMP_InputField _activeSteamInputField;
 
-    // Adjust per field if you want different max lengths
+    // Steam modal tracking
+    private bool _steamTextSessionOpen;
+
     private const uint STEAM_TEXT_MAX = 64;
 
     void Start()
@@ -69,19 +72,28 @@ public class ComputerSystem : MonoBehaviour
         IncorrectPasswordText.gameObject.SetActive(false);
 
         EventManager.OnStopComputer += OnStopComputer;
-        ClosePCInput.action.performed += InputStopComputer;
-        goBack.action.performed += InputStopComputer;
+
+        // goBack = step back
+        if (goBack != null)
+        {
+            goBack.action.performed -= InputGoBack;
+            goBack.action.performed += InputGoBack;
+        }
+
         TerminalEventManager.OnPCGridClick += SelectMenuItem;
 
         PlayerTransform = GameMaster.Instance.Player.transform;
         defaultRotation = PCScreenTransform.rotation;
 
-        // Register Steam callback (requires SteamAPI.RunCallbacks() somewhere, usually in SteamManager)
-        if (SteamManager.Initialized) _gamepadTextDismissed = Callback<GamepadTextInputDismissed_t>.Create(OnGamepadTextInputDismissed);
+        if (SteamManager.Initialized)
+            _gamepadTextDismissed = Callback<GamepadTextInputDismissed_t>.Create(OnGamepadTextInputDismissed);
 
-        // Open Deck keyboard when this input field is selected (SteamOS only)
         if (PasswordInput != null)
-            PasswordInput.onSelect.AddListener(_ => TryOpenSteamDeckKeyboardFor(PasswordInput, isPassword: true));
+        {
+            PasswordInput.onSelect.AddListener(_ => OnPasswordSelected());
+            PasswordInput.onDeselect.AddListener(_ => OnPasswordDeselected());
+            PasswordInput.onSubmit.AddListener(_ => OnPasswordSubmitted());
+        }
     }
 
     private bool IsSteamOS()
@@ -89,11 +101,29 @@ public class ComputerSystem : MonoBehaviour
         return GameMaster.Instance.DeviceType.selectedDeviceType == PlayerDeviceType.SteamOS;
     }
 
+    private void OnPasswordSelected()
+    {
+        if (!_steamTextSessionOpen)
+            TryOpenSteamDeckKeyboardFor(PasswordInput, isPassword: true);
+    }
+
+    private void OnPasswordDeselected()
+    {
+        if (!_steamTextSessionOpen)
+            _activeSteamInputField = null;
+    }
+
+    private void OnPasswordSubmitted()
+    {
+        LogOn();
+    }
+
     private void TryOpenSteamDeckKeyboardFor(TMP_InputField field, bool isPassword)
     {
         if (field == null) return;
         if (!IsSteamOS()) return;
         if (!SteamManager.Initialized) return;
+        if (_steamTextSessionOpen) return;
 
         _activeSteamInputField = field;
 
@@ -109,11 +139,21 @@ public class ComputerSystem : MonoBehaviour
             field.text
         );
 
-        if (!opened) _activeSteamInputField = null;
+        if (opened)
+        {
+            _steamTextSessionOpen = true;
+        }
+        else
+        {
+            _activeSteamInputField = null;
+            _steamTextSessionOpen = false;
+        }
     }
 
     private void OnGamepadTextInputDismissed(GamepadTextInputDismissed_t cb)
     {
+        _steamTextSessionOpen = false;
+
         if (!cb.m_bSubmitted)
         {
             _activeSteamInputField = null;
@@ -126,30 +166,27 @@ public class ComputerSystem : MonoBehaviour
         uint len = SteamUtils.GetEnteredGamepadTextLength();
         if (len == 0)
         {
-            _activeSteamInputField.text = "";
+            _activeSteamInputField.SetTextWithoutNotify(string.Empty);
+            _activeSteamInputField.ForceLabelUpdate();
             _activeSteamInputField = null;
             return;
         }
 
-        string result;
-        if (SteamUtils.GetEnteredGamepadTextInput(out result, STEAM_TEXT_MAX))
+        if (SteamUtils.GetEnteredGamepadTextInput(out string result, STEAM_TEXT_MAX))
         {
-            _activeSteamInputField.text = result;
+            _activeSteamInputField.SetTextWithoutNotify(result);
+            _activeSteamInputField.ForceLabelUpdate();
 
             int end = _activeSteamInputField.text.Length;
             _activeSteamInputField.caretPosition = end;
             _activeSteamInputField.selectionAnchorPosition = end;
             _activeSteamInputField.selectionFocusPosition = end;
-            
-            // we try and log them on now
+
             LogOn();
-            
-            
         }
 
         _activeSteamInputField = null;
     }
-
 
     public void OnStartComputer()
     {
@@ -158,7 +195,6 @@ public class ComputerSystem : MonoBehaviour
 
         FacePlayerOnY();
 
-        //Debug.Log("StartPC");
         PCCollider.enabled = false;
         NearestChair.gameObject.SetActive(false);
         GameMaster.Instance.INMENU = true;
@@ -169,7 +205,12 @@ public class ComputerSystem : MonoBehaviour
         Cursor.visible = true;
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
 
-        rightClickExit.action.performed += InputStopComputer;
+        // rightClickExit ALWAYS closes PC while on PC
+        if (rightClickExit != null)
+        {
+            rightClickExit.action.performed -= InputClosePC;
+            rightClickExit.action.performed += InputClosePC;
+        }
 
         ChangeScreen(IsLoggedIn ? ComputerScreen.Desktop : ComputerScreen.LockScreen);
     }
@@ -181,9 +222,9 @@ public class ComputerSystem : MonoBehaviour
 
         RotBack();
 
-        rightClickExit.action.performed -= InputStopComputer;
+        if (rightClickExit != null)
+            rightClickExit.action.performed -= InputClosePC;
 
-        //Debug.Log("StopPC");
         PCCollider.enabled = true;
         NearestChair.gameObject.SetActive(true);
         GameMaster.Instance.INMENU = false;
@@ -193,35 +234,115 @@ public class ComputerSystem : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 1.0f;
+
+        ClosePasswordFieldCompletely();
     }
 
-    public void InputStopComputer(InputAction.CallbackContext callbackContext)
+    private bool CanHandlePCInput(InputAction.CallbackContext ctx)
+    {
+        // Only handle inputs while the PC is actually open
+        if (!GameMaster.Instance.ONPC) return false;
+        if (!ctx.performed) return false;
+        return true;
+    }
+
+    // goBack: step back until Desktop, THEN close PC if pressed again on Desktop/Lock
+    public void InputGoBack(InputAction.CallbackContext callbackContext)
+    {
+        if (!CanHandlePCInput(callbackContext))
+            return;
+
+        HandleBackStepOnly();
+    }
+
+    // rightClickExit: always close PC immediately
+    public void InputClosePC(InputAction.CallbackContext callbackContext)
     {
         GameMaster.Instance.EventManager.StopComputer();
     }
 
+    /// <summary>
+    /// Step back behaviour:
+    /// - If in Files and NOT at User folder: go to User folder (stay in Files)
+    /// - Else if in Files at User: go to Desktop
+    /// - Else if in any other app screen: go to Desktop
+    /// - Else if already at Desktop or Lock: close PC
+    /// </summary>
+    public void HandleBackStepOnly()
+    {
+        // 1) Files screen: sub-step back inside file manager first
+        if (CurrentScreen == ComputerScreen.Files)
+        {
+            PCFileManager fm = GetFileManager();
+            if (fm != null && fm.CurrentFolder != FileGriddle.User)
+            {
+                fm.ChangeScreen(FolderScreen.User);
+                return;
+            }
+
+            // At Files root -> go to Desktop
+            ChangeScreen(ComputerScreen.Desktop);
+            return;
+        }
+
+        // 2) Any other non-root screen -> go to Desktop
+        if (CurrentScreen != ComputerScreen.Desktop && CurrentScreen != ComputerScreen.LockScreen)
+        {
+            ChangeScreen(ComputerScreen.Desktop);
+        }
+        else
+        {
+            GameMaster.Instance.EventManager.StopComputer();
+        }
+
+    }
+
+    private PCFileManager GetFileManager()
+    {
+        for (int i = 0; i < AllProgrammeScreens.Count; i++)
+        {
+            PCScreen pc = AllProgrammeScreens[i].GetComponent<PCScreen>();
+            if (pc != null && pc.ThisPCScreen == ComputerScreen.Files)
+                return AllProgrammeScreens[i].GetComponent<PCFileManager>();
+        }
+        return null;
+    }
+
     public void LogOn()
     {
-
         if (PasswordInput.text.ToString().Trim().Equals(GameMaster.Instance.NORASPCPASSWORD.ToString().Trim()))
         {
-            //Debug.Log("in");
             ChangeScreen(ComputerScreen.Desktop);
             IsLoggedIn = true;
         }
         else
         {
-            //Debug.Log("no");
             ChangeScreen(ComputerScreen.LockScreen);
             IncorrectPasswordText.gameObject.SetActive(true);
             IsLoggedIn = false;
+
+            ClosePasswordFieldCompletely();
         }
+    }
+
+    private void ClosePasswordFieldCompletely()
+    {
+        if (PasswordInput == null) return;
+
+        _activeSteamInputField = null;
+
+        PasswordInput.DeactivateInputField();
+        if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
+
+        PasswordInput.SetTextWithoutNotify(string.Empty);
+        PasswordInput.caretPosition = 0;
+        PasswordInput.selectionAnchorPosition = 0;
+        PasswordInput.selectionFocusPosition = 0;
+        PasswordInput.ForceLabelUpdate();
     }
 
     public void SelectMenuItem(PCGriddle pcGriddle)
     {
-        //Debug.Log("GO TO " + pcGriddle);
-
         switch (pcGriddle)
         {
             case PCGriddle.None:
@@ -256,6 +377,7 @@ public class ComputerSystem : MonoBehaviour
     {
         CloseAllScreens();
 
+        
         for (var i = 0; i < AllProgrammeScreens.Count; i++)
         {
             if (AllProgrammeScreens[i].GetComponent<PCScreen>().ThisPCScreen.Equals(ScreenToOpen))
@@ -264,12 +386,16 @@ public class ComputerSystem : MonoBehaviour
 
                 SelectedScreen.alpha = 1;
                 SelectedScreen.interactable = true;
+                SelectedScreen.interactable = true;
                 SelectedScreen.blocksRaycasts = true;
 
                 PCScreen thisScreen = AllProgrammeScreens[i].GetComponent<PCScreen>();
+                
                 if (thisScreen.PCNavver != null) thisScreen.PCNavver.enabled = true;
+                CurrentScreen = ScreenToOpen;
             }
         }
+
     }
 
     public void CloseAllScreens()
@@ -284,8 +410,6 @@ public class ComputerSystem : MonoBehaviour
 
             PCScreen thisScreen = AllProgrammeScreens[i].GetComponent<PCScreen>();
             if (thisScreen.PCNavver != null) thisScreen.PCNavver.enabled = false;
-
-            //Debug.Log("Closed: " + AllProgrammeScreens[i].gameObject.name);
         }
     }
 
@@ -297,10 +421,8 @@ public class ComputerSystem : MonoBehaviour
         toPlayer.y = 0f;
         if (toPlayer.sqrMagnitude < 0.0001f) return;
 
-        // Yaw-only target (world space)
         float targetYaw = Quaternion.LookRotation(toPlayer, Vector3.up).eulerAngles.y;
 
-        // Keep current X/Z exactly, replace only Y
         Vector3 e = PCScreenTransform.rotation.eulerAngles;
         PCScreenTransform.rotation = Quaternion.Euler(e.x, targetYaw, e.z);
     }
@@ -309,6 +431,15 @@ public class ComputerSystem : MonoBehaviour
     {
         if (PCScreenTransform == null) return;
         PCScreenTransform.rotation = defaultRotation;
+    }
+
+    public void OnPasswordFieldClicked()
+    {
+        PasswordInput?.ActivateInputField();
+        PasswordInput?.Select();
+
+        if (!_steamTextSessionOpen)
+            TryOpenSteamDeckKeyboardFor(PasswordInput, isPassword: true);
     }
 }
 

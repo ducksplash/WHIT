@@ -24,11 +24,11 @@ public class TravelCompanion : MonoBehaviour
 	public Dictionary<GAMELEVEL, string> AvailableLocations = new Dictionary<GAMELEVEL, string>();
 	public TextMeshProUGUI loadingclock;
 	public bool TravelClicked;
-	private bool launchAvailable = true; // Flag to track if launch is available
 	private float launchCooldown = 0.5f;
 	public GameObject notepadButtonPrefab;
 	public RectTransform scrollViewContent;
 	public InputActionReference exitButton;
+	public InputActionReference exitButtonPhoneKey;
 
 
 	
@@ -44,6 +44,7 @@ public class TravelCompanion : MonoBehaviour
         
         exitButton?.action.Enable();
         exitButton.action.performed += CloseCompanionInput;
+        exitButtonPhoneKey.action.performed += CloseCompanionInput;
         
 		InitialiseLocations();
     }
@@ -124,74 +125,61 @@ public class TravelCompanion : MonoBehaviour
 
 	public void LaunchCompanion()
 	{
-		if (launchAvailable)
+		if (GameMaster.Instance.PHONEOUT || GameMaster.Instance.ONPC) return;
+
+		if (!GameMaster.Instance.OnboardingManager.TESTEVIDENCECOLLECTED)
 		{
-			if (!GameMaster.Instance.OnboardingManager.TESTEVIDENCECOLLECTED)
-			{
-				GameMaster.Instance.OnboardingManager.EvidenceNotCollected();
-				return;
-			}
-			
-			if (!GameMaster.Instance.OnboardingManager.ONBOARDINGCOMPLETE)
-			{
-				GameMaster.Instance.OnboardingManager.NotReadyYet();
-				return;
-			}
-			
-			
-			if (!CompanionOpen)
-			{
-				Debug.Log("not open");
-				Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
+			GameMaster.Instance.OnboardingManager.EvidenceNotCollected();
+			return;
+		}
+		
+		if (!GameMaster.Instance.OnboardingManager.ONBOARDINGCOMPLETE)
+		{
+			GameMaster.Instance.OnboardingManager.NotReadyYet();
+			return;
+		}
+		
+		
+		if (!CompanionOpen)
+		{
+			Debug.Log("not open");
+			Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
 
-				Notepad.SetActive(true);
-				TravelCanvas.alpha = 1f;
-				TravelCanvas.blocksRaycasts = true;
-				GameMaster.Instance.INMENU = true;
-				GameMaster.Instance.FROZEN = true;
-				CompanionOpen = true;
-				evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.0f;
-				crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
+			Notepad.SetActive(true);
+			TravelCanvas.alpha = 1f;
+			TravelCanvas.blocksRaycasts = true;
+			GameMaster.Instance.INMENU = true;
+			GameMaster.Instance.FROZEN = true;
+			CompanionOpen = true;
+			evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.0f;
+			crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
 
-				Cursor.lockState = CursorLockMode.None;
-				Cursor.visible = true;
-			}
-			else
-			{
-				Debug.Log("open");
-				Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y - 1, Notepad.transform.localPosition.z);
+			Cursor.lockState = CursorLockMode.None;
+			Cursor.visible = true;
+		}
+		else
+		{
+			Debug.Log("open");
+			Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y - 1, Notepad.transform.localPosition.z);
 
-				Notepad.SetActive(false);
+			Notepad.SetActive(false);
 
-				TravelCanvas.alpha = 0f;
-				TravelCanvas.blocksRaycasts = false;
-				GameMaster.Instance.INMENU = false;
-				GameMaster.Instance.FROZEN = false;
-				CompanionOpen = false;
-				evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.9f;
-				crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
-			
-				Cursor.lockState = CursorLockMode.Locked;
-				Cursor.visible = false;
+			TravelCanvas.alpha = 0f;
+			TravelCanvas.blocksRaycasts = false;
+			GameMaster.Instance.INMENU = false;
+			GameMaster.Instance.FROZEN = false;
+			CompanionOpen = false;
+			evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.9f;
+			crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
+		
+			Cursor.lockState = CursorLockMode.Locked;
+			Cursor.visible = false;
 
-			}
-			
-			StartCoroutine(LaunchCooldown());
 		}
 	}
-	
-	
-	IEnumerator LaunchCooldown()
-	{
-		// Disable launch availability
-		launchAvailable = false;
 
-		// Wait for cooldown duration
-		yield return new WaitForSeconds(launchCooldown);
 
-		// Enable launch availability
-		launchAvailable = true;
-	}
+
 
 	public void ChangeScene(GAMELEVEL SceneName)
 	{

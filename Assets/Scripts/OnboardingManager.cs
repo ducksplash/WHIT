@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Threading.Tasks;
@@ -43,7 +44,7 @@ public class OnboardingManager : MonoBehaviour
     public DialogueName phoneTutorialGotPhone = DialogueName.KieronToNoraGotPhone;
     public DialogueName phoneTutorialFirstEvidence = DialogueName.KieronToNoraFirstEvidence;
     public DialogueName readyMessage = DialogueName.NoraReadyToGo;
-
+    
     [Header("First Evidence")]
     public EvidenceName FirstOnboardingEvidence = EvidenceName.Wine;
 

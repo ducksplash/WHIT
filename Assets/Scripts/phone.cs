@@ -1247,6 +1247,9 @@ public class Phone : MonoBehaviour
 
     public void ConsolePhoneButtonAction(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
+        if (GameMaster.Instance.ONPC) return;
+        if (GameMaster.Instance.TravelCompanion.CompanionOpen) return;
+        
         if (GameMaster.Instance.PHONEOUT)
         {
             

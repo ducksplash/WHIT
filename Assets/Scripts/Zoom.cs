@@ -83,7 +83,7 @@ public class Zoom : MonoBehaviour
 
     private void OnZoomInPerformed(InputAction.CallbackContext context)
     {
-        if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.TravelCompanion.CompanionIsOpen) return;
+        if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.PauseManager.IsPaused || GameMaster.Instance.TravelCompanion.CompanionIsOpen) return;
 
         zoomAmount = Mathf.Clamp01(zoomAmount + zoomStep);
         UpdateFOV();
@@ -91,8 +91,7 @@ public class Zoom : MonoBehaviour
 
     private void OnZoomOutPerformed(InputAction.CallbackContext context)
     {
-        if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.TravelCompanion.CompanionIsOpen)
-            return;
+        if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.PauseManager.IsPaused || GameMaster.Instance.TravelCompanion.CompanionIsOpen) return;
 
         zoomAmount = Mathf.Clamp01(zoomAmount - zoomStep);
         UpdateFOV();

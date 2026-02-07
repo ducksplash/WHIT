@@ -67,6 +67,11 @@ public class DialogueManager : MonoBehaviour
     {
         // for now we'll do a dumb collection of the replaceables, later we'll try to make it dynamic.
         // we can use new Input Manager to supply input names
+        
+        // This should be matched to
+        // The player controls file in root of 'Tawley' in the BUILDS directory 
+        // The input system in Unity.
+        // Still deciding whether or not to allow input swapping at game level, since Steam does these now. 
 
         if (GameMaster.Instance.DeviceType.selectedDeviceType == PlayerDeviceType.SteamOS)
         {

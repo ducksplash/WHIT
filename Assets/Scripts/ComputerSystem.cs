@@ -43,15 +43,16 @@ public class ComputerSystem : MonoBehaviour
     public CanvasGroup CrosshairCanvas;
 
     public bool IsLoggedIn;
+    public bool ComputerOpen;
     public TMP_InputField PasswordInput;
 
     public Transform ViewableArea;
 
     public Collider PCCollider;
 
-    // Only two inputs now:
-    // - goBack: step back (Files sub-screen -> Files root -> Desktop) then close PC if pressed again on Desktop/Lock
-    // - rightClickExit: always close PC immediately
+    public List<PCNavver> PCScreenNavvers = new List<PCNavver>();
+    
+
     public InputActionReference goBack;
     public InputActionReference rightClickExit;
 
@@ -72,8 +73,7 @@ public class ComputerSystem : MonoBehaviour
         IncorrectPasswordText.gameObject.SetActive(false);
 
         EventManager.OnStopComputer += OnStopComputer;
-
-        // goBack = step back
+        
         if (goBack != null)
         {
             goBack.action.performed -= InputGoBack;
@@ -94,6 +94,8 @@ public class ComputerSystem : MonoBehaviour
             PasswordInput.onDeselect.AddListener(_ => OnPasswordDeselected());
             PasswordInput.onSubmit.AddListener(_ => OnPasswordSubmitted());
         }
+
+        DisableNavvers();
     }
 
     private bool IsSteamOS()
@@ -103,20 +105,15 @@ public class ComputerSystem : MonoBehaviour
 
     private void OnPasswordSelected()
     {
-        if (!_steamTextSessionOpen)
-            TryOpenSteamDeckKeyboardFor(PasswordInput, isPassword: true);
+        if (!_steamTextSessionOpen) TryOpenSteamDeckKeyboardFor(PasswordInput, isPassword: true);
     }
 
     private void OnPasswordDeselected()
     {
-        if (!_steamTextSessionOpen)
-            _activeSteamInputField = null;
+        if (!_steamTextSessionOpen) _activeSteamInputField = null;
     }
 
-    private void OnPasswordSubmitted()
-    {
-        LogOn();
-    }
+    private void OnPasswordSubmitted() { LogOn(); }
 
     private void TryOpenSteamDeckKeyboardFor(TMP_InputField field, bool isPassword)
     {
@@ -124,6 +121,7 @@ public class ComputerSystem : MonoBehaviour
         if (!IsSteamOS()) return;
         if (!SteamManager.Initialized) return;
         if (_steamTextSessionOpen) return;
+        if (!ComputerOpen) return;
 
         _activeSteamInputField = field;
 
@@ -190,8 +188,10 @@ public class ComputerSystem : MonoBehaviour
 
     public void OnStartComputer()
     {
+        if (ComputerOpen) return;
         if (GameMaster.Instance.PLAYERBUSY) return;
         GameMaster.Instance.PLAYERBUSY = true;
+        ComputerOpen = true;
         
         FacePlayerOnY();
 
@@ -214,13 +214,17 @@ public class ComputerSystem : MonoBehaviour
 
     public void OnStopComputer()
     {
+        if (!ComputerOpen) return;
         if (!GameMaster.Instance.PLAYERBUSY) return;
 
+        
         RotBack();
 
-        if (rightClickExit != null)
-            rightClickExit.action.performed -= InputClosePC;
+        if (rightClickExit != null) rightClickExit.action.performed -= InputClosePC;
 
+        
+        ChangeScreen(IsLoggedIn ? ComputerScreen.Desktop : ComputerScreen.LockScreen);
+        
         PCCollider.enabled = true;
         NearestChair.gameObject.SetActive(true);
         IncorrectPasswordText.gameObject.SetActive(false);
@@ -228,8 +232,10 @@ public class ComputerSystem : MonoBehaviour
         Cursor.visible = false;
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 1.0f;
 
+        ClosePasswordFieldCompletely();        
+        ComputerOpen = false;
         GameMaster.Instance.PLAYERBUSY = false;
-        ClosePasswordFieldCompletely();
+        DisableNavvers();
     }
 
     private bool CanHandlePCInput(InputAction.CallbackContext ctx)
@@ -252,6 +258,7 @@ public class ComputerSystem : MonoBehaviour
     // rightClickExit: always close PC immediately
     public void InputClosePC(InputAction.CallbackContext callbackContext)
     {
+        if (ComputerOpen) return;
         GameMaster.Instance.EventManager.StopComputer();
     }
 
@@ -370,7 +377,6 @@ public class ComputerSystem : MonoBehaviour
     public void ChangeScreen(ComputerScreen ScreenToOpen)
     {
         CloseAllScreens();
-
         
         for (var i = 0; i < AllProgrammeScreens.Count; i++)
         {
@@ -389,7 +395,6 @@ public class ComputerSystem : MonoBehaviour
                 CurrentScreen = ScreenToOpen;
             }
         }
-
     }
 
     public void CloseAllScreens()
@@ -434,6 +439,14 @@ public class ComputerSystem : MonoBehaviour
 
         if (!_steamTextSessionOpen)
             TryOpenSteamDeckKeyboardFor(PasswordInput, isPassword: true);
+    }
+
+    private void DisableNavvers()
+    {
+        for (var i = 0; i < PCScreenNavvers.Count; i++)
+        {
+            PCScreenNavvers[i].enabled = false;
+        }
     }
 }
 

@@ -63,7 +63,6 @@ public class Phone : MonoBehaviour
     public int resWidth = 600;
     public int resHeight = 1000;
     public Camera getCamera;
-    public bool WaitingForPhone;
     private bool BigMessageOpen;
     private bool BigMessageCanOpen;
     public GameObject MiniMapCam;
@@ -80,9 +79,9 @@ public class Phone : MonoBehaviour
     public Button galleryNext;
     public int PhotosInGallery;
     private GameObject ObservedEvidence;
-    public InputActionReference togglePhonePC;
+    public InputActionReference TogglePhoneInput;
     public InputActionReference InteractAction;
-    public InputActionReference goBack;
+    public InputActionReference StepBackInput;
     public InputActionReference listBackButton;
     public InputActionReference listNextButton;
     public InputActionReference numPad0;
@@ -174,8 +173,8 @@ public class Phone : MonoBehaviour
 
     private void OnEnable()
     {
-        goBack.action.performed += ConsolePhoneButtonAction;
-        togglePhonePC.action.performed += ActionTogglePhone;
+        StepBackInput.action.performed += ActionStepBack;
+        TogglePhoneInput.action.performed += ActionTogglePhone;
         EventManager.OnStopPhone += EventStopPhone;
 
         listBackButton.action.performed += GalleryBackAction;
@@ -198,8 +197,8 @@ public class Phone : MonoBehaviour
 
     private void OnDisable()
     {
-        goBack.action.performed -= ConsolePhoneButtonAction;
-        togglePhonePC.action.performed -= ActionTogglePhone;
+        StepBackInput.action.performed -= ActionStepBack;
+        TogglePhoneInput.action.performed -= ActionTogglePhone;
 
         listBackButton.action.performed -= GalleryBackAction;
         listNextButton.action.performed -= GalleryNextAction;
@@ -221,23 +220,42 @@ public class Phone : MonoBehaviour
 
     void Start()
     {
-        WaitingForPhone = true;
-
         if (galleryBigPhotoCanvas != null)
         {
             galleryBigPhotoCanvas.alpha = 0f;
             galleryBigPhotoCanvas.blocksRaycasts = false;
         }
 
-        if (phoneCollider != null)
-            phoneCollider.enabled = false;
+        if (phoneCollider != null) phoneCollider.enabled = false;
 
         if (phoneCameraComponent != null) phoneCameraComponent.enabled = false;
         MiniMapCam.SetActive(false);
 
         LoadGallery();
     }
+    
+    private void ActionStepBack(InputAction.CallbackContext callbackContext)
+    {
+        if (!callbackContext.performed) return;
 
+        // If phone is not open, StepBack should open it EXACTLY like toggle.
+        if (!PhoneOpened)
+        {
+            ActionTogglePhone(callbackContext);
+            return;
+        }
+
+        // If phone IS open: step back through UI
+        if (homeScreenGroup != null && homeScreenGroup.alpha < 0.9f)
+        {
+            changeScreen(HomeScreen);
+        }
+        else
+        {
+            PutAwayPhone();
+        }
+    }
+    
     void changeScreen(GameObject useThisScreen)
     {
         if (currentScreen == useThisScreen) return;
@@ -250,8 +268,7 @@ public class Phone : MonoBehaviour
         Transform[] allScreens = MobilePhone.GetComponentsInChildren<Transform>(true);
         Transform[] useTheseScreens = useThisScreen.GetComponentsInChildren<Transform>(true);
 
-        if (phoneCameraComponent != null)
-            phoneCameraComponent.enabled = false;
+        if (phoneCameraComponent != null) phoneCameraComponent.enabled = false;
 
         foreach (Transform screen in allScreens)
         {
@@ -364,6 +381,8 @@ public class Phone : MonoBehaviour
             CameraSavedTextBG.text = "";                            
             CameraReadyText.text = "";
             CameraReadyTextBG.text = "";
+            
+            Player.Instance.MoveOverride = false;
         }
 
         if (useThisScreen != MapsScreen)
@@ -372,6 +391,13 @@ public class Phone : MonoBehaviour
         }
 
         currentScreen = useThisScreen;
+        
+        if (PhoneOpened)
+        {
+            if (useThisScreen == CameraScreen) { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; } else { Cursor.lockState = CursorLockMode.None; Cursor.visible = true; }
+        }
+
+        
         Debug.Log("currentScreen " + currentScreen);
     }
 
@@ -403,7 +429,7 @@ public class Phone : MonoBehaviour
 
     private void EventStopPhone()
     {
-        if (PhoneOpened) PutAwayPhone();
+        PutAwayPhone();
     }
     
     private void ActionTogglePhone(InputAction.CallbackContext callbackContext)
@@ -422,45 +448,50 @@ public class Phone : MonoBehaviour
 
     private void TakeOutPhone()
     {
-        if (GameMaster.Instance.PLAYERBUSY) return;
         if (PhoneOpened) return;
-        
+        if (GameMaster.Instance.PLAYERBUSY) return;
+        if (GameMaster.Instance.PauseManager.IsPaused) return;
+
+        GameMaster.Instance.PLAYERBUSY = true;
+        PhoneOpened = true;
+
+        // Ensure phone UI starts at home
         changeScreen(HomeScreen);
         HomeScreenNavver.gameObject.SetActive(true);
 
         GameMaster.Instance.EventManager.PhoneOpened();
+        GameMaster.Instance.OnboardingManager.OpenedPhone();
 
-        GameMaster.Instance.PLAYERBUSY = PhoneOpened = true;
-        
-        if (!GameMaster.Instance.OnboardingManager.PHONEACCESSED)
-        {
-            GameMaster.Instance.OnboardingManager.OpenedPhone();
-        }
-
-        MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y + 1, MobilePhone.transform.localPosition.z);
+        MobilePhone.transform.localPosition = new Vector3(
+            MobilePhone.transform.localPosition.x,
+            MobilePhone.transform.localPosition.y + 1,
+            MobilePhone.transform.localPosition.z
+        );
 
         if (phoneCanvasGroup != null) phoneCanvasGroup.alpha = 1.0f;
 
+        if (phoneCollider != null) phoneCollider.enabled = true;
+
+        // ✅ IMPORTANT: always set UI cursor mode when phone opens
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-
-        if (phoneCollider != null) phoneCollider.enabled = true;
     }
+
 
     public void PutAwayPhone()
     {
         if (!PhoneOpened) return;
-        
+
         changeScreen(HomeScreen);
 
-        GameMaster.Instance.PLAYERBUSY = PhoneOpened = false;
-
         if (phoneCollider != null) phoneCollider.enabled = false;
-        
-        MobilePhone.transform.localPosition = new Vector3(MobilePhone.transform.localPosition.x, MobilePhone.transform.localPosition.y - 1, MobilePhone.transform.localPosition.z);
 
-        CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;
+        MobilePhone.transform.localPosition = new Vector3(
+            MobilePhone.transform.localPosition.x,
+            MobilePhone.transform.localPosition.y - 1,
+            MobilePhone.transform.localPosition.z
+        );
 
         if (phoneCanvasGroup != null) phoneCanvasGroup.alpha = 0.0f;
 
@@ -477,10 +508,16 @@ public class Phone : MonoBehaviour
             StopCoroutine(CallCoroutine);
             CallCoroutine = null;
         }
-        
+
+        // ✅ IMPORTANT: always restore gameplay cursor mode when phone closes
+        CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        GameMaster.Instance.PLAYERBUSY = false;
+        PhoneOpened = false;
     }
+
 
     public void SelectPhoneGridItem(PhonerGriddle SelectedGridSquare, DialogueName selectedDialogue = DialogueName.None)
     {
@@ -497,10 +534,7 @@ public class Phone : MonoBehaviour
 
         if (selectedDialogue != DialogueName.None)
         {
-
-            retrievedDialogue = GameMaster.Instance.DialogueManager.Dialogues.FirstOrDefault(
-                d => d.DialogueName == selectedDialogue
-            );
+            retrievedDialogue = GameMaster.Instance.DialogueManager.Dialogues.FirstOrDefault(d => d.DialogueName == selectedDialogue);
         }
 
         if (selectedDialogue != DialogueName.None)
@@ -879,10 +913,8 @@ public class Phone : MonoBehaviour
         if (cameraSavedTextBgGroup != null) cameraSavedTextBgGroup.alpha = 0;
         if (phoneCameraComponent != null) phoneCameraComponent.enabled = true;
         
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        
         CameraOpen = true;
+        Player.Instance.MoveOverride = true;
     }
 
     public void GalleryButton()
@@ -1240,14 +1272,10 @@ public class Phone : MonoBehaviour
         InteractAction.action.performed -= GalleryViewPhoto;
     }
 
-    public void ConsolePhoneButtonAction(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
+    public void ConsolePhoneButtonAction(InputAction.CallbackContext callbackContext)
     {
-        if (GameMaster.Instance.TravelCompanion.CompanionOpen) return;
-        
         if (PhoneOpened)
         {
-            
-            Debug.Log(homeScreenGroup != null ? homeScreenGroup.alpha : 0f);
             if (homeScreenGroup != null && homeScreenGroup.alpha < 0.9f)
             {
                 changeScreen(HomeScreen);
@@ -1256,7 +1284,6 @@ public class Phone : MonoBehaviour
             {
                 PutAwayPhone();
             }
-            
         }
         else
         {

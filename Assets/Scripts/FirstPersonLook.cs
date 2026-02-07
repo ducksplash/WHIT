@@ -31,18 +31,17 @@ public class FirstPersonLook : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!GameMaster.Instance.PLAYERBUSY)
-        {
-            transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
-            character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
-        }
+        if (GameMaster.Instance.PauseManager.IsPaused) return;
+        if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
+        
+        transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
+        character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
     }
 
     private void LateUpdate()
     {
-        if (GameMaster.Instance.PLAYERBUSY) return;
+        if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
 
-        // While locked: freeze input completely (no smoothing leakage)
         if (_lookLocked)
         {
             appliedMouseDelta = Vector2.zero;

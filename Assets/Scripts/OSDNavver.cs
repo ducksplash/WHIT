@@ -47,6 +47,7 @@ public class OSDNavver : MonoBehaviour
     private void OnEnable()
     {
         SubscribeEvents();
+        Debug.Log("enabled");
         StartCoroutine(HoverLastOrDefaultNextFrame());
     }
 
@@ -89,8 +90,11 @@ public class OSDNavver : MonoBehaviour
 
     private void OnUp(InputAction.CallbackContext ctx)
     {
+        Debug.Log("on UP");
         if (!GameMaster.Instance.PLAYERBUSY) return;
 
+        Debug.Log("player busy "+GameMaster.Instance.PLAYERBUSY);
+        
         int newIndex = currentIndex;
         switch (Layout)
         {

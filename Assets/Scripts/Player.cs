@@ -64,6 +64,8 @@ public class Player : Singleton<Player>
     private bool jumpRequested = false;
     private bool walking = false;
 
+    public bool MoveOverride;
+    
 
     void Start()
     {
@@ -100,9 +102,13 @@ public class Player : Singleton<Player>
 
     void Update()
     {
-        if (GameMaster.Instance.PLAYERBUSY) jumpRequested = false;
+        if (GameMaster.Instance.PauseManager.IsPaused) return;
 
-        if (!GameMaster.Instance.PLAYERBUSY) HandleMovement();
+        if (MoveOverride && moveAction != null && !moveAction.action.enabled) moveAction.action.Enable();
+
+        if (GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
+
+        HandleMovement();
     }
 
 
@@ -160,7 +166,12 @@ public class Player : Singleton<Player>
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        if (GameMaster.Instance.PLAYERBUSY) return;
+        if (GameMaster.Instance.PLAYERBUSY && !MoveOverride)
+        {
+            jumpRequested = false;
+            return;
+        }
+        
         if (climbing) return;
         if (crouching) return;
 
@@ -171,7 +182,7 @@ public class Player : Singleton<Player>
     private void OnCrouchToggle(InputAction.CallbackContext ctx)
     {
         if (climbing) return;
-        if (GameMaster.Instance.PLAYERBUSY) return;
+        if (GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
         
         if (!crouching) Crouch();
         else

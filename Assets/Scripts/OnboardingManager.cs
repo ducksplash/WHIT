@@ -258,6 +258,7 @@ public class OnboardingManager : MonoBehaviour
 
     public void OpenedPhone()
     {
+        if (PHONEACCESSED) return;
         Debug.Log("OpenedPhone");
         PHONEACCESSED = true;
         GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialGotPhone, 6);

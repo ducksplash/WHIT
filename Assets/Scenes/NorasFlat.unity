@@ -1090,7 +1090,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 10580542}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f585e45a3c2e8394ebed6c0b9587c744, type: 3}
   m_Name: 
@@ -1842,7 +1842,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   IsPaused: 0
-  pauseUnderlay: {fileID: 8353731}
+  PauseScreenPanel: {fileID: 8353731}
   VirtualCursor: {fileID: 1797909661}
 --- !u!1 &27342203
 GameObject:
@@ -28055,12 +28055,15 @@ MonoBehaviour:
   RotationMenu: {fileID: 1377051232}
   pickupDropAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b,
     type: 3}
+  exitAction: {fileID: -6581854495331433626, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
   throwAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b,
     type: 3}
   rotateAction: {fileID: 8288821940237392107, guid: 052faaac586de48259a63d0c4782560b,
     type: 3}
   focusAction: {fileID: 4738086603316564303, guid: 052faaac586de48259a63d0c4782560b,
     type: 3}
+  rotateSpeed: 180
 --- !u!1 &729558162
 GameObject:
   m_ObjectHideFlags: 0
@@ -46137,7 +46140,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1224629164}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -54062,7 +54065,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1396142133}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f585e45a3c2e8394ebed6c0b9587c744, type: 3}
   m_Name: 
@@ -60125,16 +60128,10 @@ MonoBehaviour:
   DefaultFOV: 0
   NORASPCPASSWORD: 1629
   MouseSensitivity: 0.2
+  PLAYERBUSY: 0
   POWER_SUPPLY_ENABLED: 0
   INCINERATOR_ENABLED: 0
-  FROZEN: 0
   ONLADDER: 0
-  INMENU: 0
-  HASITEM: 0
-  PHONEOUT: 0
-  ONPC: 0
-  ISWRITING: 0
-  ONBOARDINGCOMPLETED: 0
   THISLEVEL: 0
   ThisScene:
     m_Handle: 0
@@ -60916,7 +60913,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1548470896}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -86024,6 +86021,7 @@ MonoBehaviour:
   exitLadderAction: {fileID: 0}
   FirstPersonLook: {fileID: 114657890490130866}
   PlayerPhone: {fileID: 5148817236368904745}
+  MoveOverride: 0
 --- !u!143 &114963311883893497
 CharacterController:
   m_ObjectHideFlags: 0
@@ -92507,9 +92505,13 @@ MonoBehaviour:
   SystemText: {fileID: 0}
   CrosshairCanvas: {fileID: 388548396}
   IsLoggedIn: 0
+  ComputerOpen: 0
   PasswordInput: {fileID: 1730742176}
   ViewableArea: {fileID: 0}
   PCCollider: {fileID: 986095765}
+  PCScreenNavvers:
+  - {fileID: 1396142135}
+  - {fileID: 10580544}
   goBack: {fileID: -6581854495331433626, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   rightClickExit: {fileID: -4756496150257272320, guid: 052faaac586de48259a63d0c4782560b,
     type: 3}
@@ -100553,7 +100555,6 @@ MonoBehaviour:
   resWidth: 600
   resHeight: 1000
   getCamera: {fileID: 0}
-  WaitingForPhone: 0
   MiniMapCam: {fileID: 1678379518}
   gotfiles: 0
   currentpage: 0
@@ -100567,11 +100568,12 @@ MonoBehaviour:
   galleryBack: {fileID: 345419917}
   galleryNext: {fileID: 385940613}
   PhotosInGallery: 0
-  togglePhonePC: {fileID: -7633677907381403323, guid: 052faaac586de48259a63d0c4782560b,
+  TogglePhoneInput: {fileID: -7633677907381403323, guid: 052faaac586de48259a63d0c4782560b,
     type: 3}
   InteractAction: {fileID: 2005745584693404981, guid: 052faaac586de48259a63d0c4782560b,
     type: 3}
-  goBack: {fileID: -6581854495331433626, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  StepBackInput: {fileID: -6581854495331433626, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
   listBackButton: {fileID: 6347844660604192234, guid: 052faaac586de48259a63d0c4782560b,
     type: 3}
   listNextButton: {fileID: 799835501736684171, guid: 052faaac586de48259a63d0c4782560b,

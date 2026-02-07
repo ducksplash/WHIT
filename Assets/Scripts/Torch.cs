@@ -85,7 +85,8 @@ public class Torch : MonoBehaviour
     private void OnSwing(InputAction.CallbackContext ctx)
     {
         if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED) return;
-        if (GameMaster.Instance.PLAYERBUSY || isSwinging) return;
+        if (GameMaster.Instance.PLAYERBUSY || isSwinging || GameMaster.Instance.PauseManager.IsPaused) return;
+        
         
         isSwinging = true;
 

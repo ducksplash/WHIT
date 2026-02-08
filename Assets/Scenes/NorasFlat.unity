@@ -120,6 +120,74 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &2737472
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2737473}
+  - component: {fileID: 2737474}
+  m_Layer: 5
+  m_Name: FILENAVVER
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2737473
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2737472}
+  m_LocalRotation: {x: -1.8548e-10, y: 0.00000005966283, z: 7.7125123e-10, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 973717595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -0.010007404, y: -0.20500001}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2737474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2737472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12a853852f102f0458290dd38dc02781, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FileNavver
+  UpAction: {fileID: -4850385256915706090, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  DownAction: {fileID: 359211000842938668, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  LeftAction: {fileID: 6347844660604192234, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  RightAction: {fileID: 799835501736684171, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  SubmitAction: {fileID: -3684798696395472340, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  GridButtons:
+  - {fileID: 1337718104}
+  - {fileID: 886459760}
+  - {fileID: 2016700894}
+  - {fileID: 1133829962}
+  - {fileID: 1456620210}
+  Layout: 0
+  columns: 3
+  rows: 4
+  hoverColor: {r: 0, g: 0.78, b: 0, a: 1}
 --- !u!1 &3970511
 GameObject:
   m_ObjectHideFlags: 0
@@ -20590,6 +20658,41 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &517363009
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 517363010}
+  m_Layer: 5
+  m_Name: --------------
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &517363010
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517363009}
+  m_LocalRotation: {x: -1.857642e-10, y: 0.000000059546416, z: 2.4738248e-10, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 973717595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.07700515, y: -0.23200008}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &517767457
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -33614,8 +33717,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 886459758}
-  - component: {fileID: 886459760}
   - component: {fileID: 886459759}
+  - component: {fileID: 886459760}
   m_Layer: 5
   m_Name: Downloads
   m_TagString: Untagged
@@ -33690,7 +33793,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 886459760}
-        m_TargetAssemblyTypeName: FileFolderButton, Assembly-CSharp
+        m_TargetAssemblyTypeName: FileButton, Assembly-CSharp
         m_MethodName: ExecuteCommand
         m_Mode: 1
         m_Arguments:
@@ -33712,14 +33815,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d49b385c9adcbd444acbc7b28b891c3c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FileFolderButton
+  m_EditorClassIdentifier: Assembly-CSharp::FileButton
   FileFolder: 2002
   AppOutline: {fileID: 347309835}
   AppButton: {fileID: 886459759}
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
-  outlineColor: {r: 0, g: 0.7137255, b: 0, a: 1}
+  outlineColor: {r: 0, g: 0, b: 0, a: 0}
   selectedDialogue: 0
 --- !u!1 &887682166
 GameObject:
@@ -38127,11 +38230,14 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
+  - {fileID: 2737473}
   - {fileID: 1479921969}
   - {fileID: 2107188438}
   - {fileID: 1118429899}
   - {fileID: 33585932}
+  - {fileID: 1856705041}
   - {fileID: 1031725136}
+  - {fileID: 517363010}
   m_Father: {fileID: 159939296}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -38147,7 +38253,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 973717594}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -38179,9 +38285,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   CurrentFolder: 2000
   AllFolderScreens:
-  - {fileID: 1162276475}
   - {fileID: 1037347524}
-  FileNavvers: []
+  - {fileID: 1162276475}
+  FileManagerNavver: {fileID: 2737474}
+  AddressBarText: {fileID: 1649056796}
+  AddressBarRoot: 
 --- !u!1 &977055466
 GameObject:
   m_ObjectHideFlags: 0
@@ -39500,74 +39608,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!1 &999709541
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 999709542}
-  - component: {fileID: 999709543}
-  m_Layer: 5
-  m_Name: NAVVERFILEUSER
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &999709542
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 999709541}
-  m_LocalRotation: {x: -1.4892966e-10, y: 0.00000005959007, z: -5.0704313e-10, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1037347523}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.09898941, y: -0.11740036}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &999709543
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 999709541}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 12a853852f102f0458290dd38dc02781, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FileNavver
-  UpAction: {fileID: 3642985609635455809, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  DownAction: {fileID: 5905334870462324265, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  LeftAction: {fileID: 6015128987140842579, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  RightAction: {fileID: 310176053375570818, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  SubmitAction: {fileID: -4902151775068343606, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  GridButtons:
-  - {fileID: 1337718104}
-  - {fileID: 886459760}
-  - {fileID: 2016700894}
-  - {fileID: 1133829962}
-  - {fileID: 1456620210}
-  Layout: 3
-  columns: 3
-  rows: 4
-  hoverColor: {r: 0, g: 0.78, b: 0, a: 1}
 --- !u!1 &1002758301
 GameObject:
   m_ObjectHideFlags: 0
@@ -41006,7 +41046,6 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 999709542}
   - {fileID: 1337718102}
   - {fileID: 886459758}
   - {fileID: 2016700892}
@@ -41028,8 +41067,8 @@ CanvasGroup:
   m_GameObject: {fileID: 1037347522}
   m_Enabled: 1
   m_Alpha: 0
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!114 &1037347525
 MonoBehaviour:
@@ -41044,7 +41083,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   ThisFileFolder: 2000
-  FileNavver: {fileID: 999709543}
 --- !u!1 &1037458014
 GameObject:
   m_ObjectHideFlags: 0
@@ -43792,8 +43830,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1133829960}
-  - component: {fileID: 1133829962}
   - component: {fileID: 1133829961}
+  - component: {fileID: 1133829962}
   m_Layer: 5
   m_Name: Videos
   m_TagString: Untagged
@@ -43868,7 +43906,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1133829962}
-        m_TargetAssemblyTypeName: FileFolderButton, Assembly-CSharp
+        m_TargetAssemblyTypeName: FileButton, Assembly-CSharp
         m_MethodName: ExecuteCommand
         m_Mode: 1
         m_Arguments:
@@ -43890,14 +43928,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d49b385c9adcbd444acbc7b28b891c3c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FileFolderButton
+  m_EditorClassIdentifier: Assembly-CSharp::FileButton
   FileFolder: 2004
   AppOutline: {fileID: 218998809}
   AppButton: {fileID: 1133829961}
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
-  outlineColor: {r: 0, g: 0.7137255, b: 0, a: 1}
+  outlineColor: {r: 0, g: 0, b: 0, a: 0}
   selectedDialogue: 0
 --- !u!1 &1136372340
 GameObject:
@@ -44949,7 +44987,6 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1412891381}
   - {fileID: 901220939}
   - {fileID: 1233292205}
   m_Father: {fileID: 1031725136}
@@ -44967,9 +45004,9 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1162276473}
   m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!114 &1162276476
 MonoBehaviour:
@@ -44984,7 +45021,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   ThisFileFolder: 2003
-  FileNavver: {fileID: 1412891382}
 --- !u!1 &1165269161
 GameObject:
   m_ObjectHideFlags: 0
@@ -47045,7 +47081,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1224629164}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -52185,6 +52221,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1316604856}
+  - component: {fileID: 1316604857}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -52213,6 +52250,62 @@ RectTransform:
   m_AnchoredPosition: {x: 52.61, y: 0}
   m_SizeDelta: {x: 4.199997, y: 4.2}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1316604857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1316604855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 0
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 0}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 973717598}
+        m_TargetAssemblyTypeName: PCFileManager, Assembly-CSharp
+        m_MethodName: FolderStepBack
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1321839713
 GameObject:
   m_ObjectHideFlags: 0
@@ -53207,8 +53300,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1337718102}
-  - component: {fileID: 1337718104}
   - component: {fileID: 1337718103}
+  - component: {fileID: 1337718104}
   m_Layer: 5
   m_Name: Documents
   m_TagString: Untagged
@@ -53283,7 +53376,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1337718104}
-        m_TargetAssemblyTypeName: FileFolderButton, Assembly-CSharp
+        m_TargetAssemblyTypeName: FileButton, Assembly-CSharp
         m_MethodName: ExecuteCommand
         m_Mode: 1
         m_Arguments:
@@ -53305,14 +53398,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d49b385c9adcbd444acbc7b28b891c3c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FileFolderButton
+  m_EditorClassIdentifier: Assembly-CSharp::FileButton
   FileFolder: 2001
   AppOutline: {fileID: 846064969}
   AppButton: {fileID: 1337718103}
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
-  outlineColor: {r: 0, g: 0.7137255, b: 0, a: 1}
+  outlineColor: {r: 0, g: 0.78431374, b: 0, a: 1}
   selectedDialogue: 0
 --- !u!1 &1338059507
 GameObject:
@@ -55336,69 +55429,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1411554728}
   m_CullTransparentMesh: 1
---- !u!1 &1412891380
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1412891381}
-  - component: {fileID: 1412891382}
-  m_Layer: 5
-  m_Name: NAVVERFILEPHOTOS
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!224 &1412891381
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1412891380}
-  m_LocalRotation: {x: -1.4892966e-10, y: 0.00000005959007, z: -5.0704313e-10, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1162276474}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.09898941, y: -0.11740036}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1412891382
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1412891380}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 12a853852f102f0458290dd38dc02781, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FileNavver
-  UpAction: {fileID: 3642985609635455809, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  DownAction: {fileID: 5905334870462324265, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  LeftAction: {fileID: 6015128987140842579, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  RightAction: {fileID: 310176053375570818, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  SubmitAction: {fileID: -4902151775068343606, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
-  GridButtons: []
-  Layout: 3
-  columns: 3
-  rows: 4
-  hoverColor: {r: 0, g: 0.78, b: 0, a: 1}
 --- !u!1 &1417892097
 GameObject:
   m_ObjectHideFlags: 0
@@ -57068,8 +57098,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1456620208}
-  - component: {fileID: 1456620210}
   - component: {fileID: 1456620209}
+  - component: {fileID: 1456620210}
   m_Layer: 5
   m_Name: Audio
   m_TagString: Untagged
@@ -57144,7 +57174,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1456620210}
-        m_TargetAssemblyTypeName: FileFolderButton, Assembly-CSharp
+        m_TargetAssemblyTypeName: FileButton, Assembly-CSharp
         m_MethodName: ExecuteCommand
         m_Mode: 1
         m_Arguments:
@@ -57166,14 +57196,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d49b385c9adcbd444acbc7b28b891c3c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FileFolderButton
-  FileFolder: 2003
+  m_EditorClassIdentifier: Assembly-CSharp::FileButton
+  FileFolder: 2005
   AppOutline: {fileID: 1520448664}
   AppButton: {fileID: 1456620209}
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
-  outlineColor: {r: 0, g: 0.7137255, b: 0, a: 1}
+  outlineColor: {r: 0, g: 0, b: 0, a: 0}
   selectedDialogue: 0
 --- !u!1 &1459972487
 GameObject:
@@ -72177,6 +72207,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1790775091}
+  - component: {fileID: 1790775092}
   m_Layer: 5
   m_Name: XButton
   m_TagString: Untagged
@@ -72205,6 +72236,62 @@ RectTransform:
   m_AnchoredPosition: {x: 57.4, y: 0}
   m_SizeDelta: {x: 4.199997, y: 4.2}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1790775092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1790775090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 0
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 0}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 973717598}
+        m_TargetAssemblyTypeName: PCFileManager, Assembly-CSharp
+        m_MethodName: CloseToDesktop
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1791010546 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5907291531190137326, guid: 3a5d3b81b295ad14bbc74680f3273621,
@@ -75757,6 +75844,41 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1855511610}
   m_Mesh: {fileID: -427045069731158668, guid: 205ffb303c0ff8e4f812c9f19ab0e1ee, type: 3}
+--- !u!1 &1856705040
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1856705041}
+  m_Layer: 5
+  m_Name: --------------
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1856705041
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1856705040}
+  m_LocalRotation: {x: -1.857642e-10, y: 0.000000059546416, z: 2.4738248e-10, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 973717595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.07700515, y: -0.23200008}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1859713826
 GameObject:
   m_ObjectHideFlags: 0
@@ -78425,7 +78547,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a511ea3541a787542bf988dd18e58100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PCButton
-  ThisItem: 10002
+  ThisItem: 10009
   AppOutline: {fileID: 4619366}
   AppButton: {fileID: 1911717503}
   scaleUpButton: 0
@@ -82944,8 +83066,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2016700892}
-  - component: {fileID: 2016700894}
   - component: {fileID: 2016700893}
+  - component: {fileID: 2016700894}
   m_Layer: 5
   m_Name: Photos
   m_TagString: Untagged
@@ -83020,7 +83142,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2016700894}
-        m_TargetAssemblyTypeName: FileFolderButton, Assembly-CSharp
+        m_TargetAssemblyTypeName: FileButton, Assembly-CSharp
         m_MethodName: ExecuteCommand
         m_Mode: 1
         m_Arguments:
@@ -83042,14 +83164,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d49b385c9adcbd444acbc7b28b891c3c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FileFolderButton
+  m_EditorClassIdentifier: Assembly-CSharp::FileButton
   FileFolder: 2003
   AppOutline: {fileID: 599390796}
   AppButton: {fileID: 2016700893}
   scaleUpButton: 0
   origScale: {x: 0, y: 0, z: 0}
   scaleUp: 1.1
-  outlineColor: {r: 0, g: 0.7137255, b: 0, a: 1}
+  outlineColor: {r: 0, g: 0, b: 0, a: 0}
   selectedDialogue: 0
 --- !u!1 &2026588190
 GameObject:

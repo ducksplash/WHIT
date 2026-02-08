@@ -96,6 +96,10 @@ public class ComputerSystem : MonoBehaviour
         }
 
         DisableNavvers();
+        
+        
+        TerminalEventManager.OnCloseToDesktop += CloseToDesktop;
+        
     }
 
     private bool IsSteamOS()
@@ -221,7 +225,8 @@ public class ComputerSystem : MonoBehaviour
         RotBack();
 
         if (rightClickExit != null) rightClickExit.action.performed -= InputClosePC;
-
+        
+        GameMaster.Instance.TerminalEventManager.FileManagerClosed();
         
         ChangeScreen(IsLoggedIn ? ComputerScreen.Desktop : ComputerScreen.LockScreen);
         
@@ -344,9 +349,16 @@ public class ComputerSystem : MonoBehaviour
 
     public void SelectMenuItem(PCGriddle pcGriddle)
     {
+        Debug.Log("selected menu item: "+pcGriddle);
+        
+        GameMaster.Instance.TerminalEventManager.FileManagerClosed();
         switch (pcGriddle)
         {
             case PCGriddle.None:
+                break;
+            
+            case PCGriddle.Desktop:
+                ChangeScreen(ComputerScreen.Desktop);
                 break;
 
             case PCGriddle.LogOn:
@@ -355,6 +367,7 @@ public class ComputerSystem : MonoBehaviour
 
             case PCGriddle.Files:
                 ChangeScreen(ComputerScreen.Files);
+                GameMaster.Instance.TerminalEventManager.FileManagerStarted();
                 break;
 
             case PCGriddle.Phone:
@@ -399,6 +412,7 @@ public class ComputerSystem : MonoBehaviour
 
     public void CloseAllScreens()
     {
+        Debug.Log("Close screens");
         for (var i = 0; i < AllProgrammeScreens.Count; i++)
         {
             CanvasGroup ThisScreen = AllProgrammeScreens[i].GetComponent<CanvasGroup>();
@@ -448,6 +462,12 @@ public class ComputerSystem : MonoBehaviour
             PCScreenNavvers[i].enabled = false;
         }
     }
+
+    public void CloseToDesktop()
+    {
+        SelectMenuItem(PCGriddle.Desktop);
+    }
+
 }
 
 public enum ComputerScreen
@@ -469,11 +489,11 @@ public enum PCGriddle
     LogOn = 4001,
     LockScreen = 10001,
     Desktop = 10002,
-    Files = 10002,
     Phone = 10003,
     Emails = 10004,
     Web = 10005,
     Hacking = 10006,
     Games = 10007,
-    Settings = 10008
+    Settings = 10008,
+    Files = 10009,
 }

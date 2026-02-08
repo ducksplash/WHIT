@@ -34,9 +34,24 @@ public class PCNavver : MonoBehaviour
     // NEW: Remember last hovered index
     private int lastHoveredIndex = 0;
 
+
+    private void OnEnable()
+    {
+        SubscribeEvents();
+        StartCoroutine(HoverLastOrDefaultNextFrame());
+    
+        Debug.Log("Enabled");
+    }
     private void SubscribeEvents()
     {
         TerminalEventManager.OnOverrideClick += DisableAllOutlines;
+        
+        UpAction.action.performed += OnUp;
+        DownAction.action.performed += OnDown;
+        LeftAction.action.performed += OnLeft;
+        RightAction.action.performed += OnRight;
+
+        SubmitAction.action.performed += OnSubmit;
         
         if (enablementCo != null)
         {
@@ -45,12 +60,6 @@ public class PCNavver : MonoBehaviour
         }
 
         enablementCo = StartCoroutine(EnableButtons());
-    }
-
-    private void OnEnable()
-    {
-        SubscribeEvents();
-        StartCoroutine(HoverLastOrDefaultNextFrame());
     }
 
     private IEnumerator HoverLastOrDefaultNextFrame()

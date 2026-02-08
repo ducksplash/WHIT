@@ -16,7 +16,7 @@ public class FileNavver : MonoBehaviour
     public InputActionReference SubmitAction;
 
     [Header("Grid (populate in inspector, index order top → bottom, left → right)")]
-    public List<FileFolderButton> GridButtons = new List<FileFolderButton>();
+    public List<FileButton> GridButtons = new List<FileButton>();
 
     [Header("Navigation Layout")]
     public FileNavigationLayout Layout = FileNavigationLayout.Grid;
@@ -175,31 +175,10 @@ public class FileNavver : MonoBehaviour
     {
         
         if (!GameMaster.Instance.PLAYERBUSY) return;
-
-        if (TryFocusInputField(currentIndex))
-            return;
-
+        
         ActivateOSDButton(currentIndex);
     }
 
-    private bool TryFocusInputField(int index)
-    {
-        if (index < 0 || index >= GridButtons.Count) return false;
-        var item = GridButtons[index];
-        if (item == null) return false;
-
-        // Legacy UI InputField
-        var tmpInput = item.GetComponentInChildren<TMPro.TMP_InputField>(true);
-        if (tmpInput != null && tmpInput.interactable)
-        {
-            EventSystem.current.SetSelectedGameObject(tmpInput.gameObject);
-            tmpInput.Select();
-            tmpInput.ActivateInputField();
-            return true;
-        }
-        
-        return false;
-    }
 
     
     private void MoveTo(int newIndex)
@@ -248,10 +227,8 @@ public class FileNavver : MonoBehaviour
         SubmitAction.action.performed += OnSubmit;
     }
 
-    // public void ResetList()
-    // {
-    //     GridButtons = new List<PCButton>();
-    // }
+
+    
 }
 
 public enum FileNavigationLayout

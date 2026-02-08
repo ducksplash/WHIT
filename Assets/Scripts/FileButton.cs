@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class FileFolderButton : MonoBehaviour
+public class FileButton : MonoBehaviour
 {
     public FileGriddle FileFolder = FileGriddle.User;
     public GameObject AppOutline;

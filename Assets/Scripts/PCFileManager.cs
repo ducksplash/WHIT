@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PCFileManager : MonoBehaviour
@@ -7,66 +8,94 @@ public class PCFileManager : MonoBehaviour
     
     public FileGriddle CurrentFolder = FileGriddle.User;
     public List<CanvasGroup> AllFolderScreens;
-    public List<FileNavver> FileNavvers = new List<FileNavver>();
+    public FileNavver FileManagerNavver;
+    public TextMeshProUGUI AddressBarText;
+    public string AddressBarRoot;
 
 
-    private void Start()
+    void Start()
     {
-        DisableNavvers();
+        AddressBarRoot = AddressBarText.text;
     }
-
+    
+    
     private void OnEnable()
     {
+       
+
+        TerminalEventManager.OnFileManagerStarted += FileManagerStarted;
+        TerminalEventManager.OnFileManagerClosed += FileManagerClosed;
+
         
     }
-    
-    
+
+
+    private void FileManagerStarted()
+    {
+        TerminalEventManager.OnFileGridClick += SelectFolderItem;
+        ChangeScreen(FolderScreen.User); 
+    }
+
+
+    private void FileManagerClosed()
+    {
+        TerminalEventManager.OnFileGridClick -= SelectFolderItem;
+        ChangeScreen(FolderScreen.User); 
+    }
+
     
     
     public void SelectFolderItem(FileGriddle fileGriddle)
     {
         Debug.Log("GO TO "+fileGriddle);
         
+        
+        SetAddressBar(fileGriddle == FileGriddle.User ? "Nora" : fileGriddle.ToString());
+                
         switch (fileGriddle)
         {
 
             case FileGriddle.User: 
-                // do nothing
+                ChangeScreen(FolderScreen.User);
                 break;
-            case FileGriddle.Documents: break;
+            
+            case FileGriddle.Documents:
+                ChangeScreen(FolderScreen.Documents); 
+                break;
+            
+            
             
             
             case FileGriddle.Photos:
-                //ChangeScreen(ComputerScreen.Files);
+                ChangeScreen(FolderScreen.Photos);
                 break;
 
             case FileGriddle.Videos:
-
+                ChangeScreen(FolderScreen.Videos);
                 break;
             
             case FileGriddle.Audio:
-
+                ChangeScreen(FolderScreen.Audio);
                 break;
 
             case FileGriddle.Downloads:
-
+                ChangeScreen(FolderScreen.Downloads);
                 break;
             
-
             case FileGriddle.Evidence:
-
+                ChangeScreen(FolderScreen.Evidence);
                 break;
-            
 
             case FileGriddle.O:
-
+                ChangeScreen(FolderScreen.O);
                 break;
 
             case FileGriddle.Phone:
-
+                ChangeScreen(FolderScreen.Phone);
                 break;
+            
             case FileGriddle.DCIM:
-
+                ChangeScreen(FolderScreen.DCIM);
                 break;
 
         }
@@ -74,9 +103,13 @@ public class PCFileManager : MonoBehaviour
     }
 
 
+    private void SetAddressBar(string folderAddress)
+    {
+        AddressBarText.text = AddressBarRoot + "\\" + folderAddress;
+    }
+
     public void ChangeScreen(FolderScreen ScreenToOpen)
     {
-        // ✅ keep CurrentFolder in sync with the visible folder screen
         CurrentFolder = (FileGriddle)ScreenToOpen;
 
         CloseAllScreens();
@@ -91,8 +124,7 @@ public class PCFileManager : MonoBehaviour
                 SelectedScreen.interactable = true;
                 SelectedScreen.blocksRaycasts = true;
 
-                FileManagerScreen thisScreen = AllFolderScreens[i].GetComponent<FileManagerScreen>();
-                thisScreen.FileNavver.enabled = true;
+                // FileManagerScreen thisScreen = AllFolderScreens[i].GetComponent<FileManagerScreen>();
             }
         }
     }
@@ -108,24 +140,27 @@ public class PCFileManager : MonoBehaviour
             ThisScreen.interactable = false;
             ThisScreen.blocksRaycasts = false;
             
-            FileManagerScreen thisScreen = AllFolderScreens[i].GetComponent<FileManagerScreen>();
+            // FileManagerScreen thisScreen = AllFolderScreens[i].GetComponent<FileManagerScreen>();
             
-            thisScreen.FileNavver.enabled = false;
 
             Debug.Log("Closed: "+AllFolderScreens[i].gameObject.name);
 
         }
     }
 
-    
-    
-    private void DisableNavvers()
+
+    public void CloseToDesktop()
     {
-        for (var i = 0; i < FileNavvers.Count; i++)
-        {
-            FileNavvers[i].enabled = false;
-        }
+        GameMaster.Instance.TerminalEventManager.CloseToDesktop();
     }
+
+
+    public void FolderStepBack()
+    {
+        ChangeScreen(FolderScreen.User);
+    }
+
+    
     
 }
 

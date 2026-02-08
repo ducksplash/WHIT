@@ -16,6 +16,8 @@ public class EventManager : MonoBehaviour
     public static event Action<EvidenceName> OnAutoCollectEvidence = (EvidenceName) => { };
     public static event Action<bool> OnPaused = (GamePaused) => { };
     
+    
+    
     //public static event Action OnLightSwitchClick = () => { };
     //public static event Action<bool> OnBoolToggled = (bool) => { };
     
@@ -82,6 +84,7 @@ public class EventManager : MonoBehaviour
     {
         OnStopPhone.Invoke();
     }
+
     
 }
 

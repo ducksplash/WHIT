@@ -21,6 +21,7 @@ public class PCButton : MonoBehaviour
 
     public void ExecuteCommand()
     {
+        Debug.Log("ExecuteCommand");
         GameMaster.Instance.TerminalEventManager.OverrideClick();
         AppOutline.SetActive(true);
         GameMaster.Instance.TerminalEventManager.PCGridClick(ThisItem);

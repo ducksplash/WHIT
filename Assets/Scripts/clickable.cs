@@ -35,6 +35,19 @@ public class clickable : Singleton<clickable>
     [Tooltip("Cooldown after an assist triggers (prevents repeated locks).")]
     public float aimAssistCooldown = 0.35f;
 
+    [Header("Aim Assist - Only when aiming slowly")]
+    [Tooltip("Optional: set this to your Look/Camera input (mouse delta / right stick). If null, we fallback to camera angular velocity.")]
+    public InputActionReference lookDeltaAction;
+
+    [Tooltip("If using lookDeltaAction: max magnitude considered 'slow'. (Tune: gamepad ~0.15-0.35, mouse delta depends on your scaling)")]
+    public float lookDeltaSlowThreshold = 0.25f;
+
+    [Tooltip("How long the aim must stay under the slow threshold before assist can snap.")]
+    public float slowAimingHoldSeconds = 0.08f;
+
+    [Tooltip("Fallback if lookDeltaAction isn't assigned: max camera angular speed (deg/sec) considered slow.")]
+    public float cameraAngularSlowThreshold = 45f;
+
     int doorlayer, drawerlayer, clickablelayer, enemylayer;
     int pickuplayer, evidencelayer, staticevidencelayer, slidingdoorlayer;
     int terminallayer;
@@ -48,6 +61,10 @@ public class clickable : Singleton<clickable>
 
     private Transform _lastAssistTarget;
     private float _nextAssistTime;
+
+    // --- Slow-aim gating state ---
+    private float _slowAimTimer;
+    private Vector3 _lastCamForward;
 
     void Start()
     {
@@ -68,12 +85,20 @@ public class clickable : Singleton<clickable>
         pointerPosition?.action.Enable();
         rightClick?.action.Enable();
         rightClick.action.performed += HandleClick;
+
+        lookDeltaAction?.action.Enable();
+
+        Camera cam = Camera.main;
+        if (cam != null) _lastCamForward = cam.transform.forward;
     }
 
     void FixedUpdate()
     {
         Camera cam = Camera.main;
         if (cam == null || Player.Instance == null) return;
+
+        // Update slow-aim timer (used to gate aim assist)
+        UpdateSlowAimGate(cam);
 
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
         Debug.DrawRay(ray.origin, ray.direction * Player.Instance.RayCastDistance, Color.red);
@@ -121,13 +146,41 @@ public class clickable : Singleton<clickable>
 
             ApplyHoverToTarget(currentHit, currentTarget);
 
-            // NEW: simple snap + lock aim assist
+            // Aim assist: now gated by "aiming slowly"
             TryAimAssistSnapAndLock(cam, currentHit, currentTarget);
 
             return;
         }
 
         ClearHit();
+    }
+
+    private void UpdateSlowAimGate(Camera cam)
+    {
+        bool isSlow = IsAimingSlow(cam);
+
+        if (isSlow)
+            _slowAimTimer += Time.fixedDeltaTime;
+        else
+            _slowAimTimer = 0f;
+
+        _lastCamForward = cam.transform.forward;
+    }
+
+    private bool IsAimingSlow(Camera cam)
+    {
+        // Prefer actual look input if provided (best signal for "cursor moving slowly")
+        if (lookDeltaAction != null && lookDeltaAction.action != null)
+        {
+            Vector2 delta = lookDeltaAction.action.ReadValue<Vector2>();
+            return delta.magnitude <= lookDeltaSlowThreshold;
+        }
+
+        // Fallback: approximate by camera angular speed
+        // Angle between forward vectors each fixed step -> deg/sec
+        float angle = Vector3.Angle(_lastCamForward, cam.transform.forward);
+        float degPerSec = angle / Mathf.Max(Time.fixedDeltaTime, 0.0001f);
+        return degPerSec <= cameraAngularSlowThreshold;
     }
 
     private Transform ResolveInteractableTarget(RaycastHit hit)
@@ -234,15 +287,14 @@ public class clickable : Singleton<clickable>
         if (!enableAimAssistOnSteamOS) return;
         if (GameMaster.Instance == null) return;
 
-        // Optional device gate:
-        // if (GameMaster.Instance.DeviceTypeSelector.selectedDeviceType != PlayerDeviceType.SteamOS) return;
+        // Only assist if the player has been aiming slowly for a short moment
+        if (_slowAimTimer < slowAimingHoldSeconds) return;
 
         if (Time.time < _nextAssistTime) return;
 
         var look = Player.Instance.FirstPersonLook;
         if (look == null) return;
 
-        // Don't repeatedly lock the exact same thing every frame
         if (target == _lastAssistTarget) return;
 
         Vector3 aimPoint = GetAimAssistPoint(target, hit);
@@ -256,6 +308,9 @@ public class clickable : Singleton<clickable>
 
         _lastAssistTarget = target;
         _nextAssistTime = Time.time + aimAssistCooldown;
+
+        // Reset slow timer so it doesn't immediately chain to the next thing
+        _slowAimTimer = 0f;
     }
 
     private Vector3 GetAimAssistPoint(Transform target, RaycastHit hit)

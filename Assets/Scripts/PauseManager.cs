@@ -66,8 +66,8 @@ public class PauseManager : MonoBehaviour
                 
         Player.Instance.FirstPersonLook.sensitivity = OriginalSensitivity;
         
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         if (VirtualCursor != null) VirtualCursor.SetActive(false);
         
         IsPaused = false;

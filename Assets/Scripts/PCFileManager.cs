@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +7,13 @@ public class PCFileManager : MonoBehaviour
     
     public FileGriddle CurrentFolder = FileGriddle.User;
     public List<CanvasGroup> AllFolderScreens;
-    
+    public List<FileNavver> FileNavvers = new List<FileNavver>();
+
+
+    private void Start()
+    {
+        DisableNavvers();
+    }
 
     private void OnEnable()
     {
@@ -112,7 +119,13 @@ public class PCFileManager : MonoBehaviour
 
     
     
-    
+    private void DisableNavvers()
+    {
+        for (var i = 0; i < FileNavvers.Count; i++)
+        {
+            FileNavvers[i].enabled = false;
+        }
+    }
     
 }
 

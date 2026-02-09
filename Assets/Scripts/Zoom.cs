@@ -20,7 +20,8 @@ public class Zoom : MonoBehaviour
 
     private Camera cam;
     private Coroutine zoomRoutine;
-
+    private bool ZoomOverride;
+    
     private void Awake()
     {
         cam = GetComponent<Camera>();
@@ -83,7 +84,11 @@ public class Zoom : MonoBehaviour
 
     private void OnZoomInPerformed(InputAction.CallbackContext context)
     {
-        if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.PauseManager.IsPaused || GameMaster.Instance.TravelCompanion.CompanionIsOpen) return;
+        if (!Player.Instance.ZoomOverride)
+        {
+            if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.PauseManager.IsPaused || GameMaster.Instance.TravelCompanion.CompanionIsOpen) return;
+        }
+
 
         zoomAmount = Mathf.Clamp01(zoomAmount + zoomStep);
         UpdateFOV();
@@ -91,7 +96,11 @@ public class Zoom : MonoBehaviour
 
     private void OnZoomOutPerformed(InputAction.CallbackContext context)
     {
-        if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.PauseManager.IsPaused || GameMaster.Instance.TravelCompanion.CompanionIsOpen) return;
+        if (!Player.Instance.ZoomOverride)
+        {
+            if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.PauseManager.IsPaused || GameMaster.Instance.TravelCompanion.CompanionIsOpen) return;
+        }
+
 
         zoomAmount = Mathf.Clamp01(zoomAmount - zoomStep);
         UpdateFOV();

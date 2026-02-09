@@ -8,6 +8,9 @@ public class TerminalEventManager : MonoBehaviour
     public static event Action OnOverrideClick = () => { };
     public static event Action OnFileManagerStarted = () => { };
     public static event Action OnFileManagerClosed = () => { };
+    public static event Action OnVideoManagerStarted = () => { };
+    public static event Action OnVideoManagerClosed = () => { };
+    public static event Action<PCVideo> OnVideoSelected = (PCVideo) => { };
     
     
     public static event Action OnCloseToDesktop = () => { };
@@ -38,5 +41,17 @@ public class TerminalEventManager : MonoBehaviour
     public void FileManagerClosed()
     {
         OnFileManagerClosed.Invoke();
+    }
+    public void VideoSelected(PCVideo selectedVideo)
+    {
+        OnVideoSelected.Invoke(selectedVideo);
+    }
+    public void VideoManagerStarted()
+    {
+        OnVideoManagerStarted.Invoke();
+    }
+    public void VideoManagerClosed()
+    {
+        OnVideoManagerClosed.Invoke();
     }
 }

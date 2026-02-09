@@ -97,6 +97,8 @@ public class ComputerSystem : MonoBehaviour
 
         DisableNavvers();
         
+        GameMaster.Instance.TerminalEventManager.FileManagerClosed();
+        GameMaster.Instance.TerminalEventManager.VideoManagerClosed();
         
         TerminalEventManager.OnCloseToDesktop += CloseToDesktop;
         
@@ -196,6 +198,7 @@ public class ComputerSystem : MonoBehaviour
         if (GameMaster.Instance.PLAYERBUSY) return;
         GameMaster.Instance.PLAYERBUSY = true;
         ComputerOpen = true;
+        Player.Instance.ZoomOverride = true;
         
         FacePlayerOnY();
 
@@ -220,13 +223,15 @@ public class ComputerSystem : MonoBehaviour
     {
         if (!ComputerOpen) return;
         if (!GameMaster.Instance.PLAYERBUSY) return;
-
+        Player.Instance.ZoomOverride = false;
         
         RotBack();
 
         if (rightClickExit != null) rightClickExit.action.performed -= InputClosePC;
         
         GameMaster.Instance.TerminalEventManager.FileManagerClosed();
+        GameMaster.Instance.TerminalEventManager.VideoManagerClosed();
+        
         
         ChangeScreen(IsLoggedIn ? ComputerScreen.Desktop : ComputerScreen.LockScreen);
         

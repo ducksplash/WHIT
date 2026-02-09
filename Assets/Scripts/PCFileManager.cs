@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 
@@ -16,22 +17,16 @@ public class PCFileManager : MonoBehaviour
     void Start()
     {
         AddressBarRoot = AddressBarText.text;
-    }
-    
-    
-    private void OnEnable()
-    {
-       
-
+        FileManagerNavver.enabled = false;
         TerminalEventManager.OnFileManagerStarted += FileManagerStarted;
         TerminalEventManager.OnFileManagerClosed += FileManagerClosed;
-
-        
     }
-
+    
+    
 
     private void FileManagerStarted()
     {
+        FileManagerNavver.enabled = true;
         TerminalEventManager.OnFileGridClick += SelectFolderItem;
         ChangeScreen(FolderScreen.User); 
     }
@@ -39,8 +34,8 @@ public class PCFileManager : MonoBehaviour
 
     private void FileManagerClosed()
     {
+        FileManagerNavver.enabled = false;
         TerminalEventManager.OnFileGridClick -= SelectFolderItem;
-        ChangeScreen(FolderScreen.User); 
     }
 
     
@@ -48,6 +43,9 @@ public class PCFileManager : MonoBehaviour
     public void SelectFolderItem(FileGriddle fileGriddle)
     {
         Debug.Log("GO TO "+fileGriddle);
+        
+        
+        GameMaster.Instance.TerminalEventManager.VideoManagerClosed();
         
         
         SetAddressBar(fileGriddle == FileGriddle.User ? "Nora" : fileGriddle.ToString());
@@ -63,15 +61,14 @@ public class PCFileManager : MonoBehaviour
                 ChangeScreen(FolderScreen.Documents); 
                 break;
             
-            
-            
-            
             case FileGriddle.Photos:
                 ChangeScreen(FolderScreen.Photos);
                 break;
 
             case FileGriddle.Videos:
                 ChangeScreen(FolderScreen.Videos);
+                GameMaster.Instance.TerminalEventManager.VideoManagerStarted();
+                FileManagerNavver.enabled = false;
                 break;
             
             case FileGriddle.Audio:
@@ -105,7 +102,9 @@ public class PCFileManager : MonoBehaviour
 
     private void SetAddressBar(string folderAddress)
     {
-        AddressBarText.text = AddressBarRoot + "\\" + folderAddress;
+        AddressBarText.text =  Path.Combine(AddressBarRoot,folderAddress);
+            
+
     }
 
     public void ChangeScreen(FolderScreen ScreenToOpen)
@@ -141,9 +140,7 @@ public class PCFileManager : MonoBehaviour
             ThisScreen.blocksRaycasts = false;
             
             // FileManagerScreen thisScreen = AllFolderScreens[i].GetComponent<FileManagerScreen>();
-            
-
-            Debug.Log("Closed: "+AllFolderScreens[i].gameObject.name);
+            // Debug.Log("Closed: "+AllFolderScreens[i].gameObject.name);
 
         }
     }
@@ -154,10 +151,20 @@ public class PCFileManager : MonoBehaviour
         GameMaster.Instance.TerminalEventManager.CloseToDesktop();
     }
 
+    
 
     public void FolderStepBack()
     {
-        ChangeScreen(FolderScreen.User);
+        FileManagerNavver.enabled = true;
+        
+        if (CurrentFolder.ToString() != FileGriddle.User.ToString())
+        {
+            ChangeScreen(FolderScreen.User);
+        }
+        else
+        {
+            CloseToDesktop();
+        }
     }
 
     

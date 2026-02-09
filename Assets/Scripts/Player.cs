@@ -65,6 +65,7 @@ public class Player : Singleton<Player>
     private bool walking = false;
 
     public bool MoveOverride;
+    public bool ZoomOverride;
     
 
     void Start()

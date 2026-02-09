@@ -231,7 +231,7 @@ public class SteamAchievementTesterEditor : Editor
 
             GUILayout.Space(6);
 
-            GUI.backgroundColor = new Color(1f, 0.8f, 0.8f);
+            GUI.backgroundColor = new Color(1f, 0f, 0f);
             if (GUILayout.Button("Clear ALL Achievements (Danger)"))
                 CallSafe(t, nameof(t.ClearAll));
             GUI.backgroundColor = Color.white;

@@ -3,21 +3,24 @@ using UnityEngine;
 public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T instance;
+    private static bool isShuttingDown;
 
     public static T Instance
     {
         get
         {
-            if (instance == null)
+            // Unity fake-null safe check + shutdown guard
+            if (isShuttingDown) return null;
+            if (!instance)
             {
-                instance = FindObjectOfType<T>();
+                instance = FindFirstObjectByType<T>(); // Unity 2022+ (otherwise FindObjectOfType)
 
-                if (instance == null)
+                if (!instance)
                 {
-                    GameObject singletonObject = new GameObject();
-                    instance = singletonObject.AddComponent<T>();
-                    singletonObject.name = typeof(T).ToString() + " (Singleton)";
-                    DontDestroyOnLoad(singletonObject);
+                    // If you REALLY want auto-create, do it only when safe.
+                    var go = new GameObject($"{typeof(T).Name} (Singleton)");
+                    instance = go.AddComponent<T>();
+                    DontDestroyOnLoad(go);
                 }
             }
 
@@ -27,15 +30,25 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
     protected virtual void Awake()
     {
-        if (instance == null)
+        if (!instance)
         {
             instance = this as T;
-            //Debug.Log(gameObject.name);
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (instance != this)
         {
             Destroy(gameObject);
         }
+    }
+
+    protected virtual void OnApplicationQuit()
+    {
+        isShuttingDown = true;
+    }
+
+    protected virtual void OnDestroy()
+    {
+        // Important: if the singleton is being destroyed, clear the static ref
+        if (instance == this) instance = null;
     }
 }

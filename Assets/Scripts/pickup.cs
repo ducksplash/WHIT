@@ -254,7 +254,7 @@ public class Pickup : MonoBehaviour
         }
 
         GameMaster.Instance.PLAYERBUSY = false;
-        Player.Instance.MoveOverride = false;
+        if (Player.Instance != null) Player.Instance.MoveOverride = false;
         _releaseInProgress = false;
 
         if (resetBusyCo != null)

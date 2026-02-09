@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
@@ -9,31 +10,52 @@ public class VideoManager : MonoBehaviour
     
     public PCVideo CurrentVideo = PCVideo.testone;
     public VidNavver VidNavver;
+    public VidPlayerNavver VidPlayerNavver;
     public VideoSystem theVideoSystem;
     public CanvasGroup videoPlayerPanel;
-
+    private Coroutine videoPlayerListenerCo;
+    
 
     void Start()
     {
         TerminalEventManager.OnVideoManagerStarted += VideoManagerStarted;
         TerminalEventManager.OnVideoManagerClosed += VideoManagerClosed;
+        TerminalEventManager.OnVideoPlayerClosed += CloseVideoPlayer;
         VidNavver.enabled = false;
     }
     
 
     private void VideoManagerStarted()
     {
-        TerminalEventManager.OnVideoSelected += OpenVideoPlayer;
-        VidNavver.enabled = true;
-        CloseVideoPlayer(); // initialising video system to 'off' just in case i left the canvasgroup wrong in the editor :)
+        CloseVideoPlayer(); // initialising video system to 'off' just in case i left the canvasgroup wrong in the editor :);
+
+        if (videoPlayerListenerCo != null)
+        {
+            StopCoroutine(videoPlayerListenerCo);
+            videoPlayerListenerCo = null;
+        }
+
+        videoPlayerListenerCo = StartCoroutine(AssignListener());
     }
 
+
+    private IEnumerator AssignListener()
+    {
+        yield return new WaitForEndOfFrame();
+        
+        VidNavver.enabled = true;
+        TerminalEventManager.OnVideoSelected += OpenVideoPlayer;
+    }
+    
 
     private void VideoManagerClosed()
     {
         TerminalEventManager.OnVideoSelected -= OpenVideoPlayer;
         VidNavver.enabled = false;
     }
+    
+    
+    
     
     
     public void OpenVideoPlayer(PCVideo pcVideo)
@@ -43,6 +65,9 @@ public class VideoManager : MonoBehaviour
         videoPlayerPanel.alpha = 1;
         videoPlayerPanel.blocksRaycasts = true;
         videoPlayerPanel.interactable = true;
+        VidNavver.enabled = false;
+        VidPlayerNavver.enabled = true;
+
     }
 
 
@@ -52,6 +77,8 @@ public class VideoManager : MonoBehaviour
         videoPlayerPanel.alpha = 0;
         videoPlayerPanel.blocksRaycasts = false;
         videoPlayerPanel.interactable = false;
+        VidNavver.enabled = true;
+        VidPlayerNavver.enabled = false;
     }
 
     

@@ -26,9 +26,9 @@ public class PCFileManager : MonoBehaviour
 
     private void FileManagerStarted()
     {
-        FileManagerNavver.enabled = true;
         TerminalEventManager.OnFileGridClick += SelectFolderItem;
         ChangeScreen(FolderScreen.User); 
+        FileManagerNavver.enabled = true;
     }
 
 
@@ -38,6 +38,9 @@ public class PCFileManager : MonoBehaviour
         TerminalEventManager.OnFileGridClick -= SelectFolderItem;
     }
 
+    
+    
+    
     
     
     public void SelectFolderItem(FileGriddle fileGriddle)

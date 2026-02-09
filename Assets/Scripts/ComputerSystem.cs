@@ -66,6 +66,8 @@ public class ComputerSystem : MonoBehaviour
     // Steam modal tracking
     private bool _steamTextSessionOpen;
 
+    public bool backButtonOverride;
+    
     private const uint STEAM_TEXT_MAX = 64;
 
     void Start()
@@ -73,6 +75,9 @@ public class ComputerSystem : MonoBehaviour
         IncorrectPasswordText.gameObject.SetActive(false);
 
         EventManager.OnStopComputer += OnStopComputer;
+        
+        TerminalEventManager.OnBackButtonOverride += value => backButtonOverride = value;
+        
         
         if (goBack != null)
         {
@@ -259,8 +264,9 @@ public class ComputerSystem : MonoBehaviour
     // goBack: step back until Desktop, THEN close PC if pressed again on Desktop/Lock
     public void InputGoBack(InputAction.CallbackContext callbackContext)
     {
-        if (!CanHandlePCInput(callbackContext))
-            return;
+        if (backButtonOverride) return;
+        
+        if (!CanHandlePCInput(callbackContext)) return;
 
         HandleBackStepOnly();
     }

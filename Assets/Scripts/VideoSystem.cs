@@ -2,6 +2,7 @@ using System.Collections;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
@@ -17,6 +18,7 @@ public class VideoSystem : MonoBehaviour
     private bool isPrepared;
     private bool isScrubbing;
     private bool wasPlayingBeforeScrub;
+    public InputActionReference goBack;
 
     public Image videoImage;
 
@@ -64,6 +66,8 @@ public class VideoSystem : MonoBehaviour
             videoPlayer.prepareCompleted -= OnPrepared;
             videoPlayer.loopPointReached -= OnLoopPointReached;
         }
+        
+        
     }
 
     private void Update()
@@ -88,6 +92,13 @@ public class VideoSystem : MonoBehaviour
         isPrepared = false;
 
         videoImage.color = Color.black;
+
+        goBack.action.performed += InputCloseVideoPlayer;
+
+        
+        GameMaster.Instance.TerminalEventManager.BackButtonOverride(true);
+        TerminalEventManager.OnVideoControlCommand += ControlVideo;
+        
         
         if (videoPlayer == null)
         {
@@ -124,14 +135,30 @@ public class VideoSystem : MonoBehaviour
     }
 
 
+    private void ControlVideo(VidControl vidControl)
+    {
+        switch (vidControl)
+        {
+
+            case VidControl.Play: 
+                PlayVideo();
+                break;
+            case VidControl.Pause: 
+                PauseVideo();
+                break;
+            case VidControl.Stop: 
+                StopVideo();
+                break;
+        }
+    }
+    
+
     private IEnumerator PlayAfterDelay()
     {
         yield return new WaitForSeconds(0.5f);
         
         PlayVideo();
-        
     }
-    
     
     
     public void PlayVideo()
@@ -153,16 +180,29 @@ public class VideoSystem : MonoBehaviour
     public void PauseVideo()
     {
         if (videoPlayer == null || !videoPlayer.isPrepared) return;
-        videoPlayer.Pause();
+
+        if (videoPlayer.isPaused)
+        {
+            videoPlayer.Play();
+        }
+        else
+        {
+            videoPlayer.Pause();
+        }
     }
 
     public void StopVideo()
     {
+        GameMaster.Instance.TerminalEventManager.BackButtonOverride(false);
+        
         if (videoPlayer == null) return;
-        videoPlayer.Stop();
 
-        if (scrubSlider != null)
-            scrubSlider.SetValueWithoutNotify(0f);
+        if (videoPlayer.isPlaying)
+        {
+            videoPlayer.Stop();
+        }
+
+        if (scrubSlider != null) scrubSlider.SetValueWithoutNotify(0f);
     }
 
     public void ClosePlayer()
@@ -314,11 +354,33 @@ public class VideoSystem : MonoBehaviour
         videoPlayer.Pause();
     }
 
+    public void CloseVideoPlayer()
+    {
+        TerminalEventManager.OnVideoControlCommand -= ControlVideo;
+
+        GameMaster.Instance.TerminalEventManager.BackButtonOverride(false);
+        GameMaster.Instance.TerminalEventManager.VideoPlayerClosed();
+    }
+
+    private void InputCloseVideoPlayer(InputAction.CallbackContext callbackContext)
+    {
+        CloseVideoPlayer();
+    }
+
+    
 
 }
 
 public enum PCVideo
 {
     testone,
-    testtwo
+    testtwo,
+    testthree
+}
+
+public enum VidControl
+{
+    Play,
+    Pause,
+    Stop
 }

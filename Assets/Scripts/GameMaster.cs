@@ -21,7 +21,7 @@ public class GameMaster : MonoBehaviour
     // components
     [Header("Global Components")]
     public DialogueManager DialogueManager;
-    public CutsceneManager CutsceneManager;
+    // public CutsceneManager CutsceneManager;
     public TravelCompanion TravelCompanion;
     public Pickup Pickup;
     public OnboardingManager OnboardingManager;
@@ -92,8 +92,6 @@ public class GameMaster : MonoBehaviour
         SPAWNPOINTROARKOUTSIDE = new Vector3(90, 5, 252);
         SPAWNPOINTROARKINSIDE = new Vector3(69, 16, 310);
 
-        // load historical dialogues and cutscenes
-        CutsceneManager.LoadWhatYouSee();
         DialogueManager.LoadWhatYouSee();
         // ALWAYS load existing evidence first
 

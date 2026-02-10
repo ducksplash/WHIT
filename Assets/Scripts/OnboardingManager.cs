@@ -217,40 +217,70 @@ public class OnboardingManager : MonoBehaviour
         Debug.Log("CollectTorch");
         TORCHCOLLECTED = true;
 
-        var coroutine = GameMaster.Instance.CutsceneManager.ExecuteCutscene(6, 1, torchPickup, pickupTorchDialogue);
-        await coroutine.AsTask(GameMaster.Instance);
-        torchPickup.SetActive(false); 
-        
+        // dialogueName, displayTimer, type, cutsceneDuration, cutscenePanTime, cutsceneTarget
+        await GameMaster.Instance.DialogueManager.PlayDialogue(
+            pickupTorchDialogue,
+            6f,
+            DialogueType.cutscene,
+            cutsceneTarget: torchPickup,
+            cutsceneDuration: 7f,
+            cutscenePanTime: 1f
+        );
+
+        torchPickup.SetActive(false);
+
         if (torchTick) torchTick.alpha = 1;
-        StoredPrefs.Instance.SetInt("TORCHCOLLECTED", TORCHCOLLECTED ? 1 : 0); StoredPrefs.Instance.Save();
+        StoredPrefs.Instance.SetInt("TORCHCOLLECTED", TORCHCOLLECTED ? 1 : 0);
+        StoredPrefs.Instance.Save();
+
         GameMaster.Instance.EventManager.TorchCollectedEvent();
         CheckOnboardingStatus();
     }
-
 
     public async void CollectNotepad()
     {
         Debug.Log("CollectNotepad");
         NOTEPADCOLLECTED = true;
-        var coroutine = GameMaster.Instance.CutsceneManager.ExecuteCutscene(6, 1, notepadPickup, pickupNotepadDialogue);
-        await coroutine.AsTask(GameMaster.Instance);
-        notepadPickup.SetActive(false); 
+
+        await GameMaster.Instance.DialogueManager.PlayDialogue(
+            pickupNotepadDialogue,
+            6f,
+            DialogueType.cutscene,
+            cutsceneTarget: notepadPickup,
+            cutsceneDuration: 7f,
+            cutscenePanTime: 1f
+        );
+
+        notepadPickup.SetActive(false);
+
         if (notepadTick) notepadTick.alpha = 1;
-        StoredPrefs.Instance.SetInt("NOTEPADCOLLECTED", NOTEPADCOLLECTED ? 1 : 0); StoredPrefs.Instance.Save();
+        StoredPrefs.Instance.SetInt("NOTEPADCOLLECTED", NOTEPADCOLLECTED ? 1 : 0);
+        StoredPrefs.Instance.Save();
+
         GameMaster.Instance.EventManager.NotepadCollectedEvent();
         CheckOnboardingStatus();
     }
-
 
     public async void CollectPhone()
     {
         Debug.Log("CollectPhone");
         PHONECOLLECTED = true;
-        var coroutine = GameMaster.Instance.CutsceneManager.ExecuteCutscene(6, 1, phonePickup, pickupPhoneDialogue);
-        await coroutine.AsTask(GameMaster.Instance);
-        phonePickup.SetActive(false); 
+
+        await GameMaster.Instance.DialogueManager.PlayDialogue(
+            pickupPhoneDialogue,
+            6f,
+            DialogueType.cutscene,
+            cutsceneTarget: phonePickup,
+            cutsceneDuration: 7f,
+            cutscenePanTime: 1f
+        );
+
+        phonePickup.SetActive(false);
+
         if (phoneTick) phoneTick.alpha = 1;
-        StoredPrefs.Instance.SetInt("PHONECOLLECTED", PHONECOLLECTED ? 1 : 0); StoredPrefs.Instance.Save();
+        StoredPrefs.Instance.SetInt("PHONECOLLECTED", PHONECOLLECTED ? 1 : 0);
+        StoredPrefs.Instance.Save();
+
         GameMaster.Instance.EventManager.PhoneCollectedEvent();
         CheckOnboardingStatus();
     }

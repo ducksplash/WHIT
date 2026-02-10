@@ -1,33 +1,53 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class VideoManager : MonoBehaviour
 {
-    
-    public PCVideo CurrentVideo = PCVideo.testone;
+    public PCVideo CurrentVideo = PCVideo.tigger;
+
     public VidNavver VidNavver;
     public VidPlayerNavver VidPlayerNavver;
+
     public VideoSystem theVideoSystem;
     public CanvasGroup videoPlayerPanel;
-    private Coroutine videoPlayerListenerCo;
-    
 
-    void Start()
+    public InputActionReference goBack;
+
+    private Coroutine videoPlayerListenerCo;
+
+    private void Start()
     {
         TerminalEventManager.OnVideoManagerStarted += VideoManagerStarted;
         TerminalEventManager.OnVideoManagerClosed += VideoManagerClosed;
-        TerminalEventManager.OnVideoPlayerClosed += CloseVideoPlayer;
-        VidNavver.enabled = false;
+
+        TerminalEventManager.OnVideoSelected += OpenVideoPlayer;     // single subscription
+
+        TerminalEventManager.OnVideoPlayerClosed += CloseVideoPlayer; // if something else requests close
+
+        // start hidden/inactive
+        HideAllVideoUI();
     }
-    
+
+    private void OnDestroy()
+    {
+        TerminalEventManager.OnVideoManagerStarted -= VideoManagerStarted;
+        TerminalEventManager.OnVideoManagerClosed -= VideoManagerClosed;
+
+        TerminalEventManager.OnVideoSelected -= OpenVideoPlayer;
+        TerminalEventManager.OnVideoPlayerClosed -= CloseVideoPlayer;
+
+        if (goBack != null)
+        {
+            goBack.action.performed -= CloseVideoManager;
+            goBack.action.performed -= GoBackFromPlayer;
+        }
+    }
 
     private void VideoManagerStarted()
     {
-        CloseVideoPlayer(); // initialising video system to 'off' just in case i left the canvasgroup wrong in the editor :);
+        // Ensure player UI is closed when entering video manager
+        CloseVideoPlayer();
 
         if (videoPlayerListenerCo != null)
         {
@@ -35,59 +55,125 @@ public class VideoManager : MonoBehaviour
             videoPlayerListenerCo = null;
         }
 
-        videoPlayerListenerCo = StartCoroutine(AssignListener());
+        videoPlayerListenerCo = StartCoroutine(EnableListNextFrame());
     }
 
-
-    private IEnumerator AssignListener()
+    private IEnumerator EnableListNextFrame()
     {
         yield return new WaitForEndOfFrame();
-        
-        VidNavver.enabled = true;
-        TerminalEventManager.OnVideoSelected += OpenVideoPlayer;
+        ShowVideoListUI();
     }
-    
 
     private void VideoManagerClosed()
     {
-        TerminalEventManager.OnVideoSelected -= OpenVideoPlayer;
-        VidNavver.enabled = false;
+        HideAllVideoUI();
+
+        if (videoPlayerListenerCo != null)
+        {
+            StopCoroutine(videoPlayerListenerCo);
+            videoPlayerListenerCo = null;
+        }
+
+        // let ComputerSystem handle back again
+        GameMaster.Instance.TerminalEventManager.BackButtonOverride(false);
     }
-    
-    
-    
-    
-    
+
     public void OpenVideoPlayer(PCVideo pcVideo)
     {
-        Debug.Log("open video player, supply video "+pcVideo);
+        Debug.Log("open video player, supply video " + pcVideo);
+
+        CurrentVideo = pcVideo;
+
+        // load and show player
         theVideoSystem.LoadVideo(pcVideo);
+
         videoPlayerPanel.alpha = 1;
         videoPlayerPanel.blocksRaycasts = true;
         videoPlayerPanel.interactable = true;
-        VidNavver.enabled = false;
-        VidPlayerNavver.enabled = true;
 
+        ShowVideoPlayerUI();
     }
-
 
     public void CloseVideoPlayer()
     {
-        theVideoSystem.StopVideo();
+        // stop playback (should NOT recursively fire close events)
+        if (theVideoSystem != null)
+            theVideoSystem.StopVideo();
+
+        // hide player panel
         videoPlayerPanel.alpha = 0;
         videoPlayerPanel.blocksRaycasts = false;
         videoPlayerPanel.interactable = false;
-        VidNavver.enabled = true;
-        VidPlayerNavver.enabled = false;
+
+        // back to list state (if manager is still active)
+        ShowVideoListUI();
     }
 
-    
+    // --- UI state helpers ---
 
-    public void CloseToDesktop()
+    private void ShowVideoListUI()
     {
-        GameMaster.Instance.TerminalEventManager.CloseToDesktop();
-    }
-    
-    
-}
+        // Navver states
+        if (VidNavver != null) VidNavver.enabled = true;
+        if (VidPlayerNavver != null) VidPlayerNavver.enabled = false;
 
+        // Back overrides ComputerSystem back while we're in this app
+        GameMaster.Instance.TerminalEventManager.BackButtonOverride(true);
+
+        // Back closes the video manager (returns to file manager)
+        if (goBack != null)
+        {
+            goBack.action.performed -= GoBackFromPlayer;
+            goBack.action.performed -= CloseVideoManager;
+            goBack.action.performed += CloseVideoManager;
+        }
+    }
+
+    private void ShowVideoPlayerUI()
+    {
+        if (VidNavver != null) VidNavver.enabled = false;
+        if (VidPlayerNavver != null) VidPlayerNavver.enabled = true;
+
+        GameMaster.Instance.TerminalEventManager.BackButtonOverride(true);
+
+        // Back closes player first (returns to list)
+        if (goBack != null)
+        {
+            goBack.action.performed -= CloseVideoManager;
+            goBack.action.performed -= GoBackFromPlayer;
+            goBack.action.performed += GoBackFromPlayer;
+        }
+    }
+
+    private void HideAllVideoUI()
+    {
+        if (VidNavver != null) VidNavver.enabled = false;
+        if (VidPlayerNavver != null) VidPlayerNavver.enabled = false;
+
+        videoPlayerPanel.alpha = 0;
+        videoPlayerPanel.blocksRaycasts = false;
+        videoPlayerPanel.interactable = false;
+
+        if (goBack != null)
+        {
+            goBack.action.performed -= CloseVideoManager;
+            goBack.action.performed -= GoBackFromPlayer;
+        }
+    }
+
+    // goBack when player open
+    private void GoBackFromPlayer(InputAction.CallbackContext ctx)
+    {
+        CloseVideoPlayer();
+    }
+
+    // goBack when in list
+    private void CloseVideoManager(InputAction.CallbackContext ctx)
+    {
+        HideAllVideoUI();
+
+        // return to file manager (same as your photo manager)
+        GameMaster.Instance.TerminalEventManager.FileManagerStarted();
+        GameMaster.Instance.TerminalEventManager.BackButtonOverride(false);
+    }
+}

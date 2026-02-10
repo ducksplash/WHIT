@@ -15,7 +15,7 @@ public class ParticleProxima : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
 
-        if (other.name.Contains("Player"))
+        if (other.CompareTag("Player"))
         {
             PGen.enabled = false;
 
@@ -26,7 +26,7 @@ public class ParticleProxima : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
 
-        if (other.name.Contains("Player"))
+        if (other.CompareTag("Player"))
         {
             PGen.enabled = true;
 

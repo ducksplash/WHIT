@@ -20,6 +20,7 @@ public class PCFileManager : MonoBehaviour
         FileManagerNavver.enabled = false;
         TerminalEventManager.OnFileManagerStarted += FileManagerStarted;
         TerminalEventManager.OnFileManagerClosed += FileManagerClosed;
+        TerminalEventManager.OnPhotoManagerClosed += PhotoManagerClosed;
     }
     
     
@@ -29,12 +30,20 @@ public class PCFileManager : MonoBehaviour
         TerminalEventManager.OnFileGridClick += SelectFolderItem;
         ChangeScreen(FolderScreen.User); 
         FileManagerNavver.enabled = true;
+        
+        SetAddressBar("Nora");
     }
 
 
     private void FileManagerClosed()
     {
         FileManagerNavver.enabled = false;
+        TerminalEventManager.OnFileGridClick -= SelectFolderItem;
+    }
+
+    private void PhotoManagerClosed()
+    {
+        FileManagerNavver.enabled = true;
         TerminalEventManager.OnFileGridClick -= SelectFolderItem;
     }
 
@@ -66,6 +75,8 @@ public class PCFileManager : MonoBehaviour
             
             case FileGriddle.Photos:
                 ChangeScreen(FolderScreen.Photos);
+                FileManagerNavver.enabled = false;
+                GameMaster.Instance.TerminalEventManager.PhotoManagerStarted();
                 break;
 
             case FileGriddle.Videos:

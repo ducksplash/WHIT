@@ -293,9 +293,11 @@ public class ComputerSystem : MonoBehaviour
             PCFileManager fm = GetFileManager();
             if (fm != null && fm.CurrentFolder != FileGriddle.User)
             {
+                fm.FileManagerNavver.enabled = true;
                 fm.ChangeScreen(FolderScreen.User);
                 return;
             }
+            
 
             // At Files root -> go to Desktop
             ChangeScreen(ComputerScreen.Desktop);
@@ -319,8 +321,12 @@ public class ComputerSystem : MonoBehaviour
         for (int i = 0; i < AllProgrammeScreens.Count; i++)
         {
             PCScreen pc = AllProgrammeScreens[i].GetComponent<PCScreen>();
+            
             if (pc != null && pc.ThisPCScreen == ComputerScreen.Files)
+            {
                 return AllProgrammeScreens[i].GetComponent<PCFileManager>();
+            }
+                
         }
         return null;
     }

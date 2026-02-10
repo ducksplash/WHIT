@@ -170,7 +170,7 @@ public class incinerator : MonoBehaviour
             {
 
 
-                if (other.name.Contains("Player"))
+                if (other.CompareTag("Player"))
                 {
                     // GetComponentInChildren<innerDoors>().isOpen = false;
                     // GetComponentInChildren<innerDoors>().isLocked = true;

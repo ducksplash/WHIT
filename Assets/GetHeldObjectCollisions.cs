@@ -28,21 +28,21 @@ public class GetHeldObjectCollisions : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("player")) return;
+        if (other.gameObject.layer == LayerMask.NameToLayer("PLAYER")) return;
 
         colliding = true;
     }
 
     private void OnCollisionStay(Collision other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("player")) return;
+        if (other.gameObject.layer == LayerMask.NameToLayer("PLAYER")) return;
 
         colliding = true;
     }
 
     private void OnCollisionExit(Collision other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("player")) return;
+        if (other.gameObject.layer == LayerMask.NameToLayer("PLAYER")) return;
 
         colliding = false;
         collisionTimer = 0f;

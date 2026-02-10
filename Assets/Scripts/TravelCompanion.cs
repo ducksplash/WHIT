@@ -264,7 +264,7 @@ public class TravelCompanion : MonoBehaviour
 		}
 
 		GameMaster.Instance.THISLEVEL = levelName;
-		GameMaster.Instance.DialogueManager.queueDropFlag = true;
+		// GameMaster.Instance.DialogueManager.queueDropFlag = true;
 		loadingpanel.alpha = 0;
 		Time.timeScale = 1;
 		InitialiseLocations();

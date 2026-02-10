@@ -83,7 +83,7 @@ public class electroshock : MonoBehaviour
     // {
     //
     //
-    //     if (other.name.Contains("Player"))
+    //     if (other.CompareTag("Player"))
     //     {
     //         ShakeCamera();
     //         StartCoroutine(DoDeath(other));

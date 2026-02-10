@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class VideoButton : MonoBehaviour
+public class PhotoButton : MonoBehaviour
 {
-    public PCVideo ThisVideo = PCVideo.tigger;
+    public PCPhoto ThisPhoto = PCPhoto.one;
     public GameObject AppOutline;
     public Button AppButton;
     private bool onHovver;
@@ -19,6 +19,6 @@ public class VideoButton : MonoBehaviour
     {
         GameMaster.Instance.TerminalEventManager.OverrideClick();
         AppOutline.SetActive(true);
-        GameMaster.Instance.TerminalEventManager.VideoSelected(ThisVideo);
+        GameMaster.Instance.TerminalEventManager.PhotoSelected(ThisPhoto);
     }
 }

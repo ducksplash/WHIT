@@ -193,8 +193,6 @@ public class VideoSystem : MonoBehaviour
 
     public void StopVideo()
     {
-        GameMaster.Instance.TerminalEventManager.BackButtonOverride(false);
-        
         if (videoPlayer == null) return;
 
         if (videoPlayer.isPlaying)
@@ -358,7 +356,7 @@ public class VideoSystem : MonoBehaviour
     {
         TerminalEventManager.OnVideoControlCommand -= ControlVideo;
 
-        GameMaster.Instance.TerminalEventManager.BackButtonOverride(false);
+        //GameMaster.Instance.TerminalEventManager.BackButtonOverride(false);
         GameMaster.Instance.TerminalEventManager.VideoPlayerClosed();
     }
 
@@ -373,9 +371,10 @@ public class VideoSystem : MonoBehaviour
 
 public enum PCVideo
 {
-    testone,
-    testtwo,
-    testthree
+    tigger,
+    luna,
+    loki,
+    rocket
 }
 
 public enum VidControl

@@ -57,7 +57,7 @@ public class fridgedeath : MonoBehaviour
     {
         if (!CoolDown)
         {
-            if (other.name.Contains("Player"))
+            if (other.CompareTag("Player"))
             {
                 StartCoroutine(TrapPlayer());
                 gameObject.GetComponent<Collider>().enabled = false;

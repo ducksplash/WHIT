@@ -39,16 +39,18 @@ public class Cutscene : MonoBehaviour
     {
         if (other.gameObject.layer == 3) 
         {
-            if (!GameMaster.Instance.CutsceneManager.CutSceneSeen.ContainsKey(selectedMessage.ToString()))
+            if (!GameMaster.Instance.DialogueManager.CutSceneSeen.ContainsKey(selectedMessage.ToString()))
             {
-                GameMaster.Instance.CutsceneManager.cameraZoom.enabled = false;
-                GameMaster.Instance.CutsceneManager.elapsedCutsceneTime = 0.0f;
+                GameMaster.Instance.DialogueManager.cameraZoom.enabled = false;
+                GameMaster.Instance.DialogueManager.elapsedCutsceneTime = 0.0f;
                 
                 // we don't want to await, that's why we're not awaiting. ignore this 'hint' 
                 
-                GameMaster.Instance.CutsceneManager.CutSceneSeen.TryAdd(selectedMessage.ToString(), ContactName.ToString());
+                GameMaster.Instance.DialogueManager.CutSceneSeen.TryAdd(selectedMessage.ToString(), ContactName.ToString());
                 
-                StartCoroutine(GameMaster.Instance.CutsceneManager.ExecuteCutscene(duration, panTime, targetObject, selectedMessage));
+                // dialogueName, displayTimer, type, cutsceneDuration, cutscenePanTime, cutsceneTarget
+                
+                GameMaster.Instance.DialogueManager.PlayDialogue(selectedMessage, 6, DialogueType.cutscene, 7, 3, targetObject);
                 
             }
         }

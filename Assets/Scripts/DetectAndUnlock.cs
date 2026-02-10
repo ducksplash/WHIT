@@ -27,7 +27,7 @@
 //     {
 //         if (!JobDone)
 //         {
-//             if (other.name.Contains("Player"))
+//             if (other.CompareTag("Player"))
 //             {
 //                 if (ObjectType == "door")
 //                 {

@@ -14,6 +14,10 @@ public class TerminalEventManager : MonoBehaviour
     public static event Action<bool> OnBackButtonOverride = (isOverride) => { };
     public static event Action<VidControl> OnVideoControlCommand = (VidControl) => { };
     public static event Action<PCVideo> OnVideoSelected = (PCVideo) => { };
+    public static event Action<PCPhoto> OnPhotoSelected = (PCPhoto) => { };
+    public static event Action OnPhotoViewerClosed = () => { };
+    public static event Action OnPhotoManagerStarted = () => { };
+    public static event Action OnPhotoManagerClosed = () => { };
     
     
     public static event Action OnCloseToDesktop = () => { };
@@ -68,5 +72,21 @@ public class TerminalEventManager : MonoBehaviour
     public void BackButtonOverride(bool doesOverride)
     {
         OnBackButtonOverride.Invoke(doesOverride);
+    }
+    public void PhotoSelected(PCPhoto selectedPhoto)
+    {
+        OnPhotoSelected.Invoke(selectedPhoto);
+    }
+    public void PhotoManagerStarted()
+    {
+        OnPhotoManagerStarted.Invoke();
+    }
+    public void PhotoManagerClosed()
+    {
+        OnPhotoManagerClosed.Invoke();
+    }
+    public void PhotoViewerClosed()
+    {
+        OnPhotoViewerClosed.Invoke();
     }
 }

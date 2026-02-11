@@ -141,7 +141,7 @@ public class TravelCompanion : MonoBehaviour
 		
 		if (!CompanionOpen)
 		{
-			Debug.Log("not open");
+			Debug.Log("open notepad");
 			Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
 
 			Notepad.SetActive(true);
@@ -157,7 +157,7 @@ public class TravelCompanion : MonoBehaviour
 		}
 		else
 		{
-			Debug.Log("open");
+			Debug.Log("close notepad");
 			Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y - 1, Notepad.transform.localPosition.z);
 
 			Notepad.SetActive(false);

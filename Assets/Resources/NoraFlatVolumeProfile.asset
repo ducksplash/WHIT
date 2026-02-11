@@ -165,19 +165,19 @@ MonoBehaviour:
     m_Value: 0
   intensity:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 0.86
   directLightingStrength:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   radius:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 5
   spatialBilateralAggressiveness:
     m_OverrideState: 1
     m_Value: 0.15
   temporalAccumulation:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   ghostingReduction:
     m_OverrideState: 1
     m_Value: 0.5
@@ -269,10 +269,10 @@ MonoBehaviour:
   shader: {fileID: 4800000, guid: c3a272ce444b462458cc508df6717e87, type: 3}
   intensity:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   steps:
     m_OverrideState: 1
-    m_Value: 16
+    m_Value: 2
   pixelScale:
     m_OverrideState: 1
     m_Value: 1
@@ -303,16 +303,16 @@ MonoBehaviour:
     m_Value: 0.1
   animateSamplingNoise:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   leakReductionMode:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 0
   minValidDotProductValue:
     m_OverrideState: 1
     m_Value: 0.1
   occlusionOnlyReflectionNormalization:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   intensityMultiplier:
     m_OverrideState: 1
     m_Value: 1
@@ -772,22 +772,32 @@ MonoBehaviour:
   m_Name: RetroConsolePostProcess
   m_EditorClassIdentifier: Assembly-CSharp::RetroConsolePostProcess
   active: 1
+  <displayName>k__BackingField: 
+  m_IsInitialized: 0
+  typeName: 
+  <passName>k__BackingField: 
   shader: {fileID: 4800000, guid: c3a272ce444b462458cc508df6717e87, type: 3}
   effectIntensity:
+    <fieldHash>k__BackingField: 655071288
     m_OverrideState: 1
     m_Value: 1
   pixelSize:
+    <fieldHash>k__BackingField: 894421680
     m_OverrideState: 1
     m_Value: 4
   pixelateStrength:
+    <fieldHash>k__BackingField: 2091173640
     m_OverrideState: 1
     m_Value: 1
   quantize:
+    <fieldHash>k__BackingField: -1964443264
     m_OverrideState: 1
     m_Value: 1
   consoleSteps:
+    <fieldHash>k__BackingField: -1725092872
     m_OverrideState: 1
     m_Value: 32
+  _material: {fileID: 0}
 --- !u!114 &-3132393622722455161
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -1408,7 +1418,6 @@ MonoBehaviour:
   - {fileID: 95167610941585807}
   - {fileID: -2991776475576592331}
   - {fileID: -6324840612004860455}
-  - {fileID: -3549452738997236633}
   - {fileID: -6879859439988869699}
 --- !u!114 &95167610941585807
 MonoBehaviour:
@@ -2020,7 +2029,7 @@ MonoBehaviour:
   active: 1
   rotation:
     m_OverrideState: 1
-    m_Value: 53
+    m_Value: 51
   skyIntensityMode:
     m_OverrideState: 1
     m_Value: 0
@@ -2032,16 +2041,16 @@ MonoBehaviour:
     m_Value: 1
   upperHemisphereLuxValue:
     m_OverrideState: 1
-    m_Value: 0.5580216
+    m_Value: 0.5021309
   upperHemisphereLuxColor:
     m_OverrideState: 1
-    m_Value: {x: 0.5, y: 0.49923435, z: 0.5}
+    m_Value: {x: 0.5, y: 0.4986941, z: 0.5}
   desiredLuxValue:
     m_OverrideState: 1
     m_Value: 20000
   updateMode:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 0
   updatePeriod:
     m_OverrideState: 1
     m_Value: 0
@@ -2053,7 +2062,7 @@ MonoBehaviour:
     m_Value: {fileID: 8900000, guid: b6c698491d87fd24584470e241748cdb, type: 3}
   distortionMode:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   flowmap:
     m_OverrideState: 1
     m_Value: {fileID: 0}
@@ -2064,14 +2073,14 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value:
       mode: 0
-      customValue: 129
+      customValue: 0
       additiveValue: 0
       multiplyValue: 1
   scrollSpeed:
     m_OverrideState: 1
     m_Value:
       mode: 0
-      customValue: 10
+      customValue: 0
       additiveValue: 0
       multiplyValue: 1
   sunInitialRotation:

@@ -80,8 +80,6 @@ public class VideoManager : MonoBehaviour
 
     public void OpenVideoPlayer(PCVideo pcVideo)
     {
-        Debug.Log("open video player, supply video " + pcVideo);
-
         CurrentVideo = pcVideo;
 
         // load and show player
@@ -96,31 +94,24 @@ public class VideoManager : MonoBehaviour
 
     public void CloseVideoPlayer()
     {
-        // stop playback (should NOT recursively fire close events)
-        if (theVideoSystem != null)
-            theVideoSystem.StopVideo();
+        if (theVideoSystem != null) theVideoSystem.StopVideo();
 
         // hide player panel
         videoPlayerPanel.alpha = 0;
         videoPlayerPanel.blocksRaycasts = false;
         videoPlayerPanel.interactable = false;
 
-        // back to list state (if manager is still active)
         ShowVideoListUI();
     }
 
-    // --- UI state helpers ---
 
     private void ShowVideoListUI()
     {
-        // Navver states
         if (VidNavver != null) VidNavver.enabled = true;
         if (VidPlayerNavver != null) VidPlayerNavver.enabled = false;
 
-        // Back overrides ComputerSystem back while we're in this app
         GameMaster.Instance.TerminalEventManager.BackButtonOverride(true);
 
-        // Back closes the video manager (returns to file manager)
         if (goBack != null)
         {
             goBack.action.performed -= GoBackFromPlayer;
@@ -136,7 +127,6 @@ public class VideoManager : MonoBehaviour
 
         GameMaster.Instance.TerminalEventManager.BackButtonOverride(true);
 
-        // Back closes player first (returns to list)
         if (goBack != null)
         {
             goBack.action.performed -= CloseVideoManager;

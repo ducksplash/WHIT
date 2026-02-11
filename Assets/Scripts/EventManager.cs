@@ -31,14 +31,13 @@ public class EventManager : MonoBehaviour
     
     public void NotepadCollectedEvent()
     {
-        Debug.Log("NotepadCollectedEvent");
-        OnPhoneCollected.Invoke();
+        Debug.Log("NotepadCollected");
+        OnNotepadCollected.Invoke();
     }
-    
     public void PhoneCollectedEvent()
     {
         Debug.Log("PhoneCollectedEvent");
-        OnNotepadCollected.Invoke();
+        OnPhoneCollected.Invoke();
     }
     
     public void GamePaused(bool GamePaused)

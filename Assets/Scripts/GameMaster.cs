@@ -33,6 +33,7 @@ public class GameMaster : MonoBehaviour
     public InputManager InputManager;
     public PauseManager PauseManager;
     public Player Player;
+    public AudioSlave AudioSlave;
     public int DefaultFOV;
 
 
@@ -118,23 +119,5 @@ public enum GAMELEVEL
     TawleyMeats,
     RoarkOutside,
     RoarkInside
-}
-    
-public static class CoroutineExtensions
-{
-    public static Task AsTask(this IEnumerator coroutine, MonoBehaviour runner)
-    {
-        var tcs = new TaskCompletionSource<bool>();
-
-        runner.StartCoroutine(Wrap());
-
-        IEnumerator Wrap()
-        {
-            yield return coroutine;
-            tcs.SetResult(true);
-        }
-
-        return tcs.Task;
-    }
 }
     

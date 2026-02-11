@@ -13,9 +13,6 @@ using UnityEditor;
 
 public class DialogueManager : MonoBehaviour
 {
-    // -------------------------
-    // Dialogue UI (existing)
-    // -------------------------
     [Header("Dialogue UI")]
     public GameObject DialogManager;
     private CanvasGroup DialogManagerCanvas;
@@ -43,34 +40,24 @@ public class DialogueManager : MonoBehaviour
 
     private readonly Dictionary<string, string> EregiDict = new();
 
-    // -------------------------
-    // Cutscene (merged from CutsceneManager)
-    // -------------------------
     [Header("Cutscene")]
     public Camera mainCamera;
     public Zoom cameraZoom;
 
-    [Tooltip("Default player camera FOV at rest.")]
     public float originalFieldOfView = 70f;
-
-    [Tooltip("Cutscene zoom-in FOV.")]
     public float targetFieldOfView = 40f;
-
-    [Tooltip("Time to rotate to face object (seconds).")]
     public float panTime = 5f;
-
-    [Tooltip("Total cutscene duration (seconds).")]
     public float duration = 10f;
 
     public bool CutsceneInProgress;
     public float elapsedCutsceneTime;
 
-    // Cutscene seen tracking (moved here)
     public Dictionary<string, string> CutSceneSeen = new Dictionary<string, string>();
 
-    // Optional input if you want later
     public InputActionReference advanceDialogue;
-    public InputActionReference advanceCutscene;
+
+    private bool cutsceneAdvanceRequested;
+    private Contacts _currentCutsceneContact = Contacts.System;
 
     private void Start()
     {
@@ -87,7 +74,6 @@ public class DialogueManager : MonoBehaviour
         if (mainCamera != null)
             originalFieldOfView = mainCamera.fieldOfView;
 
-        // If you used cutscene bars before:
         if (UInstance.Instance != null)
             UInstance.Instance.cutsceneBarsCanvas.alpha = 0;
     }
@@ -99,16 +85,14 @@ public class DialogueManager : MonoBehaviour
         if (messagetimer > 0)
             timebar.fillAmount -= 1.0f / messagetimer * Time.deltaTime;
     }
-    
+
     // dialogueName, displayTimer, type, cutsceneDuration, cutscenePanTime, cutsceneTarget
-    public Task PlayDialogue(DialogueName dialogueName, float displayTimer, DialogueType type, float cutsceneDuration = -1f, float cutscenePanTime = -1f, GameObject cutsceneTarget = null)
+    public Task PlayDialogue(DialogueName dialogueName, float displayTimer, DialogueType type,
+        float cutsceneDuration = -1f, float cutscenePanTime = -1f, GameObject cutsceneTarget = null)
     {
         if (type == DialogueType.normal)
-        {
             return NewDialogue(dialogueName, displayTimer);
-        }
 
-        // Cutscene
         if (cutsceneTarget == null)
         {
             Debug.LogError("DialogueManager.PlayDialogue: Cutscene requested but cutsceneTarget is null.");
@@ -116,21 +100,17 @@ public class DialogueManager : MonoBehaviour
         }
 
         float useDuration = cutsceneDuration > 0 ? cutsceneDuration : duration;
-        float usePanTime  = cutscenePanTime > 0 ? cutscenePanTime : panTime;
+        float usePanTime = cutscenePanTime > 0 ? cutscenePanTime : panTime;
 
         return CutsceneWithDialogue(dialogueName, displayTimer, cutsceneTarget, useDuration, usePanTime);
     }
-    
+
     public async Task NewDialogue(DialogueName dialogueName, float displaytimer)
     {
         if (!DialogInProgress)
-        {
-            await CreateDialogue(dialogueName, displaytimer);
-        }
+            await CreateDialogue(dialogueName, displaytimer, holdUntilAdvance: false);
         else
-        {
             await Queuer(dialogueName, displaytimer);
-        }
     }
 
     public Task Queuer(DialogueName dialogueName, float displaytimer)
@@ -147,7 +127,7 @@ public class DialogueManager : MonoBehaviour
         tcs.SetResult(true);
     }
 
-    public async Task CreateDialogue(DialogueName dialogueName, float displaytimer)
+    public async Task CreateDialogue(DialogueName dialogueName, float displaytimer, bool holdUntilAdvance)
     {
         if (DialogueSeen.Contains(dialogueName) && !RepeatableDialogues.Contains(dialogueName))
             return;
@@ -164,6 +144,37 @@ public class DialogueManager : MonoBehaviour
                 message = GetReplacedString(message);
         }
 
+        _currentCutsceneContact = contact;
+
+        // Held cutscene dialogue: display like normal, but don't auto-clear.
+        if (holdUntilAdvance)
+        {
+            messagetimer = 0f;
+            DialogInProgress = true;
+
+            if (contact == Contacts.System)
+            {
+                SystemMessage.text = message;
+            }
+            else if (contact == Contacts.Nora)
+            {
+                NoraMessage.text = message;
+            }
+            else
+            {
+                timebar.fillAmount = 1.0f;
+                StartCoroutine(Fader(DialogManagerCanvas, 1));
+                ContactName.text = contact.ToString();
+                ReceivedMessage.text = message;
+            }
+
+            DialogueSeen.Add(dialogueName);
+            SaveWhatYouSee();
+            dialogueSaveLock.Release();
+            return;
+        }
+
+        // Normal timed dialogue (unchanged)
         messagetimer = displaytimer;
         DialogInProgress = true;
 
@@ -186,12 +197,11 @@ public class DialogueManager : MonoBehaviour
 
         DialogueSeen.Add(dialogueName);
         SaveWhatYouSee();
-
-        dialogueSaveLock.Release(); // (kept as-is)
+        dialogueSaveLock.Release();
     }
-    
+
     private Task CutsceneWithDialogue(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject,
-                                     float cutsceneDuration, float cutscenePanTime)
+        float cutsceneDuration, float cutscenePanTime)
     {
         var tcs = new TaskCompletionSource<bool>();
         StartCoroutine(CutsceneCoroutine(dialogueName, dialogueDisplayTimer, targetObject, cutsceneDuration, cutscenePanTime, tcs));
@@ -199,7 +209,7 @@ public class DialogueManager : MonoBehaviour
     }
 
     private IEnumerator CutsceneCoroutine(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject,
-                                          float cutsceneDuration, float cutscenePanTime, TaskCompletionSource<bool> tcs)
+        float cutsceneDuration, float cutscenePanTime, TaskCompletionSource<bool> tcs)
     {
         if (CutsceneInProgress)
         {
@@ -216,20 +226,21 @@ public class DialogueManager : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
 
-        // Run dialogue during the cutscene (cutscene dialogue does not queue behind normal dialogue)
-        _ = CreateDialogue(dialogueName, dialogueDisplayTimer);
+        // dialogue displayed as normal, but held until player advances
+        _ = CreateDialogue(dialogueName, dialogueDisplayTimer, holdUntilAdvance: true);
 
-        // Zoom sequence timings
-        float zoomTime   = cutsceneDuration * 0.33f;
+        // Zoom timings (UNCHANGED)
+        float zoomTime = cutsceneDuration * 0.33f;
         float unzoomTime = cutsceneDuration * 0.33f;
-        float holdTime   = cutsceneDuration - zoomTime - unzoomTime;
+        float holdTime = cutsceneDuration - zoomTime - unzoomTime;
 
         if (cameraZoom != null)
             cameraZoom.enabled = false;
 
-        StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime));
+        // IMPORTANT FIX: we must WAIT for the zoom sequence (which includes the player-advance gate)
+        Coroutine zoomCo = StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime));
 
-        // Rotate camera toward target over duration
+        // Rotate camera toward target over duration (UNCHANGED)
         while (elapsedCutsceneTime < cutsceneDuration)
         {
             Vector3 targetDirection = targetObject.transform.position - mainCamera.transform.position;
@@ -245,16 +256,17 @@ public class DialogueManager : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        // Snap player look to final camera direction
+        // Snap player look (UNCHANGED)
         Vector3 dir = (targetObject.transform.position - mainCamera.transform.position).normalized;
-        float yaw   = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+        float yaw = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
         float pitch = Mathf.Asin(dir.y) * Mathf.Rad2Deg;
         Player.Instance.FirstPersonLook.SetPlayerRotation(new Vector2(yaw, pitch));
 
+        // IMPORTANT FIX: ensure cutscene only "finishes" after zoom-out / cleanup is done
+        yield return zoomCo;
+
         CutsceneInProgress = false;
-
-        SaveWhatYouSee(); // cutscene seen data also saved here if you use it
-
+        SaveWhatYouSee();
         tcs.SetResult(true);
     }
 
@@ -262,6 +274,7 @@ public class DialogueManager : MonoBehaviour
     {
         float t = 0f;
 
+        // ZOOM IN (unchanged)
         while (t < 1f)
         {
             t += Time.deltaTime / Mathf.Max(zoomTime, 0.0001f);
@@ -271,9 +284,13 @@ public class DialogueManager : MonoBehaviour
 
         mainCamera.fieldOfView = targetFieldOfView;
 
-        if (holdTime > 0f)
-            yield return new WaitForSeconds(holdTime);
+        // CHANGE: wait for player press instead of holdTime
+        yield return StartCoroutine(WaitForCutsceneAdvance());
 
+        // Clear dialogue phase happens only when pressed
+        ClearHeldCutsceneDialogue();
+
+        // ZOOM OUT (unchanged)
         t = 0f;
         while (t < 1f)
         {
@@ -295,7 +312,55 @@ public class DialogueManager : MonoBehaviour
 
         GameMaster.Instance.PLAYERBUSY = false;
     }
-    
+
+    private void ClearHeldCutsceneDialogue()
+    {
+        if (!DialogInProgress) return;
+
+        if (_currentCutsceneContact != Contacts.System && _currentCutsceneContact != Contacts.Nora)
+        {
+            StartCoroutine(Fader(DialogManagerCanvas, 0));
+            ContactName.text = "";
+            ReceivedMessage.text = "";
+        }
+        else if (_currentCutsceneContact == Contacts.Nora)
+        {
+            NoraMessage.text = "";
+        }
+        else
+        {
+            SystemMessage.text = "";
+        }
+
+        DialogInProgress = false;
+        messagetimer = 0f;
+    }
+
+    private void RequestCutsceneAdvance(InputAction.CallbackContext ctx)
+    {
+        cutsceneAdvanceRequested = true;
+    }
+
+    private IEnumerator WaitForCutsceneAdvance()
+    {
+        cutsceneAdvanceRequested = false;
+
+        if (advanceDialogue != null)
+        {
+            advanceDialogue.action.performed -= RequestCutsceneAdvance;
+            advanceDialogue.action.performed += RequestCutsceneAdvance;
+        }
+        else
+        {
+            Debug.LogWarning("DialogueManager: advanceDialogue is not assigned. Cutscenes will never advance.");
+        }
+
+        yield return new WaitUntil(() => cutsceneAdvanceRequested);
+
+        if (advanceDialogue != null)
+            advanceDialogue.action.performed -= RequestCutsceneAdvance;
+    }
+
     private void PopulateDialogues()
     {
         DialogueDict.Clear();
@@ -332,7 +397,8 @@ public class DialogueManager : MonoBehaviour
 
     public string GetReplacedString(string message)
     {
-        if (string.IsNullOrEmpty(message)) return message;
+        if (string.IsNullOrEmpty(message))
+            return message;
 
         foreach (var kvp in EregiDict)
             message = message.Replace(kvp.Key, kvp.Value);
@@ -417,7 +483,6 @@ public class DialogueManager : MonoBehaviour
         StoredPrefs.Instance.SetCollection("DialogueSeen", DialogueSeen, CollectionType.list);
         StoredPrefs.Instance.Save();
 
-        // If you want to persist cutscene-seen too:
         StoredPrefs.Instance.SetCollection("CutSceneSeen", CutSceneSeen, CollectionType.dictionary);
         StoredPrefs.Instance.Save();
     }
@@ -429,7 +494,6 @@ public class DialogueManager : MonoBehaviour
     }
 }
 
-// NEW ENUM as requested (exact casing)
 public enum DialogueType
 {
     cutscene,
@@ -442,14 +506,12 @@ public enum OSDTextName
     SavedPhoto = 102
 }
 
-
 public enum DialogueName
 {
     None,
-    // Nora's Flat
-    KieronToNoraBathroom = 100, 
+    KieronToNoraBathroom = 100,
     NoraAboutKieronBathroom = 101,
-    NoraLookingAtCorkboard = 102, 
+    NoraLookingAtCorkboard = 102,
     NoraNeedsHerThings = 103,
     NoraNeedsTestEvidence = 104,
     NoraReadyToGo = 105,
@@ -460,45 +522,11 @@ public enum DialogueName
     KieronToNoraFirstEvidence = 110,
     phoneTutorialFirstPhoto = 111,
     phoneTutorialSomething = 112,
-    
-    
-    // Nora Meaty
     NoraBathroomLockedFromInside = 200,
-    NoraDiesInAFreezer = 201, //
-    NoraLookingAtIncinerator = 202, //
-    NoraLookingAtBloodstains = 203, //
-    NoraLookingAtSkull = 204, //
-    NoraReadingManagersEmails = 205, //
-    
-    // Noroark
-    NoraOutsideRoark = 307 //
+    NoraDiesInAFreezer = 201,
+    NoraLookingAtIncinerator = 202,
+    NoraLookingAtBloodstains = 203,
+    NoraLookingAtSkull = 204,
+    NoraReadingManagersEmails = 205,
+    NoraOutsideRoark = 307
 }
-
-#if UNITY_EDITOR
-
-
-[CustomEditor(typeof(DialogueManager))]
-public class DialogueManagerEditor : Editor
-{
-    private DialogueName selectedDialogue = DialogueName.None;
-    private DialogueType dialogueType = DialogueType.normal;
-    private Languages language = Languages.EN;
-
-    public override void OnInspectorGUI()
-    {
-        DrawDefaultInspector();
-
-        GUILayout.Space(10);
-        GUILayout.Label("Test Dialogue", EditorStyles.boldLabel);
-
-        selectedDialogue = (DialogueName)EditorGUILayout.EnumPopup("Dialogue", selectedDialogue);
-        language = (Languages)EditorGUILayout.EnumPopup("Language", language); // Stub, not implemented
-
-        if (GUILayout.Button("Play Dialogue"))
-        {
-            DialogueManager manager = (DialogueManager)target;
-            manager.NewDialogue(selectedDialogue, 5f);
-        }
-    }
-}
-#endif

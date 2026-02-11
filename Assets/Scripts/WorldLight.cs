@@ -33,8 +33,7 @@ public class WorldLight : MonoBehaviour
         
         foreach (var light in bulbList)
         {
-            if (light != null)
-                baseIntensities.Add(light.intensity);
+            if (light != null) baseIntensities.Add(light.intensity);
         }
 
         // Cache renderer materials

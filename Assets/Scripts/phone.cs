@@ -177,6 +177,8 @@ public class Phone : MonoBehaviour
         TogglePhoneInput.action.performed += ActionTogglePhone;
         EventManager.OnStopPhone += EventStopPhone;
 
+        EventManager.OnPhoneCollected += TakeOutPhone;
+
         listBackButton.action.performed += GalleryBackAction;
         listNextButton.action.performed += GalleryNextAction;
 

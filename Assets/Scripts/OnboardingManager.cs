@@ -281,8 +281,8 @@ public class OnboardingManager : MonoBehaviour
         StoredPrefs.Instance.SetInt("PHONECOLLECTED", PHONECOLLECTED ? 1 : 0);
         StoredPrefs.Instance.Save();
 
-        GameMaster.Instance.EventManager.PhoneCollectedEvent();
         CheckOnboardingStatus();
+        GameMaster.Instance.EventManager.PhoneCollectedEvent();
     }
 
 
@@ -331,10 +331,8 @@ public class OnboardingManager : MonoBehaviour
     {
         Debug.Log("CheckOnboardingStatus");
         
-        
         if (TORCHCOLLECTED && NOTEPADCOLLECTED && PHONECOLLECTED)
         {
-
             if (TESTEVIDENCECOLLECTED)
             {
                 ONBOARDINGCOMPLETE = true;
@@ -428,9 +426,8 @@ public class OnboardingManager : MonoBehaviour
 
         if (phonePickup) phonePickup.SetActive(false);
         if (phoneTick) phoneTick.alpha = 1;
-
-        // Fire any runtime events you rely on
-        GameMaster.Instance.EventManager.PhoneCollectedEvent();
+        
+        //GameMaster.Instance.EventManager.PhoneCollectedEvent();
     }
 
     private void RestoreTorchCollected()

@@ -8,6 +8,7 @@ public class PauseManager : MonoBehaviour
     public CanvasGroup PauseScreenPanel;
     public GameObject VirtualCursor;
     private float OriginalSensitivity;
+    public CanvasGroup HUD;
     
     private void Start()
     {
@@ -47,7 +48,8 @@ public class PauseManager : MonoBehaviour
     private void PauseGame()
     {
         IsPaused = true;
-        
+
+        HUD.alpha = 0;
         
         Player.Instance.FirstPersonLook.sensitivity = GameMaster.Instance.MouseSensitivity * 10;
         
@@ -65,6 +67,8 @@ public class PauseManager : MonoBehaviour
     {
                 
         Player.Instance.FirstPersonLook.sensitivity = OriginalSensitivity;
+        
+        HUD.alpha = 1;
         
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;

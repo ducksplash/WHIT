@@ -7,7 +7,7 @@ using UnityEngine;
 public class SFX : ScriptableObject
 {
     [Header("Audio Parameters")]
-    public SFXResource AudioResource = SFXResource.SongOne;
+    public SFXResource AudioResource = SFXResource.TypeWriter0;
 
     [Header("Audio Clip (from Resources or Addressables)")]
     public AudioClip AudioClip;
@@ -17,7 +17,10 @@ public class SFX : ScriptableObject
 
 public enum SFXResource
 {
-    SongOne,
-    SongTwo
-    // add more as needed
+    TypeWriter0,
+    TypeWriter1,
+    TypeWriter2,
+    TypeWriter3,
+    TypeWriter4,
+    TypeWriter5
 }

@@ -12,7 +12,7 @@ public class Cutscene : MonoBehaviour
     public float panTime = 5.0f;     // How long it takes to pan to the object
     [Header("Time to linger looking at object")]
     public float duration = 10.0f;   // How long the cutscene lasts in total
-    [Header("Time to zoom & unzoom; set zero to disable")]
+    [Header("duration is deprecated, player now presses Submit (A, Enter)")]
 
     [Header("Optional Dialogue")]
     [SerializeField]
@@ -50,7 +50,7 @@ public class Cutscene : MonoBehaviour
                 
                 // dialogueName, displayTimer, type, cutsceneDuration, cutscenePanTime, cutsceneTarget
                 
-                GameMaster.Instance.DialogueManager.PlayDialogue(selectedMessage, 6, DialogueType.cutscene, 7, 3, targetObject);
+                GameMaster.Instance.DialogueManager.PlayDialogue(selectedMessage, duration, DialogueType.cutscene, 7, panTime, targetObject);
                 
             }
         }

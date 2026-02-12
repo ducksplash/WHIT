@@ -7,9 +7,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 public class DialogueManager : MonoBehaviour
 {
@@ -301,8 +298,7 @@ public class DialogueManager : MonoBehaviour
 
         mainCamera.fieldOfView = originalFieldOfView;
 
-        if (UInstance.Instance != null)
-            StartCoroutine(UInstance.Instance.FadeOutCutsceneBars());
+        if (UInstance.Instance != null) StartCoroutine(UInstance.Instance.FadeOutCutsceneBars());
 
         if (cameraZoom != null)
         {

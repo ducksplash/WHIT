@@ -76,7 +76,7 @@ public class AudioSlave : MonoBehaviour
         if (_bgmSource.isPlaying && _bgmSource.clip == bgm.AudioClip)
             return;
 
-        _bgmSource.clip = bgm.AudioClip; // <-- MISSING LINE (the bug)
+        _bgmSource.clip = bgm.AudioClip; 
         _bgmSource.volume = Mathf.Clamp01(bgm.BGMVolume);
         _bgmSource.Play();
     }
@@ -84,6 +84,12 @@ public class AudioSlave : MonoBehaviour
 
     public void PlaySFX(SFXResource resource)
     {
+        if (_sfxSource == null)
+        {
+            Debug.LogError("AudioSlave.PlaySFX: _sfxSource is null (Awake may not have run?).");
+            return;
+        }
+
         SFX sfx = SFXList.Find(x => x != null && x.AudioResource == resource);
         if (sfx == null)
         {
@@ -97,9 +103,25 @@ public class AudioSlave : MonoBehaviour
             return;
         }
 
-        _sfxSource.volume = Mathf.Clamp01(sfx.SFXVolume);
-        _sfxSource.PlayOneShot(sfx.AudioClip);
+        // Sanity (prevents silent "why can't I hear it?")
+        _sfxSource.mute = false;
+        _sfxSource.bypassEffects = false;
+        _sfxSource.bypassListenerEffects = false;
+        _sfxSource.bypassReverbZones = false;
+
+        float vol = Mathf.Clamp01(sfx.SFXVolume);
+        if (vol <= 0f) Debug.LogWarning($"AudioSlave.PlaySFX: SFX '{resource}' volume is 0. It will be silent.");
+
+        // Use OneShot for SFX (more reliable than swapping clip + Play)
+        _sfxSource.PlayOneShot(sfx.AudioClip, vol);
+
+        // If you still hear nothing, this helps pinpoint mixer/group issues
+        if (_sfxSource.outputAudioMixerGroup == null && SFXMixer != null)
+        {
+            Debug.LogWarning($"AudioSlave.PlaySFX: outputAudioMixerGroup is NULL. " + $"Check SFXGroupName '{SFXGroupName}' exists in SFXMixer and is assigned in Awake.");
+        }
     }
+
 
     
     public void StopBGM()
@@ -122,7 +144,7 @@ public class AudioSlave : MonoBehaviour
 public class AudioSlaveEditor : Editor
 {
     private BGMResource _selectedBGM = BGMResource.SongOne;
-    private SFXResource _selectedSFX = SFXResource.SongOne; // change default if your enum differs
+    private SFXResource _selectedSFX = SFXResource.TypeWriter0; 
 
     private bool _showBgm = true;
     private bool _showSfx = true;

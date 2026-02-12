@@ -16,7 +16,6 @@ public class SteamAchievementTester : MonoBehaviour
     public SteamAchievements achievement = SteamAchievements.NewsHound;
 
     [Header("Options")]
-    public bool requestStatsOnStart = true;
     public bool verboseLogs = true;
 
 #if STEAMWORKS_NET
@@ -43,38 +42,14 @@ public class SteamAchievementTester : MonoBehaviour
     private void Start()
     {
 #if STEAMWORKS_NET
-        if (!IsSteamReady())
-            return;
+        if (!IsSteamReady()) return;
 
-        if (requestStatsOnStart)
-            RequestStats();
 #else
         Debug.LogWarning("SteamAchievementTester: STEAMWORKS_NET symbol not defined. Add it in Player Settings > Scripting Define Symbols.");
 #endif
     }
 
 #if STEAMWORKS_NET
-    public void RequestStats()
-    {
-        if (!IsSteamReady())
-            return;
-
-        if (_miRequestCurrentStats != null)
-        {
-            // Your build has the method: call it.
-            bool started = (bool)_miRequestCurrentStats.Invoke(null, null);
-            Log($"RequestCurrentStats() invoked via reflection. started={started}");
-        }
-        else
-        {
-            // Your build doesn't expose the wrapper method.
-            // Many setups still have stats available once Steam is initialized.
-            // We'll mark as "possibly ready" but still rely on callback if it comes in.
-            Log("RequestCurrentStats() not found on SteamUserStats in this build. Continuing without it.");
-            _statsReady = true;
-        }
-    }
-
     public void UnlockSelected()
     {
         if (!EnsureStatsReady())
@@ -147,13 +122,7 @@ public class SteamAchievementTester : MonoBehaviour
     {
         if (!IsSteamReady())
             return false;
-
-        // If we haven't requested stats yet, do it now
-        if (!_statsReady)
-        {
-            RequestStats();
-        }
-
+        
         // If still not ready, ask user to try again after callbacks.
         if (!_statsReady)
         {
@@ -194,8 +163,7 @@ public class SteamAchievementTester : MonoBehaviour
 
     private void Log(string msg)
     {
-        if (verboseLogs)
-            Debug.Log($"[SteamAchievementTester] {msg}");
+        if (verboseLogs) Debug.Log($"[SteamAchievementTester] {msg}");
     }
 #endif
 }
@@ -215,9 +183,6 @@ public class SteamAchievementTesterEditor : Editor
 
         using (new EditorGUI.DisabledScope(!Application.isPlaying))
         {
-            if (GUILayout.Button("Request Current Stats"))
-                CallSafe(t, nameof(t.RequestStats));
-
             if (GUILayout.Button("Print Selected Achievement State"))
                 CallSafe(t, nameof(t.PrintSelectedState));
 

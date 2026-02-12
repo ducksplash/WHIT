@@ -15,6 +15,7 @@ public class EventManager : MonoBehaviour
     public static event Action OnStopPhone = () => { };
     public static event Action<EvidenceName> OnAutoCollectEvidence = (EvidenceName) => { };
     public static event Action<bool> OnPaused = (GamePaused) => { };
+    public static event Action<QuestText> OnQuestLoaded = (QuestText) => { };
     
     
     
@@ -82,6 +83,10 @@ public class EventManager : MonoBehaviour
     public void StopPhone()
     {
         OnStopPhone.Invoke();
+    }
+    public void QuestLoaded(QuestText QuestText)
+    {
+        OnQuestLoaded.Invoke(QuestText);
     }
 
     

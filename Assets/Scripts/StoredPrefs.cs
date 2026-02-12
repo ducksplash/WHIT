@@ -5,10 +5,6 @@ using System.Globalization;
 using System.IO;
 using Newtonsoft.Json;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 public class StoredPrefs : MonoBehaviour
 {
     public static StoredPrefs Instance;
@@ -17,17 +13,21 @@ public class StoredPrefs : MonoBehaviour
     public bool useEncryption = true;
 
     public static string FilePath => Path.Combine(Application.persistentDataPath, "PlayerData.json");
-
     public const string EncryptionKey = "SomeVerySimpleKey";
 
     private static PlayerData data = new PlayerData();
     private static bool isLoaded = false;
 
+    // ✅ Sticky readiness flag (late subscribers can check)
+    public static bool IsReady { get; private set; }
+
+    // Events
     public static event Action OnPrefsSaved;
+    public static event Action OnPlayerDataLoaded;
 
     private const string COLLECTION_PREFIX = "logs:";
 
-    void Awake()
+    private void Awake()
     {
         if (Instance != null)
         {
@@ -38,24 +38,62 @@ public class StoredPrefs : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        // IMPORTANT: Don't fire loaded immediately in Awake,
+        // because listeners often subscribe in OnEnable/Start.
         EnsureLoaded();
+        StartCoroutine(FireLoadedNextFrame());
+        StartCoroutine(NotifyGameMasterWhenReady());
     }
 
-    // ===================== LOAD SAFETY =====================
+    // ✅ Use this from other scripts instead of raw event subscription.
+    // It guarantees the callback runs even if you subscribe late.
+    public static void WhenLoaded(Action callback)
+    {
+        if (callback == null) return;
+
+        if (IsReady)
+        {
+            callback.Invoke();
+            return;
+        }
+
+        void Handler()
+        {
+            OnPlayerDataLoaded -= Handler;
+            callback.Invoke();
+        }
+
+        OnPlayerDataLoaded += Handler;
+    }
 
     private void EnsureLoaded()
     {
         if (isLoaded) return;
+        if (Instance == null) return;
 
-        // If called too early, don't lock us into a "loaded" state.
-        if (Instance == null)
-            return;
-
-        isLoaded = true;
         Load();
+        isLoaded = true;
+        IsReady = true;
     }
 
-    
+    private System.Collections.IEnumerator FireLoadedNextFrame()
+    {
+        // wait a frame so OnEnable subscriptions can register
+        yield return null;
+
+        OnPlayerDataLoaded?.Invoke();
+    }
+
+    private System.Collections.IEnumerator NotifyGameMasterWhenReady()
+    {
+        // wait until GameMaster exists (don’t assume it’s ready in Awake)
+        while (GameMaster.Instance == null || GameMaster.Instance.EventManager == null)
+            yield return null;
+
+        GameMaster.Instance.EventManager.PlayerDataLoaded();
+    }
+
+    // ===================== GET/SET =====================
 
     public void SetString(string key, string value)
     {
@@ -78,9 +116,7 @@ public class StoredPrefs : MonoBehaviour
     public int GetInt(string key, int defaultValue = 0)
     {
         EnsureLoaded();
-        return data.PlayerDatum.TryGetValue(key, out var v) && int.TryParse(v, out var r)
-            ? r
-            : defaultValue;
+        return data.PlayerDatum.TryGetValue(key, out var v) && int.TryParse(v, out var r) ? r : defaultValue;
     }
 
     public void SetFloat(string key, float value)
@@ -121,9 +157,15 @@ public class StoredPrefs : MonoBehaviour
 
         switch (type)
         {
-            case CollectionType.dictionary: if (!(collection is System.Collections.IDictionary)) throw new ArgumentException("Expected Dictionary"); break;
-            case CollectionType.list: if (!(collection is System.Collections.IList)) throw new ArgumentException("Expected List"); break;
-            case CollectionType.array: if (!collection.GetType().IsArray) throw new ArgumentException("Expected Array"); break;
+            case CollectionType.dictionary:
+                if (!(collection is System.Collections.IDictionary)) throw new ArgumentException("Expected Dictionary");
+                break;
+            case CollectionType.list:
+                if (!(collection is System.Collections.IList)) throw new ArgumentException("Expected List");
+                break;
+            case CollectionType.array:
+                if (!collection.GetType().IsArray) throw new ArgumentException("Expected Array");
+                break;
         }
 
         data.PlayerDatum[COLLECTION_PREFIX + key] = JsonConvert.SerializeObject(collection, Formatting.None);
@@ -133,11 +175,8 @@ public class StoredPrefs : MonoBehaviour
     {
         EnsureLoaded();
 
-        if (!data.PlayerDatum.TryGetValue(COLLECTION_PREFIX + key, out var json) ||
-            string.IsNullOrEmpty(json))
-        {
-            return new T(); // SAFE empty collection
-        }
+        if (!data.PlayerDatum.TryGetValue(COLLECTION_PREFIX + key, out var json) || string.IsNullOrEmpty(json))
+            return new T();
 
         try
         {
@@ -154,11 +193,9 @@ public class StoredPrefs : MonoBehaviour
 
     public void Save()
     {
-        Debug.Log("save called");
         EnsureLoaded();
 
         string json = JsonConvert.SerializeObject(data, Formatting.Indented);
-
         if (Instance != null && Instance.useEncryption)
             json = Encrypt(json);
 
@@ -179,28 +216,29 @@ public class StoredPrefs : MonoBehaviour
         try
         {
             string json = File.ReadAllText(FilePath);
-            if (Instance.useEncryption)
+            if (Instance != null && Instance.useEncryption)
                 json = Decrypt(json);
 
             data = JsonConvert.DeserializeObject<PlayerData>(json) ?? new PlayerData();
         }
-        catch
+        catch (Exception e)
         {
+            Debug.LogWarning($"StoredPrefs.Load failed, creating new data. {e}");
             data = new PlayerData();
         }
-
-        OnPrefsSaved?.Invoke();
-        GameMaster.Instance.EventManager.PlayerDataLoaded();
     }
 
     public void ResetAll()
     {
         data = new PlayerData();
-        isLoaded = true;
+        isLoaded = false;
+        IsReady = false;
 
         if (File.Exists(FilePath))
             File.Delete(FilePath);
 
+        EnsureLoaded();
+        StartCoroutine(FireLoadedNextFrame());
         Save();
     }
 
@@ -215,11 +253,7 @@ public class StoredPrefs : MonoBehaviour
     }
 
     public static string Decrypt(string text) => Encrypt(text);
-    
-    
-
 }
-
 
 [Serializable]
 public class PlayerData

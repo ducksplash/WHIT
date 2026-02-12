@@ -73,12 +73,12 @@ public class DeviceType : MonoBehaviour
         {
             case PlayerDeviceType.SteamOS:
                 GameMaster.Instance.MouseSensitivity = SensitivityForSteamDeck;
-                Debug.Log("set sensitivity for Steam Deck / SteamOS");
+                //Debug.Log("set sensitivity for Steam Deck / SteamOS");
                 break;
 
             case PlayerDeviceType.DesktopPC:
                 GameMaster.Instance.MouseSensitivity = SensitivityForPC;
-                Debug.Log("set sensitivity for Desktop PC");
+                //Debug.Log("set sensitivity for Desktop PC");
                 break;
         }
     }

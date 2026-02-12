@@ -414,7 +414,7 @@ public class Phone : MonoBehaviour
         MapsScreenNavver.gameObject.SetActive(false);
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (!PhoneOpened) return; 
         

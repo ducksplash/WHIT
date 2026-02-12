@@ -137,13 +137,13 @@ public class OnboardingManager : MonoBehaviour
 
     public void UpdateChalkboard()
     {
-        Debug.Log("[Onboarding] UpdateChalkboard");
+        //Debug.Log("[Onboarding] UpdateChalkboard");
 
         EvidenceName evidenceName = FirstOnboardingEvidence;
 
         if (!GameMaster.Instance.EvidenceManager.EvidenceFound.TryGetValue(evidenceName, out string quackPath))
         {
-            Debug.Log($"[Onboarding] Evidence not collected yet: {evidenceName}");
+            //Debug.Log($"[Onboarding] Evidence not collected yet: {evidenceName}");
             return;
         }
 
@@ -177,7 +177,7 @@ public class OnboardingManager : MonoBehaviour
             record.Photo
         );
 
-        Debug.Log($"[Onboarding] Loading image: {photoPath}");
+        //Debug.Log($"[Onboarding] Loading image: {photoPath}");
 
         if (!File.Exists(photoPath))
         {
@@ -203,7 +203,7 @@ public class OnboardingManager : MonoBehaviour
         EvidenceDesc.text = record.Details;
         evidenceTick.alpha = 1;
 
-        Debug.Log("[Onboarding] Chalkboard updated successfully");
+        //Debug.Log("[Onboarding] Chalkboard updated successfully");
     }
 
     IEnumerator NoraReady()
@@ -214,7 +214,7 @@ public class OnboardingManager : MonoBehaviour
 
     public async void CollectTorch()
     {
-        Debug.Log("CollectTorch");
+        //Debug.Log("CollectTorch");
         TORCHCOLLECTED = true;
 
         // dialogueName, displayTimer, type, cutsceneDuration, cutscenePanTime, cutsceneTarget
@@ -239,7 +239,7 @@ public class OnboardingManager : MonoBehaviour
 
     public async void CollectNotepad()
     {
-        Debug.Log("CollectNotepad");
+        //Debug.Log("CollectNotepad");
         NOTEPADCOLLECTED = true;
 
         await GameMaster.Instance.DialogueManager.PlayDialogue(
@@ -263,7 +263,7 @@ public class OnboardingManager : MonoBehaviour
 
     public async void CollectPhone()
     {
-        Debug.Log("CollectPhone");
+        //Debug.Log("CollectPhone");
         PHONECOLLECTED = true;
 
         await GameMaster.Instance.DialogueManager.PlayDialogue(
@@ -289,7 +289,7 @@ public class OnboardingManager : MonoBehaviour
     public void OpenedPhone()
     {
         if (PHONEACCESSED) return;
-        Debug.Log("OpenedPhone");
+        //Debug.Log("OpenedPhone");
         PHONEACCESSED = true;
         GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialGotPhone, 6);
         StoredPrefs.Instance.SetInt("PHONEACCESSED", PHONEACCESSED ? 1 : 0); StoredPrefs.Instance.Save();
@@ -300,7 +300,7 @@ public class OnboardingManager : MonoBehaviour
 
     public void CollectTestEvidence()
     {
-        Debug.Log("CollectTestEvidence");
+        //Debug.Log("CollectTestEvidence");
         TESTEVIDENCECOLLECTED = true;
         GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstEvidence, 5);
         
@@ -329,7 +329,7 @@ public class OnboardingManager : MonoBehaviour
     
     public void CheckOnboardingStatus()
     {
-        Debug.Log("CheckOnboardingStatus");
+        //Debug.Log("CheckOnboardingStatus");
         
         if (TORCHCOLLECTED && NOTEPADCOLLECTED && PHONECOLLECTED)
         {
@@ -340,7 +340,7 @@ public class OnboardingManager : MonoBehaviour
                 StoredPrefs.Instance.SetInt("ONBOARDINGCOMPLETE", ONBOARDINGCOMPLETE ? 1 : 0);
                 StoredPrefs.Instance.Save();
 
-                Debug.Log("ONBOARDINGCOMPLETE");
+                //Debug.Log("ONBOARDINGCOMPLETE");
             }
         }
 
@@ -349,7 +349,7 @@ public class OnboardingManager : MonoBehaviour
 
     public void GarbageRun()
     {
-        Debug.Log("GarbageRun");
+        //Debug.Log("GarbageRun");
 
         // ---- CLEAR EVIDENCE KEYS ----
         var keys = StoredPrefs.Instance.GetAllKeys();
@@ -381,7 +381,7 @@ public class OnboardingManager : MonoBehaviour
         if (GameMaster.Instance.PLAYERBUSY) return;
         string root = Application.persistentDataPath;
 
-        Debug.Log($"[OnboardingEditor] FULL WIPE: {root}");
+        //Debug.Log($"[OnboardingEditor] FULL WIPE: {root}");
 
         try
         {
@@ -404,7 +404,7 @@ public class OnboardingManager : MonoBehaviour
         // Reset scene objects safely
         ResetSceneObjects();
 
-        Debug.Log("[OnboardingEditor] Persistent data wipe complete.");
+        //Debug.Log("[OnboardingEditor] Persistent data wipe complete.");
     }
 
     private void ResetSceneObjects()
@@ -539,7 +539,7 @@ public class OnboardingManagerEditor : Editor
     {
         string root = Application.persistentDataPath;
 
-        Debug.Log($"[OnboardingEditor] FULL WIPE: {root}");
+        //Debug.Log($"[OnboardingEditor] FULL WIPE: {root}");
 
         try
         {
@@ -562,7 +562,7 @@ public class OnboardingManagerEditor : Editor
         // Reset scene objects safely
         ResetSceneObjects(mgr);
 
-        Debug.Log("[OnboardingEditor] Persistent data wipe complete.");
+        //Debug.Log("[OnboardingEditor] Persistent data wipe complete.");
     }
 
     private void ResetSceneObjects(OnboardingManager mgr)

@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 public class StoredPrefs : MonoBehaviour
@@ -16,6 +18,8 @@ public class StoredPrefs : MonoBehaviour
     public const string EncryptionKey = "SomeVerySimpleKey";
 
     private static PlayerData data = new PlayerData();
+
+    // Load state
     private static bool isLoaded = false;
 
     // ✅ Sticky readiness flag (late subscribers can check)
@@ -26,6 +30,11 @@ public class StoredPrefs : MonoBehaviour
     public static event Action OnPlayerDataLoaded;
 
     private const string COLLECTION_PREFIX = "logs:";
+
+    // Async coordination
+    private static readonly SemaphoreSlim _loadLock = new SemaphoreSlim(1, 1);
+    private static readonly SemaphoreSlim _saveLock = new SemaphoreSlim(1, 1);
+    private static readonly TaskCompletionSource<bool> _readyTcs = new TaskCompletionSource<bool>();
 
     private void Awake()
     {
@@ -38,10 +47,11 @@ public class StoredPrefs : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // IMPORTANT: Don't fire loaded immediately in Awake,
-        // because listeners often subscribe in OnEnable/Start.
-        EnsureLoaded();
-        StartCoroutine(FireLoadedNextFrame());
+        // Kick off async load (non-blocking).
+        _ = EnsureLoadedAsync();
+
+        // Fire events only after load is complete (and next frame so others can subscribe).
+        StartCoroutine(FireLoadedNextFrameWhenReady());
         StartCoroutine(NotifyGameMasterWhenReady());
     }
 
@@ -66,18 +76,43 @@ public class StoredPrefs : MonoBehaviour
         OnPlayerDataLoaded += Handler;
     }
 
-    private void EnsureLoaded()
+    // Optional: awaitable form (handy in async code)
+    public static Task WhenLoadedAsync()
+    {
+        if (IsReady) return Task.CompletedTask;
+        return _readyTcs.Task;
+    }
+
+    private async Task EnsureLoadedAsync()
     {
         if (isLoaded) return;
         if (Instance == null) return;
 
-        Load();
-        isLoaded = true;
-        IsReady = true;
+        await _loadLock.WaitAsync();
+        try
+        {
+            if (isLoaded) return;
+
+            await LoadAsync();
+
+            isLoaded = true;
+            IsReady = true;
+
+            // unblock awaiters
+            if (!_readyTcs.Task.IsCompleted)
+                _readyTcs.TrySetResult(true);
+        }
+        finally
+        {
+            _loadLock.Release();
+        }
     }
 
-    private System.Collections.IEnumerator FireLoadedNextFrame()
+    private System.Collections.IEnumerator FireLoadedNextFrameWhenReady()
     {
+        // wait until async load completes
+        yield return new WaitUntil(() => IsReady);
+
         // wait a frame so OnEnable subscriptions can register
         yield return null;
 
@@ -86,6 +121,9 @@ public class StoredPrefs : MonoBehaviour
 
     private System.Collections.IEnumerator NotifyGameMasterWhenReady()
     {
+        // wait until our prefs are ready first
+        yield return new WaitUntil(() => IsReady);
+
         // wait until GameMaster exists (don’t assume it’s ready in Awake)
         while (GameMaster.Instance == null || GameMaster.Instance.EventManager == null)
             yield return null;
@@ -97,37 +135,36 @@ public class StoredPrefs : MonoBehaviour
 
     public void SetString(string key, string value)
     {
-        EnsureLoaded();
+        _ = EnsureLoadedAsync(); // non-blocking safety
         data.PlayerDatum[key] = value;
     }
 
     public string GetString(string key, string defaultValue = "")
     {
-        EnsureLoaded();
+        // If called early, it will still return defaults until ready.
+        // Prefer WhenLoaded/WhenLoadedAsync for strict ordering.
         return data.PlayerDatum.TryGetValue(key, out var v) ? v : defaultValue;
     }
 
     public void SetInt(string key, int value)
     {
-        EnsureLoaded();
+        _ = EnsureLoadedAsync();
         data.PlayerDatum[key] = value.ToString();
     }
 
     public int GetInt(string key, int defaultValue = 0)
     {
-        EnsureLoaded();
         return data.PlayerDatum.TryGetValue(key, out var v) && int.TryParse(v, out var r) ? r : defaultValue;
     }
 
     public void SetFloat(string key, float value)
     {
-        EnsureLoaded();
+        _ = EnsureLoadedAsync();
         data.PlayerDatum[key] = value.ToString(CultureInfo.InvariantCulture);
     }
 
     public float GetFloat(string key, float defaultValue = 0f)
     {
-        EnsureLoaded();
         return data.PlayerDatum.TryGetValue(key, out var v) &&
                float.TryParse(v, NumberStyles.Float, CultureInfo.InvariantCulture, out var r)
             ? r
@@ -136,13 +173,13 @@ public class StoredPrefs : MonoBehaviour
 
     public void DeleteKey(string key)
     {
-        EnsureLoaded();
-        if (data.PlayerDatum.Remove(key)) Save();
+        _ = EnsureLoadedAsync();
+        if (data.PlayerDatum.Remove(key))
+            _ = SaveAsync(); // fire-and-forget async save
     }
 
     public List<string> GetAllKeys()
     {
-        EnsureLoaded();
         return new List<string>(data.PlayerDatum.Keys);
     }
 
@@ -150,7 +187,7 @@ public class StoredPrefs : MonoBehaviour
 
     public void SetCollection<T>(string key, T collection, CollectionType type)
     {
-        EnsureLoaded();
+        _ = EnsureLoadedAsync();
 
         if (collection == null)
             throw new ArgumentNullException(nameof(collection));
@@ -173,8 +210,6 @@ public class StoredPrefs : MonoBehaviour
 
     public T GetCollection<T>(string key) where T : new()
     {
-        EnsureLoaded();
-
         if (!data.PlayerDatum.TryGetValue(COLLECTION_PREFIX + key, out var json) || string.IsNullOrEmpty(json))
             return new T();
 
@@ -189,24 +224,55 @@ public class StoredPrefs : MonoBehaviour
         }
     }
 
-    // ===================== SAVE / LOAD =====================
+    // ===================== SAVE / LOAD (ASYNC) =====================
 
+    /// <summary>
+    /// Fire-and-forget convenience wrapper (keeps your old call sites working).
+    /// Prefer awaiting SaveAsync() when ordering matters.
+    /// </summary>
     public void Save()
     {
-        EnsureLoaded();
+        _ = SaveAsync();
+    }
 
-        string json = JsonConvert.SerializeObject(data, Formatting.Indented);
-        if (Instance != null && Instance.useEncryption)
-            json = Encrypt(json);
+    public async Task SaveAsync()
+    {
+        // Make sure we don't save before load completed (prevents "writing defaults over real data")
+        await EnsureLoadedAsync();
 
-        Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
-        File.WriteAllText(FilePath, json);
+        await _saveLock.WaitAsync();
+        try
+        {
+            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+            if (Instance != null && Instance.useEncryption)
+                json = Encrypt(json);
 
+            // Directory.CreateDirectory is sync; it's tiny, but keep it off the main thread anyway.
+            string dir = Path.GetDirectoryName(FilePath);
+            if (!string.IsNullOrEmpty(dir))
+                Directory.CreateDirectory(dir);
+
+            // ✅ Async write
+            await File.WriteAllTextAsync(FilePath, json).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"StoredPrefs.SaveAsync failed: {e}");
+        }
+        finally
+        {
+            _saveLock.Release();
+        }
+
+        // Raise on main thread context (Unity-safe) — we are already back on Unity thread after await in most cases,
+        // but ConfigureAwait(false) above may change that, so dispatch via Unity.
+        // Cheapest option: just invoke; if you're worried, remove ConfigureAwait(false).
         OnPrefsSaved?.Invoke();
     }
 
-    private void Load()
+    private async Task LoadAsync()
     {
+        // ✅ Even if file missing, we still consider load complete and fire loaded event later
         if (!File.Exists(FilePath))
         {
             data = new PlayerData();
@@ -215,7 +281,9 @@ public class StoredPrefs : MonoBehaviour
 
         try
         {
-            string json = File.ReadAllText(FilePath);
+            // ✅ Async read
+            string json = await File.ReadAllTextAsync(FilePath).ConfigureAwait(false);
+
             if (Instance != null && Instance.useEncryption)
                 json = Decrypt(json);
 
@@ -223,23 +291,49 @@ public class StoredPrefs : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogWarning($"StoredPrefs.Load failed, creating new data. {e}");
+            Debug.LogWarning($"StoredPrefs.LoadAsync failed, creating new data. {e}");
             data = new PlayerData();
         }
     }
 
     public void ResetAll()
     {
-        data = new PlayerData();
-        isLoaded = false;
-        IsReady = false;
+        _ = ResetAllAsync();
+    }
 
-        if (File.Exists(FilePath))
-            File.Delete(FilePath);
+    public async Task ResetAllAsync()
+    {
+        // Stop anyone else trying to save/load while we reset
+        await _loadLock.WaitAsync();
+        await _saveLock.WaitAsync();
+        try
+        {
+            data = new PlayerData();
+            isLoaded = false;
+            IsReady = false;
 
-        EnsureLoaded();
-        StartCoroutine(FireLoadedNextFrame());
-        Save();
+            // delete file (sync; tiny)
+            if (File.Exists(FilePath))
+                File.Delete(FilePath);
+
+            // reload to re-arm readiness
+            await EnsureLoadedAsync();
+
+            // save empty data
+            await SaveAsync();
+        }
+        finally
+        {
+            _saveLock.Release();
+            _loadLock.Release();
+        }
+
+        // Fire loaded event again next frame (so listeners can refresh)
+        if (Instance != null)
+        {
+            Instance.StopCoroutine(nameof(FireLoadedNextFrameWhenReady));
+            Instance.StartCoroutine(Instance.FireLoadedNextFrameWhenReady());
+        }
     }
 
     // ===================== ENCRYPTION =====================

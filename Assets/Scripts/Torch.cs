@@ -60,8 +60,10 @@ public class Torch : MonoBehaviour
 
     public void OnTorchCollected()
     {
-        Debug.Log("Torch collected, activating torch");
-        theTorch?.SetActive(true);
+        //Debug.Log("Torch collected, activating torch");
+        
+        if (!theTorch.activeSelf) theTorch?.SetActive(true);
+        
         torchAnimator = theTorch.GetComponentInChildren<Animator>();
         lightBeam = theTorch.GetComponentInChildren<Light>();
         torchimg.GetComponent<CanvasGroup>().alpha = 1f;
@@ -79,7 +81,7 @@ public class Torch : MonoBehaviour
 
         if (torchimg != null) torchimg.sprite = torchToggle ? litsprite : unlitsprite;
 
-        Debug.Log("Torch toggled: " + torchToggle);
+        //Debug.Log("Torch toggled: " + torchToggle);
     }
 
     private void OnSwing(InputAction.CallbackContext ctx)
@@ -93,7 +95,7 @@ public class Torch : MonoBehaviour
         if (torchAnimator != null)
         {
             torchAnimator.SetTrigger("swing");
-            Debug.Log("SwingTorch triggered");
+            //Debug.Log("SwingTorch triggered");
 
             float swingDuration = 0.5f; 
             StartCoroutine(ResetIdleAfter(swingDuration));

@@ -65,14 +65,14 @@ MonoBehaviour:
         m_Id: With3Levels
     supportDecals: 1
     supportDecalLayers: 0
-    supportSurfaceGradient: 1
+    supportSurfaceGradient: 0
     decalNormalBufferHP: 0
     supportHighQualityLineRendering: 0
     highQualityLineRenderingMemoryBudget: 128
-    msaaSampleCount: 8
+    msaaSampleCount: 2
     supportMotionVectors: 0
-    supportScreenSpaceLensFlare: 1
-    supportDataDrivenLensFlare: 1
+    supportScreenSpaceLensFlare: 0
+    supportDataDrivenLensFlare: 0
     supportDitheringCrossFade: 0
     supportRuntimeAOVAPI: 0
     supportTerrainHole: 0
@@ -108,17 +108,17 @@ MonoBehaviour:
         serializedVersion: 2
         m_Bits: 0
       supportFabricConvolution: 0
-      maxDirectionalLightsOnScreen: 10
-      maxPunctualLightsOnScreen: 128
-      maxAreaLightsOnScreen: 32
+      maxDirectionalLightsOnScreen: 2
+      maxPunctualLightsOnScreen: 64
+      maxAreaLightsOnScreen: 8
       maxCubeReflectionOnScreen: 32
       maxPlanarReflectionOnScreen: 8
-      maxDecalsOnScreen: 512
+      maxDecalsOnScreen: 256
       maxLightsPerClusterCell: 8
       maxLocalVolumetricFogSize: 0
       maxLocalVolumetricFogOnScreen: 256
     hdShadowInitParams:
-      maxShadowRequests: 128
+      maxShadowRequests: 64
       directionalShadowsDepthBits: 16
       punctualShadowFilteringQuality: 0
       directionalShadowFilteringQuality: 0
@@ -128,14 +128,14 @@ MonoBehaviour:
         shadowAtlasDepthBits: 32
         useDynamicViewportRescale: 0
       areaLightShadowAtlas:
-        shadowAtlasResolution: 2048
-        shadowAtlasDepthBits: 32
+        shadowAtlasResolution: 1024
+        shadowAtlasDepthBits: 16
         useDynamicViewportRescale: 0
       cachedPunctualLightShadowAtlas: 2048
       cachedAreaLightShadowAtlas: 1024
       allowDirectionalMixedCachedShadows: 0
       shadowResolutionDirectional:
-        m_Values: 00010000000200000004000000080000
+        m_Values: 80000000000100000002000000080000
         m_SchemaId:
           m_Id: With4Levels
       shadowResolutionPunctual:
@@ -153,9 +153,9 @@ MonoBehaviour:
       maxScreenSpaceShadowSlots: 4
       screenSpaceShadowBufferFormat: 48
     decalSettings:
-      drawDistance: 1000
-      atlasWidth: 4096
-      atlasHeight: 4096
+      drawDistance: 100
+      atlasWidth: 1024
+      atlasHeight: 1024
       transparentTextureResolution:
         m_Values: 000100000002000000040000
         m_SchemaId:
@@ -224,8 +224,8 @@ MonoBehaviour:
       LimitManualRangeNearBlur: 000000
       MotionBlurSampleCount: 04000000080000000c000000
       BloomRes: 040000000200000002000000
-      BloomHighQualityFiltering: 000101
-      BloomHighQualityPrefiltering: 000001
+      BloomHighQualityFiltering: 000000
+      BloomHighQualityPrefiltering: 000000
       ChromaticAberrationMaxSamples: 03000000060000000c000000
     lightSettings:
       useContactShadow:
@@ -244,9 +244,9 @@ MonoBehaviour:
       m_SchemaId:
         m_Id: With3Levels
     lightingQualitySettings:
-      AOStepCount: 040000000600000010000000
+      AOStepCount: 020000000600000010000000
       AOFullRes: 000001
-      AOMaximumRadiusPixels: 200000002800000050000000
+      AOMaximumRadiusPixels: 100000002800000050000000
       AOBilateralUpsample: 000101
       AODirectionCount: 010000000200000004000000
       ContactShadowSampleCount: 04000000060000000a000000

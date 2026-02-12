@@ -60,13 +60,11 @@ public class MainMenu : MonoBehaviour
 
     private void Update()
     {
-        HandleEscape();
-        HandleKeyRebinding();
+        //HandleEscape();
+        //HandleKeyRebinding();
     }
 
-    // ==============================
-    // ESCAPE → return to main menu
-    // ==============================
+
     private void HandleEscape()
     {
         var keyboard = Keyboard.current;
@@ -79,9 +77,6 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    // ======================================================
-    // KEY REBINDING – replaces Input.anyKey + Input.GetKey()
-    // ======================================================
     private void HandleKeyRebinding()
     {
         if (!WaitingForKey)
@@ -126,9 +121,7 @@ public class MainMenu : MonoBehaviour
         SaveKey(unityKey, KeySetFunction);
     }
 
-    // ==============================
-    // KEY SAVE + UI UPDATE
-    // ==============================
+
     public void BeginRebind(string functionName)
     {
         KeySetFunction = functionName;
@@ -168,9 +161,7 @@ public class MainMenu : MonoBehaviour
         KeybindLabel.text = $"{KeySetFunction}: {value}";
     }
 
-    // ==============================
-    // PANEL NAVIGATION
-    // ==============================
+
     public void OpenOptions()
     {
         MainPanel?.SetActive(false);
@@ -202,9 +193,7 @@ public class MainMenu : MonoBehaviour
             WaitingForKeyPanel.SetActive(false);
     }
 
-    // ==============================
-    // GAME FLOW
-    // ==============================
+
     public void StartGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);

@@ -69,11 +69,11 @@ public class Evidence : MonoBehaviour
 
     public void AutoCollectEvidence(EvidenceName evidenceName)
     {
-        Debug.Log("autocollect");
+        //Debug.Log("autocollect");
         if (EvidenceName != evidenceName) return;
         if (EvidenceCollected) return;
 
-        Debug.Log("autocollect");
+        //Debug.Log("autocollect");
         
         PhotographableEvidence = false;
         EvidenceCollected = true;

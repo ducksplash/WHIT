@@ -82,11 +82,11 @@ public class GameMaster : MonoBehaviour
         {
             CSteamID steamId = SteamUser.GetSteamID();
             string username = SteamFriends.GetPersonaName();
-            Debug.Log("Steam User: "+username);
+            //Debug.Log("Steam User: "+username);
         }
         
         
-        Debug.Log($"This script is active in scene: {SceneManager.GetActiveScene().name}");
+        //Debug.Log($"This script is active in scene: {SceneManager.GetActiveScene().name}");
 
         SPAWNPOINTNORASFLAT = new Vector3(65, 2, 486);
         SPAWNPOINTTAWLEYMEATS = new Vector3(71.50f, 12, 282);

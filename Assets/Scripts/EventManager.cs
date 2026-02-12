@@ -26,54 +26,54 @@ public class EventManager : MonoBehaviour
     
     public void TorchCollectedEvent()
     {
-        Debug.Log("TorchCollectedEvent");
+        //Debug.Log("TorchCollectedEvent");
         OnTorchCollected.Invoke();
     }
     
     public void NotepadCollectedEvent()
     {
-        Debug.Log("NotepadCollected");
+        //Debug.Log("NotepadCollected");
         OnNotepadCollected.Invoke();
     }
     public void PhoneCollectedEvent()
     {
-        Debug.Log("PhoneCollectedEvent");
+        //Debug.Log("PhoneCollectedEvent");
         OnPhoneCollected.Invoke();
     }
     
     public void GamePaused(bool GamePaused)
     {
-        Debug.Log("OnPaused");
+        //Debug.Log("OnPaused");
         OnPaused.Invoke(GamePaused);
     }
     public void PlayerDataLoaded()
     {
-        //Debug.Log("PlayerDataLoaded");
+        ////Debug.Log("PlayerDataLoaded");
         OnPlayerDataLoaded.Invoke();
     }
     public void PhoneOpened()
     {
-        Debug.Log("PhoneOpened");
+        //Debug.Log("PhoneOpened");
         OnPhoneOpened.Invoke();
     }
     public void EvidenceLoaded()
     {
-        Debug.Log("EvidenceLoaded");
+        //Debug.Log("EvidenceLoaded");
         OnEvidenceLoaded.Invoke();
     }
     public void EvidenceCollected()
     {
-        Debug.Log("EvidenceCollected");
+        //Debug.Log("EvidenceCollected");
         OnEvidenceCollected.Invoke();
     }
     public void StartComputer(Transform pcTransform)
     {
-        Debug.Log("AutocollectEvidence");
+        //Debug.Log("AutocollectEvidence");
         OnStartComputer.Invoke(pcTransform);
     }
     public void AutocollectEvidence(EvidenceName evidenceName)
     {
-        Debug.Log("AutocollectEvidence");
+        //Debug.Log("AutocollectEvidence");
         OnAutoCollectEvidence.Invoke(evidenceName);
     }
     public void StopComputer()

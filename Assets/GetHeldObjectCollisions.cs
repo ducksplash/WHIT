@@ -10,7 +10,7 @@ public class GetHeldObjectCollisions : MonoBehaviour
     
     private void Update()
     {
-        
+        if (!GameMaster.Instance.PLAYERBUSY) return;
         
         if (!colliding)
         {

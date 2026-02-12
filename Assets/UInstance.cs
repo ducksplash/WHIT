@@ -10,7 +10,7 @@ public class UInstance : Singleton<UInstance>
 
     public void Start()
     {    
-        Debug.Log("UInstance Start");
+        //Debug.Log("UInstance Start");
         
         cutsceneBarsCanvas.alpha = 0;  
         

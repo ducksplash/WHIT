@@ -52,18 +52,18 @@ public class LiftController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(1))
-        {
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Player.Instance.RayCastDistance) &&
-                (hit.transform.name.Contains("X") || hit.transform.name == "G" || hit.transform.name == "1" ||
-                 hit.transform.name == "B1" || hit.transform.name == "B2"))
-            {
-                if (!isLiftMoving && !areDoorsMoving)
-                {
-                    CallTheLift(hit.transform.name);
-                }
-            }
-        }
+        // if (Input.GetMouseButtonDown(1))
+        // {
+        //     if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Player.Instance.RayCastDistance) &&
+        //         (hit.transform.name.Contains("X") || hit.transform.name == "G" || hit.transform.name == "1" ||
+        //          hit.transform.name == "B1" || hit.transform.name == "B2"))
+        //     {
+        //         if (!isLiftMoving && !areDoorsMoving)
+        //         {
+        //             CallTheLift(hit.transform.name);
+        //         }
+        //     }
+        // }
     }
 
 

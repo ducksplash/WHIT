@@ -75,12 +75,11 @@ public class DialogueManager : MonoBehaviour
             UInstance.Instance.cutsceneBarsCanvas.alpha = 0;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if (!DialogInProgress) return;
 
-        if (messagetimer > 0)
-            timebar.fillAmount -= 1.0f / messagetimer * Time.deltaTime;
+        if (messagetimer > 0) timebar.fillAmount -= 1.0f / messagetimer * Time.deltaTime;
     }
 
     // dialogueName, displayTimer, type, cutsceneDuration, cutscenePanTime, cutsceneTarget

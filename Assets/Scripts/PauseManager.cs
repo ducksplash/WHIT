@@ -6,9 +6,11 @@ public class PauseManager : MonoBehaviour
 {
     public bool IsPaused;
     public CanvasGroup PauseScreenPanel;
-    public GameObject VirtualCursor;
+    // public GameObject VirtualCursor;
     private float OriginalSensitivity;
     public CanvasGroup HUD;
+    public GameObject PauseNavver;
+    
     
     private void Start()
     {
@@ -55,7 +57,19 @@ public class PauseManager : MonoBehaviour
         
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        if (VirtualCursor != null) VirtualCursor.SetActive(true);
+
+        
+        GameMaster.Instance.InputManager.ExitAction.action.performed += TogglePause;
+        
+        Debug.Log("PAUSED");
+        PauseNavver.SetActive(true);
+        
+        
+
+        // if (VirtualCursor != null)
+        // {
+        //     if (GameMaster.Instance.DeviceType.selectedDeviceType == PlayerDeviceType.SteamOS) VirtualCursor.SetActive(true);
+        // }
         
         GameMaster.Instance.EventManager.GamePaused(true);
         
@@ -72,7 +86,12 @@ public class PauseManager : MonoBehaviour
         
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        if (VirtualCursor != null) VirtualCursor.SetActive(false);
+        
+        PauseNavver.SetActive(false);
+        
+        GameMaster.Instance.InputManager.ExitAction.action.performed -= TogglePause;
+        
+        // if (VirtualCursor != null) VirtualCursor.SetActive(false);
         
         IsPaused = false;
 

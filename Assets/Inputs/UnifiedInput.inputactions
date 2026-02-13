@@ -358,7 +358,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "OSD Back",
+                    "name": "OSD Backspace",
                     "type": "Button",
                     "id": "500309c6-d912-4333-9143-8ac9fddad272",
                     "expectedControlType": "",
@@ -1008,11 +1008,22 @@
                 },
                 {
                     "name": "",
-                    "id": "540faecf-3f8a-4aac-9993-c3d17c0aabc1",
-                    "path": "<Gamepad>/leftShoulder",
+                    "id": "3e47abe9-edfc-447d-a162-6f62c374145f",
+                    "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
+                    "action": "ZoomIn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f0330da0-0de3-40f2-9972-741c63f336b6",
+                    "path": "<Keyboard>/rightBracket",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "ZoomIn",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1030,11 +1041,22 @@
                 },
                 {
                     "name": "",
-                    "id": "3e47abe9-edfc-447d-a162-6f62c374145f",
-                    "path": "<Gamepad>/leftTrigger",
+                    "id": "540faecf-3f8a-4aac-9993-c3d17c0aabc1",
+                    "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
+                    "action": "ZoomOut",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "84dc5f62-06f8-41a2-86aa-d1f8f1b6b266",
+                    "path": "<Keyboard>/leftBracket",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "ZoomOut",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1054,6 +1076,17 @@
                     "name": "",
                     "id": "12af7a1b-96b6-449b-a866-a3cda9689fb3",
                     "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OSD Up",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5a09bff5-2119-482f-a4e9-5a5390d9be24",
+                    "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -1107,6 +1140,17 @@
                 },
                 {
                     "name": "",
+                    "id": "678c93e7-d2af-44b2-8a6a-b9498216f484",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OSD Down",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "00912ec0-3fce-4c1f-81fc-c42b1ddb461a",
                     "path": "<Gamepad>/dpad/down",
                     "interactions": "",
@@ -1142,6 +1186,17 @@
                     "name": "",
                     "id": "d59cc5c1-2706-4daa-bcb8-220debc9b0ab",
                     "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OSD Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4290d699-4eec-4257-95c0-39a2c89e22e3",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -1195,6 +1250,17 @@
                 },
                 {
                     "name": "",
+                    "id": "f29c6e0b-399f-4b48-be21-d0e7847bcdf3",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OSD Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "183fb5b7-5a3b-418d-a168-2a8a45b00b3f",
                     "path": "<Gamepad>/dpad/right",
                     "interactions": "",
@@ -1231,6 +1297,17 @@
                     "id": "d24d3bd8-3e7c-4184-8b31-514da96c680c",
                     "path": "<Keyboard>/enter",
                     "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OSD Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a29561e7-f84f-453b-90be-1d8789a72042",
+                    "path": "<Keyboard>/numpadEnter",
+                    "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "OSD Submit",
@@ -1574,7 +1651,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "OSD Back",
+                    "action": "OSD Backspace",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "656885ec-140b-4400-a447-17a4ab4a1ac1",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OSD Backspace",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

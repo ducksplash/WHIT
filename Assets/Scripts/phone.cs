@@ -987,10 +987,17 @@ public class Phone : MonoBehaviour
         InteractAction.action.performed += GalleryViewPhoto;
     }
 
+
+    public void EnlargePhoto()
+    {
+        viewingPhoto = !viewingPhoto;
+        
+        SetBigPhotoVisible(viewingPhoto);
+    }
+
     private void SetBigPhotoVisible(bool visible)
     {
-        if (galleryBigPhotoCanvas == null)
-            return;
+        if (galleryBigPhotoCanvas == null) return;
         galleryBigPhotoCanvas.alpha = visible ? 1f : 0f;
         galleryBigPhotoCanvas.blocksRaycasts = visible;
     }

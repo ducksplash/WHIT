@@ -94,6 +94,8 @@ public class clickable : Singleton<clickable>
 
     void FixedUpdate()
     {
+        if (GameMaster.Instance.PLAYERBUSY) return;
+        
         Camera cam = Camera.main;
         if (cam == null || Player.Instance == null) return;
 
@@ -337,6 +339,7 @@ public class clickable : Singleton<clickable>
 
     private void HandleClick(InputAction.CallbackContext callbackContext)
     {
+        if (GameMaster.Instance.PLAYERBUSY) return;
         if (!hasHit) return;
 
         if (currentHit.transform.GetComponentInParent<Drawers>() is Drawers drawer)

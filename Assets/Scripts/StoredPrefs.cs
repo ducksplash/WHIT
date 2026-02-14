@@ -238,23 +238,28 @@ public class StoredPrefs : MonoBehaviour
 
     public async Task SaveAsync()
     {
-        // Make sure we don't save before load completed (prevents "writing defaults over real data")
         await EnsureLoadedAsync();
 
         await _saveLock.WaitAsync();
         try
         {
-            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
-            if (Instance != null && Instance.useEncryption)
-                json = Encrypt(json);
+            // 1) snapshot on main thread quickly
+            PlayerData snapshot = new PlayerData();
+            snapshot.PlayerDatum = new Dictionary<string, string>(data.PlayerDatum);
 
-            // Directory.CreateDirectory is sync; it's tiny, but keep it off the main thread anyway.
+            // 2) heavy work off-thread
+            string payload = await Task.Run(() =>
+            {
+                string json = JsonConvert.SerializeObject(snapshot, Formatting.None);
+                if (Instance != null && Instance.useEncryption) json = Encrypt(json);
+                return json;
+            });
+
             string dir = Path.GetDirectoryName(FilePath);
-            if (!string.IsNullOrEmpty(dir))
-                Directory.CreateDirectory(dir);
+            if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
 
-            // ✅ Async write
-            await File.WriteAllTextAsync(FilePath, json).ConfigureAwait(false);
+            // 3) async disk write
+            await File.WriteAllTextAsync(FilePath, payload);
         }
         catch (Exception e)
         {
@@ -265,11 +270,9 @@ public class StoredPrefs : MonoBehaviour
             _saveLock.Release();
         }
 
-        // Raise on main thread context (Unity-safe) — we are already back on Unity thread after await in most cases,
-        // but ConfigureAwait(false) above may change that, so dispatch via Unity.
-        // Cheapest option: just invoke; if you're worried, remove ConfigureAwait(false).
         OnPrefsSaved?.Invoke();
     }
+
 
     private async Task LoadAsync()
     {

@@ -33,7 +33,7 @@ public class QuestText : ScriptableObject
     public Languages QuestLanguage = Languages.EN; // English for default
 
     [Header("Color")] 
-    public TextColour QtestTextColor = TextColour.white;
+    public TextColour QuestTextColor = TextColour.white;
 
     [Header("Irish Text")]
     [TextArea(3, 10)]

@@ -1,12 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-
 
 public class DialogueManager : MonoBehaviour
 {
@@ -24,7 +22,6 @@ public class DialogueManager : MonoBehaviour
     public float messagetimer = 0f;
 
     public bool DialogInProgress;
-    private readonly SemaphoreSlim dialogueSaveLock = new(1, 1);
 
     [Header("Dialogue Data")]
     public List<Dialogue> Dialogues = new();
@@ -56,6 +53,9 @@ public class DialogueManager : MonoBehaviour
     private bool cutsceneAdvanceRequested;
     private Contacts _currentCutsceneContact = Contacts.System;
 
+    // ✅ New: stop the rotation loop immediately when we’re done
+    private bool _stopCutsceneRotation;
+
     private void Start()
     {
         DialogManagerCanvas = DialogManager.GetComponent<CanvasGroup>();
@@ -78,7 +78,6 @@ public class DialogueManager : MonoBehaviour
     private void LateUpdate()
     {
         if (!DialogInProgress) return;
-
         if (messagetimer > 0) timebar.fillAmount -= 1.0f / messagetimer * Time.deltaTime;
     }
 
@@ -166,7 +165,6 @@ public class DialogueManager : MonoBehaviour
 
             DialogueSeen.Add(dialogueName);
             SaveWhatYouSee();
-            dialogueSaveLock.Release();
             return;
         }
 
@@ -193,7 +191,6 @@ public class DialogueManager : MonoBehaviour
 
         DialogueSeen.Add(dialogueName);
         SaveWhatYouSee();
-        dialogueSaveLock.Release();
     }
 
     private Task CutsceneWithDialogue(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject,
@@ -216,6 +213,7 @@ public class DialogueManager : MonoBehaviour
         GameMaster.Instance.PLAYERBUSY = true;
         CutsceneInProgress = true;
         elapsedCutsceneTime = 0f;
+        _stopCutsceneRotation = false;
 
         if (UInstance.Instance != null)
             StartCoroutine(UInstance.Instance.FadeInCutsceneBars(cutscenePanTime));
@@ -225,7 +223,6 @@ public class DialogueManager : MonoBehaviour
         // dialogue displayed as normal, but held until player advances
         _ = CreateDialogue(dialogueName, dialogueDisplayTimer, holdUntilAdvance: true);
 
-        // Zoom timings (UNCHANGED)
         float zoomTime = cutsceneDuration * 0.33f;
         float unzoomTime = cutsceneDuration * 0.33f;
         float holdTime = cutsceneDuration - zoomTime - unzoomTime;
@@ -233,11 +230,11 @@ public class DialogueManager : MonoBehaviour
         if (cameraZoom != null)
             cameraZoom.enabled = false;
 
-        // IMPORTANT FIX: we must WAIT for the zoom sequence (which includes the player-advance gate)
+        // Start zoom/advance gate
         Coroutine zoomCo = StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime));
 
-        // Rotate camera toward target over duration (UNCHANGED)
-        while (elapsedCutsceneTime < cutsceneDuration)
+        // Rotate camera toward target, but STOP if zoom sequence finishes / player advances
+        while (elapsedCutsceneTime < cutsceneDuration && !_stopCutsceneRotation)
         {
             Vector3 targetDirection = targetObject.transform.position - mainCamera.transform.position;
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
@@ -249,19 +246,23 @@ public class DialogueManager : MonoBehaviour
             );
 
             elapsedCutsceneTime += Time.smoothDeltaTime;
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
 
-        // Snap player look (UNCHANGED)
+        // Ensure zoom-out / cleanup is done before finishing
+        yield return zoomCo;
+
+        // Snap player look once at the true end
         Vector3 dir = (targetObject.transform.position - mainCamera.transform.position).normalized;
         float yaw = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
         float pitch = Mathf.Asin(dir.y) * Mathf.Rad2Deg;
         Player.Instance.FirstPersonLook.SetPlayerRotation(new Vector2(yaw, pitch));
 
-        // IMPORTANT FIX: ensure cutscene only "finishes" after zoom-out / cleanup is done
-        yield return zoomCo;
-
         CutsceneInProgress = false;
+
+        // ✅ IMPORTANT: only now return control
+        GameMaster.Instance.PLAYERBUSY = false;
+
         SaveWhatYouSee();
         tcs.SetResult(true);
     }
@@ -270,23 +271,25 @@ public class DialogueManager : MonoBehaviour
     {
         float t = 0f;
 
-        // ZOOM IN (unchanged)
+        // ZOOM IN
         while (t < 1f)
         {
             t += Time.deltaTime / Mathf.Max(zoomTime, 0.0001f);
             mainCamera.fieldOfView = Mathf.Lerp(originalFieldOfView, targetFieldOfView, Mathf.SmoothStep(0, 1, t));
             yield return null;
         }
-
         mainCamera.fieldOfView = targetFieldOfView;
 
-        // CHANGE: wait for player press instead of holdTime
+        // Wait for player press
         yield return StartCoroutine(WaitForCutsceneAdvance());
+
+        // Stop rotation loop ASAP (so camera doesn’t keep lerping after we’re “done”)
+        _stopCutsceneRotation = true;
 
         // Clear dialogue phase happens only when pressed
         ClearHeldCutsceneDialogue();
 
-        // ZOOM OUT (unchanged)
+        // ZOOM OUT
         t = 0f;
         while (t < 1f)
         {
@@ -297,7 +300,8 @@ public class DialogueManager : MonoBehaviour
 
         mainCamera.fieldOfView = originalFieldOfView;
 
-        if (UInstance.Instance != null) StartCoroutine(UInstance.Instance.FadeOutCutsceneBars());
+        if (UInstance.Instance != null)
+            StartCoroutine(UInstance.Instance.FadeOutCutsceneBars());
 
         if (cameraZoom != null)
         {
@@ -305,7 +309,7 @@ public class DialogueManager : MonoBehaviour
             cameraZoom.AttachListeners();
         }
 
-        GameMaster.Instance.PLAYERBUSY = false;
+        // ✅ PLAYERBUSY is now handled in CutsceneCoroutine (true end of cutscene)
     }
 
     private void ClearHeldCutsceneDialogue()
@@ -473,17 +477,20 @@ public class DialogueManager : MonoBehaviour
         return ".";
     }
 
+    // ✅ Save once (not twice)
     public void SaveWhatYouSee()
     {
-        StoredPrefs.Instance.SetCollection("DialogueSeen", DialogueSeen, CollectionType.list);
-        StoredPrefs.Instance.Save();
+        if (StoredPrefs.Instance == null) return;
 
+        StoredPrefs.Instance.SetCollection("DialogueSeen", DialogueSeen, CollectionType.list);
         StoredPrefs.Instance.SetCollection("CutSceneSeen", CutSceneSeen, CollectionType.dictionary);
         StoredPrefs.Instance.Save();
     }
 
     public void LoadWhatYouSee()
     {
+        if (StoredPrefs.Instance == null) return;
+
         DialogueSeen = StoredPrefs.Instance.GetCollection<List<DialogueName>>("DialogueSeen");
         CutSceneSeen = StoredPrefs.Instance.GetCollection<Dictionary<string, string>>("CutSceneSeen");
     }

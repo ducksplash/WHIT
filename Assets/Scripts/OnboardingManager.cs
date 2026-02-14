@@ -224,11 +224,12 @@ public class OnboardingManager : MonoBehaviour
             DialogueType.cutscene,
             cutsceneTarget: torchPickup,
             cutsceneDuration: 7f,
-            cutscenePanTime: 1f
-        );
+            cutscenePanTime: 1f);
+        
+        GameMaster.Instance.QuestManager.UpdateQuestObjectives(QuestName.GetReadyForWork, 3);
 
         torchPickup.SetActive(false);
-
+        
         if (torchTick) torchTick.alpha = 1;
         StoredPrefs.Instance.SetInt("TORCHCOLLECTED", TORCHCOLLECTED ? 1 : 0);
         StoredPrefs.Instance.Save();
@@ -251,8 +252,11 @@ public class OnboardingManager : MonoBehaviour
             cutscenePanTime: 1f
         );
 
+        GameMaster.Instance.QuestManager.UpdateQuestObjectives(QuestName.GetReadyForWork, 2);
+        
         notepadPickup.SetActive(false);
 
+        
         if (notepadTick) notepadTick.alpha = 1;
         StoredPrefs.Instance.SetInt("NOTEPADCOLLECTED", NOTEPADCOLLECTED ? 1 : 0);
         StoredPrefs.Instance.Save();
@@ -275,6 +279,8 @@ public class OnboardingManager : MonoBehaviour
             cutscenePanTime: 1f
         );
 
+        GameMaster.Instance.QuestManager.UpdateQuestObjectives(QuestName.GetReadyForWork, 1);
+        
         phonePickup.SetActive(false);
 
         if (phoneTick) phoneTick.alpha = 1;

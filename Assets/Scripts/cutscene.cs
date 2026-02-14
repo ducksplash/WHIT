@@ -44,14 +44,12 @@ public class Cutscene : MonoBehaviour
                 GameMaster.Instance.DialogueManager.cameraZoom.enabled = false;
                 GameMaster.Instance.DialogueManager.elapsedCutsceneTime = 0.0f;
                 
-                // we don't want to await, that's why we're not awaiting. ignore this 'hint' 
                 
                 GameMaster.Instance.DialogueManager.CutSceneSeen.TryAdd(selectedMessage.ToString(), ContactName.ToString());
                 
                 // dialogueName, displayTimer, type, cutsceneDuration, cutscenePanTime, cutsceneTarget
                 
                 GameMaster.Instance.DialogueManager.PlayDialogue(selectedMessage, duration, DialogueType.cutscene, 7, panTime, targetObject);
-                
             }
         }
     }

@@ -33,6 +33,7 @@ public class GameMaster : MonoBehaviour
     public InputManager InputManager;
     public PauseManager PauseManager;
     public Player Player;
+    public QuestManager QuestManager;
     public AudioSlave AudioSlave;
     public int DefaultFOV;
 

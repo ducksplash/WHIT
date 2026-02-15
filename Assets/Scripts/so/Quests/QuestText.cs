@@ -28,6 +28,10 @@ public class QuestText : ScriptableObject
     public bool Objective5Complete;
     
     public QuestName QuestName = QuestName.GetReadyForWork;
+
+    public bool QuestStarted;
+
+    public bool QuestCompleted;
     
     [Header("Localisation")] 
     public Languages QuestLanguage = Languages.EN; // English for default

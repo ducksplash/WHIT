@@ -31,12 +31,17 @@ public class QuestManager : MonoBehaviour
     private const string Obj4Key = "Obj4Complete";
     private const string Obj5Key = "Obj5Complete";
 
+    // ✅ NEW KEYS
+    private const string QuestStartedKey = "QuestStarted";
+    private const string QuestCompletedKey = "QuestCompleted";
+
     // Fast lookup by enum (avoids LINQ/GC)
     private readonly Dictionary<QuestName, QuestText> _questByEnum = new Dictionary<QuestName, QuestText>();
 
     // Cache last broadcasted state to avoid redundant broadcasts/writes if nothing changed
     private QuestName _lastQuestEnum;
     private bool _lastO1, _lastO2, _lastO3, _lastO4, _lastO5;
+    private bool _lastStarted, _lastCompleted;
     private bool _hasLastSnapshot;
 
     private void Awake()
@@ -46,7 +51,6 @@ public class QuestManager : MonoBehaviour
 
     private void OnValidate()
     {
-        // keep lookup updated in editor when list changes
         BuildLookup();
     }
 
@@ -61,7 +65,7 @@ public class QuestManager : MonoBehaviour
     }
 
     // =====================================================================================
-    // PUBLIC API (as requested)
+    // PUBLIC API
     // =====================================================================================
 
     /// <summary>
@@ -78,21 +82,31 @@ public class QuestManager : MonoBehaviour
 
         _currentQuestAsset = questAsset;
 
-        // Write quest enum (but don't spam Save multiple times)
         if (StoredPrefs.Instance != null)
-        {
             StoredPrefs.Instance.SetString(PrefKey_CurrentQuest, questEnum.ToString());
-        }
 
-        // Ensure runtime clone exists + apply asset + objective completion from prefs
         EnsureRuntimeClone();
         ApplyAssetToRuntimeClone(_currentQuestAsset);
+
+        // Load objective completion
         LoadObjectivesIntoRuntimeClone(questEnum);
 
-        // Single save call
+        // Load started/completed
+        LoadQuestFlagsIntoRuntimeClone(questEnum);
+
+        // Compute completion from objectives (authoritative)
+        bool nowCompleted = AreAllObjectivesComplete(CurrentQuest);
+        if (nowCompleted && !CurrentQuest.QuestCompleted)
+        {
+            CurrentQuest.QuestCompleted = true;
+            SaveQuestBool_NoSave(questEnum, QuestCompletedKey, true);
+        }
+
         try { StoredPrefs.Instance?.Save(); } catch { /* ignore */ }
 
-        // Broadcast (but only if something changed)
+        // Mark "started" after first time player has "seen" it (first broadcast)
+        MarkStartedIfFirstTime(questEnum);
+
         BroadcastIfChanged(force: true);
     }
 
@@ -114,10 +128,8 @@ public class QuestManager : MonoBehaviour
             return;
         }
 
-        // Your requirement: updating objectives for a quest also makes it current.
         _currentQuestAsset = questAsset;
 
-        // Update prefs values (no Save() yet)
         if (StoredPrefs.Instance != null)
         {
             StoredPrefs.Instance.SetString(PrefKey_CurrentQuest, questEnum.ToString());
@@ -132,17 +144,29 @@ public class QuestManager : MonoBehaviour
             }
         }
 
-        // Update runtime clone (no allocation)
         EnsureRuntimeClone();
         ApplyAssetToRuntimeClone(_currentQuestAsset);
 
-        // Instead of re-reading everything from disk, just flip the one objective in the clone:
+        // Update runtime objective without re-reading everything
         MarkObjectiveOnRuntimeClone(objectiveIndex1To5, true);
 
-        // Single save call
+        // Load started/completed flags from prefs into runtime
+        LoadQuestFlagsIntoRuntimeClone(questEnum);
+
+        // Mark started if first time shown (first broadcast)
+        // (If objectives update happens first, it still counts as "seen")
+        MarkStartedIfFirstTime(questEnum);
+
+        // If all objectives complete -> mark completed + save
+        bool nowCompleted = AreAllObjectivesComplete(CurrentQuest);
+        if (nowCompleted && !CurrentQuest.QuestCompleted)
+        {
+            CurrentQuest.QuestCompleted = true;
+            SaveQuestBool_NoSave(questEnum, QuestCompletedKey, true);
+        }
+
         try { StoredPrefs.Instance?.Save(); } catch { /* ignore */ }
 
-        // Broadcast only if changed
         BroadcastIfChanged(force: false);
     }
 
@@ -174,7 +198,6 @@ public class QuestManager : MonoBehaviour
 
         if (!TryGetQuestAsset(resolvedEnum, out var questAsset))
         {
-            // fallback to first non-null
             questAsset = FirstNonNullQuest();
             if (questAsset == null)
             {
@@ -191,8 +214,21 @@ public class QuestManager : MonoBehaviour
         EnsureRuntimeClone();
         ApplyAssetToRuntimeClone(_currentQuestAsset);
         LoadObjectivesIntoRuntimeClone(resolvedEnum);
+        LoadQuestFlagsIntoRuntimeClone(resolvedEnum);
+
+        // If objectives already complete, ensure completed flag is set (authoritative)
+        bool nowCompleted = AreAllObjectivesComplete(CurrentQuest);
+        if (nowCompleted && !CurrentQuest.QuestCompleted)
+        {
+            CurrentQuest.QuestCompleted = true;
+            SaveQuestBool_NoSave(resolvedEnum, QuestCompletedKey, true);
+            try { StoredPrefs.Instance?.Save(); } catch { /* ignore */ }
+        }
 
         BroadcastIfChanged(force: true);
+
+        // Mark started after first time player "sees" it (this broadcast counts)
+        MarkStartedIfFirstTime(resolvedEnum);
     }
 
     // =====================================================================================
@@ -202,8 +238,6 @@ public class QuestManager : MonoBehaviour
     private void EnsureRuntimeClone()
     {
         if (CurrentQuest != null) return;
-
-        // Create once; reuse forever (prevents per-update GC)
         CurrentQuest = ScriptableObject.CreateInstance<QuestText>();
     }
 
@@ -211,7 +245,6 @@ public class QuestManager : MonoBehaviour
     {
         if (asset == null || CurrentQuest == null) return;
 
-        // Copy static/definition fields
         CurrentQuest.QuestTitleString = asset.QuestTitleString;
 
         CurrentQuest.Objective1String = asset.Objective1String;
@@ -233,6 +266,9 @@ public class QuestManager : MonoBehaviour
         CurrentQuest.JapaneseQuestTextString = asset.JapaneseQuestTextString;
         CurrentQuest.ChineseQuestTextString = asset.ChineseQuestTextString;
         CurrentQuest.RussianQuestTextString = asset.RussianQuestTextString;
+
+        // ✅ NEW fields exist on ScriptableObject definition but we DO NOT copy them as "state".
+        // Runtime state is loaded from prefs below.
     }
 
     private void LoadObjectivesIntoRuntimeClone(QuestName questEnum)
@@ -246,6 +282,14 @@ public class QuestManager : MonoBehaviour
         CurrentQuest.Objective5Complete = LoadObjectiveBool(questEnum, Obj5Key, false);
     }
 
+    private void LoadQuestFlagsIntoRuntimeClone(QuestName questEnum)
+    {
+        if (CurrentQuest == null) return;
+
+        CurrentQuest.QuestStarted = LoadQuestBool(questEnum, QuestStartedKey, false);
+        CurrentQuest.QuestCompleted = LoadQuestBool(questEnum, QuestCompletedKey, false);
+    }
+
     private void MarkObjectiveOnRuntimeClone(int idx1To5, bool complete)
     {
         if (CurrentQuest == null) return;
@@ -257,6 +301,34 @@ public class QuestManager : MonoBehaviour
             case 3: CurrentQuest.Objective3Complete = complete; break;
             case 4: CurrentQuest.Objective4Complete = complete; break;
             case 5: CurrentQuest.Objective5Complete = complete; break;
+        }
+    }
+
+    private static bool AreAllObjectivesComplete(QuestText q)
+    {
+        if (q == null) return false;
+
+        // Treat empty objective strings as "not used" (so quests with <5 objectives can still complete)
+        bool o1 = string.IsNullOrEmpty(q.Objective1String) || q.Objective1Complete;
+        bool o2 = string.IsNullOrEmpty(q.Objective2String) || q.Objective2Complete;
+        bool o3 = string.IsNullOrEmpty(q.Objective3String) || q.Objective3Complete;
+        bool o4 = string.IsNullOrEmpty(q.Objective4String) || q.Objective4Complete;
+        bool o5 = string.IsNullOrEmpty(q.Objective5String) || q.Objective5Complete;
+
+        return o1 && o2 && o3 && o4 && o5;
+    }
+
+    private void MarkStartedIfFirstTime(QuestName questEnum)
+    {
+        if (CurrentQuest == null) return;
+
+        if (!CurrentQuest.QuestStarted)
+        {
+            CurrentQuest.QuestStarted = true;
+            SaveQuestBool_NoSave(questEnum, QuestStartedKey, true);
+
+            // Save once for this transition
+            try { StoredPrefs.Instance?.Save(); } catch { /* ignore */ }
         }
     }
 
@@ -291,6 +363,13 @@ public class QuestManager : MonoBehaviour
         }
         catch { /* ignore */ }
     }
+
+    // ✅ NEW: QuestStarted / QuestCompleted helpers
+    private static bool LoadQuestBool(QuestName questName, string key, bool defaultValue)
+        => LoadObjectiveBool(questName, key, defaultValue);
+
+    private static void SaveQuestBool_NoSave(QuestName questName, string key, bool value)
+        => SaveObjectiveBool_NoSave(questName, key, value);
 
     // =====================================================================================
     // LOOKUP / UTIL
@@ -338,17 +417,22 @@ public class QuestManager : MonoBehaviour
         bool o4 = CurrentQuest.Objective4Complete;
         bool o5 = CurrentQuest.Objective5Complete;
 
+        bool started = CurrentQuest.QuestStarted;
+        bool completed = CurrentQuest.QuestCompleted;
+
         if (!force && _hasLastSnapshot)
         {
             if (_lastQuestEnum.Equals(q) &&
-                _lastO1 == o1 && _lastO2 == o2 && _lastO3 == o3 && _lastO4 == o4 && _lastO5 == o5)
+                _lastO1 == o1 && _lastO2 == o2 && _lastO3 == o3 && _lastO4 == o4 && _lastO5 == o5 &&
+                _lastStarted == started && _lastCompleted == completed)
             {
-                return; // no changes → no UI refresh → no perceived "lag"
+                return;
             }
         }
 
         _lastQuestEnum = q;
         _lastO1 = o1; _lastO2 = o2; _lastO3 = o3; _lastO4 = o4; _lastO5 = o5;
+        _lastStarted = started; _lastCompleted = completed;
         _hasLastSnapshot = true;
 
         BroadcastQuestLoaded(CurrentQuest);
@@ -367,7 +451,7 @@ public class QuestManager : MonoBehaviour
     }
 
     // =====================================================================================
-    // OPTIONAL: KEEP YOUR OLD API (if other scripts still call these)
+    // OPTIONAL: KEEP YOUR OLD API
     // =====================================================================================
 
     public void UpdateQuest(QuestText questAsset)
@@ -448,6 +532,8 @@ public class QuestManagerEditor : Editor
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("CurrentQuest Snapshot", EditorStyles.boldLabel);
             EditorGUILayout.LabelField("Quest:", mgr.CurrentQuest.QuestName.ToString());
+            EditorGUILayout.LabelField("Started:", mgr.CurrentQuest.QuestStarted ? "True" : "False");
+            EditorGUILayout.LabelField("Completed:", mgr.CurrentQuest.QuestCompleted ? "True" : "False");
             EditorGUILayout.LabelField("Obj1:", mgr.CurrentQuest.Objective1Complete ? "Complete" : "Incomplete");
             EditorGUILayout.LabelField("Obj2:", mgr.CurrentQuest.Objective2Complete ? "Complete" : "Incomplete");
             EditorGUILayout.LabelField("Obj3:", mgr.CurrentQuest.Objective3Complete ? "Complete" : "Incomplete");

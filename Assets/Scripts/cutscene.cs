@@ -5,53 +5,60 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-public class Cutscene : MonoBehaviour 
+public class Cutscene : MonoBehaviour
 {
     // Variables to control the cutscene timing
     [Header("Time to rotate to face object")]
-    public float panTime = 5.0f;     // How long it takes to pan to the object
-    [Header("Time to linger looking at object")]
-    public float duration = 10.0f;   // How long the cutscene lasts in total
-    [Header("duration is deprecated, player now presses Submit (A, Enter)")]
+    public float panTime = 5.0f; // How long it takes to pan to the object
 
-    [Header("Optional Dialogue")]
-    [SerializeField]
+    [Header("Time to linger looking at object")]
+    public float duration = 10.0f; // How long the cutscene lasts in total
+
+    [Header("duration is deprecated, player now presses Submit (A, Enter)")] [Header("Optional Dialogue")] [SerializeField]
     public Contacts ContactName;
 
     public DialogueName selectedMessage;
-    
-    [Header("Object to zoom to")]
-    public GameObject targetObject;
-    
+
+    [Header("Object to zoom to")] public GameObject targetObject;
+
     [Header("Collider that triggers the cutscene")]
     public GameObject ColliderCube;
 
     private bool Saved;
-    
-    void Start() 
+
+    void Start()
     {
         ColliderCube.SetActive(false);
     }
 
-    
 
-    private void OnTriggerEnter(Collider other) 
+
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == 3) 
+        if (GameMaster.Instance.PLAYERBUSY) return;
+        if (!GameMaster.Instance.DialogueManager.SeenLoaded) return;
+        
+        if (other.gameObject.layer != 3) return;
+
+        var dm = GameMaster.Instance?.DialogueManager;
+        if (dm == null) return;
+
+        // NEW: don't allow cutscene checks until DialogueManager has loaded CutSceneSeen from StoredPrefs
+        if (!dm.SeenLoaded) return;
+
+        var key = selectedMessage.ToString();
+
+        if (!dm.CutSceneSeen.ContainsKey(key))
         {
-            if (!GameMaster.Instance.DialogueManager.CutSceneSeen.ContainsKey(selectedMessage.ToString()))
-            {
-                GameMaster.Instance.DialogueManager.cameraZoom.enabled = false;
-                GameMaster.Instance.DialogueManager.elapsedCutsceneTime = 0.0f;
-                
-                
-                GameMaster.Instance.DialogueManager.CutSceneSeen.TryAdd(selectedMessage.ToString(), ContactName.ToString());
-                
-                // dialogueName, displayTimer, type, cutsceneDuration, cutscenePanTime, cutsceneTarget
-                
-                GameMaster.Instance.DialogueManager.PlayDialogue(selectedMessage, duration, DialogueType.cutscene, 7, panTime, targetObject);
-            }
+            dm.cameraZoom.enabled = false;
+            dm.elapsedCutsceneTime = 0.0f;
+
+            dm.CutSceneSeen[key] = ContactName.ToString();
+            dm.SaveWhatYouSee();
+
+            dm.PlayDialogue(selectedMessage, duration, DialogueType.cutscene, 7, panTime, targetObject);
         }
+
     }
 }
 

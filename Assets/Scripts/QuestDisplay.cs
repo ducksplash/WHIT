@@ -6,13 +6,17 @@ using UnityEngine;
 /// <summary>
 /// Temporary on-screen quest popup.
 /// Listens to QuestManager.QuestLoaded and displays QuestTitleString with typewriter + fade.
-/// This is the "split out" display portion from QuestUpdater.
+/// Typewriter reveals ONLY when:
+/// - QuestStarted is false (first time shown)
+/// - QuestCompleted is true (completion moment)
 /// </summary>
 public class QuestDisplay : MonoBehaviour
 {
     [Header("Quest Text")]
     public TextMeshProUGUI questText;
     public TextMeshProUGUI questTextBG;
+    public TextMeshProUGUI questStatusText;
+    public TextMeshProUGUI questStatusTextBG;
     public Transform questTextBGimg;
 
     [Header("Canvas")]
@@ -54,11 +58,9 @@ public class QuestDisplay : MonoBehaviour
 
     private void OnEnable()
     {
-        // Subscribe to QuestManager event (new flow).
         if (GameMaster.Instance.QuestManager != null)
             GameMaster.Instance.QuestManager.QuestLoaded += OnQuestLoaded;
 
-        // If you want it to show immediately when enabled and quest already resolved:
         if (GameMaster.Instance.QuestManager != null && GameMaster.Instance.QuestManager.CurrentQuest != null)
             OnQuestLoaded(GameMaster.Instance.QuestManager.CurrentQuest);
     }
@@ -81,21 +83,47 @@ public class QuestDisplay : MonoBehaviour
         if (text == null) return;
         if (questText == null || questTextBG == null || QuestCanvas == null) return;
 
-        questText.text = text.QuestTitleString;
-        questTextBG.text = text.QuestTitleString;
+        string title = text.QuestTitleString ?? string.Empty;
+
+        questText.text = title;
+        questTextBG.text = title;
+
+        // Status label
+        string status = string.Empty;
+        if (text.QuestCompleted)
+            status = "Completed";
+        else if (text.QuestStarted)
+            status = "Updated";
+
+        if (questStatusText != null) questStatusText.text = status;
+        if (questStatusTextBG != null) questStatusTextBG.text = status;
 
         // Keep your existing color logic.
         questText.color = text.QuestTextColor.ToColor();
 
         if (questTextBGimg is RectTransform rect)
-            rect.sizeDelta = new Vector2((text.QuestTitleString?.Length ?? 0) * 36, 70);
+            rect.sizeDelta = new Vector2(title.Length * 36, 70);
 
         StopAllRunning();
 
-        questText.maxVisibleCharacters = 0;
-        questTextBG.maxVisibleCharacters = 0;
+        // Decide whether to typewriter reveal:
+        // - first time (QuestStarted == false)
+        // - completion moment (QuestCompleted == true)
+        bool shouldTypewriter = !text.QuestStarted || text.QuestCompleted;
 
-        _typewriterCo = StartCoroutine(TypewriterReveal(text.QuestTitleString ?? string.Empty));
+        if (shouldTypewriter)
+        {
+            questText.maxVisibleCharacters = 0;
+            questTextBG.maxVisibleCharacters = 0;
+            _typewriterCo = StartCoroutine(TypewriterReveal(title));
+        }
+        else
+        {
+            // Show instantly (no typewriter)
+            questText.maxVisibleCharacters = int.MaxValue;
+            questTextBG.maxVisibleCharacters = int.MaxValue;
+        }
+
         _questTimerCo = StartCoroutine(QuestDisplayRoutine());
     }
 
@@ -140,9 +168,7 @@ public class QuestDisplay : MonoBehaviour
     private IEnumerator QuestDisplayRoutine()
     {
         yield return StartCoroutine(FadeInQuestText(DisplayTime / 4f));
-
         yield return new WaitForSeconds(DisplayTime / 2f);
-
         yield return StartCoroutine(FadeOutQuestText(DisplayTime / 3f));
     }
 

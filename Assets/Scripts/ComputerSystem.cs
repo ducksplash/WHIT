@@ -54,8 +54,11 @@ public class ComputerSystem : MonoBehaviour
     
 
     public InputActionReference goBack;
-    public InputActionReference rightClickExit;
+    public InputActionReference escapeExit;
 
+    public InputActionReference StepBackInputRightClick;
+    
+    
     public Transform PCScreenTransform;
     public Transform PlayerTransform;
     private Quaternion defaultRotation;
@@ -84,7 +87,8 @@ public class ComputerSystem : MonoBehaviour
             goBack.action.performed -= InputGoBack;
             goBack.action.performed += InputGoBack;
         }
-
+        
+        
         TerminalEventManager.OnPCGridClick += SelectMenuItem;
 
         PlayerTransform = GameMaster.Instance.Player.transform;
@@ -106,6 +110,7 @@ public class ComputerSystem : MonoBehaviour
         GameMaster.Instance.TerminalEventManager.VideoManagerClosed();
         
         TerminalEventManager.OnCloseToDesktop += CloseToDesktop;
+        
         
     }
 
@@ -202,7 +207,6 @@ public class ComputerSystem : MonoBehaviour
         if (ComputerOpen) return;
         if (GameMaster.Instance.PLAYERBUSY) return;
         GameMaster.Instance.PLAYERBUSY = true;
-        ComputerOpen = true;
         Player.Instance.ZoomOverride = true;
         
         FacePlayerOnY();
@@ -213,15 +217,12 @@ public class ComputerSystem : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
-
-        // rightClickExit ALWAYS closes PC while on PC
-        if (rightClickExit != null)
-        {
-            rightClickExit.action.performed -= InputClosePC;
-            rightClickExit.action.performed += InputClosePC;
-        }
-
+        
+        StepBackInputRightClick.action.performed += InputGoBackBack;
+        escapeExit.action.performed += InputGoBackBack;
+        
         ChangeScreen(IsLoggedIn ? ComputerScreen.Desktop : ComputerScreen.LockScreen);
+        ComputerOpen = true;
     }
 
     public void OnStopComputer()
@@ -231,8 +232,6 @@ public class ComputerSystem : MonoBehaviour
         Player.Instance.ZoomOverride = false;
         
         RotBack();
-
-        if (rightClickExit != null) rightClickExit.action.performed -= InputClosePC;
         
         GameMaster.Instance.TerminalEventManager.FileManagerClosed();
         GameMaster.Instance.TerminalEventManager.VideoManagerClosed();
@@ -246,7 +245,10 @@ public class ComputerSystem : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 1.0f;
-
+        
+        StepBackInputRightClick.action.performed -= InputGoBackBack;
+        escapeExit.action.performed -= InputGoBackBack;
+        
         ClosePasswordFieldCompletely();        
         ComputerOpen = false;
         GameMaster.Instance.PLAYERBUSY = false;
@@ -264,14 +266,24 @@ public class ComputerSystem : MonoBehaviour
     // goBack: step back until Desktop, THEN close PC if pressed again on Desktop/Lock
     public void InputGoBack(InputAction.CallbackContext callbackContext)
     {
+        if (!ComputerOpen) return;
         if (backButtonOverride) return;
         
         if (!CanHandlePCInput(callbackContext)) return;
 
         HandleBackStepOnly();
     }
+    
+    
+    public void InputGoBackBack(InputAction.CallbackContext callbackContext)
+    {
+        if (!ComputerOpen) return;
+        
+        if (!CanHandlePCInput(callbackContext)) return;
 
-    // rightClickExit: always close PC immediately
+        HandleBackStepOnly();
+    }
+
     public void InputClosePC(InputAction.CallbackContext callbackContext)
     {
         if (ComputerOpen) return;

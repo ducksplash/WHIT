@@ -81,7 +81,10 @@ public class Phone : MonoBehaviour
     private GameObject ObservedEvidence;
     public InputActionReference TogglePhoneInput;
     public InputActionReference InteractAction;
+    public InputActionReference TriggerAction;
     public InputActionReference StepBackInput;
+    public InputActionReference StepBackInputRightClick;
+    public InputActionReference escapeExit;
     public InputActionReference listBackButton;
     public InputActionReference listNextButton;
     public InputActionReference numPad0;
@@ -385,6 +388,9 @@ public class Phone : MonoBehaviour
             CameraReadyTextBG.text = "";
             
             Player.Instance.MoveOverride = false;
+            
+            TriggerAction.action.performed -= TakePhoto;
+            InteractAction.action.performed -= TakePhoto;
         }
 
         if (useThisScreen != MapsScreen)
@@ -464,6 +470,9 @@ public class Phone : MonoBehaviour
         GameMaster.Instance.EventManager.PhoneOpened();
         GameMaster.Instance.OnboardingManager.OpenedPhone();
 
+        StepBackInputRightClick.action.performed += ActionStepBack;
+        escapeExit.action.performed += ActionStepBack;
+        
         MobilePhone.transform.localPosition = new Vector3(
             MobilePhone.transform.localPosition.x,
             MobilePhone.transform.localPosition.y + 1,
@@ -487,6 +496,9 @@ public class Phone : MonoBehaviour
 
         changeScreen(HomeScreen);
 
+        StepBackInputRightClick.action.performed -= ActionStepBack;
+        escapeExit.action.performed -= ActionStepBack;
+        
         if (phoneCollider != null) phoneCollider.enabled = false;
 
         MobilePhone.transform.localPosition = new Vector3(
@@ -572,7 +584,6 @@ public class Phone : MonoBehaviour
                         );
                         BigMessage(retrievedDialogue.Contact.ToString(), dialogueText);
 
-                        InteractAction.action.performed -= CloseBigMessage;
                         InteractAction.action.performed += CloseBigMessage;
                     }
                 }
@@ -588,7 +599,6 @@ public class Phone : MonoBehaviour
                     {
                         BigMessageOpen = true;
                         NotesScreenNavver.gameObject.SetActive(false);
-                        InteractAction.action.performed -= CloseBigMessage;
                         InteractAction.action.performed += CloseBigMessage;
 
                         string dialogueText = GameMaster.Instance.DialogueManager.GetReplacedString(
@@ -707,9 +717,7 @@ public class Phone : MonoBehaviour
         CloseBigMessage();
     }
 
-    public void CloseBigMessage(
-        InputAction.CallbackContext callbackContext = new InputAction.CallbackContext()
-    )
+    public void CloseBigMessage(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
         Debug.Log("CloseBigMessage called");
 
@@ -895,6 +903,8 @@ public class Phone : MonoBehaviour
 
         InteractAction.action.performed += TakePhoto;
 
+        TriggerAction.action.performed += TakePhoto;
+        
         if (TorchLight.enabled)
         {
             Torch.torchToggle = false;

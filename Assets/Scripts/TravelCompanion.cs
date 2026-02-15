@@ -29,8 +29,9 @@ public class TravelCompanion : MonoBehaviour
 	public RectTransform scrollViewContent;
 	public InputActionReference exitButton;
 	public InputActionReference exitButtonPhoneKey;
-
-
+	public InputActionReference StepBackInputRightClick;
+	public InputActionReference StepBackInputESC;
+	
 	
 	
 	private void Start()
@@ -122,7 +123,7 @@ public class TravelCompanion : MonoBehaviour
 	}
 	
 
-	public void LaunchCompanion()
+	public void LaunchCompanion(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
 	{
 		if (GameMaster.Instance.PLAYERBUSY && !CompanionOpen) return;
 
@@ -152,6 +153,10 @@ public class TravelCompanion : MonoBehaviour
 			evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.0f;
 			crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
 
+			
+			StepBackInputRightClick.action.performed += LaunchCompanion;
+			StepBackInputESC.action.performed += LaunchCompanion;
+			
 			Cursor.lockState = CursorLockMode.None;
 			Cursor.visible = true;
 		}
@@ -169,6 +174,9 @@ public class TravelCompanion : MonoBehaviour
 			evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.9f;
 			crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
 		
+			StepBackInputRightClick.action.performed -= LaunchCompanion;
+			StepBackInputESC.action.performed -= LaunchCompanion;
+			
 			Cursor.lockState = CursorLockMode.Locked;
 			Cursor.visible = false;
 

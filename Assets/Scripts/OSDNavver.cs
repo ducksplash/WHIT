@@ -23,10 +23,7 @@ public class OSDNavver : MonoBehaviour
     [Header("Grid Size")]
     public int columns = 3;
     public int rows = 4;
-
-    public Color originalColor = new Color(0, 200, 0, 150);
-    public Color hoverColor = new Color(0, 200, 0, 150);
-
+    
     private Coroutine enablementCo;
     private int currentIndex = 0;
 
@@ -78,12 +75,7 @@ public class OSDNavver : MonoBehaviour
 
     private void Start()
     {
-        // sample orig color
-        if (GridButtons.Count > 0)
-        {
-            originalColor = GridButtons[0].GetComponent<Button>().image.color;
-        }
-
+        
         Highlight(currentIndex);
         SubscribeEvents();
     }
@@ -202,7 +194,6 @@ public class OSDNavver : MonoBehaviour
             GridButtons[i].AppOutline.SetActive(i == index);
 
             var btn = GridButtons[i].GetComponent<Button>();
-            btn.image.color = i == index ? hoverColor : originalColor;
 
             if (i == index) GridButtons[i].OnHover();
             else GridButtons[i].OffHover();

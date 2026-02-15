@@ -40,6 +40,7 @@ public class FirstPersonLook : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (GameMaster.Instance.PauseManager.IsPaused) return;
         if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
 
         if (_lookLocked)

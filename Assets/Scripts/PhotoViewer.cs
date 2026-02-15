@@ -71,7 +71,7 @@ public class PhotoViewer : MonoBehaviour
         }
         
         goBack.action.performed -= ClosePhotoAction;
-        //GameMaster.Instance.TerminalEventManager.BackButtonOverride(false);
+        GameMaster.Instance.TerminalEventManager.BackButtonOverride(false);
         GameMaster.Instance.TerminalEventManager.PhotoViewerClosed();
     }
 }

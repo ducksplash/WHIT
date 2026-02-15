@@ -23,12 +23,18 @@ public class OSDButton : MonoBehaviour
         if (onHovver) return;
         onHovver = true;
         if (scaleUpButton) transform.localScale = Vector3.one * scaleUp;
+        AppOutline.SetActive(true);
+        
+        
     }
     public void OffHover()
     {
         if (!onHovver) return;
         onHovver = false;
         if (scaleUpButton) transform.localScale = origScale;
+        AppOutline.SetActive(false);
+        
+        
     }
     
     public void ExecuteCommand()

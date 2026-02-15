@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -53,8 +54,21 @@ public class DialogueManager : MonoBehaviour
     private bool cutsceneAdvanceRequested;
     private Contacts _currentCutsceneContact = Contacts.System;
 
-    // ✅ New: stop the rotation loop immediately when we’re done
+    // stop the rotation loop immediately when we’re done
     private bool _stopCutsceneRotation;
+
+    private bool _seenLoaded;
+    public bool SeenLoaded => _seenLoaded;
+
+    // keep track of fade coroutine so we can stop it reliably
+    private Coroutine _fadeCo;
+
+    // ✅ NEW: track currently-active timed dialogue so it can be cancelled + finalized if interrupted
+    private CancellationTokenSource _activeTimedCts;
+    private bool _hasActiveTimed;
+    private DialogueName _activeTimedDialogueName;
+    private bool _activeTimedIsRepeatable;
+    private bool _activeTimedWasShown; // only mark seen if it actually displayed something
 
     private void Start()
     {
@@ -73,6 +87,18 @@ public class DialogueManager : MonoBehaviour
 
         if (UInstance.Instance != null)
             UInstance.Instance.cutsceneBarsCanvas.alpha = 0;
+
+        StoredPrefs.WhenLoaded(() =>
+        {
+            LoadWhatYouSee();
+            _seenLoaded = true;
+        });
+    }
+
+    private void OnDisable()
+    {
+        // clean up any pending timed dialogue
+        CancelActiveTimedDialogue(markSeen: true);
     }
 
     private void LateUpdate()
@@ -81,7 +107,6 @@ public class DialogueManager : MonoBehaviour
         if (messagetimer > 0) timebar.fillAmount -= 1.0f / messagetimer * Time.deltaTime;
     }
 
-    // dialogueName, displayTimer, type, cutsceneDuration, cutscenePanTime, cutsceneTarget
     public Task PlayDialogue(DialogueName dialogueName, float displayTimer, DialogueType type,
         float cutsceneDuration = -1f, float cutscenePanTime = -1f, GameObject cutsceneTarget = null)
     {
@@ -124,8 +149,16 @@ public class DialogueManager : MonoBehaviour
 
     public async Task CreateDialogue(DialogueName dialogueName, float displaytimer, bool holdUntilAdvance)
     {
+        // If dialogue is already seen and not repeatable:
         if (DialogueSeen.Contains(dialogueName) && !RepeatableDialogues.Contains(dialogueName))
+        {
+            if (holdUntilAdvance)
+            {
+                _currentCutsceneContact = Contacts.System;
+                ClearHeldCutsceneDialogue(); // safe + idempotent
+            }
             return;
+        }
 
         Contacts contact = Contacts.System;
         string message = "...";
@@ -141,9 +174,12 @@ public class DialogueManager : MonoBehaviour
 
         _currentCutsceneContact = contact;
 
-        // Held cutscene dialogue: display like normal, but don't auto-clear.
+        // Held cutscene dialogue (press-to-advance style)
         if (holdUntilAdvance)
         {
+            // ✅ if a timed dialogue was active, it’s being interrupted; finalize it as seen
+            CancelActiveTimedDialogue(markSeen: true);
+
             messagetimer = 0f;
             DialogInProgress = true;
 
@@ -158,39 +194,102 @@ public class DialogueManager : MonoBehaviour
             else
             {
                 timebar.fillAmount = 1.0f;
-                StartCoroutine(Fader(DialogManagerCanvas, 1));
+                StartFade(DialogManagerCanvas, 1);
                 ContactName.text = contact.ToString();
                 ReceivedMessage.text = message;
             }
 
-            DialogueSeen.Add(dialogueName);
-            SaveWhatYouSee();
+            MarkDialogueSeen(dialogueName);
             return;
         }
 
-        // Normal timed dialogue (unchanged)
+        // ✅ Normal timed dialogue:
+        // If one is already showing, cancel it and mark it seen so it doesn't "disappear" unrecorded.
+        CancelActiveTimedDialogue(markSeen: true);
+
+        // Track this as the active timed dialogue
+        _activeTimedCts = new CancellationTokenSource();
+        _hasActiveTimed = true;
+        _activeTimedDialogueName = dialogueName;
+        _activeTimedIsRepeatable = RepeatableDialogues.Contains(dialogueName);
+        _activeTimedWasShown = false;
+
+        var token = _activeTimedCts.Token;
+
         messagetimer = displaytimer;
         DialogInProgress = true;
 
-        if (contact == Contacts.System)
+        try
         {
-            SystemMessage.text = message;
-            await SystemTimer(displaytimer);
+            if (contact == Contacts.System)
+            {
+                SystemMessage.text = message;
+                _activeTimedWasShown = true;
+                await SystemTimer(displaytimer, token);
+            }
+            else if (contact == Contacts.Nora)
+            {
+                NoraMessage.text = message;
+                _activeTimedWasShown = true;
+                await NoraTimer(displaytimer, token);
+            }
+            else
+            {
+                ContactName.text = contact.ToString();
+                ReceivedMessage.text = message;
+                _activeTimedWasShown = true;
+                await MessageTimer(displaytimer, token);
+            }
         }
-        else if (contact == Contacts.Nora)
+        catch (TaskCanceledException)
         {
-            NoraMessage.text = message;
-            await NoraTimer(displaytimer);
+            // interrupted: we handle "seen" in CancelActiveTimedDialogue(...)
+            return;
         }
-        else
+        finally
         {
-            ContactName.text = contact.ToString();
-            ReceivedMessage.text = message;
-            await MessageTimer(displaytimer);
+            // If this dialogue is still the active one, clear active state here.
+            // (If it was cancelled and replaced, CancelActiveTimedDialogue already cleared it.)
+            if (_hasActiveTimed && EqualityComparer<DialogueName>.Default.Equals(_activeTimedDialogueName, dialogueName))
+            {
+                _hasActiveTimed = false;
+                _activeTimedCts?.Dispose();
+                _activeTimedCts = null;
+            }
         }
 
-        DialogueSeen.Add(dialogueName);
+        // Natural completion: mark seen
+        MarkDialogueSeen(dialogueName);
+    }
+
+    // ✅ Centralized: mark dialogue as seen + save
+    private void MarkDialogueSeen(DialogueName dialogueName)
+    {
+        if (!DialogueSeen.Contains(dialogueName))
+            DialogueSeen.Add(dialogueName);
         SaveWhatYouSee();
+    }
+
+    // ✅ Cancel currently active timed dialogue; optionally mark it as seen if it was shown
+    private void CancelActiveTimedDialogue(bool markSeen)
+    {
+        if (!_hasActiveTimed) return;
+
+        try { _activeTimedCts?.Cancel(); } catch { /* ignore */ }
+
+        if (markSeen && _activeTimedWasShown && !_activeTimedIsRepeatable)
+        {
+            // If it got interrupted, we still count it as "seen once"
+            if (!DialogueSeen.Contains(_activeTimedDialogueName))
+                DialogueSeen.Add(_activeTimedDialogueName);
+
+            SaveWhatYouSee();
+        }
+
+        _hasActiveTimed = false;
+
+        try { _activeTimedCts?.Dispose(); } catch { /* ignore */ }
+        _activeTimedCts = null;
     }
 
     private Task CutsceneWithDialogue(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject,
@@ -215,12 +314,10 @@ public class DialogueManager : MonoBehaviour
         elapsedCutsceneTime = 0f;
         _stopCutsceneRotation = false;
 
-        if (UInstance.Instance != null)
-            StartCoroutine(UInstance.Instance.FadeInCutsceneBars(cutscenePanTime));
+        if (UInstance.Instance != null) StartCoroutine(UInstance.Instance.FadeInCutsceneBars(cutscenePanTime));
 
         yield return new WaitForSeconds(1f);
 
-        // dialogue displayed as normal, but held until player advances
         _ = CreateDialogue(dialogueName, dialogueDisplayTimer, holdUntilAdvance: true);
 
         float zoomTime = cutsceneDuration * 0.33f;
@@ -230,10 +327,8 @@ public class DialogueManager : MonoBehaviour
         if (cameraZoom != null)
             cameraZoom.enabled = false;
 
-        // Start zoom/advance gate
         Coroutine zoomCo = StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime));
 
-        // Rotate camera toward target, but STOP if zoom sequence finishes / player advances
         while (elapsedCutsceneTime < cutsceneDuration && !_stopCutsceneRotation)
         {
             Vector3 targetDirection = targetObject.transform.position - mainCamera.transform.position;
@@ -249,18 +344,14 @@ public class DialogueManager : MonoBehaviour
             yield return null;
         }
 
-        // Ensure zoom-out / cleanup is done before finishing
         yield return zoomCo;
 
-        // Snap player look once at the true end
         Vector3 dir = (targetObject.transform.position - mainCamera.transform.position).normalized;
         float yaw = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
         float pitch = Mathf.Asin(dir.y) * Mathf.Rad2Deg;
         Player.Instance.FirstPersonLook.SetPlayerRotation(new Vector2(yaw, pitch));
 
         CutsceneInProgress = false;
-
-        // ✅ IMPORTANT: only now return control
         GameMaster.Instance.PLAYERBUSY = false;
 
         SaveWhatYouSee();
@@ -271,7 +362,6 @@ public class DialogueManager : MonoBehaviour
     {
         float t = 0f;
 
-        // ZOOM IN
         while (t < 1f)
         {
             t += Time.deltaTime / Mathf.Max(zoomTime, 0.0001f);
@@ -280,16 +370,12 @@ public class DialogueManager : MonoBehaviour
         }
         mainCamera.fieldOfView = targetFieldOfView;
 
-        // Wait for player press
         yield return StartCoroutine(WaitForCutsceneAdvance());
 
-        // Stop rotation loop ASAP (so camera doesn’t keep lerping after we’re “done”)
         _stopCutsceneRotation = true;
 
-        // Clear dialogue phase happens only when pressed
         ClearHeldCutsceneDialogue();
 
-        // ZOOM OUT
         t = 0f;
         while (t < 1f)
         {
@@ -308,31 +394,26 @@ public class DialogueManager : MonoBehaviour
             cameraZoom.enabled = true;
             cameraZoom.AttachListeners();
         }
-
-        // ✅ PLAYERBUSY is now handled in CutsceneCoroutine (true end of cutscene)
     }
 
     private void ClearHeldCutsceneDialogue()
     {
-        if (!DialogInProgress) return;
-
-        if (_currentCutsceneContact != Contacts.System && _currentCutsceneContact != Contacts.Nora)
-        {
-            StartCoroutine(Fader(DialogManagerCanvas, 0));
-            ContactName.text = "";
-            ReceivedMessage.text = "";
-        }
-        else if (_currentCutsceneContact == Contacts.Nora)
-        {
-            NoraMessage.text = "";
-        }
-        else
-        {
-            SystemMessage.text = "";
-        }
-
-        DialogInProgress = false;
         messagetimer = 0f;
+        DialogInProgress = false;
+
+        if (_fadeCo != null)
+        {
+            StopCoroutine(_fadeCo);
+            _fadeCo = null;
+        }
+
+        if (ContactName != null) ContactName.text = "";
+        if (ReceivedMessage != null) ReceivedMessage.text = "";
+        if (NoraMessage != null) NoraMessage.text = "";
+        if (SystemMessage != null) SystemMessage.text = "";
+
+        if (DialogManagerCanvas != null)
+            DialogManagerCanvas.alpha = 0f;
     }
 
     private void RequestCutsceneAdvance(InputAction.CallbackContext ctx)
@@ -405,6 +486,13 @@ public class DialogueManager : MonoBehaviour
         return message;
     }
 
+    private void StartFade(CanvasGroup canvas, int direction)
+    {
+        if (canvas == null) return;
+        if (_fadeCo != null) StopCoroutine(_fadeCo);
+        _fadeCo = StartCoroutine(Fader(canvas, direction));
+    }
+
     public IEnumerator Fader(CanvasGroup ThisCanvas, int direction)
     {
         var counter = 9;
@@ -428,33 +516,34 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public async Task MessageTimer(float timevalue)
+    // ✅ timers now support cancellation
+    public async Task MessageTimer(float timevalue, CancellationToken token)
     {
         timebar.fillAmount = 1.0f;
-        StartCoroutine(Fader(DialogManagerCanvas, 1));
+        StartFade(DialogManagerCanvas, 1);
 
-        await Task.Delay((int)(timevalue * 1000));
+        await Task.Delay((int)(timevalue * 1000), token);
 
-        StartCoroutine(Fader(DialogManagerCanvas, 0));
+        StartFade(DialogManagerCanvas, 0);
         ContactName.text = "";
         ReceivedMessage.text = "";
-        await Task.Delay(500);
+        await Task.Delay(500, token);
         DialogInProgress = false;
     }
 
-    public async Task NoraTimer(float timevalue)
+    public async Task NoraTimer(float timevalue, CancellationToken token)
     {
-        await Task.Delay((int)(timevalue * 1000));
+        await Task.Delay((int)(timevalue * 1000), token);
         NoraMessage.text = "";
-        await Task.Delay(500);
+        await Task.Delay(500, token);
         DialogInProgress = false;
     }
 
-    public async Task SystemTimer(float timevalue)
+    public async Task SystemTimer(float timevalue, CancellationToken token)
     {
-        await Task.Delay((int)(timevalue * 1000));
+        await Task.Delay((int)(timevalue * 1000), token);
         SystemMessage.text = "";
-        await Task.Delay(500);
+        await Task.Delay(500, token);
         DialogInProgress = false;
     }
 
@@ -477,11 +566,8 @@ public class DialogueManager : MonoBehaviour
         return ".";
     }
 
-    // ✅ Save once (not twice)
     public void SaveWhatYouSee()
     {
-        if (StoredPrefs.Instance == null) return;
-
         StoredPrefs.Instance.SetCollection("DialogueSeen", DialogueSeen, CollectionType.list);
         StoredPrefs.Instance.SetCollection("CutSceneSeen", CutSceneSeen, CollectionType.dictionary);
         StoredPrefs.Instance.Save();
@@ -489,10 +575,8 @@ public class DialogueManager : MonoBehaviour
 
     public void LoadWhatYouSee()
     {
-        if (StoredPrefs.Instance == null) return;
-
-        DialogueSeen = StoredPrefs.Instance.GetCollection<List<DialogueName>>("DialogueSeen");
-        CutSceneSeen = StoredPrefs.Instance.GetCollection<Dictionary<string, string>>("CutSceneSeen");
+        DialogueSeen = StoredPrefs.Instance.GetCollection<List<DialogueName>>("DialogueSeen") ?? new List<DialogueName>();
+        CutSceneSeen = StoredPrefs.Instance.GetCollection<Dictionary<string, string>>("CutSceneSeen") ?? new Dictionary<string, string>();
     }
 }
 

@@ -30,6 +30,8 @@ public class StoredPrefs : MonoBehaviour
     public static event Action OnPrefsSaved;
     public static event Action OnPlayerDataLoaded;
 
+
+    
     private const string COLLECTION_PREFIX = "logs:";
 
     // Async coordination

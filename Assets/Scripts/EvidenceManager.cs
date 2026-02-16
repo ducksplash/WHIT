@@ -24,6 +24,8 @@ public class EvidenceManager : MonoBehaviour
     public int ExpectedEQ_Level1 = 18;
     public int ExpectedEQ_Level2 = 19;
 
+    public bool EvidenceLoaded;
+    
     private void Awake()
     {
         EventManager.OnPlayerDataLoaded += LoadExistingEvidence;
@@ -106,13 +108,11 @@ public class EvidenceManager : MonoBehaviour
     private IEnumerator DataLoadedCo()
     {
         yield return new WaitForSeconds(1);
-
-        //Debug.Log($"[EvidenceManager] Init complete — Evidence count: {EvidenceFound.Count}");
-
-        // only in nora's flat
-        GameMaster.Instance.EventManager.EvidenceLoaded();
         
-        // Ensure scene objects are updated AFTER load
+
+        EvidenceLoaded = true;
+        
+        GameMaster.Instance.EventManager.EvidenceLoaded();
         ApplyCollectedEvidence();
     }
     
@@ -169,8 +169,7 @@ public class EvidenceManager : MonoBehaviour
 
         File.WriteAllText(quackPath, slug);
 
-        if (!EvidenceFound.ContainsKey(ev.EvidenceName))
-            EvidenceFound.Add(ev.EvidenceName, quackPath);
+        if (!EvidenceFound.ContainsKey(ev.EvidenceName)) EvidenceFound.Add(ev.EvidenceName, quackPath);
 
         ev.CollectEvidence();
     }

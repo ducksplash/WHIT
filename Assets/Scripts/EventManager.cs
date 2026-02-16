@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class EventManager : MonoBehaviour
 {    
+    
+    public static event Action OnGameStarted = () => { };
     public static event Action OnTorchCollected = () => { };
     public static event Action OnPhoneCollected = () => { };
     public static event Action OnNotepadCollected = () => { };
@@ -23,6 +25,11 @@ public class EventManager : MonoBehaviour
     //public static event Action<bool> OnBoolToggled = (bool) => { };
     
     
+    
+    public void GameStartedEvent()
+    {
+        OnGameStarted.Invoke();
+    }
     
     public void TorchCollectedEvent()
     {

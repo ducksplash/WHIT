@@ -300,32 +300,6 @@ public class Player : Singleton<Player>
         }
         return nuNum;
     }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("LADDERS") && !climbing)
-        {
-            LadderAttachedTo = other.gameObject;
-            transform.parent = transform;
-            gameObject.GetComponent<Rigidbody>().useGravity = false;
-            climbing = true;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("LADDERS") && climbing)
-        {
-            LadderAttachedTo = other.gameObject;
-            ExitLadder(LadderAttachedTo);
-        }
-    }
-
-    private void ExitLadder(GameObject ladder)
-    {
-        transform.parent = null;
-        gameObject.GetComponent<Rigidbody>().useGravity = true;
-        climbing = false;
-        speed = walkspeed;
-    }
+    
+    
 }

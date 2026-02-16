@@ -94,14 +94,45 @@ public class Door : MonoBehaviour
             doorAnimator.ResetTrigger("closed");
 
             doorAnimator.SetTrigger(isOpen ? "opened" : "closed");
+            
+            
+            MakeDoorNoises(isOpen);
         }
 
-        if (hitCollider != null)
-            StartCoroutine(DisableColliderTemporarily(hitCollider));
+        if (hitCollider != null) StartCoroutine(DisableColliderTemporarily(hitCollider));
 
         StartCoroutine(AnimationCooldown());
     }
 
+
+
+    private void MakeDoorNoises(bool openValue)
+    {
+        switch (DoorType)
+        {
+            // assuming standard door is wooden
+            case DoorType.Standard:
+                GameMaster.Instance.AudioSlave.PlaySFX(openValue ? SFXResource.DoorOpen : SFXResource.DoorClosed);
+                break;
+
+            case DoorType.Sliding:
+                Debug.Log("dont have a Sliding Door noise yet");
+                break;
+
+            case DoorType.Lift:
+                Debug.Log("dont have a Lift Door noise yet");
+                break;
+            
+            case DoorType.Fridge:
+                Debug.Log("dont have a Fridge Door noise yet");
+                break;
+            
+            case DoorType.Metal:
+                Debug.Log("dont have a Metal Door noise yet");
+                break;
+        }
+    }
+    
     private IEnumerator DisableColliderTemporarily(Collider col)
     {
         col.enabled = false;
@@ -156,6 +187,8 @@ public enum DoorType
     Sliding,
     Lift,
     Cupboard,
+    Fridge,
+    Metal,
 
     // Launch Travel Companion for this door type
     Travel

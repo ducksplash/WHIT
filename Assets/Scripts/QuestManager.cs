@@ -518,8 +518,7 @@ public class QuestManagerEditor : Editor
 
         _selectedQuestEnum = (QuestName)EditorGUILayout.EnumPopup("QuestName", _selectedQuestEnum);
 
-        if (GUILayout.Button("AssignQuest(QuestName)"))
-            mgr.AssignQuest(_selectedQuestEnum);
+        if (GUILayout.Button("AssignQuest(QuestName)")) mgr.AssignQuest(_selectedQuestEnum);
 
         EditorGUILayout.Space(6);
         _objectiveIndex = EditorGUILayout.IntSlider("Objective Index", _objectiveIndex, 1, 5);

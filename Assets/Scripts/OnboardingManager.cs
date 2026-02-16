@@ -64,7 +64,6 @@ public class OnboardingManager : MonoBehaviour
         EventManager.OnEvidenceLoaded += RunOnboardingChecks;
         EventManager.OnEvidenceCollected += RunOnboardingChecks;
 
-        // If you added a player-data-loaded event, subscribe here too
         // EventManager.OnPlayerDataLoaded += RunOnboardingChecks;
 
         StartCoroutine(DeferredInit());

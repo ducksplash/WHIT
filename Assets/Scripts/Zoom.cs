@@ -86,7 +86,7 @@ public class Zoom : MonoBehaviour
     {
         if (!Player.Instance.ZoomOverride)
         {
-            if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.PauseManager.IsPaused || GameMaster.Instance.TravelCompanion.CompanionIsOpen) return;
+            if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.PauseManager.IsPaused || GameMaster.Instance.TravelCompanion.CompanionOpen) return;
         }
 
 
@@ -98,7 +98,7 @@ public class Zoom : MonoBehaviour
     {
         if (!Player.Instance.ZoomOverride)
         {
-            if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.PauseManager.IsPaused || GameMaster.Instance.TravelCompanion.CompanionIsOpen) return;
+            if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || GameMaster.Instance.PauseManager.IsPaused || GameMaster.Instance.TravelCompanion.CompanionOpen) return;
         }
 
 

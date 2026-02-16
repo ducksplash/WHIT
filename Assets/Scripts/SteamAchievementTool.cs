@@ -52,8 +52,7 @@ public class SteamAchievementTester : MonoBehaviour
 #if STEAMWORKS_NET
     public void UnlockSelected()
     {
-        if (!EnsureStatsReady())
-            return;
+        if (!EnsureStatsReady()) return;
 
         string apiName = achievement.ToString();
 
@@ -62,6 +61,7 @@ public class SteamAchievementTester : MonoBehaviour
 
         bool stored = SteamUserStats.StoreStats();
         Log($"StoreStats() => {stored}");
+        
     }
 
     public void ClearSelected()

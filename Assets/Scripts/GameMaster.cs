@@ -18,6 +18,9 @@ public class GameMaster : MonoBehaviour
     [Header("Debug Mode Toggle")]
     public bool DEBUGGERY;
 
+    public bool EnforceSteam = false;
+    
+    public DevModeScene devModeScene = DevModeScene.NorasFlat;
     // components
     [Header("Global Components")]
     public DialogueManager DialogueManager;
@@ -35,6 +38,7 @@ public class GameMaster : MonoBehaviour
     public Player Player;
     public QuestManager QuestManager;
     public AudioSlave AudioSlave;
+    public LoadingManager LoadingManager;
     public int DefaultFOV;
 
 
@@ -45,7 +49,6 @@ public class GameMaster : MonoBehaviour
     // Game Globals
 
     public bool PLAYERBUSY;
-
     
     public bool POWER_SUPPLY_ENABLED;
     public bool INCINERATOR_ENABLED;
@@ -63,6 +66,11 @@ public class GameMaster : MonoBehaviour
     public Vector3 SPAWNPOINTROARKINSIDE;
     
     public static bool GarbageRun;
+
+    private bool SteamLoaded;
+    private bool DialoguesLoaded;
+    private bool EvidenceLoaded;
+    
     
     // steam init
     private bool m_bInitialized;
@@ -70,8 +78,9 @@ public class GameMaster : MonoBehaviour
 
     void Awake()
     {
+        Application.targetFrameRate = 60;
+        
         DontDestroyOnLoad(gameObject);
-
         
         m_bInitialized = SteamAPI.Init();
         
@@ -81,8 +90,10 @@ public class GameMaster : MonoBehaviour
         }
         else
         {
-            CSteamID steamId = SteamUser.GetSteamID();
-            string username = SteamFriends.GetPersonaName();
+            // GET Steam USER ID etc 
+            
+            // CSteamID steamId = SteamUser.GetSteamID();
+            // string username = SteamFriends.GetPersonaName();
             //Debug.Log("Steam User: "+username);
         }
         
@@ -93,22 +104,156 @@ public class GameMaster : MonoBehaviour
         SPAWNPOINTTAWLEYMEATS = new Vector3(71.50f, 12, 282);
         SPAWNPOINTROARKOUTSIDE = new Vector3(90, 5, 252);
         SPAWNPOINTROARKINSIDE = new Vector3(69, 16, 310);
-
-        DialogueManager.LoadWhatYouSee();
-        // ALWAYS load existing evidence first
-
+        
 
         if (DEBUGGERY)
         {
             DevModeIcon.alpha = 1;
         }
+
+        EventManager.OnPlayerDataLoaded += GetSetGo;
+        EventManager.OnEvidenceLoaded += GetSetGo;
     }
 
 
-    void Start()
+    
+    //// Level orchestration
+    //// Here is where I will author the level during it's 'lifetime'
+    ////
+    //// LEVEL ONE - NORA'S FLAT
+    
+    //// BEGIN ONBOARDING IF NOT YET ONBOARDED
+    ////
+    //// 
+    ////
+
+
+
+
+    public void GetSetGo()
     {
-        Application.targetFrameRate = 60;
+        // ensure steam loaded.
+        SteamLoaded = SteamManager.Initialized;
+
+        DialoguesLoaded = DialogueManager.SeenLoaded;
+
+        EvidenceLoaded = EvidenceManager.EvidenceLoaded;
+        
+        // force steam?
+
+        if (EnforceSteam)
+        {
+            if (SteamLoaded && DialoguesLoaded && EvidenceLoaded)
+            {
+                StartGame();
+            }
+            else
+            {
+                Debug.Log("Could Not Start");
+                Debug.Log("SteamLoaded " + SteamLoaded);
+                Debug.Log("DialoguesLoaded " + DialoguesLoaded);
+                Debug.Log("EvidenceLoaded " + EvidenceLoaded);
+            }
+        }
+        else
+        {
+            if (DialoguesLoaded && EvidenceLoaded)
+            {
+                StartGame();
+            }
+            else
+            {
+                Debug.Log("Could Not Start");
+                Debug.Log("DialoguesLoaded " + DialoguesLoaded);
+                Debug.Log("EvidenceLoaded " + EvidenceLoaded);
+            }
+        }
+
+
+
+
     }
+    
+    
+    
+    
+
+    public void StartGame()
+    {
+        
+        
+        if (THISLEVEL == GAMELEVEL.MainMenu)
+        {
+            Debug.Log("Start Main Menu");
+        }
+
+        switch (THISLEVEL)
+        {
+            
+            case GAMELEVEL.MainMenu:
+
+                StartLevelNorasFlat();
+                break;
+            case GAMELEVEL.NorasFlat:
+                StartLevelNorasFlat();
+                break;
+
+            case GAMELEVEL.RoarkOutside:
+
+                break;
+
+            case GAMELEVEL.RoarkInside:
+
+                break;
+
+        }
+
+    }
+    
+
+    public void StartLevelNorasFlat()
+    {
+        
+        LoadingManager.SceneFadeIn();
+        StartAudio(AudioProfile.NorasFlat);
+        EventManager.GameStartedEvent();
+    }
+    
+    
+    public void StartAudio(AudioProfile selectedAudioProfile)
+    {
+        // Stop all if playing
+        
+        AudioSlave.StopBGA();
+        AudioSlave.StopBGM();
+        
+        Debug.Log("Playing Audio Profile - "+selectedAudioProfile);
+        
+        switch (selectedAudioProfile)
+        {
+            case AudioProfile.MainMenu:
+                // Background music
+                AudioSlave.PlayBGM(BGMResource.SongOne);
+                // Ambience Track (i.e. Rain)
+                AudioSlave.PlayBGA(BGAResource.Rain);
+                break;
+
+            case AudioProfile.NorasFlat:
+                // Background music
+                AudioSlave.PlayBGM(BGMResource.SongOne);
+                // Ambience Track (i.e. Rain)
+                AudioSlave.PlayBGA(BGAResource.Rain);
+                break;
+        }
+        
+    }
+    
+    
+    
+    
+    
+    
+    
     
     
 }
@@ -121,4 +266,22 @@ public enum GAMELEVEL
     RoarkOutside,
     RoarkInside
 }
-    
+
+
+public enum DevModeScene
+{
+    MainMenu,
+    NorasFlat,
+    TawleyMeats,
+    RoarkOutside,
+    RoarkInside 
+}
+
+public enum AudioProfile
+{
+    MainMenu,
+    NorasFlat,
+    TawleyMeats,
+    RoarkOutside,
+    RoarkInside
+}

@@ -56,19 +56,21 @@ public class QuestDisplay : MonoBehaviour
     private Coroutine _questTimerCo;
     private Coroutine _typewriterCo;
 
+    
+    private void LoadByScene()
+    {
+        SetQuestText(GameMaster.Instance.QuestManager.CurrentQuest);
+    }
+    
+    
     private void OnEnable()
     {
-        if (GameMaster.Instance.QuestManager != null)
-            GameMaster.Instance.QuestManager.QuestLoaded += OnQuestLoaded;
-
-        if (GameMaster.Instance.QuestManager != null && GameMaster.Instance.QuestManager.CurrentQuest != null)
-            OnQuestLoaded(GameMaster.Instance.QuestManager.CurrentQuest);
+        EventManager.OnGameStarted += LoadByScene;
     }
 
     private void OnDisable()
     {
-        if (GameMaster.Instance.QuestManager != null)
-            GameMaster.Instance.QuestManager.QuestLoaded -= OnQuestLoaded;
+        //if (GameMaster.Instance.QuestManager != null) GameMaster.Instance.QuestManager.QuestLoaded -= OnQuestLoaded;
 
         StopAllRunning();
     }

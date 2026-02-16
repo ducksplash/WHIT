@@ -15,12 +15,3 @@ public class SFX : ScriptableObject
     [Header("Volume")] public float SFXVolume = 1f;
 }
 
-public enum SFXResource
-{
-    TypeWriter0,
-    TypeWriter1,
-    TypeWriter2,
-    TypeWriter3,
-    TypeWriter4,
-    TypeWriter5
-}

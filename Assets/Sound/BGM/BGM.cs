@@ -14,10 +14,3 @@ public class BGM : ScriptableObject
 
     [Header("Volume")] public float BGMVolume = 1f;
 }
-
-public enum BGMResource
-{
-    SongOne,
-    SongTwo
-    // add more as needed
-}

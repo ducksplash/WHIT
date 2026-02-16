@@ -155,7 +155,8 @@ public class Pickup : MonoBehaviour
         // Enter holding state
         GameMaster.Instance.PLAYERBUSY = true;
         Player.Instance.MoveOverride = true;
-
+        Player.Instance.ZoomOverride = true;
+        
         _releaseInProgress = false;
 
         myHeldItem = obj;
@@ -254,7 +255,11 @@ public class Pickup : MonoBehaviour
         }
 
         GameMaster.Instance.PLAYERBUSY = false;
-        if (Player.Instance != null) Player.Instance.MoveOverride = false;
+        if (Player.Instance != null)
+        {
+            Player.Instance.MoveOverride = false;
+            Player.Instance.ZoomOverride = false;
+        }
         _releaseInProgress = false;
 
         if (resetBusyCo != null)

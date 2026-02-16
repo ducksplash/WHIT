@@ -12,28 +12,31 @@ public class AudioSlave : MonoBehaviour
     [Header("Libraries")]
     public List<BGM> BGMList = new List<BGM>();
     public List<SFX> SFXList = new List<SFX>();
+    public List<BGA> BGAList = new List<BGA>();
 
     [Header("Mixers (must contain matching Output Groups)")]
     public AudioMixer BGMMixer;
     public AudioMixer SFXMixer;
+    public AudioMixer BGAMixer;
 
-    [Tooltip("Name of the AudioMixerGroup inside BGMMixer to output to (e.g. 'Master' or 'BGM').")]
-    public string BGMGroupName = "Master";
-
-    [Tooltip("Name of the AudioMixerGroup inside SFXMixer to output to (e.g. 'Master' or 'SFX').")]
-    public string SFXGroupName = "Master";
+    private string MixerGroupName = "Master";
 
     private AudioSource _bgmSource;
     private AudioSource _sfxSource;
+    private AudioSource _bgaSource;
+
+    public bool loopBGM;
+    public bool loopBGA;
 
     private void Awake()
     {
         _bgmSource = gameObject.AddComponent<AudioSource>();
         _sfxSource = gameObject.AddComponent<AudioSource>();
+        _bgaSource = gameObject.AddComponent<AudioSource>();
 
         // BGM defaults
         _bgmSource.playOnAwake = false;
-        _bgmSource.loop = true;
+        _bgmSource.loop = loopBGM;
         _bgmSource.spatialBlend = 0f; 
 
         // SFX defaults
@@ -41,19 +44,31 @@ public class AudioSlave : MonoBehaviour
         _sfxSource.loop = false;
         _sfxSource.spatialBlend = 0f;
 
+        // BGA defaults
+        _bgaSource.playOnAwake = false;
+        _bgaSource.loop = loopBGA;
+        _bgaSource.spatialBlend = 0f;
+
         // Route to mixer groups (if configured)
         if (BGMMixer != null)
         {
-            var groups = BGMMixer.FindMatchingGroups(BGMGroupName);
+            var groups = BGMMixer.FindMatchingGroups(MixerGroupName);
             if (groups != null && groups.Length > 0) _bgmSource.outputAudioMixerGroup = groups[0];
-            else Debug.LogWarning($"AudioSlave: No BGM mixer group found named '{BGMGroupName}' in BGMMixer.");
+            else Debug.LogWarning($"AudioSlave: No BGM mixer group found named '{MixerGroupName}' in BGMMixer.");
         }
 
         if (SFXMixer != null)
         {
-            var groups = SFXMixer.FindMatchingGroups(SFXGroupName);
+            var groups = SFXMixer.FindMatchingGroups(MixerGroupName);
             if (groups != null && groups.Length > 0) _sfxSource.outputAudioMixerGroup = groups[0];
-            else Debug.LogWarning($"AudioSlave: No SFX mixer group found named '{SFXGroupName}' in SFXMixer.");
+            else Debug.LogWarning($"AudioSlave: No SFX mixer group found named '{MixerGroupName}' in SFXMixer.");
+        }
+        
+        if (BGAMixer != null)
+        {
+            var groups = BGAMixer.FindMatchingGroups(MixerGroupName);
+            if (groups != null && groups.Length > 0) _bgaSource.outputAudioMixerGroup = groups[0];
+            else Debug.LogWarning($"AudioSlave: No BGA mixer group found named '{MixerGroupName}' in BGAMixer.");
         }
     }
 
@@ -79,6 +94,31 @@ public class AudioSlave : MonoBehaviour
         _bgmSource.clip = bgm.AudioClip; 
         _bgmSource.volume = Mathf.Clamp01(bgm.BGMVolume);
         _bgmSource.Play();
+    }
+
+
+    public void PlayBGA(BGAResource resource)
+    {
+        BGA bga = BGAList.Find(x => x != null && x.AudioResource == resource);
+        if (bga == null)
+        {
+            Debug.LogWarning($"AudioSlave.PlayBGA: No BGA entry found for '{resource}'.");
+            return;
+        }
+
+        if (bga.AudioClip == null)
+        {
+            Debug.LogWarning($"AudioSlave.PlayBGM: BGA '{resource}' has no AudioClip assigned.");
+            return;
+        }
+
+        // If same track already playing, do nothing (but still apply volume if you want)
+        if (_bgaSource.isPlaying && _bgaSource.clip == bga.AudioClip)
+            return;
+
+        _bgaSource.clip = bga.AudioClip; 
+        _bgaSource.volume = Mathf.Clamp01(bga.BGAVolume);
+        _bgaSource.Play();
     }
 
 
@@ -118,7 +158,7 @@ public class AudioSlave : MonoBehaviour
         // If you still hear nothing, this helps pinpoint mixer/group issues
         if (_sfxSource.outputAudioMixerGroup == null && SFXMixer != null)
         {
-            Debug.LogWarning($"AudioSlave.PlaySFX: outputAudioMixerGroup is NULL. " + $"Check SFXGroupName '{SFXGroupName}' exists in SFXMixer and is assigned in Awake.");
+            Debug.LogWarning($"AudioSlave.PlaySFX: outputAudioMixerGroup is NULL. " + $"Check MixerGroupName '{MixerGroupName}' exists in SFXMixer and is assigned in Awake.");
         }
     }
 
@@ -133,6 +173,11 @@ public class AudioSlave : MonoBehaviour
     {
         if (_sfxSource != null) _sfxSource.Stop();
     }
+    
+    public void StopBGA()
+    {
+        if (_bgaSource != null) _bgaSource.Stop();
+    }
 
 }
 
@@ -145,9 +190,11 @@ public class AudioSlaveEditor : Editor
 {
     private BGMResource _selectedBGM = BGMResource.SongOne;
     private SFXResource _selectedSFX = SFXResource.TypeWriter0; 
+    private BGAResource _selectedBGA = BGAResource.None;
 
     private bool _showBgm = true;
     private bool _showSfx = true;
+    private bool _showBga = true;
 
     public override void OnInspectorGUI()
     {
@@ -197,6 +244,36 @@ public class AudioSlaveEditor : Editor
         EditorGUILayout.EndFoldoutHeaderGroup();
 
         // -------------------------
+        // BGA SECTION
+        // -------------------------
+        EditorGUILayout.Space(8);
+        _showBga = EditorGUILayout.BeginFoldoutHeaderGroup(_showBga, "BGA");
+        if (_showBga)
+        {
+            EditorGUI.indentLevel++;
+
+            _selectedBGA = (BGAResource)EditorGUILayout.EnumPopup("Track", _selectedBGA);
+
+            EditorGUILayout.BeginHorizontal();
+            using (new EditorGUI.DisabledScope(!Application.isPlaying))
+            {
+                if (GUILayout.Button("Play BGA"))
+                {
+                    audioSlave.PlayBGA(_selectedBGA);
+                }
+
+                if (GUILayout.Button("Stop BGA"))
+                {
+                    audioSlave.StopBGA();
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUI.indentLevel--;
+        }
+        EditorGUILayout.EndFoldoutHeaderGroup();
+
+        // -------------------------
         // SFX SECTION
         // -------------------------
         EditorGUILayout.Space(8);
@@ -234,3 +311,31 @@ public class AudioSlaveEditor : Editor
     }
 }
 #endif
+
+
+
+public enum BGMResource
+{
+    SongOne,
+    SongTwo
+    // add more as needed
+}
+
+public enum SFXResource
+{
+    TypeWriter0,
+    TypeWriter1,
+    TypeWriter2,
+    TypeWriter3,
+    TypeWriter4,
+    TypeWriter5,
+    
+    DoorOpen,
+    DoorClosed
+}
+
+public enum BGAResource
+{
+    None,
+    Rain
+}

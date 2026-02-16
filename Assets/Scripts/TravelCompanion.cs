@@ -1,309 +1,184 @@
 ﻿using System;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class TravelCompanion : MonoBehaviour
 {
-
     public CanvasGroup TravelCanvas;
 
-	public bool CompanionOpen;
-	private GameObject Notepad;
-	public CanvasGroup crosshair;
-	public CanvasGroup evidencecompanion;
-	public CanvasGroup loadingpanel;
-	public Image loadingbar;
-	public Dictionary<GAMELEVEL, string> AvailableLocations = new Dictionary<GAMELEVEL, string>();
-	public TextMeshProUGUI loadingclock;
-	public bool TravelClicked;
-	private float launchCooldown = 0.5f;
-	public GameObject notepadButtonPrefab;
-	public RectTransform scrollViewContent;
-	public InputActionReference exitButton;
-	public InputActionReference exitButtonPhoneKey;
-	public InputActionReference StepBackInputRightClick;
-	public InputActionReference StepBackInputESC;
-	
-	
-	
-	private void Start()
-    {
+    public bool CompanionOpen;
+    private GameObject Notepad;
 
-	    SceneManager.sceneLoaded += OnSceneLoaded;
+    public CanvasGroup crosshair;
+    public CanvasGroup evidencecompanion;
+
+    public Dictionary<GAMELEVEL, string> AvailableLocations = new Dictionary<GAMELEVEL, string>();
+
+    public GameObject notepadButtonPrefab;
+    public RectTransform scrollViewContent;
+
+    public InputActionReference exitButton;
+    public InputActionReference exitButtonPhoneKey;
+    public InputActionReference StepBackInputRightClick;
+    public InputActionReference StepBackInputESC;
+
+    private void Start()
+    {
+        // UI + input only
         Notepad = Player.Instance.TravelNotepad;
 
-        Debug.Log("travel companion");
-        
         exitButton?.action.Enable();
         exitButton.action.performed += CloseCompanionInput;
         exitButtonPhoneKey.action.performed += CloseCompanionInput;
-        
-		InitialiseLocations();
+
+        InitialiseLocations();
     }
 
-	public bool CompanionIsOpen
-	{
-		get => CompanionOpen;
-		set => CompanionOpen = value;
-	}
+    private void OnDisable()
+    {
+        // No more SceneManager.sceneLoaded hook here
+    }
 
-	private void InitialiseLocations()
-	{
+    private void CloseCompanionInput(InputAction.CallbackContext callbackContext)
+    {
+        if (CompanionOpen) LaunchCompanion();
+    }
 
-		if (scrollViewContent == null) return;
-		
-		foreach (Transform child in scrollViewContent.transform)
-		{
-			Destroy(child.gameObject);
-		}
-		
-		AvailableLocations.Clear();
-		
-        // order matters.
-		AvailableLocations.Add(GAMELEVEL.TawleyMeats, "Tawley Meats");
-		
-		AvailableLocations.Add(GAMELEVEL.RoarkOutside, "Roark Microtech");
-		
-		AvailableLocations.Add(GAMELEVEL.NorasFlat, "\n...just go home");
-		
-		
-		
-		float verticalSpacing = 30f; // Adjust this value to change vertical spacing
+    public void LaunchCompanion(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
+    {
+        if (GameMaster.Instance.PLAYERBUSY && !CompanionOpen) return;
 
-		float contentHeight = scrollViewContent.rect.height; // Height of the content area
-		float firstButtonHeight = notepadButtonPrefab.GetComponent<RectTransform>().rect.height; // Height of the first button
+        if (!GameMaster.Instance.OnboardingManager.TESTEVIDENCECOLLECTED)
+        {
+            GameMaster.Instance.OnboardingManager.EvidenceNotCollected();
+            return;
+        }
 
-		// Calculate the initial Y position to start at the top
-		float initialYPosition = contentHeight / 2f - firstButtonHeight / 2f;
+        if (!GameMaster.Instance.OnboardingManager.ONBOARDINGCOMPLETE)
+        {
+            GameMaster.Instance.OnboardingManager.NotReadyYet();
+            return;
+        }
 
-		float currentYPosition = initialYPosition; // Initial Y position of the first button
+        if (!CompanionOpen)
+        {
+            Notepad.transform.localPosition = new Vector3(
+                Notepad.transform.localPosition.x,
+                Notepad.transform.localPosition.y + 1,
+                Notepad.transform.localPosition.z
+            );
 
-		foreach (var availableLocation in AvailableLocations)
-		{
-			if (!availableLocation.Key.ToString().Equals(GameMaster.Instance.THISLEVEL.ToString()))
-			{
-				GameObject notePadButtonPrefabInstance = Instantiate(notepadButtonPrefab, scrollViewContent);
+            Notepad.SetActive(true);
+            TravelCanvas.alpha = 1f;
+            TravelCanvas.blocksRaycasts = true;
 
-				RectTransform buttonTransform = notePadButtonPrefabInstance.GetComponent<RectTransform>();
+            GameMaster.Instance.PLAYERBUSY = true;
+            CompanionOpen = true;
 
-				// Set the position of the button based on the current Y position
-				buttonTransform.anchoredPosition = new Vector2(buttonTransform.anchoredPosition.x, currentYPosition);
+            evidencecompanion.alpha = 0.0f;
+            crosshair.alpha = 0.0f;
 
-				// Increment the Y position for the next button
-				currentYPosition -= verticalSpacing;
+            StepBackInputRightClick.action.performed += LaunchCompanion;
+            StepBackInputESC.action.performed += LaunchCompanion;
 
-				NotepadButton newButton = notePadButtonPrefabInstance.GetComponent<NotepadButton>();
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            Notepad.transform.localPosition = new Vector3(
+                Notepad.transform.localPosition.x,
+                Notepad.transform.localPosition.y - 1,
+                Notepad.transform.localPosition.z
+            );
 
-				newButton.buttonText = availableLocation.Value;
-				newButton.buttonTextElement.text = availableLocation.Value;
-				newButton.targetScene = availableLocation.Key;
+            Notepad.SetActive(false);
+            TravelCanvas.alpha = 0f;
+            TravelCanvas.blocksRaycasts = false;
 
-				Debug.Log(availableLocation.Key);
-			}
-		}
-	}
+            GameMaster.Instance.PLAYERBUSY = false;
+            CompanionOpen = false;
 
-	private void OnDisable()
-	{
-		SceneManager.sceneLoaded -= OnSceneLoaded;
-	}
+            evidencecompanion.alpha = 0.9f;
+            crosshair.alpha = 0.9f;
 
+            StepBackInputRightClick.action.performed -= LaunchCompanion;
+            StepBackInputESC.action.performed -= LaunchCompanion;
 
-	private void CloseCompanionInput(InputAction.CallbackContext callbackContext)
-	{
-		if (CompanionOpen) LaunchCompanion();
-	}
-	
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
 
-	public void LaunchCompanion(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
-	{
-		if (GameMaster.Instance.PLAYERBUSY && !CompanionOpen) return;
+    // ===========================
+    // UI LIST
+    // ===========================
 
-		if (!GameMaster.Instance.OnboardingManager.TESTEVIDENCECOLLECTED)
-		{
-			GameMaster.Instance.OnboardingManager.EvidenceNotCollected();
-			return;
-		}
-		
-		if (!GameMaster.Instance.OnboardingManager.ONBOARDINGCOMPLETE)
-		{
-			GameMaster.Instance.OnboardingManager.NotReadyYet();
-			return;
-		}
-		
-		
-		if (!CompanionOpen)
-		{
-			Debug.Log("open notepad");
-			Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y + 1, Notepad.transform.localPosition.z);
+    public void InitialiseLocations()
+    {
+        if (scrollViewContent == null) return;
 
-			Notepad.SetActive(true);
-			TravelCanvas.alpha = 1f;
-			TravelCanvas.blocksRaycasts = true;
-			GameMaster.Instance.PLAYERBUSY = true;
-			CompanionOpen = true;
-			evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.0f;
-			crosshair.GetComponent<CanvasGroup>().alpha = 0.0f;
+        foreach (Transform child in scrollViewContent.transform)
+            Destroy(child.gameObject);
 
-			
-			StepBackInputRightClick.action.performed += LaunchCompanion;
-			StepBackInputESC.action.performed += LaunchCompanion;
-			
-			Cursor.lockState = CursorLockMode.None;
-			Cursor.visible = true;
-		}
-		else
-		{
-			Debug.Log("close notepad");
-			Notepad.transform.localPosition = new Vector3(Notepad.transform.localPosition.x, Notepad.transform.localPosition.y - 1, Notepad.transform.localPosition.z);
+        AvailableLocations.Clear();
 
-			Notepad.SetActive(false);
+        // order matters
+        AvailableLocations.Add(GAMELEVEL.TawleyMeats, "Tawley Meats");
+        AvailableLocations.Add(GAMELEVEL.RoarkOutside, "Roark Microtech");
+        AvailableLocations.Add(GAMELEVEL.NorasFlat, "\n...just go home");
 
-			TravelCanvas.alpha = 0f;
-			TravelCanvas.blocksRaycasts = false;
-			GameMaster.Instance.PLAYERBUSY = false;
-			CompanionOpen = false;
-			evidencecompanion.GetComponent<CanvasGroup>().alpha = 0.9f;
-			crosshair.GetComponent<CanvasGroup>().alpha = 0.9f;
-		
-			StepBackInputRightClick.action.performed -= LaunchCompanion;
-			StepBackInputESC.action.performed -= LaunchCompanion;
-			
-			Cursor.lockState = CursorLockMode.Locked;
-			Cursor.visible = false;
+        float verticalSpacing = 30f;
 
-		}
-	}
+        float contentHeight = scrollViewContent.rect.height;
+        float firstButtonHeight = notepadButtonPrefab.GetComponent<RectTransform>().rect.height;
+        float initialYPosition = contentHeight / 2f - firstButtonHeight / 2f;
+        float currentYPosition = initialYPosition;
 
+        foreach (var availableLocation in AvailableLocations)
+        {
+            if (availableLocation.Key.ToString().Equals(GameMaster.Instance.THISLEVEL.ToString()))
+                continue;
 
+            GameObject buttonObj = Instantiate(notepadButtonPrefab, scrollViewContent);
+            RectTransform buttonTransform = buttonObj.GetComponent<RectTransform>();
+            buttonTransform.anchoredPosition = new Vector2(buttonTransform.anchoredPosition.x, currentYPosition);
+            currentYPosition -= verticalSpacing;
 
+            NotepadButton newButton = buttonObj.GetComponent<NotepadButton>();
+            newButton.buttonText = availableLocation.Value;
+            newButton.buttonTextElement.text = availableLocation.Value;
+            newButton.targetScene = availableLocation.Key;
 
-	public void ChangeScene(GAMELEVEL SceneName)
-	{
-		Rigidbody rb = Player.Instance.gameObject.GetComponentInParent<Rigidbody>();
-		// rb.isKinematic = false;
-		// rb.useGravity = false;
-		
-		GameMaster.Instance.PLAYERBUSY = false;
-		StartCoroutine(ChangeSceneAsync(SceneName));
-	}
+            // IMPORTANT: NotepadButton should call TravelCompanion.ChangeScene(...) already.
+            // If it doesn't, you can add a UnityEvent hookup in the prefab,
+            // or have NotepadButton call FindObjectOfType<TravelCompanion>().ChangeScene(targetScene).
+        }
+    }
 
+    // ===========================
+    // Scene transition request (delegated)
+    // ===========================
 
-	public void ChangeSceneOffTheBooks(GAMELEVEL SceneName)
-	{
-		Rigidbody rb = Player.Instance.gameObject.GetComponentInParent<Rigidbody>();
-		
-		// rb.isKinematic = false;
-		// rb.useGravity = false;
-		
-		GameMaster.Instance.PLAYERBUSY = false;
-		StartCoroutine(ChangeSceneAsync(SceneName));
-	}
+    public void ChangeScene(GAMELEVEL sceneName)
+    {
+        
+        
+        GameMaster.Instance.PLAYERBUSY = false;
 
+        if (GameMaster.Instance.LoadingManager != null)
+        {
+            GameMaster.Instance.LoadingManager.LoadLevel(sceneName, onFinished: InitialiseLocations);
+        }
+        else
+        {
+            Debug.LogWarning("[TravelCompanion] LoadingManager missing on GameMaster.");
+        }
+    }
 
-
-	IEnumerator ChangeSceneAsync(GAMELEVEL levelName)
-	{
-		
-		loadingpanel.alpha = 1;
-
-		Debug.Log("Loading: "+levelName.ToString());
-		
-		AsyncOperation op = SceneManager.LoadSceneAsync(levelName.ToString());
-
-
-		var buildDate = "";
-
-		buildDate += System.DateTime.Now.ToString("dddd");
-		buildDate += ", ";
-		buildDate += System.DateTime.Now.ToString("MMMM d");
-		buildDate += MonthDay(System.DateTime.Now.ToString("dd").ToString());
-		buildDate += ", ";
-		buildDate += System.DateTime.Now.ToString("yyyy");
-
-
-		loadingclock.text = buildDate;
-
-		Transform PlayerTransform = Player.Instance.gameObject.GetComponentInParent<Transform>();
-
-
-		Debug.Log("setting pos now");
-		
-
-		if (levelName == GAMELEVEL.NorasFlat)
-		{	
-			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTNORASFLAT;
-			Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;
-		}
-
-		if (levelName == GAMELEVEL.TawleyMeats)
-		{	
-			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
-			Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
-		}
-
-		if (levelName == GAMELEVEL.RoarkInside)
-		{	
-			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
-			Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
-		}
-
-		if (levelName == GAMELEVEL.RoarkOutside)
-		{	
-			PlayerTransform.position = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
-			Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
-		}
-
-		Time.timeScale = 0; // or the player falls out the world
-		
-
-		while (!op.isDone)
-		{
-			loadingbar.fillAmount = Mathf.Clamp01(op.progress / .9f);
-			yield return null;
-		}
-
-		GameMaster.Instance.THISLEVEL = levelName;
-		// GameMaster.Instance.DialogueManager.queueDropFlag = true;
-		loadingpanel.alpha = 0;
-		Time.timeScale = 1;
-		InitialiseLocations();
-	}
-
-	private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-	{
-		GameMaster.Instance.PLAYERBUSY = false;
-		if (CompanionOpen) LaunchCompanion();
-	}
-
-	public string MonthDay(string day)
-	{
-		string nuNum = "th";
-		if (int.Parse(day) < 11 || int.Parse(day) > 20)
-		{
-			day = day.ToCharArray()[^1].ToString();
-			switch (day)
-			{
-				case "1":
-					nuNum = "st";
-					break;
-				case "2":
-					nuNum = "nd";
-					break;
-				case "3":
-					nuNum = "rd";
-					break;
-			}
-		}
-		return nuNum;
-	}
-	
+    // Kept for compatibility with your existing calls
+    public void ChangeSceneOffTheBooks(GAMELEVEL sceneName) => ChangeScene(sceneName);
 }

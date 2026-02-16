@@ -1,112 +1,174 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PauseManager : MonoBehaviour
 {
     public bool IsPaused;
+
+    [Header("UI")]
     public CanvasGroup PauseScreenPanel;
-    // public GameObject VirtualCursor;
-    private float OriginalSensitivity;
     public CanvasGroup HUD;
     public GameObject PauseNavver;
-    
-    
+
+    private bool _bound;
+
+    // ✅ store the actual look sensitivity (not GameMaster mouse setting)
+    private float _cachedLookSensitivity;
+    private bool _hasCachedLookSensitivity;
+
+    private void OnEnable() => BindInputs();
+
     private void Start()
     {
-        OriginalSensitivity = GameMaster.Instance.MouseSensitivity;
-        
-        GameMaster.Instance.InputManager.PauseAction.action.performed += TogglePause;
+        BindInputs();
+        ApplyPauseStateVisuals();
+    }
+
+    private void OnDisable()
+    {
+        UnbindInputs();
+        SafeUnbindExitAction();
+
+        // If we get disabled while paused, try to restore (prevents “stuck” sensitivity)
+        if (IsPaused) RestoreLookSensitivityIfNeeded();
     }
 
     private void OnDestroy()
     {
-        // Prevent duplicate subscriptions if object is recreated
-        if (GameMaster.Instance != null && GameMaster.Instance.InputManager != null) GameMaster.Instance.InputManager.PauseAction.action.performed -= TogglePause;
+        UnbindInputs();
+        SafeUnbindExitAction();
     }
 
+    private void BindInputs()
+    {
+        if (_bound) return;
 
+        var gm = GameMaster.Instance;
+        if (gm == null || gm.InputManager == null || gm.InputManager.PauseAction == null) return;
+
+        gm.InputManager.PauseAction.action.performed -= TogglePause;
+        gm.InputManager.PauseAction.action.performed += TogglePause;
+        gm.InputManager.PauseAction.action.Enable();
+
+        _bound = true;
+    }
+
+    private void UnbindInputs()
+    {
+        if (!_bound) return;
+
+        var gm = GameMaster.Instance;
+        if (gm != null && gm.InputManager != null && gm.InputManager.PauseAction != null)
+            gm.InputManager.PauseAction.action.performed -= TogglePause;
+
+        _bound = false;
+    }
+
+    private void SafeBindExitAction()
+    {
+        var gm = GameMaster.Instance;
+        if (gm == null || gm.InputManager == null || gm.InputManager.ExitAction == null) return;
+
+        gm.InputManager.ExitAction.action.performed -= TogglePause;
+        gm.InputManager.ExitAction.action.performed += TogglePause;
+        gm.InputManager.ExitAction.action.Enable();
+    }
+
+    private void SafeUnbindExitAction()
+    {
+        var gm = GameMaster.Instance;
+        if (gm == null || gm.InputManager == null || gm.InputManager.ExitAction == null) return;
+
+        gm.InputManager.ExitAction.action.performed -= TogglePause;
+    }
 
     private void TogglePause(InputAction.CallbackContext callbackContext)
     {
-        // just not going to allow pause when busy. making it close everything is awkward, maybe I'll rewrite with events later, but too busy now.
-        if (GameMaster.Instance.PLAYERBUSY) return;
+        if (!this || !gameObject) return;
 
-        
-        if (IsPaused)
-        {
-            UnpauseGame();
-        }
-        else
-        {
-            PauseGame();
-        }
-        
-        
+        var gm = GameMaster.Instance;
+        if (gm == null) return;
+
+        if (gm.PLAYERBUSY) return;
+
+        if (IsPaused) UnpauseGame();
+        else PauseGame();
     }
-
-
 
     private void PauseGame()
     {
         IsPaused = true;
 
-        HUD.alpha = 0;
-        
-        Player.Instance.FirstPersonLook.sensitivity = GameMaster.Instance.MouseSensitivity * 10;
-        
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        CacheLookSensitivityIfNeeded();
+        // ✅ Do NOT multiply / change sensitivity unless you truly want to
+        // If you want to disable look while paused, set it to 0f instead:
+        // SetLookSensitivity(0f);
 
-        
-        GameMaster.Instance.InputManager.ExitAction.action.performed += TogglePause;
-        
-        Debug.Log("PAUSED");
-        PauseNavver.SetActive(true);
-        
-        
+        SafeBindExitAction();
 
-        // if (VirtualCursor != null)
-        // {
-        //     if (GameMaster.Instance.DeviceType.selectedDeviceType == PlayerDeviceType.SteamOS) VirtualCursor.SetActive(true);
-        // }
-        
-        GameMaster.Instance.EventManager.GamePaused(true);
-        
-        ToggleScreenPanel();
+        ApplyPauseStateVisuals();
+
+        var gm = GameMaster.Instance;
+        gm?.EventManager?.GamePaused(true);
     }
-
 
     private void UnpauseGame()
     {
-                
-        Player.Instance.FirstPersonLook.sensitivity = OriginalSensitivity;
-        
-        HUD.alpha = 1;
-        
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        
-        PauseNavver.SetActive(false);
-        
-        GameMaster.Instance.InputManager.ExitAction.action.performed -= TogglePause;
-        
-        // if (VirtualCursor != null) VirtualCursor.SetActive(false);
-        
         IsPaused = false;
 
-        GameMaster.Instance.EventManager.GamePaused(false);
-        
-        ToggleScreenPanel();
+        SafeUnbindExitAction();
+
+        RestoreLookSensitivityIfNeeded();
+
+        ApplyPauseStateVisuals();
+
+        var gm = GameMaster.Instance;
+        gm?.EventManager?.GamePaused(false);
     }
 
-
-
-    private void ToggleScreenPanel()
+    private void CacheLookSensitivityIfNeeded()
     {
-        PauseScreenPanel.alpha = IsPaused ? 1f : 0f;
-        PauseScreenPanel.interactable = IsPaused;
-        PauseScreenPanel.blocksRaycasts = IsPaused;
+        if (_hasCachedLookSensitivity) return;
+
+        if (Player.Instance != null && Player.Instance.FirstPersonLook != null)
+        {
+            _cachedLookSensitivity = Player.Instance.FirstPersonLook.sensitivity;
+            _hasCachedLookSensitivity = true;
+        }
     }
-    
+
+    private void RestoreLookSensitivityIfNeeded()
+    {
+        if (!_hasCachedLookSensitivity) return;
+
+        if (Player.Instance != null && Player.Instance.FirstPersonLook != null)
+            Player.Instance.FirstPersonLook.sensitivity = _cachedLookSensitivity;
+
+        _hasCachedLookSensitivity = false;
+    }
+
+    private void SetLookSensitivity(float value)
+    {
+        if (Player.Instance != null && Player.Instance.FirstPersonLook != null)
+            Player.Instance.FirstPersonLook.sensitivity = value;
+    }
+
+    private void ApplyPauseStateVisuals()
+    {
+        if (!this || !gameObject) return;
+
+        if (HUD != null) HUD.alpha = IsPaused ? 0f : 1f;
+
+        Cursor.lockState = IsPaused ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = IsPaused;
+
+        if (PauseNavver != null) PauseNavver.SetActive(IsPaused);
+
+        if (PauseScreenPanel != null)
+        {
+            PauseScreenPanel.alpha = IsPaused ? 1f : 0f;
+            PauseScreenPanel.interactable = IsPaused;
+            PauseScreenPanel.blocksRaycasts = IsPaused;
+        }
+    }
 }

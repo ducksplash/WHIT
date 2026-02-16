@@ -240,7 +240,7 @@ public class GameMaster : MonoBehaviour
 
             case AudioProfile.NorasFlat:
                 // Background music
-                AudioSlave.PlayBGM(BGMResource.SongOne);
+                // AudioSlave.PlayBGM(BGMResource.SongOne);
                 // Ambience Track (i.e. Rain)
                 AudioSlave.PlayBGA(BGAResource.Rain);
                 break;

@@ -331,7 +331,9 @@ public enum SFXResource
     TypeWriter5,
     
     DoorOpen,
-    DoorClosed
+    DoorClosed,
+    MetalDoorOpen,
+    MetalDoorClosed
 }
 
 public enum BGAResource

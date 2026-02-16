@@ -169,6 +169,8 @@ public class TravelCompanion : MonoBehaviour
         
         GameMaster.Instance.PLAYERBUSY = false;
 
+        LaunchCompanion();
+        
         if (GameMaster.Instance.LoadingManager != null)
         {
             GameMaster.Instance.LoadingManager.LoadLevel(sceneName, onFinished: InitialiseLocations);

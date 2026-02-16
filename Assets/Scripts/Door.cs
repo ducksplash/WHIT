@@ -93,10 +93,12 @@ public class Door : MonoBehaviour
             doorAnimator.ResetTrigger("opened");
             doorAnimator.ResetTrigger("closed");
 
+            
+            MakeDoorNoises(isOpen);
+            
             doorAnimator.SetTrigger(isOpen ? "opened" : "closed");
             
             
-            MakeDoorNoises(isOpen);
         }
 
         if (hitCollider != null) StartCoroutine(DisableColliderTemporarily(hitCollider));
@@ -128,7 +130,7 @@ public class Door : MonoBehaviour
                 break;
             
             case DoorType.Metal:
-                Debug.Log("dont have a Metal Door noise yet");
+                GameMaster.Instance.AudioSlave.PlaySFX(openValue ? SFXResource.MetalDoorOpen : SFXResource.MetalDoorClosed);
                 break;
         }
     }
@@ -145,8 +147,7 @@ public class Door : MonoBehaviour
         yield return new WaitForSeconds(colliderDisableTime);
         isAnimating = false;
 
-        if (doorAnimator != null)
-            doorAnimator.SetTrigger("idle");
+        if (doorAnimator != null) doorAnimator.SetTrigger("idle");
     }
 
 

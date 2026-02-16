@@ -12,6 +12,11 @@ public class BGA : ScriptableObject
     [Header("Audio Clip (from Resources or Addressables)")]
     public AudioClip AudioClip;
 
+    [Header("Custom Source")] 
+    public AudioSource CustomSource;
+
+    public float spatialBlend = 0;
+
     [Header("Volume")] public float BGAVolume = 1f;
 }
 

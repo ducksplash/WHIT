@@ -12,7 +12,7 @@ public class ComputerSystem : MonoBehaviour
 
     public CanvasGroup LockScreen;
     public CanvasGroup DesktopScreen;
-    public List<CanvasGroup> AllProgrammeScreens;
+    public List<CanvasGroup> AllProgrammeScreens = new List<CanvasGroup>();
 
     [Header("Furniture")]
     public GameObject NearestChair;
@@ -40,7 +40,6 @@ public class ComputerSystem : MonoBehaviour
     public List<TextMeshProUGUI> AudioText;
 
     public TextMeshProUGUI SystemText;
-    public CanvasGroup CrosshairCanvas;
 
     public bool IsLoggedIn;
     public bool ComputerOpen;
@@ -51,14 +50,12 @@ public class ComputerSystem : MonoBehaviour
     public Collider PCCollider;
 
     public List<PCNavver> PCScreenNavvers = new List<PCNavver>();
-    
 
     public InputActionReference goBack;
     public InputActionReference escapeExit;
 
     public InputActionReference StepBackInputRightClick;
-    
-    
+
     public Transform PCScreenTransform;
     public Transform PlayerTransform;
     private Quaternion defaultRotation;
@@ -70,26 +67,32 @@ public class ComputerSystem : MonoBehaviour
     private bool _steamTextSessionOpen;
 
     public bool backButtonOverride;
-    
+
     private const uint STEAM_TEXT_MAX = 64;
 
-    void Start()
-    {
-        IncorrectPasswordText.gameObject.SetActive(false);
+    // ✅ NEW: robust unsubscription guard
+    private bool _unhooked;
 
-        EventManager.OnStopComputer += OnStopComputer;
-        
-        TerminalEventManager.OnBackButtonOverride += value => backButtonOverride = value;
-        
-        
-        if (goBack != null)
-        {
-            goBack.action.performed -= InputGoBack;
-            goBack.action.performed += InputGoBack;
-        }
-        
-        
-        TerminalEventManager.OnPCGridClick += SelectMenuItem;
+    private void OnEnable()
+    {
+        // It’s safer to hook in OnEnable and unhook in OnDisable when scene objects are reloaded.
+        HookEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnhookEvents();
+    }
+
+    private void OnDestroy()
+    {
+        UnhookEvents();
+    }
+
+    private void Start()
+    {
+        if (IncorrectPasswordText != null)
+            IncorrectPasswordText.gameObject.SetActive(false);
 
         PlayerTransform = GameMaster.Instance.Player.transform;
         defaultRotation = PCScreenTransform.rotation;
@@ -99,19 +102,80 @@ public class ComputerSystem : MonoBehaviour
 
         if (PasswordInput != null)
         {
+            // NOTE: we remove listeners in UnhookEvents() using RemoveAllListeners() for safety.
             PasswordInput.onSelect.AddListener(_ => OnPasswordSelected());
             PasswordInput.onDeselect.AddListener(_ => OnPasswordDeselected());
             PasswordInput.onSubmit.AddListener(_ => OnPasswordSubmitted());
         }
 
         DisableNavvers();
-        
+
         GameMaster.Instance.TerminalEventManager.FileManagerClosed();
         GameMaster.Instance.TerminalEventManager.VideoManagerClosed();
-        
+    }
+
+    private void HookEvents()
+    {
+        // Prevent double-hook if OnEnable called twice
+        UnhookEvents();
+        _unhooked = false;
+
+        // ✅ Static/global events MUST be unhooked, so we hook them here
+        EventManager.OnStopComputer += OnStopComputer;
+
+        TerminalEventManager.OnPCGridClick += SelectMenuItem;
         TerminalEventManager.OnCloseToDesktop += CloseToDesktop;
-        
-        
+
+        // ✅ FIX: NO LAMBDA (can't unsubscribe). Use named handler.
+        TerminalEventManager.OnBackButtonOverride += OnBackButtonOverrideChanged;
+
+        if (goBack != null)
+        {
+            goBack.action.performed -= InputGoBack;
+            goBack.action.performed += InputGoBack;
+        }
+
+        // Note: StepBackInputRightClick / escapeExit are subscribed dynamically while PC is open,
+        // but we still force-remove them here as a safety net.
+        if (StepBackInputRightClick != null)
+            StepBackInputRightClick.action.performed -= InputGoBackBack;
+
+        if (escapeExit != null)
+            escapeExit.action.performed -= InputGoBackBack;
+    }
+
+    private void UnhookEvents()
+    {
+        if (_unhooked) return;
+        _unhooked = true;
+
+        EventManager.OnStopComputer -= OnStopComputer;
+
+        TerminalEventManager.OnPCGridClick -= SelectMenuItem;
+        TerminalEventManager.OnCloseToDesktop -= CloseToDesktop;
+        TerminalEventManager.OnBackButtonOverride -= OnBackButtonOverrideChanged;
+
+        if (goBack != null)
+            goBack.action.performed -= InputGoBack;
+
+        if (StepBackInputRightClick != null)
+            StepBackInputRightClick.action.performed -= InputGoBackBack;
+
+        if (escapeExit != null)
+            escapeExit.action.performed -= InputGoBackBack;
+
+        // Clean TMP listeners so destroyed objects don't keep references
+        if (PasswordInput != null)
+        {
+            PasswordInput.onSelect.RemoveAllListeners();
+            PasswordInput.onDeselect.RemoveAllListeners();
+            PasswordInput.onSubmit.RemoveAllListeners();
+        }
+    }
+
+    private void OnBackButtonOverrideChanged(bool value)
+    {
+        backButtonOverride = value;
     }
 
     private bool IsSteamOS()
@@ -206,21 +270,34 @@ public class ComputerSystem : MonoBehaviour
     {
         if (ComputerOpen) return;
         if (GameMaster.Instance.PLAYERBUSY) return;
+
         GameMaster.Instance.PLAYERBUSY = true;
         Player.Instance.ZoomOverride = true;
-        
+
         FacePlayerOnY();
 
-        PCCollider.enabled = false;
-        NearestChair.gameObject.SetActive(false);
+        if (PCCollider != null) PCCollider.enabled = false;
+        if (NearestChair != null) NearestChair.gameObject.SetActive(false);
+
         GameMaster.Instance.EventManager.StartComputer(ViewableArea);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
-        
-        StepBackInputRightClick.action.performed += InputGoBackBack;
-        escapeExit.action.performed += InputGoBackBack;
-        
+
+        if (Player.Instance.CrossHair != null)
+            Player.Instance.CrossHair.GetComponent<CanvasGroup>().alpha = 0.0f;
+
+        if (StepBackInputRightClick != null)
+        {
+            StepBackInputRightClick.action.performed -= InputGoBackBack;
+            StepBackInputRightClick.action.performed += InputGoBackBack;
+        }
+
+        if (escapeExit != null)
+        {
+            escapeExit.action.performed -= InputGoBackBack;
+            escapeExit.action.performed += InputGoBackBack;
+        }
+
         ChangeScreen(IsLoggedIn ? ComputerScreen.Desktop : ComputerScreen.LockScreen);
         ComputerOpen = true;
     }
@@ -229,27 +306,35 @@ public class ComputerSystem : MonoBehaviour
     {
         if (!ComputerOpen) return;
         if (!GameMaster.Instance.PLAYERBUSY) return;
+
         Player.Instance.ZoomOverride = false;
-        
+
         RotBack();
-        
+
         GameMaster.Instance.TerminalEventManager.FileManagerClosed();
         GameMaster.Instance.TerminalEventManager.VideoManagerClosed();
-        
-        
+
         ChangeScreen(IsLoggedIn ? ComputerScreen.Desktop : ComputerScreen.LockScreen);
-        
-        PCCollider.enabled = true;
-        NearestChair.gameObject.SetActive(true);
-        IncorrectPasswordText.gameObject.SetActive(false);
+
+        if (PCCollider != null) PCCollider.enabled = true;
+        if (NearestChair != null) NearestChair.gameObject.SetActive(true);
+
+        if (IncorrectPasswordText != null)
+            IncorrectPasswordText.gameObject.SetActive(false);
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 1.0f;
-        
-        StepBackInputRightClick.action.performed -= InputGoBackBack;
-        escapeExit.action.performed -= InputGoBackBack;
-        
-        ClosePasswordFieldCompletely();        
+
+        if (Player.Instance.CrossHair != null)
+            Player.Instance.CrossHair.GetComponent<CanvasGroup>().alpha = 1.0f;
+
+        if (StepBackInputRightClick != null)
+            StepBackInputRightClick.action.performed -= InputGoBackBack;
+
+        if (escapeExit != null)
+            escapeExit.action.performed -= InputGoBackBack;
+
+        ClosePasswordFieldCompletely();
         ComputerOpen = false;
         GameMaster.Instance.PLAYERBUSY = false;
         DisableNavvers();
@@ -257,28 +342,23 @@ public class ComputerSystem : MonoBehaviour
 
     private bool CanHandlePCInput(InputAction.CallbackContext ctx)
     {
-        // Only handle inputs while the PC is actually open
         if (!GameMaster.Instance.PLAYERBUSY) return false;
         if (!ctx.performed) return false;
         return true;
     }
 
-    // goBack: step back until Desktop, THEN close PC if pressed again on Desktop/Lock
     public void InputGoBack(InputAction.CallbackContext callbackContext)
     {
         if (!ComputerOpen) return;
         if (backButtonOverride) return;
-        
         if (!CanHandlePCInput(callbackContext)) return;
 
         HandleBackStepOnly();
     }
-    
-    
+
     public void InputGoBackBack(InputAction.CallbackContext callbackContext)
     {
         if (!ComputerOpen) return;
-        
         if (!CanHandlePCInput(callbackContext)) return;
 
         HandleBackStepOnly();
@@ -290,16 +370,8 @@ public class ComputerSystem : MonoBehaviour
         GameMaster.Instance.EventManager.StopComputer();
     }
 
-    /// <summary>
-    /// Step back behaviour:
-    /// - If in Files and NOT at User folder: go to User folder (stay in Files)
-    /// - Else if in Files at User: go to Desktop
-    /// - Else if in any other app screen: go to Desktop
-    /// - Else if already at Desktop or Lock: close PC
-    /// </summary>
     public void HandleBackStepOnly()
     {
-        // 1) Files screen: sub-step back inside file manager first
         if (CurrentScreen == ComputerScreen.Files)
         {
             PCFileManager fm = GetFileManager();
@@ -309,14 +381,11 @@ public class ComputerSystem : MonoBehaviour
                 fm.ChangeScreen(FolderScreen.User);
                 return;
             }
-            
 
-            // At Files root -> go to Desktop
             ChangeScreen(ComputerScreen.Desktop);
             return;
         }
 
-        // 2) Any other non-root screen -> go to Desktop
         if (CurrentScreen != ComputerScreen.Desktop && CurrentScreen != ComputerScreen.LockScreen)
         {
             ChangeScreen(ComputerScreen.Desktop);
@@ -325,26 +394,29 @@ public class ComputerSystem : MonoBehaviour
         {
             GameMaster.Instance.EventManager.StopComputer();
         }
-
     }
 
     private PCFileManager GetFileManager()
     {
+        // ✅ Remove destroyed entries first (prevents MissingReferenceException after scene reload)
+        AllProgrammeScreens.RemoveAll(cg => cg == null);
+
         for (int i = 0; i < AllProgrammeScreens.Count; i++)
         {
-            PCScreen pc = AllProgrammeScreens[i].GetComponent<PCScreen>();
-            
+            var cg = AllProgrammeScreens[i];
+            if (cg == null) continue;
+
+            PCScreen pc = cg.GetComponent<PCScreen>();
             if (pc != null && pc.ThisPCScreen == ComputerScreen.Files)
-            {
-                return AllProgrammeScreens[i].GetComponent<PCFileManager>();
-            }
-                
+                return cg.GetComponent<PCFileManager>();
         }
         return null;
     }
 
     public void LogOn()
     {
+        if (PasswordInput == null) return;
+
         if (PasswordInput.text.ToString().Trim().Equals(GameMaster.Instance.NORASPCPASSWORD.ToString().Trim()))
         {
             ChangeScreen(ComputerScreen.Desktop);
@@ -353,9 +425,11 @@ public class ComputerSystem : MonoBehaviour
         else
         {
             ChangeScreen(ComputerScreen.LockScreen);
-            IncorrectPasswordText.gameObject.SetActive(true);
-            IsLoggedIn = false;
 
+            if (IncorrectPasswordText != null)
+                IncorrectPasswordText.gameObject.SetActive(true);
+
+            IsLoggedIn = false;
             ClosePasswordFieldCompletely();
         }
     }
@@ -378,14 +452,14 @@ public class ComputerSystem : MonoBehaviour
 
     public void SelectMenuItem(PCGriddle pcGriddle)
     {
-        Debug.Log("selected menu item: "+pcGriddle);
-        
+        Debug.Log("selected menu item: " + pcGriddle);
+
         GameMaster.Instance.TerminalEventManager.FileManagerClosed();
         switch (pcGriddle)
         {
             case PCGriddle.None:
                 break;
-            
+
             case PCGriddle.Desktop:
                 ChangeScreen(ComputerScreen.Desktop);
                 break;
@@ -419,22 +493,27 @@ public class ComputerSystem : MonoBehaviour
     public void ChangeScreen(ComputerScreen ScreenToOpen)
     {
         CloseAllScreens();
-        
-        for (var i = 0; i < AllProgrammeScreens.Count; i++)
+
+        // ✅ Remove destroyed entries first
+        AllProgrammeScreens.RemoveAll(cg => cg == null);
+
+        for (int i = 0; i < AllProgrammeScreens.Count; i++)
         {
-            if (AllProgrammeScreens[i].GetComponent<PCScreen>().ThisPCScreen.Equals(ScreenToOpen))
+            var cg = AllProgrammeScreens[i];
+            if (cg == null) continue;
+
+            PCScreen pcScreen = cg.GetComponent<PCScreen>();
+            if (pcScreen != null && pcScreen.ThisPCScreen.Equals(ScreenToOpen))
             {
-                CanvasGroup SelectedScreen = AllProgrammeScreens[i].GetComponent<CanvasGroup>();
+                cg.alpha = 1f;
+                cg.interactable = true;
+                cg.blocksRaycasts = true;
 
-                SelectedScreen.alpha = 1;
-                SelectedScreen.interactable = true;
-                SelectedScreen.interactable = true;
-                SelectedScreen.blocksRaycasts = true;
+                if (pcScreen.PCNavver != null)
+                    pcScreen.PCNavver.enabled = true;
 
-                PCScreen thisScreen = AllProgrammeScreens[i].GetComponent<PCScreen>();
-                
-                if (thisScreen.PCNavver != null) thisScreen.PCNavver.enabled = true;
                 CurrentScreen = ScreenToOpen;
+                break;
             }
         }
     }
@@ -442,16 +521,22 @@ public class ComputerSystem : MonoBehaviour
     public void CloseAllScreens()
     {
         Debug.Log("Close screens");
-        for (var i = 0; i < AllProgrammeScreens.Count; i++)
+
+        // ✅ Fix: destroyed references can remain in the list after scene changes
+        AllProgrammeScreens.RemoveAll(cg => cg == null);
+
+        for (int i = 0; i < AllProgrammeScreens.Count; i++)
         {
-            CanvasGroup ThisScreen = AllProgrammeScreens[i].GetComponent<CanvasGroup>();
+            var cg = AllProgrammeScreens[i];
+            if (cg == null) continue;
 
-            ThisScreen.alpha = 0;
-            ThisScreen.interactable = false;
-            ThisScreen.blocksRaycasts = false;
+            cg.alpha = 0f;
+            cg.interactable = false;
+            cg.blocksRaycasts = false;
 
-            PCScreen thisScreen = AllProgrammeScreens[i].GetComponent<PCScreen>();
-            if (thisScreen.PCNavver != null) thisScreen.PCNavver.enabled = false;
+            var pc = cg.GetComponent<PCScreen>();
+            if (pc != null && pc.PCNavver != null)
+                pc.PCNavver.enabled = false;
         }
     }
 
@@ -486,9 +571,10 @@ public class ComputerSystem : MonoBehaviour
 
     private void DisableNavvers()
     {
-        for (var i = 0; i < PCScreenNavvers.Count; i++)
+        for (int i = 0; i < PCScreenNavvers.Count; i++)
         {
-            PCScreenNavvers[i].enabled = false;
+            if (PCScreenNavvers[i] != null)
+                PCScreenNavvers[i].enabled = false;
         }
     }
 
@@ -496,7 +582,6 @@ public class ComputerSystem : MonoBehaviour
     {
         SelectMenuItem(PCGriddle.Desktop);
     }
-
 }
 
 public enum ComputerScreen

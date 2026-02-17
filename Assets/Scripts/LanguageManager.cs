@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class LanguageManager : MonoBehaviour
 {
-    public bool placeHolderVariable = true;
 
     private Dictionary<TranslatableStrings, Languages> StringTranslationDict = new Dictionary<TranslatableStrings, Languages>();
     

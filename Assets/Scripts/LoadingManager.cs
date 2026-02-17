@@ -15,17 +15,31 @@ public class LoadingManager : MonoBehaviour
     [Header("Fade")]
     public CanvasGroup fadeCanvas;
     public float fadeDuration = 3f;
-
-    // Optional: tweak easing in Inspector (0..1 -> 0..1)
     public AnimationCurve fadeCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+    [Header("Fade Stability")]
+    [Tooltip("Caps the fade step per frame so scene-load stalls don't cause big alpha jumps.")]
+    public float maxFadeStepSeconds = 1f / 30f; // 30 FPS step cap (smooth)
 
     private Coroutine _fadeCo;
     private bool _isLoading;
 
+    // scene-load handshake
+    private bool _sceneLoadedFlag;
+
     private void OnEnable()
     {
-        if (fadeCanvas != null) fadeCanvas.alpha = 1f;
         SceneManager.sceneLoaded += OnSceneLoaded;
+
+        // Start black if desired
+        if (fadeCanvas != null)
+        {
+            fadeCanvas.gameObject.SetActive(true);
+            fadeCanvas.alpha = 1f;
+            fadeCanvas.interactable = false;
+        }
+
+        ShowLoadingUI(false);
     }
 
     private void OnDisable()
@@ -33,9 +47,60 @@ public class LoadingManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // Public helpers
-    public void SceneFadeIn()  => FadeTo(0f); // 1 -> 0
-    public void SceneFadeOut() => FadeTo(1f); // 0 -> 1
+    /// <summary>
+    /// Public entry point.
+    /// Fades out fully, loads scene, then fades in fully.
+    /// </summary>
+    public void LoadLevel(GAMELEVEL levelName, Action onFinished = null)
+    {
+        if (_isLoading) return;
+        StartCoroutine(LoadLevelSequence(levelName, onFinished));
+    }
+
+    // ---------------------------------------------------------------------
+    // Master sequence
+    // ---------------------------------------------------------------------
+    private IEnumerator LoadLevelSequence(GAMELEVEL levelName, Action onFinished)
+    {
+        _isLoading = true;
+
+        // 1) Fade to black and wait
+        yield return FadeToAndWait(1f);
+
+        // 2) Show loading UI
+        ShowLoadingUI(true);
+        UpdateLoadingClock();
+
+        // 3) Load scene (controlled activation)
+        yield return ChangeSceneAsync(levelName);
+
+        // 4) Ensure fade is still black before removing loading UI
+        if (fadeCanvas != null)
+        {
+            fadeCanvas.gameObject.SetActive(true);
+            fadeCanvas.alpha = 1f;
+        }
+
+        // 5) Hide loading UI
+        ShowLoadingUI(false);
+
+        // ✅ Force UI to rebuild *now*, then wait until end-of-frame so it truly disappears visually
+        Canvas.ForceUpdateCanvases();
+        yield return null;
+        yield return new WaitForEndOfFrame();
+
+        // 6) Fade in and wait (this is the first frame where loading UI is definitely gone)
+        yield return FadeToAndWait(0f);
+        
+        _isLoading = false;
+        onFinished?.Invoke();
+    }
+
+    // ---------------------------------------------------------------------
+    // Fade helpers
+    // ---------------------------------------------------------------------
+    public void SceneFadeIn()  => FadeTo(0f);
+    public void SceneFadeOut() => FadeTo(1f);
 
     public void FadeTo(float targetAlpha)
     {
@@ -50,28 +115,48 @@ public class LoadingManager : MonoBehaviour
         _fadeCo = StartCoroutine(FadeCanvasGroupTo(targetAlpha, fadeDuration));
     }
 
+    private IEnumerator FadeToAndWait(float targetAlpha)
+    {
+        if (fadeCanvas == null) yield break;
+
+        fadeCanvas.gameObject.SetActive(true);
+
+        if (_fadeCo != null)
+        {
+            StopCoroutine(_fadeCo);
+            _fadeCo = null;
+        }
+
+        _fadeCo = StartCoroutine(FadeCanvasGroupTo(targetAlpha, fadeDuration));
+        yield return _fadeCo;
+    }
+
     private IEnumerator FadeCanvasGroupTo(float targetAlpha, float duration)
     {
         if (fadeCanvas == null) yield break;
 
-        // ✅ Start from wherever we are right now (prevents snapping)
         float startAlpha = fadeCanvas.alpha;
 
-        // If duration is 0 or already at target, snap safely
         if (duration <= 0f || Mathf.Approximately(startAlpha, targetAlpha))
         {
             fadeCanvas.alpha = targetAlpha;
+            _fadeCo = null;
             yield break;
         }
 
         float t = 0f;
+
         while (t < duration)
         {
-            t += Time.unscaledDeltaTime; // keep working during Time.timeScale=0
-            float normalized = Mathf.Clamp01(t / duration);
+            // ✅ Key fix: clamp dt so scene-load stalls don't "jump" the fade
+            float dt = Time.unscaledDeltaTime;
+            if (maxFadeStepSeconds > 0f)
+                dt = Mathf.Min(dt, maxFadeStepSeconds);
 
-            // ✅ consistent easing
-            float eased = fadeCurve != null ? fadeCurve.Evaluate(normalized) : Mathf.SmoothStep(0f, 1f, normalized);
+            t += dt;
+
+            float normalized = Mathf.Clamp01(t / duration);
+            float eased = fadeCurve != null ? fadeCurve.Evaluate(normalized) : normalized;
 
             fadeCanvas.alpha = Mathf.Lerp(startAlpha, targetAlpha, eased);
             yield return null;
@@ -81,43 +166,19 @@ public class LoadingManager : MonoBehaviour
         _fadeCo = null;
     }
 
-    // ----------------------------------------------------------------
-    // Your existing load logic (unchanged)
-    // ----------------------------------------------------------------
-    public void LoadLevel(GAMELEVEL levelName, Action onFinished = null)
+    // ---------------------------------------------------------------------
+    // Scene loading (controlled activation)
+    // ---------------------------------------------------------------------
+    private IEnumerator ChangeSceneAsync(GAMELEVEL levelName)
     {
-        if (_isLoading) return;
-        StartCoroutine(ChangeSceneAsync(levelName, onFinished));
-    }
+        _sceneLoadedFlag = false;
 
-    private IEnumerator ChangeSceneAsync(GAMELEVEL levelName, Action onFinished)
-    {
-        _isLoading = true;
-
-        if (loadingpanel != null) loadingpanel.alpha = 1;
-
-        Debug.Log("Loading: " + levelName);
-
-        Transform playerTransform = Player.Instance.gameObject.GetComponentInParent<Transform>();
-        ApplySpawn(levelName, playerTransform);
-
-        Time.timeScale = 0;
+        Time.timeScale = 0f;
 
         AsyncOperation op = SceneManager.LoadSceneAsync(levelName.ToString());
+        op.allowSceneActivation = false;
 
-        if (loadingclock != null)
-        {
-            string buildDate = "";
-            buildDate += DateTime.Now.ToString("dddd");
-            buildDate += ", ";
-            buildDate += DateTime.Now.ToString("MMMM d");
-            buildDate += MonthDay(DateTime.Now.ToString("dd"));
-            buildDate += ", ";
-            buildDate += DateTime.Now.ToString("yyyy");
-            loadingclock.text = buildDate;
-        }
-
-        while (!op.isDone)
+        while (op.progress < 0.9f)
         {
             if (loadingbar != null)
                 loadingbar.fillAmount = Mathf.Clamp01(op.progress / 0.9f);
@@ -125,44 +186,80 @@ public class LoadingManager : MonoBehaviour
             yield return null;
         }
 
+        if (loadingbar != null) loadingbar.fillAmount = 1f;
+
+        Transform playerTransform = Player.Instance != null
+            ? Player.Instance.gameObject.GetComponentInParent<Transform>()
+            : null;
+
+        ApplySpawn(levelName, playerTransform);
+
+        // Activate scene (this is where Unity often stalls)
+        op.allowSceneActivation = true;
+
+        while (!_sceneLoadedFlag)
+            yield return null;
+
         GameMaster.Instance.THISLEVEL = levelName;
 
-        if (loadingpanel != null) loadingpanel.alpha = 0;
-
-        Time.timeScale = 1;
-
-        _isLoading = false;
-        onFinished?.Invoke();
+        Time.timeScale = 1f;
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        GameMaster.Instance.PLAYERBUSY = false;
+        _sceneLoadedFlag = true;
+
+        if (GameMaster.Instance != null)
+            GameMaster.Instance.PLAYERBUSY = false;
+    }
+
+    // ---------------------------------------------------------------------
+    // UI / helpers
+    // ---------------------------------------------------------------------
+    private void ShowLoadingUI(bool show)
+    {
+        if (loadingpanel == null) return;
+
+        loadingpanel.alpha = show ? 1f : 0f;
+        loadingpanel.interactable = show;
+    }
+
+    private void UpdateLoadingClock()
+    {
+        if (loadingclock == null) return;
+
+        string buildDate = "";
+        buildDate += DateTime.Now.ToString("dddd");
+        buildDate += ", ";
+        buildDate += DateTime.Now.ToString("MMMM d");
+        buildDate += MonthDay(DateTime.Now.ToString("dd"));
+        buildDate += ", ";
+        buildDate += DateTime.Now.ToString("yyyy");
+
+        loadingclock.text = buildDate;
     }
 
     private void ApplySpawn(GAMELEVEL levelName, Transform playerTransform)
     {
-        if (playerTransform == null) return;
+        if (playerTransform == null || GameMaster.Instance == null || Player.Instance == null)
+            return;
 
         if (levelName == GAMELEVEL.NorasFlat)
         {
             playerTransform.position = GameMaster.Instance.SPAWNPOINTNORASFLAT;
             Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;
         }
-
-        if (levelName == GAMELEVEL.TawleyMeats)
+        else if (levelName == GAMELEVEL.TawleyMeats)
         {
             playerTransform.position = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
             Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
         }
-
-        if (levelName == GAMELEVEL.RoarkInside)
+        else if (levelName == GAMELEVEL.RoarkInside)
         {
             playerTransform.position = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
             Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
         }
-
-        if (levelName == GAMELEVEL.RoarkOutside)
+        else if (levelName == GAMELEVEL.RoarkOutside)
         {
             playerTransform.position = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
             Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;

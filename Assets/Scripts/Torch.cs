@@ -25,13 +25,10 @@ public class Torch : MonoBehaviour
     public float rigBlendSpeed = 6f;
 
     [Header("Input")]
-    public InputActionReference swingAction;
     public InputActionReference toggleAction;
 
     public static bool torchToggle = true;
-    public bool isSwinging;
 
-    private Animator torchAnimator;
     private float targetRigWeight;
 
     void Start()
@@ -39,52 +36,43 @@ public class Torch : MonoBehaviour
         torchimg.sprite = litsprite;
         torchimg.GetComponent<CanvasGroup>().alpha = 0f;
 
-        if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED)
-            theTorch.SetActive(false);
-
-        StartCoroutine(StartHands());
-
+        if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED) theTorch.SetActive(false);
+        //
+        // StartCoroutine(StartHands());
     }
 
-    void LateStart()
-    {
-        var rb = GetComponent<RigBuilder>();
-        if (rb != null)
-        {
-            rb.Clear();
-            rb.Build();
-        }
-    }
+    // void LateStart()
+    // {
+    //     var rb = GetComponent<RigBuilder>();
+    //     if (rb != null)
+    //     {
+    //         rb.Clear();
+    //         rb.Build();
+    //     }
+    // }
 
-    IEnumerator StartHands()
-    {
-        yield return new WaitForSeconds(1);
-        LateStart();
-    }
+    // IEnumerator StartHands()
+    // {
+    //     yield return new WaitForSeconds(1);
+    //     LateStart();
+    // }
 
-    
-    void Update()
-    {
-        // Smoothly blend IK weight
-        if (torchRig != null)
-        {
-            torchRig.weight = Mathf.Lerp(
-                torchRig.weight,
-                targetRigWeight,
-                Time.deltaTime * rigBlendSpeed
-            );
-        }
-    }
+    // void Update()
+    // {
+    //     // Smoothly blend IK weight
+    //     if (torchRig != null)
+    //     {
+    //         torchRig.weight = Mathf.Lerp(
+    //             torchRig.weight,
+    //             targetRigWeight,
+    //             Time.deltaTime * rigBlendSpeed
+    //         );
+    //     }
+    // }
 
     void OnEnable()
     {
         EventManager.OnTorchCollected += OnTorchCollected;
-
-        if (swingAction != null)
-        {
-            swingAction.action.Enable();
-            swingAction.action.performed += OnSwing;
-        }
 
         if (toggleAction != null)
         {
@@ -97,9 +85,6 @@ public class Torch : MonoBehaviour
     {
         EventManager.OnTorchCollected -= OnTorchCollected;
 
-        if (swingAction != null)
-            swingAction.action.performed -= OnSwing;
-
         if (toggleAction != null)
             toggleAction.action.performed -= OnToggle;
     }
@@ -109,7 +94,6 @@ public class Torch : MonoBehaviour
         if (!theTorch.activeSelf)
             theTorch.SetActive(true);
 
-        torchAnimator = theTorch.GetComponentInChildren<Animator>();
         lightBeam = theTorch.GetComponentInChildren<Light>();
 
         torchimg.GetComponent<CanvasGroup>().alpha = 1f;
@@ -122,6 +106,7 @@ public class Torch : MonoBehaviour
     {
         if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED) return;
         if (GameMaster.Instance.PLAYERBUSY) return;
+        if (GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused) return;
 
         torchToggle = !torchToggle;
 
@@ -135,34 +120,6 @@ public class Torch : MonoBehaviour
             torchimg.sprite = torchToggle ? litsprite : unlitsprite;
 
         // Lower arm when torch off
-        targetRigWeight = torchToggle ? 1f : 0f;
-    }
-
-    private void OnSwing(InputAction.CallbackContext ctx)
-    {
-        if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED) return;
-        if (GameMaster.Instance.PLAYERBUSY || isSwinging || GameMaster.Instance.PauseManager.IsPaused) return;
-
-        isSwinging = true;
-
-        if (torchAnimator != null)
-        {
-            torchAnimator.SetTrigger("swing");
-
-            float swingDuration = 0.5f;
-            StartCoroutine(ResetIdleAfter(swingDuration));
-        }
-    }
-
-    private IEnumerator ResetIdleAfter(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        if (torchAnimator != null)
-        {
-            torchAnimator.ResetTrigger("swing");
-            torchAnimator.SetTrigger("idle");
-            isSwinging = false;
-        }
+        // targetRigWeight = torchToggle ? 1f : 0f;
     }
 }

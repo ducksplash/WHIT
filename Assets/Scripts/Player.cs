@@ -29,6 +29,9 @@ public class Player : Singleton<Player>
     private static readonly int AnimJump = Animator.StringToHash("JUMP");
     private static readonly int AnimGrounded = Animator.StringToHash("Grounded");
 
+    // ✅ Melee trigger
+    private static readonly int AnimMelee = Animator.StringToHash("MELEE");
+
     [Tooltip("How quickly animation parameters catch up (bigger = snappier).")]
     public float animDampTime = 0.12f;
 
@@ -43,6 +46,34 @@ public class Player : Singleton<Player>
     [Header("Jump Tuning")]
     public float groundedFalseAfterJumpSeconds = 0.12f;
     private float _forceUngroundedUntil;
+
+    // ------------------------------------------------------------
+    // ✅ Melee (moved from Torch -> Player)
+    // ------------------------------------------------------------
+    [Header("Melee")]
+    public InputActionReference meleeAction;   // bind your attack input here
+    public float meleeCooldown = 0.55f;        // gameplay cooldown (NOT animation length)
+    public bool lockMovementDuringMelee = false;
+    public float lockMoveSeconds = 0.25f;
+
+    private float _nextMeleeTime;
+    private float _moveLockedUntil;
+
+    // ------------------------------------------------------------
+    // ✅ Animator layer gating (robust w/ Animation Event)
+    // ------------------------------------------------------------
+    [Header("UpperBody Layer Gating")]
+    [Tooltip("Animator layer name used for melee (must match Animator layer name exactly).")]
+    public string upperBodyLayerName = "UpperBody";
+
+    [Tooltip("Seconds to blend UpperBody layer from 0->1 when attacking.")]
+    public float upperBodyBlendIn = 0.03f;
+
+    [Tooltip("Seconds to blend UpperBody layer from 1->0 when attack ends.")]
+    public float upperBodyBlendOut = 0.06f;
+
+    private int _upperBodyLayerIndex = -1;
+    private Coroutine _upperBodyBlendCo;
 
     // ------------------------------------------------------------
     // Crouch (Controller Collider)
@@ -149,10 +180,16 @@ public class Player : Singleton<Player>
             Noranimator.SetFloat(AnimSpeed, 0f);
             Noranimator.SetFloat(AnimMoveX, 0f);
             Noranimator.SetFloat(AnimMoveY, 0f);
+
+            // Cache layer index (do NOT force weight here; we gate it only during melee)
+            _upperBodyLayerIndex = Noranimator.GetLayerIndex(upperBodyLayerName);
+            if (_upperBodyLayerIndex < 0 && debugAnim)
+                Debug.LogWarning($"[Player] Animator has no layer named '{upperBodyLayerName}'.");
+            else
+                Noranimator.SetLayerWeight(_upperBodyLayerIndex, 0f); // ensure default is off
         }
 
         CaptureControllerBaseline();
-
         _lastWorldPos = GetWorldPositionForVelocity();
     }
 
@@ -188,6 +225,8 @@ public class Player : Singleton<Player>
         climbDownAction?.action.Enable();
         exitLadderAction?.action.Enable();
 
+        meleeAction?.action.Enable();
+
         if (jumpAction != null) jumpAction.action.performed += OnJump;
         if (crouchAction != null) crouchAction.action.performed += OnCrouchToggle;
 
@@ -196,6 +235,9 @@ public class Player : Singleton<Player>
             walkAction.action.performed += OnWalkPressed;
             walkAction.action.canceled += OnWalkReleased;
         }
+
+        if (meleeAction != null)
+            meleeAction.action.performed += OnMelee;
     }
 
     void OnDisable()
@@ -208,6 +250,9 @@ public class Player : Singleton<Player>
             walkAction.action.performed -= OnWalkPressed;
             walkAction.action.canceled -= OnWalkReleased;
         }
+
+        if (meleeAction != null)
+            meleeAction.action.performed -= OnMelee;
     }
 
     private void OnWalkPressed(InputAction.CallbackContext ctx) => walking = true;
@@ -229,6 +274,13 @@ public class Player : Singleton<Player>
 
     private void HandleMovement()
     {
+        // ✅ optional movement lock during melee
+        if (lockMovementDuringMelee && Time.time < _moveLockedUntil)
+        {
+            UpdateAnimator(isGrounded: thisCharController != null && thisCharController.isGrounded);
+            return;
+        }
+
         moveInput = moveAction != null ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
 
         Vector3 camForward = MainCam != null ? MainCam.transform.forward : transform.forward;
@@ -333,18 +385,12 @@ public class Player : Singleton<Player>
         if (isMoving)
         {
             if (crouching)
-            {
-                // Always treat crouch movement as slow movement
                 targetSpeed01 = 0.5f;
-            }
             else
-            {
                 targetSpeed01 = walking ? 0.5f : 1f;
-            }
         }
 
         Noranimator.SetFloat(AnimSpeed, targetSpeed01, animDampTime, dt);
-
     }
 
     private Vector3 GetWorldPositionForVelocity()
@@ -371,6 +417,106 @@ public class Player : Singleton<Player>
         _lastWorldPos = now;
     }
 
+    // ------------------------------------------------------------
+    // ✅ UpperBody layer helpers
+    // ------------------------------------------------------------
+    private void StopUpperBodyBlend()
+    {
+        if (_upperBodyBlendCo != null)
+        {
+            StopCoroutine(_upperBodyBlendCo);
+            _upperBodyBlendCo = null;
+        }
+    }
+
+    private void SetUpperBodyWeight(float w)
+    {
+        if (Noranimator == null) return;
+        if (_upperBodyLayerIndex < 0) return;
+        Noranimator.SetLayerWeight(_upperBodyLayerIndex, Mathf.Clamp01(w));
+    }
+
+    private IEnumerator BlendUpperBodyWeight(float from, float to, float seconds)
+    {
+        if (Noranimator == null || _upperBodyLayerIndex < 0) yield break;
+
+        if (seconds <= 0f)
+        {
+            SetUpperBodyWeight(to);
+            yield break;
+        }
+
+        float t = 0f;
+        while (t < seconds)
+        {
+            t += Time.deltaTime;
+            float a = Mathf.Clamp01(t / seconds);
+            float w = Mathf.Lerp(from, to, a);
+            Noranimator.SetLayerWeight(_upperBodyLayerIndex, w);
+            yield return null;
+        }
+
+        Noranimator.SetLayerWeight(_upperBodyLayerIndex, to);
+    }
+
+    // ------------------------------------------------------------
+    // ✅ Melee (robust gating using Animation Event to end)
+    // ------------------------------------------------------------
+    public void TryMelee()
+    {
+        if (debugAnim) Debug.Log("TryMelee fired");
+
+        if (Noranimator == null) return;
+
+        if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
+        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused) return;
+
+        if (climbing) return;
+        // if (crouching) return;
+
+        if (Time.time < _nextMeleeTime) return;
+        _nextMeleeTime = Time.time + meleeCooldown;
+
+        // Ensure we have layer index (in case controller swaps at runtime)
+        if (_upperBodyLayerIndex < 0)
+            _upperBodyLayerIndex = Noranimator.GetLayerIndex(upperBodyLayerName);
+
+        // Blend layer ON, then trigger melee
+        StopUpperBodyBlend();
+        float current = (_upperBodyLayerIndex >= 0) ? Noranimator.GetLayerWeight(_upperBodyLayerIndex) : 0f;
+        _upperBodyBlendCo = StartCoroutine(BlendUpperBodyWeight(current, 1f, upperBodyBlendIn));
+
+        // Fire trigger immediately (layer will be ramping in)
+        Noranimator.ResetTrigger(AnimMelee);
+        Noranimator.SetTrigger(AnimMelee);
+
+        if (lockMovementDuringMelee)
+            _moveLockedUntil = Time.time + lockMoveSeconds;
+    }
+
+    private void OnMelee(InputAction.CallbackContext ctx)
+    {
+        TryMelee();
+    }
+
+    /// <summary>
+    /// Call this from an Animation Event placed at the end of the melee clip.
+    /// Animation Window -> select melee clip -> add event on last frame -> function: OnMeleeAnimFinished
+    /// </summary>
+    public void OnMeleeAnimFinished()
+    {
+        if (Noranimator == null) return;
+
+        // Ensure we have layer index (in case controller swaps at runtime)
+        if (_upperBodyLayerIndex < 0)
+            _upperBodyLayerIndex = Noranimator.GetLayerIndex(upperBodyLayerName);
+
+        StopUpperBodyBlend();
+
+        float current = (_upperBodyLayerIndex >= 0) ? Noranimator.GetLayerWeight(_upperBodyLayerIndex) : 1f;
+        _upperBodyBlendCo = StartCoroutine(BlendUpperBodyWeight(current, 0f, upperBodyBlendOut));
+    }
+
     private void OnJump(InputAction.CallbackContext ctx)
     {
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride)
@@ -394,17 +540,14 @@ public class Player : Singleton<Player>
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
         if (thisCharController == null) return;
 
-        // ✅ Toggle: press again to uncrouch
         if (!crouching)
         {
             Crouch();
             return;
         }
 
-        // Already crouched -> try to stand
         if (!CanStandUp())
         {
-            // Optional: log why you can't stand
             if (debugAnim) Debug.Log("[Crouch] Can't stand up: blocked overhead.");
             return;
         }
@@ -471,7 +614,7 @@ public class Player : Singleton<Player>
         float bottom = _bottomLocalOffset;
 
         float t = 0f;
-        
+
         while (t < duration)
         {
             t += Time.deltaTime;
@@ -494,8 +637,7 @@ public class Player : Singleton<Player>
         Vector3 finalC = thisCharController.center;
         finalC.y = bottom + (targetHeight * 0.5f);
         thisCharController.center = finalC;
-        
-        // refresh contacts
+
         thisCharController.Move(Vector3.zero);
 
         _crouchCo = null;
@@ -504,7 +646,6 @@ public class Player : Singleton<Player>
     private void ApplyControllerHeightKeepBottom(float newHeight)
     {
         if (thisCharController == null) return;
-
 
         thisCharController.height = newHeight;
 
@@ -515,37 +656,27 @@ public class Player : Singleton<Player>
         thisCharController.Move(Vector3.zero);
     }
 
-    /// <summary>
-    /// ✅ Robust stand-up check:
-    /// Build a capsule using the controller transform + desired standing dimensions,
-    /// and check against standCheckMask, excluding the player's own layer.
-    /// </summary>
     private bool CanStandUp()
     {
         if (thisCharController == null || !_controllerBaselineCaptured) return true;
 
         int playerLayer = thisCharController.gameObject.layer;
-        int mask = standCheckMask & ~(1 << playerLayer); // ensure we never hit ourselves
+        int mask = standCheckMask & ~(1 << playerLayer);
 
         float h = Mathf.Max(0.2f, standheight);
         float r = Mathf.Max(0.01f, thisCharController.radius);
 
-        // Shrink slightly to avoid skin width false hits
         r = Mathf.Max(0.01f, r - standCheckShrink);
 
-        // center.y chosen to preserve bottom offset
         float centerY = _bottomLocalOffset + (h * 0.5f);
 
         Transform t = thisCharController.transform;
 
-        // controller's center is local-space to controller transform
         Vector3 localCenter = thisCharController.center;
         localCenter.y = centerY;
 
         Vector3 centerWorld = t.TransformPoint(localCenter);
 
-        // World capsule endpoints (along world up, not transform up)
-        // CharacterController in Unity is effectively aligned to world up (unless you do weird parenting).
         Vector3 up = Vector3.up;
 
         float segment = Mathf.Max(0f, h - (2f * r));

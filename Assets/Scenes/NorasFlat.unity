@@ -25344,7 +25344,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -80, y: 89.99661}
+  m_AnchoredPosition: {x: -80, y: 89.99747}
   m_SizeDelta: {x: 160, y: 180}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &646654232
@@ -45427,7 +45427,7 @@ Transform:
   m_GameObject: {fileID: 1144241344}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.47299957, y: -1.948, z: 0.7099914}
+  m_LocalPosition: {x: 0, y: -1.948, z: 0}
   m_LocalScale: {x: 0.95, y: 0.95, z: 0.95}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -58701,11 +58701,8 @@ MonoBehaviour:
   unlitsprite: {fileID: 21300000, guid: ceba58d1a29c8514893469c8635b6810, type: 3}
   torchRig: {fileID: 149872304}
   rigBlendSpeed: 6
-  swingAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b,
-    type: 3}
   toggleAction: {fileID: 8751951140087871439, guid: 052faaac586de48259a63d0c4782560b,
     type: 3}
-  isSwinging: 0
 --- !u!1 &1474838381
 GameObject:
   m_ObjectHideFlags: 0
@@ -88045,7 +88042,7 @@ Transform:
   m_GameObject: {fileID: 1593727744470608}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.473, y: 2.256, z: 0.756}
+  m_LocalPosition: {x: 0, y: 2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -89010,10 +89007,18 @@ MonoBehaviour:
   jumpForce: 5
   MainCam: {fileID: 20437472684584574}
   RayCastDistance: 4.5
-  Noranimator: {fileID: 0}
+  Noranimator: {fileID: 5866666020212682042}
   animDampTime: 0.12
   debugAnim: 0
   groundedFalseAfterJumpSeconds: 0.12
+  meleeAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  meleeCooldown: 0.55
+  lockMovementDuringMelee: 0
+  lockMoveSeconds: 0.25
+  upperBodyLayerName: UpperBody
+  upperBodyBlendIn: 0.03
+  upperBodyBlendOut: 0.06
   crouching: 0
   standheight: 3.6
   croucheight: 1.9
@@ -129223,11 +129228,10 @@ Animator:
   m_AnimatePhysics: 1
   m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
     are already bound by a Humanoid avatar. These transforms can only be changed
-    by Humanoid clips.\n\tTransform 'thumb_01_r'\n\tTransform 'pinky_03_r'\n\tTransform
-    'middle_02_r'\n\tTransform 'ring_03_r'\n\tTransform 'ring_02_r'\n\tTransform
-    'index_03_r'\n\tTransform 'pinky_01_r'\n\tTransform 'lowerarm_r'\n\tTransform
-    'middle_01_r'\n\tTransform 'upperarm_r'\n\tand more ...\n\tFrom animation clip
-    'NoraIdle'\n\tFrom animation clip 'NoraIdle'\n\tFrom animation clip 'NoraWalking'\n\tFrom
+    by Humanoid clips.\n\tTransform 'lowerarm_r'\n\tTransform 'upperarm_r'\n\tTransform
+    'lowerarm_r'\n\tTransform 'upperarm_r'\n\tTransform 'hand_r'\n\tTransform 'hand_r'\n\tTransform
+    'lowerarm_r'\n\tTransform 'upperarm_r'\n\tTransform 'hand_r'\n\tFrom animation
+    clip 'NoraIdle'\n\tFrom animation clip 'NoraIdle'\n\tFrom animation clip 'NoraWalking'\n\tFrom
     animation clip 'NoraWalking'"
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1

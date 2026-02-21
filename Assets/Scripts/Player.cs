@@ -1,8 +1,10 @@
-﻿using UnityEngine;
+﻿// Player.cs
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
 using System.Collections;
+using UnityEngine.Animations.Rigging;
 
 public class Player : Singleton<Player>
 {
@@ -29,8 +31,9 @@ public class Player : Singleton<Player>
     private static readonly int AnimJump = Animator.StringToHash("JUMP");
     private static readonly int AnimGrounded = Animator.StringToHash("Grounded");
 
-    // ✅ Melee trigger
+    // ✅ Triggers
     private static readonly int AnimMelee = Animator.StringToHash("MELEE");
+    private static readonly int AnimPhoneOut = Animator.StringToHash("PHONEOUT");
 
     [Tooltip("How quickly animation parameters catch up (bigger = snappier).")]
     public float animDampTime = 0.12f;
@@ -40,6 +43,8 @@ public class Player : Singleton<Player>
 
     private Transform _animT;
 
+    public GameObject PlayerTorch;
+
     private Vector3 _lastWorldPos;
     private Vector3 _manualVelocityXZ;
 
@@ -48,11 +53,11 @@ public class Player : Singleton<Player>
     private float _forceUngroundedUntil;
 
     // ------------------------------------------------------------
-    // ✅ Melee (moved from Torch -> Player)
+    // ✅ Melee
     // ------------------------------------------------------------
     [Header("Melee")]
-    public InputActionReference meleeAction;   // bind your attack input here
-    public float meleeCooldown = 0.55f;        // gameplay cooldown (NOT animation length)
+    public InputActionReference meleeAction;
+    public float meleeCooldown = 0.55f;     // gameplay cooldown (NOT clip length)
     public bool lockMovementDuringMelee = false;
     public float lockMoveSeconds = 0.25f;
 
@@ -60,20 +65,57 @@ public class Player : Singleton<Player>
     private float _moveLockedUntil;
 
     // ------------------------------------------------------------
-    // ✅ Animator layer gating (robust w/ Animation Event)
+    // ✅ UpperBody Layer gating (shared by MELEE + PHONE)
     // ------------------------------------------------------------
     [Header("UpperBody Layer Gating")]
-    [Tooltip("Animator layer name used for melee (must match Animator layer name exactly).")]
     public string upperBodyLayerName = "UpperBody";
-
-    [Tooltip("Seconds to blend UpperBody layer from 0->1 when attacking.")]
     public float upperBodyBlendIn = 0.03f;
-
-    [Tooltip("Seconds to blend UpperBody layer from 1->0 when attack ends.")]
     public float upperBodyBlendOut = 0.06f;
 
     private int _upperBodyLayerIndex = -1;
     private Coroutine _upperBodyBlendCo;
+
+    private bool _upperBodyHeldByMelee;
+    private bool _upperBodyHeldByPhone;
+
+    // ------------------------------------------------------------
+    // ✅ Phone (UpperBody)
+    // ------------------------------------------------------------
+    [Header("Phone (UpperBody)")]
+    public string upperBodyPhoneOutStateName = "PHONE OUT";
+    public string upperBodyPhoneAwayStateName = "PHONE AWAY";
+
+    private int _phoneOutStateHash;
+    private int _phoneAwayStateHash;
+
+    // ------------------------------------------------------------
+    // ✅ Rig suppression during PHONE (optional)
+    // ------------------------------------------------------------
+    [Header("Rig Suppression During Phone")]
+    public bool suppressRigDuringPhone = true;
+    public Rig phoneRigToSuppress;
+    public RigBuilder rigBuilderToSuppress;
+    [Range(0f, 1f)] public float rigRestoreWeight = 1f;
+
+    private float _cachedRigWeight = 1f;
+    private bool _cachedRigWeightValid = false;
+
+    // ------------------------------------------------------------
+    // ✅ Rig suppression during CROUCH
+    // ------------------------------------------------------------
+    [Header("Rig Suppression During Crouch")]
+    public bool suppressRigDuringCrouch = true;
+
+    [Tooltip("If assigned, this rig's weight will be set to 0 while crouched.")]
+    public Rig crouchRigToSuppress;
+
+    [Tooltip("If assigned, this RigBuilder can be disabled while crouched (optional).")]
+    public RigBuilder crouchRigBuilderToSuppress;
+
+    [Range(0f, 1f)] public float crouchRigRestoreWeight = 1f;
+
+    private float _cachedCrouchRigWeight = 1f;
+    private bool _cachedCrouchRigWeightValid = false;
 
     // ------------------------------------------------------------
     // Crouch (Controller Collider)
@@ -81,19 +123,11 @@ public class Player : Singleton<Player>
     [Header("Crouch (Controller Collider)")]
     public bool crouching;
 
-    [Tooltip("Standing CharacterController height (will be captured from controller on Start if 0).")]
     public float standheight = 0f;
-
-    [Tooltip("Crouching CharacterController height.")]
     public float croucheight = 1.0f;
-
-    [Tooltip("How long to blend the CharacterController height/center (0 = instant).")]
     public float crouchBlendSeconds = 0.12f;
 
-    [Tooltip("Collision layers used to test if we can stand up. EXCLUDE Player layer.")]
     public LayerMask standCheckMask = ~0;
-
-    [Tooltip("Extra tolerance to avoid false positives (skin width/precision).")]
     public float standCheckShrink = 0.02f;
 
     public Image stanceimg;
@@ -181,16 +215,81 @@ public class Player : Singleton<Player>
             Noranimator.SetFloat(AnimMoveX, 0f);
             Noranimator.SetFloat(AnimMoveY, 0f);
 
-            // Cache layer index (do NOT force weight here; we gate it only during melee)
             _upperBodyLayerIndex = Noranimator.GetLayerIndex(upperBodyLayerName);
             if (_upperBodyLayerIndex < 0 && debugAnim)
                 Debug.LogWarning($"[Player] Animator has no layer named '{upperBodyLayerName}'.");
             else
-                Noranimator.SetLayerWeight(_upperBodyLayerIndex, 0f); // ensure default is off
+                Noranimator.SetLayerWeight(_upperBodyLayerIndex, 0f);
+
+            _phoneOutStateHash = Animator.StringToHash(upperBodyPhoneOutStateName);
+            _phoneAwayStateHash = Animator.StringToHash(upperBodyPhoneAwayStateName);
+
+            // Ensure triggers start clean
+            Noranimator.ResetTrigger(AnimMelee);
+        }
+
+        // Cache PHONE rig baseline
+        if (phoneRigToSuppress != null)
+        {
+            _cachedRigWeight = phoneRigToSuppress.weight;
+            _cachedRigWeightValid = true;
+        }
+
+        // Cache CROUCH rig baseline
+        if (crouchRigToSuppress != null)
+        {
+            _cachedCrouchRigWeight = crouchRigToSuppress.weight;
+            _cachedCrouchRigWeightValid = true;
         }
 
         CaptureControllerBaseline();
         _lastWorldPos = GetWorldPositionForVelocity();
+
+        // ✅ Ensure camera starts in correct height state (handles spawning crouched)
+        FirstPersonLook?.SetCrouch(crouching);
+
+        // ✅ Ensure rig starts in correct state if spawning crouched
+        ApplyCrouchRigSuppression(crouching);
+    }
+
+    private void ApplyPhoneRigSuppression(bool phoneOut)
+    {
+        if (!suppressRigDuringPhone) return;
+
+        if (rigBuilderToSuppress != null)
+            rigBuilderToSuppress.enabled = !phoneOut;
+
+        if (phoneRigToSuppress != null)
+        {
+            if (!_cachedRigWeightValid)
+            {
+                _cachedRigWeight = phoneRigToSuppress.weight;
+                _cachedRigWeightValid = true;
+            }
+
+            phoneRigToSuppress.weight = phoneOut ? 0f : (_cachedRigWeightValid ? _cachedRigWeight : rigRestoreWeight);
+        }
+    }
+
+    private void ApplyCrouchRigSuppression(bool crouched)
+    {
+        if (!suppressRigDuringCrouch) return;
+
+        // Optional: disable builder
+        if (crouchRigBuilderToSuppress != null)
+            crouchRigBuilderToSuppress.enabled = !crouched;
+
+        // Or: drive rig weight
+        if (crouchRigToSuppress != null)
+        {
+            if (!_cachedCrouchRigWeightValid)
+            {
+                _cachedCrouchRigWeight = crouchRigToSuppress.weight;
+                _cachedCrouchRigWeightValid = true;
+            }
+
+            crouchRigToSuppress.weight = crouched ? 0f : (_cachedCrouchRigWeightValid ? _cachedCrouchRigWeight : crouchRigRestoreWeight);
+        }
     }
 
     private void CaptureControllerBaseline()
@@ -202,12 +301,9 @@ public class Player : Singleton<Player>
 
         if (standheight <= 0f) standheight = _standHeight;
 
-        // keep bottom constant: center.y - height/2
         _bottomLocalOffset = _standCenter.y - (_standHeight * 0.5f);
-
         _controllerBaselineCaptured = true;
 
-        // sanity: if your mask includes player layer, fix it
         int playerLayer = thisCharController.gameObject.layer;
         standCheckMask &= ~(1 << playerLayer);
 
@@ -274,7 +370,6 @@ public class Player : Singleton<Player>
 
     private void HandleMovement()
     {
-        // ✅ optional movement lock during melee
         if (lockMovementDuringMelee && Time.time < _moveLockedUntil)
         {
             UpdateAnimator(isGrounded: thisCharController != null && thisCharController.isGrounded);
@@ -381,13 +476,10 @@ public class Player : Singleton<Player>
         Noranimator.SetFloat(AnimMoveY, targetY, animDampTime, dt);
 
         float targetSpeed01 = 0f;
-
         if (isMoving)
         {
-            if (crouching)
-                targetSpeed01 = 0.5f;
-            else
-                targetSpeed01 = walking ? 0.5f : 1f;
+            if (crouching) targetSpeed01 = 0.5f;
+            else targetSpeed01 = walking ? 0.5f : 1f;
         }
 
         Noranimator.SetFloat(AnimSpeed, targetSpeed01, animDampTime, dt);
@@ -418,7 +510,7 @@ public class Player : Singleton<Player>
     }
 
     // ------------------------------------------------------------
-    // ✅ UpperBody layer helpers
+    // ✅ UpperBody layer helpers (shared gating)
     // ------------------------------------------------------------
     private void StopUpperBodyBlend()
     {
@@ -459,34 +551,48 @@ public class Player : Singleton<Player>
         Noranimator.SetLayerWeight(_upperBodyLayerIndex, to);
     }
 
+    private void RefreshUpperBodyWeight()
+    {
+        if (Noranimator == null) return;
+
+        if (_upperBodyLayerIndex < 0)
+            _upperBodyLayerIndex = Noranimator.GetLayerIndex(upperBodyLayerName);
+
+        if (_upperBodyLayerIndex < 0) return;
+
+        bool shouldBeOn = _upperBodyHeldByMelee || _upperBodyHeldByPhone;
+
+        StopUpperBodyBlend();
+
+        float current = Noranimator.GetLayerWeight(_upperBodyLayerIndex);
+        float target = shouldBeOn ? 1f : 0f;
+
+        if (Mathf.Approximately(current, target))
+            return;
+
+        _upperBodyBlendCo = StartCoroutine(
+            BlendUpperBodyWeight(current, target, shouldBeOn ? upperBodyBlendIn : upperBodyBlendOut)
+        );
+    }
+
     // ------------------------------------------------------------
-    // ✅ Melee (robust gating using Animation Event to end)
+    // ✅ MELEE
     // ------------------------------------------------------------
     public void TryMelee()
     {
         if (debugAnim) Debug.Log("TryMelee fired");
-
         if (Noranimator == null) return;
 
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
         if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused) return;
-
         if (climbing) return;
-        // if (crouching) return;
 
         if (Time.time < _nextMeleeTime) return;
         _nextMeleeTime = Time.time + meleeCooldown;
 
-        // Ensure we have layer index (in case controller swaps at runtime)
-        if (_upperBodyLayerIndex < 0)
-            _upperBodyLayerIndex = Noranimator.GetLayerIndex(upperBodyLayerName);
+        _upperBodyHeldByMelee = true;
+        RefreshUpperBodyWeight();
 
-        // Blend layer ON, then trigger melee
-        StopUpperBodyBlend();
-        float current = (_upperBodyLayerIndex >= 0) ? Noranimator.GetLayerWeight(_upperBodyLayerIndex) : 0f;
-        _upperBodyBlendCo = StartCoroutine(BlendUpperBodyWeight(current, 1f, upperBodyBlendIn));
-
-        // Fire trigger immediately (layer will be ramping in)
         Noranimator.ResetTrigger(AnimMelee);
         Noranimator.SetTrigger(AnimMelee);
 
@@ -494,29 +600,43 @@ public class Player : Singleton<Player>
             _moveLockedUntil = Time.time + lockMoveSeconds;
     }
 
-    private void OnMelee(InputAction.CallbackContext ctx)
-    {
-        TryMelee();
-    }
+    private void OnMelee(InputAction.CallbackContext ctx) => TryMelee();
 
-    /// <summary>
-    /// Call this from an Animation Event placed at the end of the melee clip.
-    /// Animation Window -> select melee clip -> add event on last frame -> function: OnMeleeAnimFinished
-    /// </summary>
+    // Animation Event on last frame of MELEE clip
     public void OnMeleeAnimFinished()
     {
-        if (Noranimator == null) return;
-
-        // Ensure we have layer index (in case controller swaps at runtime)
-        if (_upperBodyLayerIndex < 0)
-            _upperBodyLayerIndex = Noranimator.GetLayerIndex(upperBodyLayerName);
-
-        StopUpperBodyBlend();
-
-        float current = (_upperBodyLayerIndex >= 0) ? Noranimator.GetLayerWeight(_upperBodyLayerIndex) : 1f;
-        _upperBodyBlendCo = StartCoroutine(BlendUpperBodyWeight(current, 0f, upperBodyBlendOut));
+        _upperBodyHeldByMelee = false;
+        RefreshUpperBodyWeight();
     }
 
+    // ------------------------------------------------------------
+    // ✅ PHONE (TRIGGER-BASED)
+    // ------------------------------------------------------------
+    public void TogglePhone(bool putaway)
+    {
+        if (Noranimator == null) return;
+        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused) return;
+
+        // Keep holding until the away clip ends
+        _upperBodyHeldByPhone = true;
+        RefreshUpperBodyWeight();
+
+        // ✅ if you want phone to suppress rig, call it here
+        ApplyPhoneRigSuppression(!putaway);
+
+        if (putaway)
+        {
+            Noranimator.SetBool(AnimPhoneOut, false);
+        }
+        else
+        {
+            Noranimator.SetBool(AnimPhoneOut, true);
+        }
+    }
+
+    // ------------------------------------------------------------
+    // Jump / Crouch
+    // ------------------------------------------------------------
     private void OnJump(InputAction.CallbackContext ctx)
     {
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride)
@@ -565,6 +685,14 @@ public class Player : Singleton<Player>
         if (thisCharController != null && _controllerBaselineCaptured)
             StartCrouchControllerBlend(toCrouch: true);
 
+        if (PlayerTorch != null) PlayerTorch.SetActive(false);
+
+        // ✅ Suppress rig during crouch
+        ApplyCrouchRigSuppression(true);
+
+        // ✅ Camera height handled by FirstPersonLook (local pivot)
+        FirstPersonLook?.SetCrouch(true);
+
         Noranimator?.SetBool(AnimCrouching, true);
     }
 
@@ -577,13 +705,19 @@ public class Player : Singleton<Player>
         if (thisCharController != null && _controllerBaselineCaptured)
             StartCrouchControllerBlend(toCrouch: false);
 
+        if (PlayerTorch != null) PlayerTorch.SetActive(true);
+
+        // ✅ Restore rig after crouch
+        ApplyCrouchRigSuppression(false);
+
+        FirstPersonLook?.SetCrouch(false);
+
         Noranimator?.SetBool(AnimCrouching, false);
     }
 
     // ------------------------------------------------------------
     // CharacterController crouch implementation (no sinking)
     // ------------------------------------------------------------
-
     private void StartCrouchControllerBlend(bool toCrouch)
     {
         if (_crouchCo != null)
@@ -688,7 +822,6 @@ public class Player : Singleton<Player>
     }
 
     // --- your existing UI/death code unchanged below ---
-
     public void DisableAllScreens()
     {
         CrossHair.alpha = 0f;

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿// FirstPersonLook.cs
+using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 
@@ -17,6 +18,20 @@ public class FirstPersonLook : MonoBehaviour
     private bool _lookLocked;
     private Coroutine _lockRoutine;
 
+    // ✅ Camera height (crouch) support
+    [Header("Camera Height (Crouch)")]
+    [Tooltip("Local pivot to move up/down. If null, uses this transform.")]
+    [SerializeField] private Transform cameraPivot;
+
+    [Tooltip("Negative lowers camera when crouched (local Y offset).")]
+    [SerializeField] private float crouchLocalYOffset = -0.5f;
+
+    [Tooltip("Seconds to blend between standing/crouch camera heights.")]
+    [SerializeField] private float crouchBlendSeconds = 0.12f;
+
+    private Vector3 _pivotStartLocalPos;
+    private Coroutine _heightCo;
+
     private void Awake()
     {
         lookAction = GameMaster.Instance.InputManager.LookAction;
@@ -24,6 +39,9 @@ public class FirstPersonLook : MonoBehaviour
 
     private void Start()
     {
+        if (cameraPivot == null) cameraPivot = transform;
+        _pivotStartLocalPos = cameraPivot.localPosition;
+
         sensitivity = GameMaster.Instance.MouseSensitivity;
         EventManager.OnStartComputer += LookAtPC;
         lookAction.action.Enable();
@@ -33,7 +51,7 @@ public class FirstPersonLook : MonoBehaviour
     {
         if (GameMaster.Instance.PauseManager.IsPaused) return;
         if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
-        
+
         transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
         character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
     }
@@ -110,5 +128,45 @@ public class FirstPersonLook : MonoBehaviour
     public void LookAtPC(Transform ComputerTransform)
     {
         transform.LookAt(ComputerTransform);
+    }
+
+    // ------------------------------------------------------------
+    // ✅ Crouch camera height API (called by Player)
+    // ------------------------------------------------------------
+    public void SetCrouch(bool crouched)
+    {
+        if (cameraPivot == null) cameraPivot = transform;
+
+        if (_heightCo != null)
+            StopCoroutine(_heightCo);
+
+        Vector3 target = _pivotStartLocalPos + new Vector3(0f, crouched ? crouchLocalYOffset : 0f, 0f);
+        _heightCo = StartCoroutine(BlendPivotHeight(target, crouchBlendSeconds));
+    }
+
+    private IEnumerator BlendPivotHeight(Vector3 targetLocalPos, float seconds)
+    {
+        if (cameraPivot == null) yield break;
+
+        Vector3 start = cameraPivot.localPosition;
+
+        if (seconds <= 0f)
+        {
+            cameraPivot.localPosition = targetLocalPos;
+            _heightCo = null;
+            yield break;
+        }
+
+        float t = 0f;
+        while (t < seconds)
+        {
+            t += Time.deltaTime;
+            float a = Mathf.Clamp01(t / seconds);
+            cameraPivot.localPosition = Vector3.Lerp(start, targetLocalPos, a);
+            yield return null;
+        }
+
+        cameraPivot.localPosition = targetLocalPos;
+        _heightCo = null;
     }
 }

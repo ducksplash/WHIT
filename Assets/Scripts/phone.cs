@@ -11,7 +11,7 @@ using UnityEngine.InputSystem;
 public class Phone : MonoBehaviour
 {
     public GameObject MobilePhone;
-    public Animator DeviceAnim;
+    public Animator PlayerAnim;
     public GameObject Clock;
     public GameObject Camera;
     public GameObject PhoneCamera;
@@ -106,7 +106,8 @@ public class Phone : MonoBehaviour
     private Coroutine CallCoroutine;
     public List<GalleryItem> galleryItems = new List<GalleryItem>();
     public bool galleryLoaded = false;
-    private CanvasGroup phoneCanvasGroup;
+    public CanvasGroup phoneCanvasGroup;
+    public MeshRenderer phoneMeshRenderer;
     private CapsuleCollider phoneCollider;
     private Camera phoneCameraComponent;
     private PhoneZoom phoneZoom;
@@ -138,13 +139,7 @@ public class Phone : MonoBehaviour
     {
         phoneCollider = GetComponent<CapsuleCollider>();
         clockText = Clock != null ? Clock.GetComponent<TextMeshProUGUI>() : null;
-
-        if (MobilePhone != null)
-        {
-            DeviceAnim = MobilePhone.GetComponent<Animator>();
-            phoneCanvasGroup = MobilePhone.GetComponentInChildren<CanvasGroup>();
-        }
-
+        
         if (PhoneCamera != null)
         {
             phoneCameraComponent = PhoneCamera.GetComponent<Camera>();
@@ -237,6 +232,9 @@ public class Phone : MonoBehaviour
         MiniMapCam.SetActive(false);
 
         LoadGallery();
+        
+        phoneCanvasGroup.alpha = 0f;
+        phoneMeshRenderer.enabled = false;
     }
     
     private void ActionStepBack(InputAction.CallbackContext callbackContext)
@@ -462,24 +460,24 @@ public class Phone : MonoBehaviour
 
         GameMaster.Instance.PLAYERBUSY = true;
         PhoneOpened = true;
-
+        
+        Player.Instance.TogglePhone(false);
+        
         // Ensure phone UI starts at home
         changeScreen(HomeScreen);
         HomeScreenNavver.gameObject.SetActive(true);
 
         GameMaster.Instance.EventManager.PhoneOpened();
         GameMaster.Instance.OnboardingManager.OpenedPhone();
-
+        
+        
         StepBackInputRightClick.action.performed += ActionStepBack;
         escapeExit.action.performed += ActionStepBack;
-        
-        MobilePhone.transform.localPosition = new Vector3(
-            MobilePhone.transform.localPosition.x,
-            MobilePhone.transform.localPosition.y + 1,
-            MobilePhone.transform.localPosition.z
-        );
 
-        if (phoneCanvasGroup != null) phoneCanvasGroup.alpha = 1.0f;
+
+        phoneCanvasGroup.alpha = 1f;
+        phoneMeshRenderer.enabled = true;
+        
 
         if (phoneCollider != null) phoneCollider.enabled = true;
 
@@ -487,27 +485,39 @@ public class Phone : MonoBehaviour
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        StartCoroutine(StopAnimating());
     }
 
 
+    private IEnumerator StopAnimating()
+    {
+        yield return new WaitForSeconds(0.5f);
+        GameMaster.Instance.Player.Noranimator.speed = 0;
+        
+    }
+    
+    
     public void PutAwayPhone()
     {
         if (!PhoneOpened) return;
 
         changeScreen(HomeScreen);
 
+        // clear busy FIRST so Player/Animator isn't gated this frame
+        GameMaster.Instance.PLAYERBUSY = false;
+        PhoneOpened = false;
+
+        Player.Instance.TogglePhone(true);
+
         StepBackInputRightClick.action.performed -= ActionStepBack;
         escapeExit.action.performed -= ActionStepBack;
-        
+
         if (phoneCollider != null) phoneCollider.enabled = false;
 
-        MobilePhone.transform.localPosition = new Vector3(
-            MobilePhone.transform.localPosition.x,
-            MobilePhone.transform.localPosition.y - 1,
-            MobilePhone.transform.localPosition.z
-        );
-
-        if (phoneCanvasGroup != null) phoneCanvasGroup.alpha = 0.0f;
+        
+        phoneCanvasGroup.alpha = 0f;
+        phoneMeshRenderer.enabled = false;
 
         if (phoneZoom != null) phoneZoom.DefaultFOV();
 
@@ -523,13 +533,9 @@ public class Phone : MonoBehaviour
             CallCoroutine = null;
         }
 
-        // ✅ IMPORTANT: always restore gameplay cursor mode when phone closes
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
-        GameMaster.Instance.PLAYERBUSY = false;
-        PhoneOpened = false;
     }
 
 
@@ -579,8 +585,7 @@ public class Phone : MonoBehaviour
                     {
                         BigMessageOpen = true;
                         MessagesScreenNavver.gameObject.SetActive(false);
-                        string dialogueText = GameMaster.Instance.DialogueManager.GetReplacedString(
-                            retrievedDialogue.DialogueText
+                        string dialogueText = GameMaster.Instance.DialogueManager.GetReplacedString(retrievedDialogue.DialogueText
                         );
                         BigMessage(retrievedDialogue.Contact.ToString(), dialogueText);
 

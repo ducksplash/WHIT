@@ -25443,7 +25443,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -80, y: 89.99731}
+  m_AnchoredPosition: {x: -80, y: 89.99747}
   m_SizeDelta: {x: 160, y: 180}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &646654232
@@ -33521,7 +33521,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: -0.016748792}
+  m_AnchoredPosition: {x: -0.0012638667, y: -0.016687157}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &860819260
@@ -75883,7 +75883,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: -0.016748792}
+  m_AnchoredPosition: {x: -0.0012638667, y: -0.016687157}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1854544909
@@ -89331,9 +89331,6 @@ MonoBehaviour:
   lookAction: {fileID: 0}
   sensitivity: 0.01
   smoothing: 2
-  cameraPivot: {fileID: 0}
-  crouchLocalYOffset: -3
-  crouchBlendSeconds: 0.12
 --- !u!1 &114724716120848177
 GameObject:
   m_ObjectHideFlags: 0
@@ -89372,7 +89369,6 @@ MonoBehaviour:
   Noranimator: {fileID: 5866666020212682042}
   animDampTime: 0.12
   debugAnim: 0
-  PlayerTorch: {fileID: 1471920283}
   groundedFalseAfterJumpSeconds: 0.12
   meleeAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b,
     type: 3}
@@ -89388,10 +89384,6 @@ MonoBehaviour:
   phoneRigToSuppress: {fileID: 0}
   rigBuilderToSuppress: {fileID: 0}
   rigRestoreWeight: 1
-  suppressRigDuringCrouch: 1
-  crouchRigToSuppress: {fileID: 0}
-  crouchRigBuilderToSuppress: {fileID: 0}
-  crouchRigRestoreWeight: 1
   crouching: 0
   standheight: 3.6
   croucheight: 1.9
@@ -124860,8 +124852,6 @@ MonoBehaviour:
   phoneTutorialFirstPhoto: 111
   galleryItems: []
   galleryLoaded: 0
-  phoneCanvasGroup: {fileID: 1565647974}
-  phoneMeshRenderer: {fileID: 882129738010177141}
 --- !u!222 &5149648126380792376
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -129687,8 +129677,7 @@ Animator:
     'ring_03_l'\n\tTransform 'ring_01_l'\n\tTransform 'thumb_01_l'\n\tTransform 'lowerarm_r'\n\tTransform
     'upperarm_l'\n\tand more ...\n\tFrom animation clip 'NoraIdle'\n\tFrom animation
     clip 'NoraIdle'\n\tFrom animation clip 'NoraWalking'\n\tFrom animation clip 'NoraWalking'\n\tFrom
-    animation clip 'NoraCrouchIdle'\n\tFrom animation clip 'NoraCrawl'\n\tFrom animation
-    clip 'NoraCrawl'\n\tFrom animation clip 'NoraPhone'\n\tFrom animation clip 'NoraPhone'"
+    animation clip 'NoraPhone'\n\tFrom animation clip 'NoraPhone'"
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0

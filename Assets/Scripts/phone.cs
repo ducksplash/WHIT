@@ -493,7 +493,7 @@ public class Phone : MonoBehaviour
     private IEnumerator StopAnimating()
     {
         yield return new WaitForSeconds(0.5f);
-        GameMaster.Instance.Player.Noranimator.speed = 0;
+        //GameMaster.Instance.Player.Noranimator.speed = 0;
         
     }
     

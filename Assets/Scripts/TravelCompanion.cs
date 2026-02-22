@@ -65,12 +65,6 @@ public class TravelCompanion : MonoBehaviour
 
         if (!CompanionOpen)
         {
-            Notepad.transform.localPosition = new Vector3(
-                Notepad.transform.localPosition.x,
-                Notepad.transform.localPosition.y + 1,
-                Notepad.transform.localPosition.z
-            );
-
             Notepad.SetActive(true);
             TravelCanvas.alpha = 1f;
             TravelCanvas.blocksRaycasts = true;
@@ -84,17 +78,13 @@ public class TravelCompanion : MonoBehaviour
             StepBackInputRightClick.action.performed += LaunchCompanion;
             StepBackInputESC.action.performed += LaunchCompanion;
 
+            Player.Instance.ToggleNotepad(false);
+            
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
         else
         {
-            Notepad.transform.localPosition = new Vector3(
-                Notepad.transform.localPosition.x,
-                Notepad.transform.localPosition.y - 1,
-                Notepad.transform.localPosition.z
-            );
-
             Notepad.SetActive(false);
             TravelCanvas.alpha = 0f;
             TravelCanvas.blocksRaycasts = false;
@@ -105,6 +95,8 @@ public class TravelCompanion : MonoBehaviour
             evidencecompanion.alpha = 0.9f;
             crosshair.alpha = 0.9f;
 
+            Player.Instance.ToggleNotepad(true);
+            
             StepBackInputRightClick.action.performed -= LaunchCompanion;
             StepBackInputESC.action.performed -= LaunchCompanion;
 

@@ -4,7 +4,6 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
 using System.Collections;
-using UnityEngine.Animations.Rigging;
 
 public class Player : Singleton<Player>
 {
@@ -34,6 +33,13 @@ public class Player : Singleton<Player>
     // ✅ Triggers
     private static readonly int AnimMelee = Animator.StringToHash("MELEE");
     private static readonly int AnimPhoneOut = Animator.StringToHash("PHONEOUT");
+    private static readonly int AnimNotepadOut = Animator.StringToHash("NOTEPADOUT");
+
+    [Header("Crawl Animation Detection (BlendTree Clip-Based)")]
+    public string crawlClipName = "NoraCrawl";
+    public int crawlLayerIndex = 0;
+    [Range(0f, 1f)] public float crawlWeightThreshold = 0.15f;
+    private bool _torchSuppressedByCrawl;
 
     [Tooltip("How quickly animation parameters catch up (bigger = snappier).")]
     public float animDampTime = 0.12f;
@@ -87,35 +93,6 @@ public class Player : Singleton<Player>
 
     private int _phoneOutStateHash;
     private int _phoneAwayStateHash;
-
-    // ------------------------------------------------------------
-    // ✅ Rig suppression during PHONE (optional)
-    // ------------------------------------------------------------
-    [Header("Rig Suppression During Phone")]
-    public bool suppressRigDuringPhone = true;
-    public Rig phoneRigToSuppress;
-    public RigBuilder rigBuilderToSuppress;
-    [Range(0f, 1f)] public float rigRestoreWeight = 1f;
-
-    private float _cachedRigWeight = 1f;
-    private bool _cachedRigWeightValid = false;
-
-    // ------------------------------------------------------------
-    // ✅ Rig suppression during CROUCH
-    // ------------------------------------------------------------
-    [Header("Rig Suppression During Crouch")]
-    public bool suppressRigDuringCrouch = true;
-
-    [Tooltip("If assigned, this rig's weight will be set to 0 while crouched.")]
-    public Rig crouchRigToSuppress;
-
-    [Tooltip("If assigned, this RigBuilder can be disabled while crouched (optional).")]
-    public RigBuilder crouchRigBuilderToSuppress;
-
-    [Range(0f, 1f)] public float crouchRigRestoreWeight = 1f;
-
-    private float _cachedCrouchRigWeight = 1f;
-    private bool _cachedCrouchRigWeightValid = false;
 
     // ------------------------------------------------------------
     // Crouch (Controller Collider)
@@ -224,22 +201,7 @@ public class Player : Singleton<Player>
             _phoneOutStateHash = Animator.StringToHash(upperBodyPhoneOutStateName);
             _phoneAwayStateHash = Animator.StringToHash(upperBodyPhoneAwayStateName);
 
-            // Ensure triggers start clean
             Noranimator.ResetTrigger(AnimMelee);
-        }
-
-        // Cache PHONE rig baseline
-        if (phoneRigToSuppress != null)
-        {
-            _cachedRigWeight = phoneRigToSuppress.weight;
-            _cachedRigWeightValid = true;
-        }
-
-        // Cache CROUCH rig baseline
-        if (crouchRigToSuppress != null)
-        {
-            _cachedCrouchRigWeight = crouchRigToSuppress.weight;
-            _cachedCrouchRigWeightValid = true;
         }
 
         CaptureControllerBaseline();
@@ -247,49 +209,6 @@ public class Player : Singleton<Player>
 
         // ✅ Ensure camera starts in correct height state (handles spawning crouched)
         FirstPersonLook?.SetCrouch(crouching);
-
-        // ✅ Ensure rig starts in correct state if spawning crouched
-        ApplyCrouchRigSuppression(crouching);
-    }
-
-    private void ApplyPhoneRigSuppression(bool phoneOut)
-    {
-        if (!suppressRigDuringPhone) return;
-
-        if (rigBuilderToSuppress != null)
-            rigBuilderToSuppress.enabled = !phoneOut;
-
-        if (phoneRigToSuppress != null)
-        {
-            if (!_cachedRigWeightValid)
-            {
-                _cachedRigWeight = phoneRigToSuppress.weight;
-                _cachedRigWeightValid = true;
-            }
-
-            phoneRigToSuppress.weight = phoneOut ? 0f : (_cachedRigWeightValid ? _cachedRigWeight : rigRestoreWeight);
-        }
-    }
-
-    private void ApplyCrouchRigSuppression(bool crouched)
-    {
-        if (!suppressRigDuringCrouch) return;
-
-        // Optional: disable builder
-        if (crouchRigBuilderToSuppress != null)
-            crouchRigBuilderToSuppress.enabled = !crouched;
-
-        // Or: drive rig weight
-        if (crouchRigToSuppress != null)
-        {
-            if (!_cachedCrouchRigWeightValid)
-            {
-                _cachedCrouchRigWeight = crouchRigToSuppress.weight;
-                _cachedCrouchRigWeightValid = true;
-            }
-
-            crouchRigToSuppress.weight = crouched ? 0f : (_cachedCrouchRigWeightValid ? _cachedCrouchRigWeight : crouchRigRestoreWeight);
-        }
     }
 
     private void CaptureControllerBaseline()
@@ -440,6 +359,9 @@ public class Player : Singleton<Player>
             animGrounded = false;
 
         UpdateAnimator(isGrounded: animGrounded);
+
+        // ✅ Torch only suppressed while the "NoraCrawl" clip has meaningful weight in the crouch blend tree
+        UpdateTorchFromAnimator();
     }
 
     private void UpdateAnimator(bool isGrounded)
@@ -576,6 +498,59 @@ public class Player : Singleton<Player>
     }
 
     // ------------------------------------------------------------
+    // ✅ Torch suppression based on BlendTree clip weight
+    // ------------------------------------------------------------
+    private void UpdateTorchFromAnimator()
+    {
+        if (PlayerTorch == null || Noranimator == null) return;
+
+        bool isCrawling = IsClipActiveOnLayer(Noranimator, crawlLayerIndex, crawlClipName, crawlWeightThreshold);
+
+        if (isCrawling)
+        {
+            if (!_torchSuppressedByCrawl)
+            {
+                PlayerTorch.SetActive(false);
+                _torchSuppressedByCrawl = true;
+            }
+        }
+        else
+        {
+            if (_torchSuppressedByCrawl)
+            {
+                PlayerTorch.SetActive(true);
+                _torchSuppressedByCrawl = false;
+            }
+        }
+    }
+
+    private static bool IsClipActiveOnLayer(Animator anim, int layer, string clipName, float weightThreshold)
+    {
+        // Current clips (includes blend tree children)
+        var current = anim.GetCurrentAnimatorClipInfo(layer);
+        for (int i = 0; i < current.Length; i++)
+        {
+            var c = current[i].clip;
+            if (c != null && c.name == clipName && current[i].weight >= weightThreshold)
+                return true;
+        }
+
+        // Also check "next" clips during transitions, so the torch reacts immediately
+        if (anim.IsInTransition(layer))
+        {
+            var next = anim.GetNextAnimatorClipInfo(layer);
+            for (int i = 0; i < next.Length; i++)
+            {
+                var c = next[i].clip;
+                if (c != null && c.name == clipName && next[i].weight >= weightThreshold)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------
     // ✅ MELEE
     // ------------------------------------------------------------
     public void TryMelee()
@@ -602,7 +577,6 @@ public class Player : Singleton<Player>
 
     private void OnMelee(InputAction.CallbackContext ctx) => TryMelee();
 
-    // Animation Event on last frame of MELEE clip
     public void OnMeleeAnimFinished()
     {
         _upperBodyHeldByMelee = false;
@@ -610,28 +584,33 @@ public class Player : Singleton<Player>
     }
 
     // ------------------------------------------------------------
-    // ✅ PHONE (TRIGGER-BASED)
+    // ✅ PHONE 
     // ------------------------------------------------------------
     public void TogglePhone(bool putaway)
     {
         if (Noranimator == null) return;
         if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused) return;
 
-        // Keep holding until the away clip ends
         _upperBodyHeldByPhone = true;
         RefreshUpperBodyWeight();
 
-        // ✅ if you want phone to suppress rig, call it here
-        ApplyPhoneRigSuppression(!putaway);
+        if (putaway) Noranimator.SetBool(AnimPhoneOut, false);
+        else Noranimator.SetBool(AnimPhoneOut, true);
+    }
 
-        if (putaway)
-        {
-            Noranimator.SetBool(AnimPhoneOut, false);
-        }
-        else
-        {
-            Noranimator.SetBool(AnimPhoneOut, true);
-        }
+    // ------------------------------------------------------------
+    // ✅ Notepad
+    // ------------------------------------------------------------
+    public void ToggleNotepad(bool putaway)
+    {
+        if (Noranimator == null) return;
+        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused) return;
+
+        _upperBodyHeldByPhone = true;
+        RefreshUpperBodyWeight();
+
+        if (putaway) Noranimator.SetBool(AnimNotepadOut, false);
+        else Noranimator.SetBool(AnimNotepadOut, true);
     }
 
     // ------------------------------------------------------------
@@ -685,14 +664,7 @@ public class Player : Singleton<Player>
         if (thisCharController != null && _controllerBaselineCaptured)
             StartCrouchControllerBlend(toCrouch: true);
 
-        if (PlayerTorch != null) PlayerTorch.SetActive(false);
-
-        // ✅ Suppress rig during crouch
-        ApplyCrouchRigSuppression(true);
-
-        // ✅ Camera height handled by FirstPersonLook (local pivot)
         FirstPersonLook?.SetCrouch(true);
-
         Noranimator?.SetBool(AnimCrouching, true);
     }
 
@@ -705,13 +677,7 @@ public class Player : Singleton<Player>
         if (thisCharController != null && _controllerBaselineCaptured)
             StartCrouchControllerBlend(toCrouch: false);
 
-        if (PlayerTorch != null) PlayerTorch.SetActive(true);
-
-        // ✅ Restore rig after crouch
-        ApplyCrouchRigSuppression(false);
-
         FirstPersonLook?.SetCrouch(false);
-
         Noranimator?.SetBool(AnimCrouching, false);
     }
 

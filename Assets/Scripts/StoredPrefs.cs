@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-
 public class StoredPrefs : MonoBehaviour
 {
     public static StoredPrefs Instance;
@@ -30,18 +29,36 @@ public class StoredPrefs : MonoBehaviour
     public static event Action OnPrefsSaved;
     public static event Action OnPlayerDataLoaded;
 
-
-    
     private const string COLLECTION_PREFIX = "logs:";
 
     // Async coordination
     private static readonly SemaphoreSlim _loadLock = new SemaphoreSlim(1, 1);
     private static readonly SemaphoreSlim _saveLock = new SemaphoreSlim(1, 1);
-    private static readonly TaskCompletionSource<bool> _readyTcs = new TaskCompletionSource<bool>();
+
+    // ✅ continuations async (safer)
+    private static TaskCompletionSource<bool> _readyTcs =
+        new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    // ------------------------------------------------------------
+    // ✅ AUTO-CREATE IF MISSING
+    // ------------------------------------------------------------
+    private static void EnsureInstanceExists()
+    {
+        if (Instance != null) return;
+
+        // Try find in scene first (including inactive)
+        Instance = FindFirstObjectByType<StoredPrefs>(FindObjectsInactive.Include);
+        if (Instance != null) return;
+
+        // Create if not present
+        var go = new GameObject("[StoredPrefs]");
+        Instance = go.AddComponent<StoredPrefs>();
+        DontDestroyOnLoad(go);
+    }
 
     private void Awake()
     {
-        if (Instance != null)
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
@@ -64,6 +81,12 @@ public class StoredPrefs : MonoBehaviour
     {
         if (callback == null) return;
 
+        // ✅ guarantee StoredPrefs exists
+        EnsureInstanceExists();
+
+        // ✅ kick load
+        _ = Instance.EnsureLoadedAsync();
+
         if (IsReady)
         {
             callback.Invoke();
@@ -79,31 +102,46 @@ public class StoredPrefs : MonoBehaviour
         OnPlayerDataLoaded += Handler;
     }
 
-    // Optional: awaitable form (handy in async code)
+    // Optional: awaitable form
     public static Task WhenLoadedAsync()
     {
+        EnsureInstanceExists();
+        _ = Instance.EnsureLoadedAsync();
+
         if (IsReady) return Task.CompletedTask;
         return _readyTcs.Task;
     }
 
+    private void MarkReady()
+    {
+        IsReady = true;
+
+        if (!_readyTcs.Task.IsCompleted)
+            _readyTcs.TrySetResult(true);
+    }
+
     private async Task EnsureLoadedAsync()
     {
-        if (isLoaded) return;
-        if (Instance == null) return;
+        // If already loaded, still ensure readiness is marked
+        if (isLoaded)
+        {
+            if (!IsReady) MarkReady();
+            return;
+        }
 
         await _loadLock.WaitAsync();
         try
         {
-            if (isLoaded) return;
+            if (isLoaded)
+            {
+                if (!IsReady) MarkReady();
+                return;
+            }
 
             await LoadAsync();
 
             isLoaded = true;
-            IsReady = true;
-
-            // unblock awaiters
-            if (!_readyTcs.Task.IsCompleted)
-                _readyTcs.TrySetResult(true);
+            MarkReady();
         }
         finally
         {
@@ -113,21 +151,15 @@ public class StoredPrefs : MonoBehaviour
 
     private System.Collections.IEnumerator FireLoadedNextFrameWhenReady()
     {
-        // wait until async load completes
         yield return new WaitUntil(() => IsReady);
-
-        // wait a frame so OnEnable subscriptions can register
-        yield return null;
-
+        yield return null; // allow OnEnable subscriptions
         OnPlayerDataLoaded?.Invoke();
     }
 
     private System.Collections.IEnumerator NotifyGameMasterWhenReady()
     {
-        // wait until our prefs are ready first
         yield return new WaitUntil(() => IsReady);
 
-        // wait until GameMaster exists (don’t assume it’s ready in Awake)
         while (GameMaster.Instance == null || GameMaster.Instance.EventManager == null)
             yield return null;
 
@@ -138,14 +170,12 @@ public class StoredPrefs : MonoBehaviour
 
     public void SetString(string key, string value)
     {
-        _ = EnsureLoadedAsync(); // non-blocking safety
+        _ = EnsureLoadedAsync();
         data.PlayerDatum[key] = value;
     }
 
     public string GetString(string key, string defaultValue = "")
     {
-        // If called early, it will still return defaults until ready.
-        // Prefer WhenLoaded/WhenLoadedAsync for strict ordering.
         return data.PlayerDatum.TryGetValue(key, out var v) ? v : defaultValue;
     }
 
@@ -178,7 +208,7 @@ public class StoredPrefs : MonoBehaviour
     {
         _ = EnsureLoadedAsync();
         if (data.PlayerDatum.Remove(key))
-            _ = SaveAsync(); // fire-and-forget async save
+            _ = SaveAsync();
     }
 
     public List<string> GetAllKeys()
@@ -229,10 +259,6 @@ public class StoredPrefs : MonoBehaviour
 
     // ===================== SAVE / LOAD (ASYNC) =====================
 
-    /// <summary>
-    /// Fire-and-forget convenience wrapper (keeps your old call sites working).
-    /// Prefer awaiting SaveAsync() when ordering matters.
-    /// </summary>
     public void Save()
     {
         _ = SaveAsync();
@@ -245,11 +271,9 @@ public class StoredPrefs : MonoBehaviour
         await _saveLock.WaitAsync();
         try
         {
-            // 1) snapshot on main thread quickly
             PlayerData snapshot = new PlayerData();
             snapshot.PlayerDatum = new Dictionary<string, string>(data.PlayerDatum);
 
-            // 2) heavy work off-thread
             string payload = await Task.Run(() =>
             {
                 string json = JsonConvert.SerializeObject(snapshot, Formatting.None);
@@ -260,7 +284,6 @@ public class StoredPrefs : MonoBehaviour
             string dir = Path.GetDirectoryName(FilePath);
             if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
 
-            // 3) async disk write
             await File.WriteAllTextAsync(FilePath, payload);
         }
         catch (Exception e)
@@ -275,10 +298,9 @@ public class StoredPrefs : MonoBehaviour
         OnPrefsSaved?.Invoke();
     }
 
-
     private async Task LoadAsync()
     {
-        // ✅ Even if file missing, we still consider load complete and fire loaded event later
+        // ✅ Missing file is still a "successful load"
         if (!File.Exists(FilePath))
         {
             data = new PlayerData();
@@ -287,7 +309,6 @@ public class StoredPrefs : MonoBehaviour
 
         try
         {
-            // ✅ Async read
             string json = await File.ReadAllTextAsync(FilePath).ConfigureAwait(false);
 
             if (Instance != null && Instance.useEncryption)
@@ -309,7 +330,6 @@ public class StoredPrefs : MonoBehaviour
 
     public async Task ResetAllAsync()
     {
-        // Stop anyone else trying to save/load while we reset
         await _loadLock.WaitAsync();
         await _saveLock.WaitAsync();
         try
@@ -318,14 +338,12 @@ public class StoredPrefs : MonoBehaviour
             isLoaded = false;
             IsReady = false;
 
-            // delete file (sync; tiny)
+            _readyTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
             if (File.Exists(FilePath))
                 File.Delete(FilePath);
 
-            // reload to re-arm readiness
             await EnsureLoadedAsync();
-
-            // save empty data
             await SaveAsync();
         }
         finally
@@ -334,7 +352,6 @@ public class StoredPrefs : MonoBehaviour
             _loadLock.Release();
         }
 
-        // Fire loaded event again next frame (so listeners can refresh)
         if (Instance != null)
         {
             Instance.StopCoroutine(nameof(FireLoadedNextFrameWhenReady));

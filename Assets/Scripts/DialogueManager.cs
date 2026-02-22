@@ -57,8 +57,7 @@ public class DialogueManager : MonoBehaviour
     // stop the rotation loop immediately when we’re done
     private bool _stopCutsceneRotation;
 
-    private bool _seenLoaded;
-    public bool SeenLoaded => _seenLoaded;
+    public bool SeenLoaded;
 
     // keep track of fade coroutine so we can stop it reliably
     private Coroutine _fadeCo;
@@ -88,11 +87,35 @@ public class DialogueManager : MonoBehaviour
         if (UInstance.Instance != null)
             UInstance.Instance.cutsceneBarsCanvas.alpha = 0;
 
-        StoredPrefs.WhenLoaded(() =>
+        // ✅ Robust: SeenLoaded becomes true when StoredPrefs is done loading,
+        // regardless of whether any data exists.
+        _ = InitSeenAsync();
+    }
+
+    // ✅ This is the key change.
+    private async Task InitSeenAsync()
+    {
+        try
         {
-            LoadWhatYouSee();
-            _seenLoaded = true;
-        });
+            await StoredPrefs.WhenLoadedAsync();
+
+            // If StoredPrefs is ready but Instance is still null (shouldn't happen with auto-create),
+            // guard anyway so SeenLoaded still flips true.
+            if (StoredPrefs.Instance != null)
+                LoadWhatYouSee();
+            else
+                Debug.LogWarning("DialogueManager: StoredPrefs is ready but Instance is null. Seen lists will remain default.");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"DialogueManager.InitSeenAsync failed: {e}");
+        }
+        finally
+        {
+            SeenLoaded = true;
+            
+            GameMaster.Instance.EventManager.PlayerDataLoaded();
+        }
     }
 
     private void OnDisable()
@@ -204,10 +227,8 @@ public class DialogueManager : MonoBehaviour
         }
 
         // ✅ Normal timed dialogue:
-        // If one is already showing, cancel it and mark it seen so it doesn't "disappear" unrecorded.
         CancelActiveTimedDialogue(markSeen: true);
 
-        // Track this as the active timed dialogue
         _activeTimedCts = new CancellationTokenSource();
         _hasActiveTimed = true;
         _activeTimedDialogueName = dialogueName;
@@ -243,13 +264,10 @@ public class DialogueManager : MonoBehaviour
         }
         catch (TaskCanceledException)
         {
-            // interrupted: we handle "seen" in CancelActiveTimedDialogue(...)
             return;
         }
         finally
         {
-            // If this dialogue is still the active one, clear active state here.
-            // (If it was cancelled and replaced, CancelActiveTimedDialogue already cleared it.)
             if (_hasActiveTimed && EqualityComparer<DialogueName>.Default.Equals(_activeTimedDialogueName, dialogueName))
             {
                 _hasActiveTimed = false;
@@ -258,11 +276,9 @@ public class DialogueManager : MonoBehaviour
             }
         }
 
-        // Natural completion: mark seen
         MarkDialogueSeen(dialogueName);
     }
 
-    // ✅ Centralized: mark dialogue as seen + save
     private void MarkDialogueSeen(DialogueName dialogueName)
     {
         if (!DialogueSeen.Contains(dialogueName))
@@ -270,16 +286,14 @@ public class DialogueManager : MonoBehaviour
         SaveWhatYouSee();
     }
 
-    // ✅ Cancel currently active timed dialogue; optionally mark it as seen if it was shown
     private void CancelActiveTimedDialogue(bool markSeen)
     {
         if (!_hasActiveTimed) return;
 
-        try { _activeTimedCts?.Cancel(); } catch { /* ignore */ }
+        try { _activeTimedCts?.Cancel(); } catch { }
 
         if (markSeen && _activeTimedWasShown && !_activeTimedIsRepeatable)
         {
-            // If it got interrupted, we still count it as "seen once"
             if (!DialogueSeen.Contains(_activeTimedDialogueName))
                 DialogueSeen.Add(_activeTimedDialogueName);
 
@@ -288,7 +302,7 @@ public class DialogueManager : MonoBehaviour
 
         _hasActiveTimed = false;
 
-        try { _activeTimedCts?.Dispose(); } catch { /* ignore */ }
+        try { _activeTimedCts?.Dispose(); } catch { }
         _activeTimedCts = null;
     }
 
@@ -516,7 +530,6 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    // ✅ timers now support cancellation
     public async Task MessageTimer(float timevalue, CancellationToken token)
     {
         timebar.fillAmount = 1.0f;
@@ -568,6 +581,7 @@ public class DialogueManager : MonoBehaviour
 
     public void SaveWhatYouSee()
     {
+        if (StoredPrefs.Instance == null) return;
         StoredPrefs.Instance.SetCollection("DialogueSeen", DialogueSeen, CollectionType.list);
         StoredPrefs.Instance.SetCollection("CutSceneSeen", CutSceneSeen, CollectionType.dictionary);
         StoredPrefs.Instance.Save();
@@ -575,6 +589,7 @@ public class DialogueManager : MonoBehaviour
 
     public void LoadWhatYouSee()
     {
+        if (StoredPrefs.Instance == null) return;
         DialogueSeen = StoredPrefs.Instance.GetCollection<List<DialogueName>>("DialogueSeen") ?? new List<DialogueName>();
         CutSceneSeen = StoredPrefs.Instance.GetCollection<Dictionary<string, string>>("CutSceneSeen") ?? new Dictionary<string, string>();
     }

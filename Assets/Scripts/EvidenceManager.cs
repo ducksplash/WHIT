@@ -70,6 +70,7 @@ public class EvidenceManager : MonoBehaviour
         if (!Directory.Exists(evidenceDir))
         {
             Debug.Log("[EvidenceManager] No evidence directory found.");
+            EvidenceLoaded = true;
             return;
         }
 

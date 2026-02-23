@@ -11,25 +11,22 @@ public class Torch : MonoBehaviour
     public Light lightBeam;
     public GameObject theTorch;
     public VolumetricLightBeamSD SpotlightBeam;
+    public Renderer bulbRenderer;
+    private Material[] mats;
+
 
     [Header("UI")]
     public Image torchimg;
     public Sprite litsprite;
     public Sprite unlitsprite;
-
-    [Header("Animation Rigging")]
-    [Tooltip("Assign the UpperBody Rig that controls the torch arm IK.")]
-    public Rig torchRig;
-
-    [Tooltip("How fast the arm raises/lowers.")]
-    public float rigBlendSpeed = 6f;
+    
 
     [Header("Input")]
     public InputActionReference toggleAction;
 
     public static bool torchToggle = true;
+    private static readonly int EmissiveColour = Shader.PropertyToID("_EmissiveColor");
 
-    private float targetRigWeight;
 
     void Start()
     {
@@ -37,38 +34,13 @@ public class Torch : MonoBehaviour
         torchimg.GetComponent<CanvasGroup>().alpha = 0f;
 
         if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED) theTorch.SetActive(false);
-        //
-        // StartCoroutine(StartHands());
+        
+        if (bulbRenderer == null) bulbRenderer = GetComponentInChildren<Renderer>();
+        
+        
+        SetEmissives(torchToggle);
     }
 
-    // void LateStart()
-    // {
-    //     var rb = GetComponent<RigBuilder>();
-    //     if (rb != null)
-    //     {
-    //         rb.Clear();
-    //         rb.Build();
-    //     }
-    // }
-
-    // IEnumerator StartHands()
-    // {
-    //     yield return new WaitForSeconds(1);
-    //     LateStart();
-    // }
-
-    // void Update()
-    // {
-    //     // Smoothly blend IK weight
-    //     if (torchRig != null)
-    //     {
-    //         torchRig.weight = Mathf.Lerp(
-    //             torchRig.weight,
-    //             targetRigWeight,
-    //             Time.deltaTime * rigBlendSpeed
-    //         );
-    //     }
-    // }
 
     void OnEnable()
     {
@@ -91,15 +63,12 @@ public class Torch : MonoBehaviour
 
     public void OnTorchCollected()
     {
-        if (!theTorch.activeSelf)
-            theTorch.SetActive(true);
+        if (!theTorch.activeSelf) theTorch.SetActive(true);
 
         lightBeam = theTorch.GetComponentInChildren<Light>();
 
         torchimg.GetComponent<CanvasGroup>().alpha = 1f;
-
-        // Raise arm when first collected
-        targetRigWeight = 1f;
+        
     }
 
     private void OnToggle(InputAction.CallbackContext ctx)
@@ -110,16 +79,31 @@ public class Torch : MonoBehaviour
 
         torchToggle = !torchToggle;
 
-        if (lightBeam != null)
-            lightBeam.enabled = torchToggle;
+        if (lightBeam != null) lightBeam.enabled = torchToggle;
 
-        if (SpotlightBeam != null)
-            SpotlightBeam.enabled = torchToggle;
+        if (SpotlightBeam != null) SpotlightBeam.enabled = torchToggle;
 
-        if (torchimg != null)
-            torchimg.sprite = torchToggle ? litsprite : unlitsprite;
+        if (torchimg != null) torchimg.sprite = torchToggle ? litsprite : unlitsprite;
+        
+        SetEmissives(torchToggle);
 
-        // Lower arm when torch off
-        // targetRigWeight = torchToggle ? 1f : 0f;
+    }
+
+    private void SetEmissives(bool torchOn)
+    {
+        if (bulbRenderer != null)
+        {
+            // Instantiate material instances for runtime changes
+            mats = bulbRenderer.materials;
+
+            // Ensure HDRP emission is enabled
+            foreach (var m in mats)
+            {
+                if (m == null) continue;
+                
+                m.SetColor(EmissiveColour, torchOn ? Color.white * 100 : Color.black * 100); 
+                
+            }
+        }
     }
 }

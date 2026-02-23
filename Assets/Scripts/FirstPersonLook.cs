@@ -32,6 +32,12 @@ public class FirstPersonLook : MonoBehaviour
     private Vector3 _pivotStartLocalPos;
     private Coroutine _heightCo;
 
+    // ✅ Smooth LookAt (minimal)
+    [Header("LookAt Device (Smooth)")]
+    [SerializeField] private float lookAtBlendSeconds = 0.25f;
+    [SerializeField] private AnimationCurve lookAtCurve = null; // optional
+    private Coroutine _lookAtCo;
+
     private void Awake()
     {
         lookAction = GameMaster.Instance.InputManager.LookAction;
@@ -43,7 +49,10 @@ public class FirstPersonLook : MonoBehaviour
         _pivotStartLocalPos = cameraPivot.localPosition;
 
         sensitivity = GameMaster.Instance.MouseSensitivity;
-        EventManager.OnStartComputer += LookAtPC;
+
+        EventManager.OnStartComputer += LookAtDevice;
+        EventManager.OnStartPhone += LookAtDevice;
+
         lookAction.action.Enable();
     }
 
@@ -125,9 +134,59 @@ public class FirstPersonLook : MonoBehaviour
         appliedMouseDelta = Vector2.zero;
     }
 
-    public void LookAtPC(Transform ComputerTransform)
+    // ------------------------------------------------------------
+    // ✅ Minimal Smooth LookAt (just replaces instant LookAt)
+    // ------------------------------------------------------------
+    public void LookAtDevice(Transform deviceTransform)
     {
-        transform.LookAt(ComputerTransform);
+        if (deviceTransform == null) return;
+
+        if (_lookAtCo != null)
+            StopCoroutine(_lookAtCo);
+
+        _lookAtCo = StartCoroutine(SmoothLookAtCoroutine(deviceTransform, lookAtBlendSeconds));
+    }
+
+    private IEnumerator SmoothLookAtCoroutine(Transform target, float seconds)
+    {
+        // Optional: lock input during the blend so it doesn't fight the camera motion.
+        _lookLocked = true;
+        appliedMouseDelta = Vector2.zero;
+
+        Quaternion startRot = transform.rotation;
+
+        // Capture target rotation ONCE (prevents chasing if target is in the hand / moving)
+        Vector3 dir0 = target.position - transform.position;
+        Quaternion endRot = (dir0.sqrMagnitude > 0.000001f)
+            ? Quaternion.LookRotation(dir0.normalized, Vector3.up)
+            : startRot;
+
+        if (seconds <= 0f)
+        {
+            transform.rotation = endRot;
+            _lookLocked = false;
+            _lookAtCo = null;
+            yield break;
+        }
+
+        float t = 0f;
+        while (t < seconds)
+        {
+            t += Time.unscaledDeltaTime;
+            float a = Mathf.Clamp01(t / seconds);
+            if (lookAtCurve != null) a = lookAtCurve.Evaluate(a);
+
+            transform.rotation = Quaternion.Slerp(startRot, endRot, a);
+            yield return null;
+        }
+
+        transform.rotation = endRot;
+
+        // Unlock if you only wanted to lock during the blend.
+        // If your device mode freezes look anyway, this won't matter.
+        _lookLocked = false;
+
+        _lookAtCo = null;
     }
 
     // ------------------------------------------------------------

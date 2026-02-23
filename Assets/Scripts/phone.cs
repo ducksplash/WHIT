@@ -472,7 +472,8 @@ public class Phone : MonoBehaviour
         StepBackInputRightClick.action.performed += ActionStepBack;
         escapeExit.action.performed += ActionStepBack;
 
-
+        
+        
         phoneCanvasGroup.alpha = 1f;
         phoneMeshRenderer.enabled = true;
         
@@ -490,9 +491,31 @@ public class Phone : MonoBehaviour
 
     private IEnumerator StopAnimating()
     {
-        yield return new WaitForSeconds(0.5f);
-        //GameMaster.Instance.Player.Noranimator.speed = 0;
+
+        for (var i = 0; i < 10; i++)
+        {
+            yield return new WaitForSeconds(0.1f);
+            GameMaster.Instance.Player.Noranimator.speed -= 0.1f;
+        }
         
+        
+        GameMaster.Instance.EventManager.StartPhone(transform);
+        FacePlayerOnY();
+
+    }
+    
+    
+    
+    public void FacePlayerOnY()
+    {
+        Vector3 toPlayer = Player.Instance.transform.position - transform.position;
+        toPlayer.y = 0f;
+        if (toPlayer.sqrMagnitude < 0.0001f) return;
+
+        float targetYaw = Quaternion.LookRotation(toPlayer, Vector3.up).eulerAngles.y;
+
+        Vector3 e = transform.rotation.eulerAngles;
+        transform.rotation = Quaternion.Euler(e.x, targetYaw, e.z);
     }
     
     
@@ -511,6 +534,9 @@ public class Phone : MonoBehaviour
         StepBackInputRightClick.action.performed -= ActionStepBack;
         escapeExit.action.performed -= ActionStepBack;
 
+        
+        GameMaster.Instance.Player.Noranimator.speed = 1;
+        
         if (phoneCollider != null) phoneCollider.enabled = false;
 
         

@@ -13,6 +13,7 @@ public class EventManager : MonoBehaviour
     public static event Action OnEvidenceCollected = () => { };
     public static event Action OnPhoneOpened = () => { };
     public static event Action<Transform> OnStartComputer = (ComputerTransform) => { };
+    public static event Action<Transform> OnStartPhone = (PhoneTransform) => { };
     public static event Action OnStopComputer = () => { };
     public static event Action OnStopPhone = () => { };
     public static event Action<EvidenceName> OnAutoCollectEvidence = (EvidenceName) => { };
@@ -77,6 +78,11 @@ public class EventManager : MonoBehaviour
     {
         //Debug.Log("AutocollectEvidence");
         OnStartComputer.Invoke(pcTransform);
+    }
+    public void StartPhone(Transform phoneTransform)
+    {
+        //Debug.Log("AutocollectEvidence");
+        OnStartPhone.Invoke(phoneTransform);
     }
     public void AutocollectEvidence(EvidenceName evidenceName)
     {

@@ -6613,6 +6613,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 149068949}
   m_CullTransparentMesh: 1
+--- !u!1 &149872302
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 149872303}
+  - component: {fileID: 149872304}
+  m_Layer: 0
+  m_Name: RIG
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &149872303
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149872302}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 543450651906832192}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &149872304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149872302}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70b342d8ce5c2fd48b8fa3147d48d1d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.Rig
+  m_Weight: 1
+  m_Effectors: []
 --- !u!1 &156418426
 GameObject:
   m_ObjectHideFlags: 0
@@ -14197,7 +14243,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &370596362
 Transform:
   m_ObjectHideFlags: 0
@@ -32983,7 +33029,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: -0.00068383623}
+  m_AnchoredPosition: {x: -0.0012638667, y: -0.03309512}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &860819260
@@ -57947,10 +57993,11 @@ MonoBehaviour:
   lightBeam: {fileID: 1420132373}
   theTorch: {fileID: 4895431323914189644}
   SpotlightBeam: {fileID: 1420132375}
-  bulbRenderer: {fileID: 1902008519029151655}
   torchimg: {fileID: 263267959}
   litsprite: {fileID: 21300000, guid: 6645475fa4918ca4c88d7f6893bdc438, type: 3}
   unlitsprite: {fileID: 21300000, guid: ceba58d1a29c8514893469c8635b6810, type: 3}
+  torchRig: {fileID: 149872304}
+  rigBlendSpeed: 6
   toggleAction: {fileID: 8751951140087871439, guid: 052faaac586de48259a63d0c4782560b,
     type: 3}
 --- !u!1 &1474838381
@@ -74755,7 +74802,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: -0.00068383623}
+  m_AnchoredPosition: {x: -0.0012638667, y: -0.03309512}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1854544909
@@ -86817,7 +86864,6 @@ GameObject:
   - component: {fileID: 114963311883893496}
   - component: {fileID: 114963311883893497}
   - component: {fileID: 114963311883893498}
-  - component: {fileID: 114963311883893499}
   m_Layer: 3
   m_Name: PLAYER
   m_TagString: Player
@@ -86857,7 +86903,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1773623358626660}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.65156907, z: 0, w: -0.7585893}
+  m_LocalRotation: {x: 0, y: 0.0065448377, z: -0, w: -0.9999786}
   m_LocalPosition: {x: 61.1, y: 1.9799986, z: 484.6}
   m_LocalScale: {x: 1, y: 1, z: 1.0000001}
   m_ConstrainProportionsScale: 0
@@ -86867,7 +86913,7 @@ Transform:
   - {fileID: 1678379519}
   - {fileID: 918221339}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -278.68, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -360.75, z: 0}
 --- !u!4 &4490257324156716
 Transform:
   m_ObjectHideFlags: 0
@@ -86877,7 +86923,7 @@ Transform:
   m_GameObject: {fileID: 1593727744470608}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 0.21}
+  m_LocalPosition: {x: 0, y: 2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -87813,31 +87859,6 @@ MonoBehaviour:
   cameraPivot: {fileID: 0}
   crouchLocalYOffset: -3
   crouchBlendSeconds: 0.12
-  lookAtBlendSeconds: 0.25
-  lookAtCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!1 &114724716120848177
 GameObject:
   m_ObjectHideFlags: 0
@@ -88056,30 +88077,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &114963311883893499
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773623358626660}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d8bfc4630083d748a75f07e5995c608, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  animator: {fileID: 5866666020212682042}
-  look: {fileID: 114657890490130866}
-  torsoFollow: 0.25
-  maxTorsoUp: 10
-  maxTorsoDown: 15
-  smooth: 12
-  spineBone: 7
-  chestBone: 8
-  upperChestBone: 54
-  spineWeight: 0.35
-  chestWeight: 0.45
-  upperChestWeight: 0.2
 --- !u!1 &116902902963250739
 GameObject:
   m_ObjectHideFlags: 0
@@ -90237,6 +90234,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 149872303}
   - {fileID: 7546562388252656071}
   - {fileID: 4016782501445495713}
   - {fileID: 5112403088748210311}
@@ -92824,6 +92822,7 @@ GameObject:
   m_Component:
   - component: {fileID: 543450651906832192}
   - component: {fileID: 5866666020212682042}
+  - component: {fileID: 5866666020212682043}
   m_Layer: 0
   m_Name: Nora
   m_TagString: Untagged
@@ -128090,11 +128089,27 @@ Animator:
     by Humanoid clips.\n\tTransform 'lowerarm_r'\n\tTransform 'upperarm_r'\n\tTransform
     'hand_r'\n\tTransform 'lowerarm_r'\n\tTransform 'upperarm_r'\n\tTransform 'hand_r'\n\tTransform
     'lowerarm_r'\n\tTransform 'upperarm_r'\n\tTransform 'hand_r'\n\tFrom animation
-    clip 'NoraCrawl'"
+    clip 'NoraCrouchIdle'\n\tFrom animation clip 'NoraCrawl'"
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5866666020212682043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132147634941434}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fff0960ef4ea6e04eac66b4a7fd2189d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.RigBuilder
+  m_RigLayers:
+  - m_Rig: {fileID: 149872304}
+    m_Active: 0
+  m_Effectors: []
 --- !u!114 &5876861756062551972
 MonoBehaviour:
   m_ObjectHideFlags: 0

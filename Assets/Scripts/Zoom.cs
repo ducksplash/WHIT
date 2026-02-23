@@ -27,6 +27,7 @@ public class Zoom : MonoBehaviour
         cam = GetComponent<Camera>();
         EventManager.OnStartComputer += AutoZoomIn;
         EventManager.OnStopComputer += AutoZoomOut;
+
     }
 
     private void Start()

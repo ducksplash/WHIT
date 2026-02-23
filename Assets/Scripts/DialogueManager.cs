@@ -609,6 +609,7 @@ public enum OSDTextName
 
 public enum DialogueName
 {
+    // Level One, Start
     None,
     KieronToNoraBathroom = 100,
     NoraAboutKieronBathroom = 101,
@@ -623,11 +624,18 @@ public enum DialogueName
     KieronToNoraFirstEvidence = 110,
     phoneTutorialFirstPhoto = 111,
     phoneTutorialSomething = 112,
+    
+    // Level 2
     NoraBathroomLockedFromInside = 200,
     NoraDiesInAFreezer = 201,
     NoraLookingAtIncinerator = 202,
     NoraLookingAtBloodstains = 203,
     NoraLookingAtSkull = 204,
     NoraReadingManagersEmails = 205,
-    NoraOutsideRoark = 307
+    NoraOutsideRoark = 307,
+    
+    // Generics
+    NoraCantCrawlAndPhone = 900
+    
+    
 }

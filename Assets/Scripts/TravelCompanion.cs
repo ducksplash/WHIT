@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -24,7 +25,9 @@ public class TravelCompanion : MonoBehaviour
     public InputActionReference exitButtonPhoneKey;
     public InputActionReference StepBackInputRightClick;
     public InputActionReference StepBackInputESC;
+    public MeshRenderer[] notepadMeshRenderers;
 
+    
     private void Start()
     {
         // UI + input only
@@ -35,13 +38,31 @@ public class TravelCompanion : MonoBehaviour
         exitButtonPhoneKey.action.performed += CloseCompanionInput;
 
         InitialiseLocations();
+
+        notepadMeshRenderers = Notepad.GetComponentsInChildren<MeshRenderer>();
+
+        ToggleNotepadVisibility(false);
+
+
     }
 
-    private void OnDisable()
+
+
+    private void ToggleNotepadVisibility(bool notepadVisible)
     {
-        // No more SceneManager.sceneLoaded hook here
+        foreach (var rend in notepadMeshRenderers)
+        {
+            rend.enabled = notepadVisible;
+        }
+        
+        
+        TravelCanvas.alpha = notepadVisible ? 1 : 0;
+        TravelCanvas.blocksRaycasts = notepadVisible;
+        TravelCanvas.interactable = notepadVisible;
+        
     }
-
+    
+    
     private void CloseCompanionInput(InputAction.CallbackContext callbackContext)
     {
         if (CompanionOpen) LaunchCompanion();
@@ -72,16 +93,20 @@ public class TravelCompanion : MonoBehaviour
             GameMaster.Instance.PLAYERBUSY = true;
             CompanionOpen = true;
 
+            ToggleNotepadVisibility(true);
+            
             evidencecompanion.alpha = 0.0f;
             crosshair.alpha = 0.0f;
 
             StepBackInputRightClick.action.performed += LaunchCompanion;
             StepBackInputESC.action.performed += LaunchCompanion;
-
+            
             Player.Instance.ToggleNotepad(false);
             
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+
+            StartCoroutine(StopAnimating());
         }
         else
         {
@@ -94,17 +119,55 @@ public class TravelCompanion : MonoBehaviour
 
             evidencecompanion.alpha = 0.9f;
             crosshair.alpha = 0.9f;
-
+            
+            ToggleNotepadVisibility(false);
+            
             Player.Instance.ToggleNotepad(true);
             
             StepBackInputRightClick.action.performed -= LaunchCompanion;
             StepBackInputESC.action.performed -= LaunchCompanion;
-
+            
+        
+            GameMaster.Instance.Player.Noranimator.speed = 1;
+            
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
     }
 
+    
+    private IEnumerator StopAnimating()
+    {
+
+        for (var i = 0; i < 10; i++)
+        {
+            yield return new WaitForSeconds(0.1f);
+            GameMaster.Instance.Player.Noranimator.speed -= 0.1f;
+        }
+        
+            
+        GameMaster.Instance.EventManager.StartNotepad(Notepad.transform);
+        
+        FacePlayerOnY();
+
+    }
+
+    
+        
+    public void FacePlayerOnY()
+    {
+        Vector3 toPlayer = Player.Instance.transform.position - Notepad.transform.position;
+        toPlayer.y = 0f;
+        if (toPlayer.sqrMagnitude < 0.0001f) return;
+
+        float targetYaw = Quaternion.LookRotation(toPlayer, Vector3.up).eulerAngles.y;
+
+        Vector3 e = Notepad.transform.rotation.eulerAngles;
+        Notepad.transform.rotation = Quaternion.Euler(e.x, targetYaw, e.z);
+    }
+
+    
+    
     // ===========================
     // UI LIST
     // ===========================

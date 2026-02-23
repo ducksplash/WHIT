@@ -32,8 +32,13 @@ public class Player : Singleton<Player>
 
     // ✅ Triggers
     private static readonly int AnimMelee = Animator.StringToHash("MELEE");
+
+    // Existing phone/notepad params in your controller (you currently SetBool on PHONEOUT)
     private static readonly int AnimPhoneOut = Animator.StringToHash("PHONEOUT");
     private static readonly int AnimNotepadOut = Animator.StringToHash("NOTEPADOUT");
+
+    // ✅ NEW: crouch phone out trigger (matches your new trigger name)
+    private static readonly int AnimPhoneOutCrouch = Animator.StringToHash("PHONEOUTCROUCH");
 
     [Header("Crawl Animation Detection (BlendTree Clip-Based)")]
     public string crawlClipName = "NoraCrawl";
@@ -50,7 +55,7 @@ public class Player : Singleton<Player>
     private Transform _animT;
 
     public GameObject PlayerTorch;
-
+    private bool _lastIsCrawling;
     private Vector3 _lastWorldPos;
     private Vector3 _manualVelocityXZ;
 
@@ -202,13 +207,14 @@ public class Player : Singleton<Player>
             _phoneAwayStateHash = Animator.StringToHash(upperBodyPhoneAwayStateName);
 
             Noranimator.ResetTrigger(AnimMelee);
+            Noranimator.ResetTrigger(AnimPhoneOutCrouch);
+            Noranimator.ResetTrigger(AnimPhoneOut);
         }
 
         CaptureControllerBaseline();
         _lastWorldPos = GetWorldPositionForVelocity();
 
-        // ✅ Ensure camera starts in correct height state (handles spawning crouched)
-        FirstPersonLook?.SetCrouch(crouching);
+
     }
 
     private void CaptureControllerBaseline()
@@ -361,7 +367,7 @@ public class Player : Singleton<Player>
         UpdateAnimator(isGrounded: animGrounded);
 
         // ✅ Torch only suppressed while the "NoraCrawl" clip has meaningful weight in the crouch blend tree
-        UpdateTorchFromAnimator();
+        UpdatePeripheryFromAnimator();
     }
 
     private void UpdateAnimator(bool isGrounded)
@@ -500,11 +506,18 @@ public class Player : Singleton<Player>
     // ------------------------------------------------------------
     // ✅ Torch suppression based on BlendTree clip weight
     // ------------------------------------------------------------
-    private void UpdateTorchFromAnimator()
+    private void UpdatePeripheryFromAnimator()
     {
         if (PlayerTorch == null || Noranimator == null) return;
 
         bool isCrawling = IsClipActiveOnLayer(Noranimator, crawlLayerIndex, crawlClipName, crawlWeightThreshold);
+
+        // ✅ Only notify FirstPersonLook when crawl state CHANGES
+        if (isCrawling != _lastIsCrawling)
+        {
+            FirstPersonLook?.SetCrawl(isCrawling);
+            _lastIsCrawling = isCrawling;
+        }
 
         if (isCrawling)
         {
@@ -512,6 +525,14 @@ public class Player : Singleton<Player>
             {
                 PlayerTorch.SetActive(false);
                 _torchSuppressedByCrawl = true;
+            }
+
+            if (PlayerPhone.phoneMeshRenderer.enabled)
+            {
+                if (!GameMaster.Instance.DialogueManager.DialogInProgress)
+                    GameMaster.Instance.DialogueManager.NewDialogue(DialogueName.NoraCantCrawlAndPhone, 5);
+
+                PlayerPhone.PutAwayPhone();
             }
         }
         else
@@ -526,7 +547,6 @@ public class Player : Singleton<Player>
 
     private static bool IsClipActiveOnLayer(Animator anim, int layer, string clipName, float weightThreshold)
     {
-        // Current clips (includes blend tree children)
         var current = anim.GetCurrentAnimatorClipInfo(layer);
         for (int i = 0; i < current.Length; i++)
         {
@@ -535,7 +555,6 @@ public class Player : Singleton<Player>
                 return true;
         }
 
-        // Also check "next" clips during transitions, so the torch reacts immediately
         if (anim.IsInTransition(layer))
         {
             var next = anim.GetNextAnimatorClipInfo(layer);
@@ -584,7 +603,7 @@ public class Player : Singleton<Player>
     }
 
     // ------------------------------------------------------------
-    // ✅ PHONE 
+    // ✅ PHONE
     // ------------------------------------------------------------
     public void TogglePhone(bool putaway)
     {
@@ -594,8 +613,35 @@ public class Player : Singleton<Player>
         _upperBodyHeldByPhone = true;
         RefreshUpperBodyWeight();
 
-        if (putaway) Noranimator.SetBool(AnimPhoneOut, false);
-        else Noranimator.SetBool(AnimPhoneOut, true);
+        if (putaway)
+        {
+            // If your put-away is driven by the PHONEOUT bool, keep it.
+            Noranimator.SetBool(AnimPhoneOut, false);
+
+            // Safety: clear triggers so you don't accidentally re-enter take-out on next frame.
+            Noranimator.ResetTrigger(AnimPhoneOut);
+            Noranimator.ResetTrigger(AnimPhoneOutCrouch);
+            return;
+        }
+
+        // ✅ Taking phone out:
+        // Pick the correct take-out trigger based on stance *at the moment of opening*.
+        Noranimator.ResetTrigger(AnimPhoneOut);
+        Noranimator.ResetTrigger(AnimPhoneOutCrouch);
+
+        if (crouching)
+        {
+            Debug.Log("crouch phone");
+            Noranimator.SetTrigger(AnimPhoneOutCrouch);
+        }
+        else
+        {
+            Noranimator.SetTrigger(AnimPhoneOut);
+        }
+
+        // If your animator ALSO relies on this bool for "phone is out" idles / away state gating,
+        // keep setting it to true.
+        //Noranimator.SetBool(AnimPhoneOut, true);
     }
 
     // ------------------------------------------------------------
@@ -665,6 +711,7 @@ public class Player : Singleton<Player>
             StartCrouchControllerBlend(toCrouch: true);
 
         FirstPersonLook?.SetCrouch(true);
+        
         Noranimator?.SetBool(AnimCrouching, true);
     }
 

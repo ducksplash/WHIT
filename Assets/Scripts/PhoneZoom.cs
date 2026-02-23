@@ -17,12 +17,11 @@ public class PhoneZoom : MonoBehaviour
 
     public bool zoomAllowed = false;
 
-    private Camera cam;
+    public Camera cam;
     private Phone phone;
 
     void Start()
     {
-        cam = GetComponent<Camera>();
         defaultFOV = cam.fieldOfView;
         phone = GetComponentInParent<Phone>();
 

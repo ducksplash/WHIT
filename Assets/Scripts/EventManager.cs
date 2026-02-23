@@ -14,8 +14,11 @@ public class EventManager : MonoBehaviour
     public static event Action OnPhoneOpened = () => { };
     public static event Action<Transform> OnStartComputer = (ComputerTransform) => { };
     public static event Action<Transform> OnStartPhone = (PhoneTransform) => { };
+    public static event Action<Transform> OnStartNotepad = (NorepadTransform) => { };
     public static event Action OnStopComputer = () => { };
     public static event Action OnStopPhone = () => { };
+    public static event Action OnCameraOpen = () => { };
+    public static event Action OnCameraClosed = () => { };
     public static event Action<EvidenceName> OnAutoCollectEvidence = (EvidenceName) => { };
     public static event Action<bool> OnPaused = (GamePaused) => { };
     public static event Action<QuestText> OnQuestLoaded = (QuestText) => { };
@@ -71,18 +74,19 @@ public class EventManager : MonoBehaviour
     }
     public void EvidenceCollected()
     {
-        //Debug.Log("EvidenceCollected");
         OnEvidenceCollected.Invoke();
     }
     public void StartComputer(Transform pcTransform)
     {
-        //Debug.Log("AutocollectEvidence");
         OnStartComputer.Invoke(pcTransform);
     }
     public void StartPhone(Transform phoneTransform)
     {
-        //Debug.Log("AutocollectEvidence");
         OnStartPhone.Invoke(phoneTransform);
+    }
+    public void StartNotepad(Transform notepadTransform)
+    {
+        OnStartNotepad.Invoke(notepadTransform);
     }
     public void AutocollectEvidence(EvidenceName evidenceName)
     {
@@ -96,6 +100,14 @@ public class EventManager : MonoBehaviour
     public void StopPhone()
     {
         OnStopPhone.Invoke();
+    }
+    public void CameraOpen()
+    {
+        OnCameraOpen.Invoke();
+    }
+    public void CameraClosed()
+    {
+        OnCameraClosed.Invoke();
     }
     public void QuestLoaded(QuestText QuestText)
     {

@@ -1,5 +1,4 @@
-﻿// FirstPersonLook.cs
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 
@@ -18,25 +17,60 @@ public class FirstPersonLook : MonoBehaviour
     private bool _lookLocked;
     private Coroutine _lockRoutine;
 
-    // ✅ Camera height (crouch) support
-    [Header("Camera Height (Crouch)")]
+    // ✅ Camera height (crouch/crawl) support
+    [Header("Camera Height (Crouch/Crawl)")]
     [Tooltip("Local pivot to move up/down. If null, uses this transform.")]
     [SerializeField] private Transform cameraPivot;
 
     [Tooltip("Negative lowers camera when crouched (local Y offset).")]
     [SerializeField] private float crouchLocalYOffset = -0.5f;
 
+    [Tooltip("Negative lowers camera when crawling (local Y offset). Should be LOWER than crouchLocalYOffset.")]
+    [SerializeField] private float crawlLocalYOffset = -0.9f;
+
     [Tooltip("Seconds to blend between standing/crouch camera heights.")]
     [SerializeField] private float crouchBlendSeconds = 0.12f;
 
+    [Tooltip("Seconds to blend between crouch/crawl camera heights.")]
+    [SerializeField] private float crawlBlendSeconds = 0.12f;
+
     private Vector3 _pivotStartLocalPos;
     private Coroutine _heightCo;
+
+    // NEW: stance tracking so SetCrawl(false) can return to crouch if needed
+    private enum HeightMode { Stand, Crouch, Crawl }
+    private HeightMode _heightMode = HeightMode.Stand;
+
+    private bool _isCrouched;
+    private bool _isCrawling;
 
     // ✅ Smooth LookAt (minimal)
     [Header("LookAt Device (Smooth)")]
     [SerializeField] private float lookAtBlendSeconds = 0.25f;
     [SerializeField] private AnimationCurve lookAtCurve = null; // optional
     private Coroutine _lookAtCo;
+
+    // ------------------------------------------------------------
+    // ✅ "Keep device centered" while camera app is open
+    // ------------------------------------------------------------
+    [Header("Phone Camera Mode: Keep device centered in view")]
+    [Tooltip("How tightly device follows the camera pose while aiming (bigger = snappier).")]
+    [SerializeField] private float deviceFollowSharpness = 60f;
+
+    private Transform _currentDevice;
+
+    // Saved device pose relative to pivot (aiming mode)
+    private Vector3 _deviceLocalPosInPivot;
+    private Quaternion _deviceLocalRotInPivot;
+
+    private bool _keepDeviceCentered;
+
+    // ------------------------------------------------------------
+    // ✅ baseline pose captured when device is opened
+    // ------------------------------------------------------------
+    private Vector3 _deviceBaseLocalPos;
+    private Quaternion _deviceBaseLocalRot;
+    private bool _deviceBaseCaptured;
 
     private void Awake()
     {
@@ -50,8 +84,14 @@ public class FirstPersonLook : MonoBehaviour
 
         sensitivity = GameMaster.Instance.MouseSensitivity;
 
+        // “Device opened / started”
         EventManager.OnStartComputer += LookAtDevice;
         EventManager.OnStartPhone += LookAtDevice;
+        EventManager.OnStartNotepad += LookAtDevice;
+
+        // Phone camera app
+        EventManager.OnCameraOpen += PhoneCameraOpen;
+        EventManager.OnCameraClosed += PhoneCameraClosed;
 
         lookAction.action.Enable();
     }
@@ -61,8 +101,13 @@ public class FirstPersonLook : MonoBehaviour
         if (GameMaster.Instance.PauseManager.IsPaused) return;
         if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
 
-        transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
-        character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
+        if (cameraPivot != null)
+            cameraPivot.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
+        else
+            transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
+
+        if (character != null)
+            character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
     }
 
     private void LateUpdate()
@@ -83,6 +128,9 @@ public class FirstPersonLook : MonoBehaviour
 
         currentMouseLook += appliedMouseDelta;
         currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, -60, 60);
+
+        if (_keepDeviceCentered && _currentDevice != null)
+            FollowDeviceToPivotPose();
     }
 
     public void SetPlayerRotation(Vector2 rotation)
@@ -90,10 +138,6 @@ public class FirstPersonLook : MonoBehaviour
         currentMouseLook = rotation;
     }
 
-    /// <summary>
-    /// Temporarily ignores all look input for a short time (prevents jitter/fighting).
-    /// Uses realtime so it still works if timescale changes.
-    /// </summary>
     public void AimAssistLock(float seconds)
     {
         seconds = Mathf.Max(0f, seconds);
@@ -116,16 +160,12 @@ public class FirstPersonLook : MonoBehaviour
         _lockRoutine = null;
     }
 
-    /// <summary>
-    /// Snap ONLY yaw to face a world point by modifying currentMouseLook
-    /// (keeps camera/character rotations consistent).
-    /// </summary>
     public void SnapYawTowardWorldPoint(Vector3 worldPoint)
     {
         Vector3 from = character != null ? character.position : transform.position;
 
         Vector3 to = worldPoint - from;
-        to.y = 0f; // yaw-only
+        to.y = 0f;
         if (to.sqrMagnitude < 0.000001f) return;
 
         float targetYaw = Mathf.Atan2(to.x, to.z) * Mathf.Rad2Deg;
@@ -135,11 +175,14 @@ public class FirstPersonLook : MonoBehaviour
     }
 
     // ------------------------------------------------------------
-    // ✅ Minimal Smooth LookAt (just replaces instant LookAt)
+    // ✅ Device opened / focus on device
     // ------------------------------------------------------------
     public void LookAtDevice(Transform deviceTransform)
     {
         if (deviceTransform == null) return;
+
+        _currentDevice = deviceTransform;
+        CaptureDeviceBaselineLocalPose();
 
         if (_lookAtCo != null)
             StopCoroutine(_lookAtCo);
@@ -147,23 +190,48 @@ public class FirstPersonLook : MonoBehaviour
         _lookAtCo = StartCoroutine(SmoothLookAtCoroutine(deviceTransform, lookAtBlendSeconds));
     }
 
+    private void CaptureDeviceBaselineLocalPose()
+    {
+        if (_currentDevice == null) return;
+
+        _deviceBaseLocalPos = _currentDevice.localPosition;
+        _deviceBaseLocalRot = _currentDevice.localRotation;
+        _deviceBaseCaptured = true;
+    }
+
+    public void DeviceClosed()
+    {
+        _keepDeviceCentered = false;
+        ApplyDeviceBaselineLocalPose();
+    }
+
+    private void ApplyDeviceBaselineLocalPose()
+    {
+        if (_currentDevice == null || !_deviceBaseCaptured) return;
+
+        _currentDevice.localPosition = _deviceBaseLocalPos;
+        _currentDevice.localRotation = _deviceBaseLocalRot;
+    }
+
     private IEnumerator SmoothLookAtCoroutine(Transform target, float seconds)
     {
-        // Optional: lock input during the blend so it doesn't fight the camera motion.
         _lookLocked = true;
         appliedMouseDelta = Vector2.zero;
 
-        Quaternion startRot = transform.rotation;
+        Quaternion startRot = (cameraPivot != null) ? cameraPivot.rotation : transform.rotation;
 
-        // Capture target rotation ONCE (prevents chasing if target is in the hand / moving)
-        Vector3 dir0 = target.position - transform.position;
+        Vector3 origin = (cameraPivot != null) ? cameraPivot.position : transform.position;
+        Vector3 dir0 = target.position - origin;
+
         Quaternion endRot = (dir0.sqrMagnitude > 0.000001f)
             ? Quaternion.LookRotation(dir0.normalized, Vector3.up)
             : startRot;
 
         if (seconds <= 0f)
         {
-            transform.rotation = endRot;
+            if (cameraPivot != null) cameraPivot.rotation = endRot;
+            else transform.rotation = endRot;
+
             _lookLocked = false;
             _lookAtCo = null;
             yield break;
@@ -176,31 +244,75 @@ public class FirstPersonLook : MonoBehaviour
             float a = Mathf.Clamp01(t / seconds);
             if (lookAtCurve != null) a = lookAtCurve.Evaluate(a);
 
-            transform.rotation = Quaternion.Slerp(startRot, endRot, a);
+            Quaternion r = Quaternion.Slerp(startRot, endRot, a);
+
+            if (cameraPivot != null) cameraPivot.rotation = r;
+            else transform.rotation = r;
+
             yield return null;
         }
 
-        transform.rotation = endRot;
+        if (cameraPivot != null) cameraPivot.rotation = endRot;
+        else transform.rotation = endRot;
 
-        // Unlock if you only wanted to lock during the blend.
-        // If your device mode freezes look anyway, this won't matter.
         _lookLocked = false;
-
         _lookAtCo = null;
     }
 
     // ------------------------------------------------------------
-    // ✅ Crouch camera height API (called by Player)
+    // ✅ Height API (called by Player)
     // ------------------------------------------------------------
+
     public void SetCrouch(bool crouched)
     {
+        _isCrouched = crouched;
+
+        // Optional rule: if we stand up, we cannot remain crawling
+        if (!crouched)
+            _isCrawling = false;
+
+        ApplyResolvedHeightMode();
+    }
+
+    public void SetCrawl(bool crawling)
+    {
+        _isCrawling = crawling;
+
+        // Optional rule: crawling implies crouched (prevents weird stand+crawl combos)
+        if (crawling)
+            _isCrouched = true;
+
+        ApplyResolvedHeightMode();
+    }
+
+    private void ApplyResolvedHeightMode()
+    {
         if (cameraPivot == null) cameraPivot = transform;
+
+        HeightMode previous = _heightMode;
+
+        // Resolve priority: Crawl > Crouch > Stand
+        if (_isCrawling) _heightMode = HeightMode.Crawl;
+        else if (_isCrouched) _heightMode = HeightMode.Crouch;
+        else _heightMode = HeightMode.Stand;
+
+        // Pick correct offset
+        float yOffset = 0f;
+        if (_heightMode == HeightMode.Crouch) yOffset = crouchLocalYOffset;
+        else if (_heightMode == HeightMode.Crawl) yOffset = crawlLocalYOffset;
+
+        // Pick correct blend duration (stand<->crouch uses crouchBlend, crouch<->crawl uses crawlBlend)
+        float duration =
+            (previous == HeightMode.Crawl || _heightMode == HeightMode.Crawl)
+                ? crawlBlendSeconds
+                : crouchBlendSeconds;
+
+        Vector3 target = _pivotStartLocalPos + new Vector3(0f, yOffset, 0f);
 
         if (_heightCo != null)
             StopCoroutine(_heightCo);
 
-        Vector3 target = _pivotStartLocalPos + new Vector3(0f, crouched ? crouchLocalYOffset : 0f, 0f);
-        _heightCo = StartCoroutine(BlendPivotHeight(target, crouchBlendSeconds));
+        _heightCo = StartCoroutine(BlendPivotHeight(target, duration));
     }
 
     private IEnumerator BlendPivotHeight(Vector3 targetLocalPos, float seconds)
@@ -227,5 +339,45 @@ public class FirstPersonLook : MonoBehaviour
 
         cameraPivot.localPosition = targetLocalPos;
         _heightCo = null;
+    }
+
+    // ------------------------------------------------------------
+    // ✅ Camera app events
+    // ------------------------------------------------------------
+    public void PhoneCameraOpen()
+    {
+        if (_currentDevice == null) return;
+
+        if (!_deviceBaseCaptured)
+            CaptureDeviceBaselineLocalPose();
+
+        Transform pivot = (cameraPivot != null) ? cameraPivot : transform;
+
+        _deviceLocalPosInPivot = pivot.InverseTransformPoint(_currentDevice.position);
+        _deviceLocalRotInPivot = Quaternion.Inverse(pivot.rotation) * _currentDevice.rotation;
+
+        _keepDeviceCentered = true;
+        appliedMouseDelta = Vector2.zero;
+    }
+
+    public void PhoneCameraClosed()
+    {
+        _keepDeviceCentered = false;
+        appliedMouseDelta = Vector2.zero;
+
+        ApplyDeviceBaselineLocalPose();
+    }
+
+    private void FollowDeviceToPivotPose()
+    {
+        float k = 1f - Mathf.Exp(-deviceFollowSharpness * Time.deltaTime);
+
+        Transform pivot = (cameraPivot != null) ? cameraPivot : transform;
+
+        Vector3 desiredPos = pivot.TransformPoint(_deviceLocalPosInPivot);
+        Quaternion desiredRot = pivot.rotation * _deviceLocalRotInPivot;
+
+        _currentDevice.position = Vector3.Lerp(_currentDevice.position, desiredPos, k);
+        _currentDevice.rotation = Quaternion.Slerp(_currentDevice.rotation, desiredRot, k);
     }
 }

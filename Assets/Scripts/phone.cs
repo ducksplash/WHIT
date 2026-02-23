@@ -57,8 +57,7 @@ public class Phone : MonoBehaviour
     public TextMeshProUGUI workNum;
     public TextMeshProUGUI darraghNum;
     public bool CameraOpen;
-    public Light CameraLeftFlash;
-    public Light CameraRightFlash;
+    public Light CameraFlash;
     public Light TorchLight;
     public int resWidth = 600;
     public int resHeight = 1000;
@@ -357,8 +356,7 @@ public class Phone : MonoBehaviour
 
         if (cameraScreenGroup != null && cameraScreenGroup.alpha < 0.9f)
         {
-            CameraLeftFlash.enabled = false;
-            CameraRightFlash.enabled = false;
+            CameraFlash.enabled = false;
         }
 
         if (useThisScreen != GalleryScreen)
@@ -387,6 +385,8 @@ public class Phone : MonoBehaviour
             
             TriggerAction.action.performed -= TakePhoto;
             InteractAction.action.performed -= TakePhoto;
+            
+            GameMaster.Instance.EventManager.CameraClosed();
         }
 
         if (useThisScreen != MapsScreen)
@@ -560,6 +560,7 @@ public class Phone : MonoBehaviour
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        GameMaster.Instance.EventManager.StopPhone();
     }
 
 
@@ -939,9 +940,10 @@ public class Phone : MonoBehaviour
             Torch.torchToggle = false;
             TorchLight.enabled = false;
         }
+        
+        GameMaster.Instance.EventManager.CameraOpen();
 
-        CameraLeftFlash.enabled = true;
-        CameraRightFlash.enabled = true;
+        CameraFlash.enabled = true;
 
         if (GameMaster.Instance.EvidenceManager.EvidenceFound.Count < 1)
         {

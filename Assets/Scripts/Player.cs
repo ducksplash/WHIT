@@ -37,6 +37,17 @@ public class Player : Singleton<Player>
     private static readonly int AnimPhoneOut = Animator.StringToHash("PHONEOUT");
     private static readonly int AnimNotepadOut = Animator.StringToHash("NOTEPADOUT");
 
+
+    [Header("Locomotion Torch Clip Overrides")]
+    public AnimationClip idleWithTorch;
+    public AnimationClip idleWithoutTorch;
+    public AnimationClip walkingWithTorch;
+    public AnimationClip walkingWithoutTorch;
+
+    private AnimatorOverrideController _locomotionOverride;
+    private RuntimeAnimatorController _baseController;
+    private bool _hasTorch;
+    
     // ✅ NEW: crouch phone out trigger (matches your new trigger name)
     private static readonly int AnimPhoneOutCrouch = Animator.StringToHash("PHONEOUTCROUCH");
 
@@ -169,12 +180,13 @@ public class Player : Singleton<Player>
 
     void Start()
     {
-        thisCharController = GetComponentInParent<CharacterController>();
-        if (thisCharController == null)
-            thisCharController = GetComponent<CharacterController>();
+        EventManager.OnTorchCollected += TorchCollected;
 
-        if (thisCharController == null)
-            Debug.LogError("[Player] No CharacterController found on this object or its parents.");
+        
+        thisCharController = GetComponentInParent<CharacterController>();
+        if (thisCharController == null) thisCharController = GetComponent<CharacterController>();
+
+        if (thisCharController == null) Debug.LogError("[Player] No CharacterController found on this object or its parents.");
 
         SpawnPoint = transform.position;
         speed = sprintspeed;
@@ -213,10 +225,58 @@ public class Player : Singleton<Player>
 
         CaptureControllerBaseline();
         _lastWorldPos = GetWorldPositionForVelocity();
+        
+        
+        _baseController = Noranimator.runtimeAnimatorController;
+        _locomotionOverride = new AnimatorOverrideController(_baseController);
+        Noranimator.runtimeAnimatorController = _locomotionOverride;
 
-
+        SetTorchLocomotion(false);
     }
 
+
+    private void TorchCollected()
+    {
+        SetTorchLocomotion(true);
+    }
+    
+
+    public void SetTorchLocomotion(bool hasTorch)
+    {
+        _hasTorch = hasTorch;
+
+        if (_locomotionOverride == null)
+        {
+            Debug.LogWarning("[Player] Locomotion override controller not initialised yet.");
+            return;
+        }
+
+        // Validate keys (these MUST be the clips used by the BlendTree)
+        if (idleWithTorch == null || walkingWithTorch == null)
+        {
+            Debug.LogWarning("[Player] Missing WithTorch clips. These must be the exact clips referenced by the BlendTree.");
+            return;
+        }
+
+        // Validate targets
+        if (!hasTorch && (idleWithoutTorch == null || walkingWithoutTorch == null))
+        {
+            Debug.LogWarning("[Player] Missing WithoutTorch clips.");
+            return;
+        }
+
+        // Override the BlendTree clips:
+        // - when hasTorch = false => play WithoutTorch
+        // - when hasTorch = true  => play the WithTorch clips (back to default)
+        _locomotionOverride[idleWithTorch] = hasTorch ? idleWithTorch : idleWithoutTorch;
+        _locomotionOverride[walkingWithTorch] = hasTorch ? walkingWithTorch : walkingWithoutTorch;
+
+        // Optional: force animator to notice immediately (usually not required, but harmless)
+        // Noranimator.Rebind();
+        // Noranimator.Update(0f);
+    }
+    
+    
     private void CaptureControllerBaseline()
     {
         if (thisCharController == null || _controllerBaselineCaptured) return;
@@ -626,8 +686,8 @@ public class Player : Singleton<Player>
 
         // ✅ Taking phone out:
         // Pick the correct take-out trigger based on stance *at the moment of opening*.
-        Noranimator.ResetTrigger(AnimPhoneOut);
-        Noranimator.ResetTrigger(AnimPhoneOutCrouch);
+        // Noranimator.ResetTrigger(AnimPhoneOut);
+        // Noranimator.ResetTrigger(AnimPhoneOutCrouch);
 
         if (crouching)
         {

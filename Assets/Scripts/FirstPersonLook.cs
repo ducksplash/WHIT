@@ -34,6 +34,11 @@ public class FirstPersonLook : MonoBehaviour
     [Tooltip("Seconds to blend between crouch/crawl camera heights.")]
     [SerializeField] private float crawlBlendSeconds = 0.12f;
 
+    [Header("Pitch Limits")]
+    [SerializeField] private float pitchClampMin = -60f;
+    [SerializeField] private float pitchClampMax = 60f;
+
+    
     private Vector3 _pivotStartLocalPos;
     private Coroutine _heightCo;
 
@@ -127,7 +132,7 @@ public class FirstPersonLook : MonoBehaviour
         appliedMouseDelta = Vector2.Lerp(appliedMouseDelta, smoothMouseDelta, 1f / smoothing);
 
         currentMouseLook += appliedMouseDelta;
-        currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, -60, 60);
+        currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, pitchClampMin, pitchClampMax);
 
         if (_keepDeviceCentered && _currentDevice != null)
             FollowDeviceToPivotPose();
@@ -184,8 +189,7 @@ public class FirstPersonLook : MonoBehaviour
         _currentDevice = deviceTransform;
         CaptureDeviceBaselineLocalPose();
 
-        if (_lookAtCo != null)
-            StopCoroutine(_lookAtCo);
+        if (_lookAtCo != null) StopCoroutine(_lookAtCo);
 
         _lookAtCo = StartCoroutine(SmoothLookAtCoroutine(deviceTransform, lookAtBlendSeconds));
     }
@@ -197,12 +201,6 @@ public class FirstPersonLook : MonoBehaviour
         _deviceBaseLocalPos = _currentDevice.localPosition;
         _deviceBaseLocalRot = _currentDevice.localRotation;
         _deviceBaseCaptured = true;
-    }
-
-    public void DeviceClosed()
-    {
-        _keepDeviceCentered = false;
-        ApplyDeviceBaselineLocalPose();
     }
 
     private void ApplyDeviceBaselineLocalPose()

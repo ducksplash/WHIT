@@ -491,14 +491,9 @@ public class Phone : MonoBehaviour
 
     private IEnumerator StopAnimating()
     {
-
-        for (var i = 0; i < 10; i++)
-        {
-            yield return new WaitForSeconds(0.1f);
-            GameMaster.Instance.Player.Noranimator.speed -= 0.1f;
-        }
         
-        
+        yield return new WaitForSeconds(0.1f);
+        GameMaster.Instance.Player.Noranimator.speed = 0f;
         GameMaster.Instance.EventManager.StartPhone(transform);
         FacePlayerOnY();
 
@@ -514,8 +509,7 @@ public class Phone : MonoBehaviour
 
         float targetYaw = Quaternion.LookRotation(toPlayer, Vector3.up).eulerAngles.y;
 
-        Vector3 e = transform.rotation.eulerAngles;
-        transform.rotation = Quaternion.Euler(e.x, targetYaw, e.z);
+        transform.rotation = Quaternion.Euler(0, targetYaw, 0);
     }
     
     

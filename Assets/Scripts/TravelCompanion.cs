@@ -136,34 +136,29 @@ public class TravelCompanion : MonoBehaviour
     }
 
     
+    
     private IEnumerator StopAnimating()
     {
-
-        for (var i = 0; i < 10; i++)
-        {
-            yield return new WaitForSeconds(0.1f);
-            GameMaster.Instance.Player.Noranimator.speed -= 0.1f;
-        }
         
-            
+        yield return new WaitForSeconds(0.1f);
+        GameMaster.Instance.Player.Noranimator.speed = 0f;
         GameMaster.Instance.EventManager.StartNotepad(Notepad.transform);
-        
         FacePlayerOnY();
 
     }
+
 
     
         
     public void FacePlayerOnY()
     {
-        Vector3 toPlayer = Player.Instance.transform.position - Notepad.transform.position;
+        Vector3 toPlayer = Player.Instance.transform.position - transform.position;
         toPlayer.y = 0f;
         if (toPlayer.sqrMagnitude < 0.0001f) return;
 
         float targetYaw = Quaternion.LookRotation(toPlayer, Vector3.up).eulerAngles.y;
 
-        Vector3 e = Notepad.transform.rotation.eulerAngles;
-        Notepad.transform.rotation = Quaternion.Euler(e.x, targetYaw, e.z);
+        transform.rotation = Quaternion.Euler(0, targetYaw, 0);
     }
 
     

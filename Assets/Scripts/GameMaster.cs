@@ -39,6 +39,7 @@ public class GameMaster : MonoBehaviour
     public QuestManager QuestManager;
     public AudioSlave AudioSlave;
     public LoadingManager LoadingManager;
+    public NPCManager NPCManager;
     public int DefaultFOV;
 
 

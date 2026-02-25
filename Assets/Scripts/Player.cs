@@ -684,10 +684,6 @@ public class Player : Singleton<Player>
             return;
         }
 
-        // ✅ Taking phone out:
-        // Pick the correct take-out trigger based on stance *at the moment of opening*.
-        // Noranimator.ResetTrigger(AnimPhoneOut);
-        // Noranimator.ResetTrigger(AnimPhoneOutCrouch);
 
         if (crouching)
         {

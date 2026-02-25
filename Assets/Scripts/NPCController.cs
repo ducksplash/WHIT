@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -32,11 +31,19 @@ public class NPCController : MonoBehaviour
     public float stopDuration = 2f;
     [Tooltip("How close to a waypoint counts as 'arrived'.")]
     public float arriveDistance = 0.3f;
+    [Tooltip("Extra time to let the agent settle after arriving before stopping.")]
+    public float arriveSettleTime = 0.05f;
 
     [Header("Movement")]
     public float moveSpeed = 1.8f;
-    public float angularSpeed = 360f;
+    public float angularSpeed = 240f;
     public float acceleration = 8f;
+
+    [Header("Smoothing")]
+    [Tooltip("Seconds to smooth blend tree params.")]
+    public float animDampTime = 0.15f;
+    [Tooltip("How quickly the NPC turns to face movement direction when agent.updateRotation = false.")]
+    public float turnSmoothing = 10f;
 
     [Header("NavMesh Placement")]
     [Tooltip("How far to search to snap this NPC onto the NavMesh if it spawns slightly off-mesh.")]
@@ -80,14 +87,23 @@ public class NPCController : MonoBehaviour
             agent.speed = moveSpeed;
             agent.angularSpeed = angularSpeed;
             agent.acceleration = acceleration;
+
             agent.stoppingDistance = Mathf.Max(agent.stoppingDistance, arriveDistance);
-            agent.updateRotation = true;
+
+            // Smoother slowing / fewer jittery corrections
+            agent.autoBraking = true;
+            agent.autoRepath = true;
+            agent.obstacleAvoidanceType = ObstacleAvoidanceType.LowQualityObstacleAvoidance;
+
+            // We rotate smoothly ourselves to avoid micro-wobble
+            agent.updateRotation = false;
         }
     }
 
     void Update()
     {
         UpdateAnimatorFromMovement();
+        UpdateFacing();
     }
 
     // -----------------------
@@ -174,6 +190,8 @@ public class NPCController : MonoBehaviour
         index = Mathf.Clamp(index, 0, waypoints.Count - 1);
         _currentIndex = index;
 
+        if (waypoints[_currentIndex] == null) return;
+
         // If route isn't running, just set destination as a preview (then stop)
         if (!isRunningRoute)
         {
@@ -193,12 +211,10 @@ public class NPCController : MonoBehaviour
 
     IEnumerator RouteRoutine()
     {
-        // Direction: startIndex -> endIndex (increasing or decreasing)
         int step = (_resolvedEndIndex >= _currentIndex) ? 1 : -1;
 
         while (isRunningRoute)
         {
-            // Pause handling
             while (isPaused)
                 yield return null;
 
@@ -217,20 +233,31 @@ public class NPCController : MonoBehaviour
             agent.isStopped = false;
             agent.SetDestination(target.position);
 
-            // Wait until we arrive
             while (isRunningRoute && !isPaused && !HasArrived(agent, arriveDistance))
                 yield return null;
 
             if (!isRunningRoute) yield break;
 
-            // Stop at the waypoint (if on navmesh)
+            // Let the agent settle a moment so we don't thrash stop/start at the threshold
+            if (arriveSettleTime > 0f)
+            {
+                float tSettle = 0f;
+                while (tSettle < arriveSettleTime)
+                {
+                    if (!isRunningRoute) yield break;
+                    while (isPaused) yield return null;
+
+                    tSettle += Time.deltaTime;
+                    yield return null;
+                }
+            }
+
             if (agent.isOnNavMesh)
                 agent.isStopped = true;
 
             bool isEnd = (_currentIndex == _resolvedEndIndex);
             bool isIntermediate = !isEnd;
 
-            // Stop delay at intermediate waypoints
             if (isIntermediate && stopAtIntermediateWaypoints && stopDuration > 0f)
             {
                 float t = 0f;
@@ -282,7 +309,6 @@ public class NPCController : MonoBehaviour
             return false;
         }
 
-        // Try to snap to nearest NavMesh
         if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, snapToNavMeshRadius, NavMesh.AllAreas))
         {
             agent.Warp(hit.position);
@@ -333,14 +359,28 @@ public class NPCController : MonoBehaviour
             blend = 0f;
         }
 
-        animationController.SetFloat(paramMovingX, movingX);
-        animationController.SetFloat(paramMovingY, movingY);
-        animationController.SetFloat(paramBlend, blend);
+        // Damp to avoid jittery blend tree inputs
+        animationController.SetFloat(paramMovingX, movingX, animDampTime, Time.deltaTime);
+        animationController.SetFloat(paramMovingY, movingY, animDampTime, Time.deltaTime);
+        animationController.SetFloat(paramBlend, blend, animDampTime, Time.deltaTime);
+    }
+
+    void UpdateFacing()
+    {
+        if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+        if (!isRunningRoute || isPaused) return;
+
+        Vector3 v = agent.velocity;
+        v.y = 0f;
+
+        if (v.sqrMagnitude < 0.01f) return;
+
+        Quaternion targetRot = Quaternion.LookRotation(v.normalized, Vector3.up);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * turnSmoothing);
     }
 }
 
 #if UNITY_EDITOR
-
 [CustomEditor(typeof(NPCController))]
 public class NPCControllerEditor : Editor
 {
@@ -367,7 +407,6 @@ public class NPCControllerEditor : Editor
 
             if (npc.waypoints != null && npc.waypoints.Count > 0)
             {
-                // Quick buttons for first/last + slider for any index
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button("First")) npc.JumpToWaypoint(0);
                 if (GUILayout.Button("Last")) npc.JumpToWaypoint(npc.waypoints.Count - 1);

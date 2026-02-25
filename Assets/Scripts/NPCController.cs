@@ -35,7 +35,7 @@ public class NPCController : MonoBehaviour
     public float arriveSettleTime = 0.05f;
 
     [Header("Movement")]
-    public float moveSpeed = 1.8f;
+    public float moveSpeed = 3f;
     public float angularSpeed = 240f;
     public float acceleration = 8f;
 

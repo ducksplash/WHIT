@@ -210,6 +210,10 @@ public class DialogueManager : MonoBehaviour
             {
                 SystemMessage.text = message;
             }
+            else if (contact == Contacts.Unknown)
+            {
+                SystemMessage.text = message;
+            }
             else if (contact == Contacts.Nora)
             {
                 NoraMessage.text = message;
@@ -245,6 +249,12 @@ public class DialogueManager : MonoBehaviour
             if (contact == Contacts.System)
             {
                 SystemMessage.text = message;
+                _activeTimedWasShown = true;
+                await SystemTimer(displaytimer, token);
+            }
+            else if (contact == Contacts.Unknown)
+            {
+                SystemMessage.text = contact + ": "+ message;
                 _activeTimedWasShown = true;
                 await SystemTimer(displaytimer, token);
             }
@@ -609,7 +619,7 @@ public enum OSDTextName
 
 public enum DialogueName
 {
-    // Level One, Start
+    // Level 0; Start
     None,
     KieronToNoraBathroom = 100,
     NoraAboutKieronBathroom = 101,
@@ -625,14 +635,21 @@ public enum DialogueName
     phoneTutorialFirstPhoto = 111,
     phoneTutorialSomething = 112,
     
-    // Level 2
+    // Level 1
     NoraBathroomLockedFromInside = 200,
     NoraDiesInAFreezer = 201,
     NoraLookingAtIncinerator = 202,
     NoraLookingAtBloodstains = 203,
     NoraLookingAtSkull = 204,
     NoraReadingManagersEmails = 205,
-    NoraOutsideRoark = 307,
+    
+    // Level 2
+    NoraOutsideRoark = 300,
+    
+    // Level 4
+    ScientistHowDidYouGetHere = 400,
+    ScientistWarningOne = 401,
+    ScientistGettingAgitated = 402,
     
     // Generics
     NoraCantCrawlAndPhone = 900

@@ -6,5 +6,6 @@ public enum Contacts
 {
     Nora,
     Kieron,
-    System
+    System,
+    Unknown
 }

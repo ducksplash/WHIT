@@ -17,22 +17,25 @@ public class NPCController : MonoBehaviour
     public Animator animationController;
     public NavMeshAgent agent;
 
-    [Header("Waypoints")]
-    public List<Transform> waypoints = new List<Transform>();
-    [Tooltip("Start waypoint index (inclusive).")]
-    public int startIndex = 0;
-    [Tooltip("End waypoint index (inclusive). If -1, uses last waypoint.")]
-    public int endIndex = -1;
+    [Header("Routines (Scriptable Objects)")]
+    [Tooltip("Assign NPCRoutine ScriptableObjects here.")]
+    public List<NPCRoutine> routines = new List<NPCRoutine>();
 
-    [Header("Stopping")]
-    [Tooltip("If true, NPC will stop at intermediate waypoints between the start and end.")]
-    public bool stopAtIntermediateWaypoints = true;
-    [Tooltip("Seconds to wait when stopping at a waypoint.")]
-    public float stopDuration = 2f;
-    [Tooltip("How close to a waypoint counts as 'arrived'.")]
+    [Tooltip("Select which routine to play (by enum).")]
+    public Routine selectedRoutine = Routine.idle;
+
+    [Header("Arrival / Blending")]
+    [Tooltip("How close to a destination counts as 'arrived'.")]
     public float arriveDistance = 0.3f;
-    [Tooltip("Extra time to let the agent settle after arriving before stopping.")]
+
+    [Tooltip("Extra time to let the agent settle after arriving before beginning stop blending.")]
     public float arriveSettleTime = 0.05f;
+
+    [Tooltip("After arriving, allow the agent to naturally slow for this long before forcing stop.")]
+    public float stopFadeOutTime = 0.35f;
+
+    [Tooltip("When agent velocity is below this, we treat the NPC as idle.")]
+    public float idleVelocityThreshold = 0.05f;
 
     [Header("Movement")]
     public float moveSpeed = 3f;
@@ -42,30 +45,36 @@ public class NPCController : MonoBehaviour
     [Header("Smoothing")]
     [Tooltip("Seconds to smooth blend tree params.")]
     public float animDampTime = 0.15f;
+
     [Tooltip("How quickly the NPC turns to face movement direction when agent.updateRotation = false.")]
     public float turnSmoothing = 10f;
 
     [Header("NavMesh Placement")]
     [Tooltip("How far to search to snap this NPC onto the NavMesh if it spawns slightly off-mesh.")]
     public float snapToNavMeshRadius = 2f;
-    [Tooltip("If true, Go() will try to snap the agent onto the NavMesh automatically.")]
+
+    [Tooltip("If true, Play/Go will try to snap the agent onto the NavMesh automatically.")]
     public bool autoSnapToNavMeshOnGo = true;
 
     [Header("Animator Params")]
     public string paramBlend = "Blend";
     public string paramMovingX = "MovingX";
     public string paramMovingY = "MovingY";
-    public string paramCrouching = "Crouching"; // not used yet
-    public string paramGrounded = "Grounded";   // not used yet
-    public string paramJump = "Jump";           // not used yet
 
     // Runtime state
-    [NonSerialized] public bool isRunningRoute = false;
+    
+    public bool playRoutineOnStart = false;
+    [NonSerialized] public bool isRunningRoutine = false;
     [NonSerialized] public bool isPaused = false;
 
-    int _currentIndex;
-    int _resolvedEndIndex;
-    Coroutine _routeRoutine;
+    bool _reverseAnimations = false;
+    Coroutine _routineCoroutine;
+
+    NPCRoutine _activeRoutineAsset;
+    List<NPCBehaviour> _activeBehaviours;
+
+    // For looping routines: we must return to the FIRST waypoint before restarting
+    Vector3? _loopReturnToFirstWaypoint;
 
     void Reset()
     {
@@ -78,7 +87,6 @@ public class NPCController : MonoBehaviour
         // MUST be first thing this does:
         GameMaster.Instance.NPCManager.RegisterNPC(this);
 
-        // Then init:
         if (animationController == null) animationController = GetComponentInChildren<Animator>();
         if (agent == null) agent = GetComponent<NavMeshAgent>();
 
@@ -90,14 +98,15 @@ public class NPCController : MonoBehaviour
 
             agent.stoppingDistance = Mathf.Max(agent.stoppingDistance, arriveDistance);
 
-            // Smoother slowing / fewer jittery corrections
             agent.autoBraking = true;
             agent.autoRepath = true;
             agent.obstacleAvoidanceType = ObstacleAvoidanceType.LowQualityObstacleAvoidance;
 
-            // We rotate smoothly ourselves to avoid micro-wobble
             agent.updateRotation = false;
         }
+        
+        if (playRoutineOnStart) PlaySelectedRoutine();
+        
     }
 
     void Update()
@@ -107,144 +116,307 @@ public class NPCController : MonoBehaviour
     }
 
     // -----------------------
-    // Public controls
+    // Routine controls
     // -----------------------
 
-    public void Go()
+    public void PlaySelectedRoutine()
     {
-        if (waypoints == null || waypoints.Count == 0)
+        _reverseAnimations = false;
+        StartRoutineInternal(selectedRoutine);
+    }
+
+    public void ReverseSelectedRoutine()
+    {
+        _reverseAnimations = true;
+        StartRoutineInternal(selectedRoutine);
+    }
+
+    public void PlayRoutine(Routine routineType)
+    {
+        _reverseAnimations = false;
+        StartRoutineInternal(routineType);
+    }
+
+    public void ReverseRoutine(Routine routineType)
+    {
+        _reverseAnimations = true;
+        StartRoutineInternal(routineType);
+    }
+
+    public void StopRoutine()
+    {
+        isRunningRoutine = false;
+        isPaused = false;
+
+        if (_routineCoroutine != null)
         {
-            Debug.LogWarning($"{name}: No waypoints assigned.");
+            StopCoroutine(_routineCoroutine);
+            _routineCoroutine = null;
+        }
+
+        _activeRoutineAsset = null;
+        _activeBehaviours = null;
+        _loopReturnToFirstWaypoint = null;
+
+        HardStopAgent("StopRoutine");
+        ForceIdlePose();
+    }
+
+    void StartRoutineInternal(Routine routineType)
+    {
+        if (routines == null || routines.Count == 0)
+        {
+            Debug.LogWarning($"{name}: No NPCRoutine assets assigned.");
+            return;
+        }
+
+        NPCRoutine routineAsset = FindRoutineAsset(routineType);
+        if (routineAsset == null)
+        {
+            Debug.LogWarning($"{name}: No NPCRoutine asset found for routine type '{routineType}'.");
+            return;
+        }
+
+        if (routineAsset.RoutineBehaviours == null || routineAsset.RoutineBehaviours.Count == 0)
+        {
+            Debug.LogWarning($"{name}: Routine '{routineType}' has no behaviours.");
             return;
         }
 
         if (agent == null)
         {
-            Debug.LogWarning($"{name}: No NavMeshAgent found. Add one to use waypoint navigation.");
+            Debug.LogWarning($"{name}: No NavMeshAgent found. Add one to use 'go' behaviours.");
             return;
         }
 
-        // Ensure the agent is actually placed on a NavMesh (snap if possible)
-        if (!EnsureAgentOnNavMesh("Go")) return;
+        if (!EnsureAgentOnNavMesh("StartRoutine")) return;
 
-        if (_routeRoutine != null)
-            StopCoroutine(_routeRoutine);
+        if (_routineCoroutine != null)
+            StopCoroutine(_routineCoroutine);
 
         isPaused = false;
-        isRunningRoute = true;
+        isRunningRoutine = true;
 
-        _currentIndex = Mathf.Clamp(startIndex, 0, waypoints.Count - 1);
-        _resolvedEndIndex = (endIndex < 0) ? waypoints.Count - 1 : Mathf.Clamp(endIndex, 0, waypoints.Count - 1);
+        selectedRoutine = routineType;
+        _activeRoutineAsset = routineAsset;
+        _activeBehaviours = routineAsset.RoutineBehaviours;
+
+        // determine loop return point (first waypoint encountered in the routine)
+        _loopReturnToFirstWaypoint = FindFirstWaypointInRoutine(_activeBehaviours);
 
         agent.isStopped = false;
         agent.speed = moveSpeed;
         agent.angularSpeed = angularSpeed;
         agent.acceleration = acceleration;
 
-        _routeRoutine = StartCoroutine(RouteRoutine());
+        _routineCoroutine = StartCoroutine(RoutineCoroutine());
     }
 
-    public void Stop()
+    NPCRoutine FindRoutineAsset(Routine routineType)
     {
-        isRunningRoute = false;
-        isPaused = false;
-
-        if (_routeRoutine != null)
+        // Prefer exact match on RoutineType; first match wins
+        for (int i = 0; i < routines.Count; i++)
         {
-            StopCoroutine(_routeRoutine);
-            _routeRoutine = null;
+            NPCRoutine r = routines[i];
+            if (r != null && r.RoutineType == routineType)
+                return r;
+        }
+        return null;
+    }
+
+    Vector3? FindFirstWaypointInRoutine(List<NPCBehaviour> behaviours)
+    {
+        if (behaviours == null) return null;
+
+        for (int i = 0; i < behaviours.Count; i++)
+        {
+            NPCBehaviour b = behaviours[i];
+            if (b == null) continue;
+
+            if (b.BehaviourType == Behaviour.go && b.waypointVectors != null && b.waypointVectors.Count > 0)
+                return b.waypointVectors[0];
         }
 
-        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+        return null;
+    }
+
+    IEnumerator RoutineCoroutine()
+    {
+        if (_activeRoutineAsset == null || _activeBehaviours == null || _activeBehaviours.Count == 0)
         {
-            agent.isStopped = true;
-            agent.ResetPath();
+            isRunningRoutine = false;
+            _routineCoroutine = null;
+            yield break;
         }
-    }
 
-    public void Pause()
-    {
-        if (!isRunningRoute) return;
-        if (!EnsureAgentOnNavMesh("Pause")) return;
-
-        isPaused = true;
-        agent.isStopped = true;
-    }
-
-    public void Resume()
-    {
-        if (!isRunningRoute) return;
-        if (!EnsureAgentOnNavMesh("Resume")) return;
-
-        isPaused = false;
-        agent.isStopped = false;
-    }
-
-    public void JumpToWaypoint(int index)
-    {
-        if (waypoints == null || waypoints.Count == 0) return;
-        if (agent == null) return;
-
-        if (!EnsureAgentOnNavMesh("JumpToWaypoint")) return;
-
-        index = Mathf.Clamp(index, 0, waypoints.Count - 1);
-        _currentIndex = index;
-
-        if (waypoints[_currentIndex] == null) return;
-
-        // If route isn't running, just set destination as a preview (then stop)
-        if (!isRunningRoute)
+        while (isRunningRoutine)
         {
-            agent.isStopped = false;
-            agent.SetDestination(waypoints[_currentIndex].position);
-            agent.isStopped = true;
-        }
-        else
-        {
-            agent.SetDestination(waypoints[_currentIndex].position);
-        }
-    }
-
-    // -----------------------
-    // Internal route logic
-    // -----------------------
-
-    IEnumerator RouteRoutine()
-    {
-        int step = (_resolvedEndIndex >= _currentIndex) ? 1 : -1;
-
-        while (isRunningRoute)
-        {
-            while (isPaused)
-                yield return null;
-
-            if (!EnsureAgentOnNavMesh("RouteRoutine"))
-                yield break;
-
-            Transform target = waypoints[_currentIndex];
-            if (target == null)
+            // Play through the behaviours once
+            for (int i = 0; i < _activeBehaviours.Count; i++)
             {
-                Debug.LogWarning($"{name}: Waypoint at index {_currentIndex} is null, skipping.");
-                if (_currentIndex == _resolvedEndIndex) break;
-                _currentIndex += step;
+                if (!isRunningRoutine) yield break;
+
+                while (isPaused)
+                    yield return null;
+
+                NPCBehaviour b = _activeBehaviours[i];
+                if (b == null)
+                {
+                    Debug.LogWarning($"{name}: Routine item {i} is null, skipping.");
+                    continue;
+                }
+
+                switch (b.BehaviourType)
+                {
+                    case Behaviour.idle:
+                        yield return DoIdle(b);
+                        break;
+
+                    case Behaviour.say:
+                        yield return DoSay(b);
+                        break;
+
+                    case Behaviour.go:
+                        yield return DoGo(b);
+                        break;
+
+                    case Behaviour.act:
+                        yield return DoAct(b);
+                        break;
+
+                    case Behaviour.die:
+                        yield return DoDie(b);
+                        break;
+
+                    default:
+                        Debug.LogWarning($"{name}: Unknown behaviour type {b.BehaviourType} at index {i}.");
+                        break;
+                }
+            }
+
+            // Finished one pass of the routine
+            if (_activeRoutineAsset.looping)
+            {
+                // Requirement: if looping and there were waypoints, walk back to the first waypoint before restarting
+                if (_loopReturnToFirstWaypoint.HasValue)
+                {
+                    yield return GoToSinglePoint(_loopReturnToFirstWaypoint.Value);
+                    yield return SmoothStopAndIdle();
+                }
+
+                // then loop again
                 continue;
             }
 
-            agent.isStopped = false;
-            agent.SetDestination(target.position);
+            break; // not looping -> finish
+        }
 
-            while (isRunningRoute && !isPaused && !HasArrived(agent, arriveDistance))
+        isRunningRoutine = false;
+        _routineCoroutine = null;
+        _activeRoutineAsset = null;
+        _activeBehaviours = null;
+        _loopReturnToFirstWaypoint = null;
+
+        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+            yield return SmoothStopAndIdle();
+
+        ForceIdlePose();
+    }
+
+    // -----------------------
+    // Behaviour executors
+    // -----------------------
+
+    IEnumerator DoIdle(NPCBehaviour b)
+    {
+        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+            yield return SmoothStopAndIdle();
+
+        float wait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
+        if (wait > 0f)
+            yield return WaitSecondsRespectPause(wait);
+        else
+            yield return null;
+    }
+
+    IEnumerator DoSay(NPCBehaviour b)
+    {
+        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+            yield return SmoothStopAndIdle();
+
+        // You wired this up:
+        GameMaster.Instance.DialogueManager.PlayDialogue(b.selectedDialogue, b.timer, DialogueType.normal);
+
+        float wait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
+        if (wait > 0f)
+            yield return WaitSecondsRespectPause(wait);
+        else
+            yield return null;
+    }
+
+    IEnumerator DoAct(NPCBehaviour b)
+    {
+        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+            yield return SmoothStopAndIdle();
+
+        Debug.Log($"{name} ACT: (hook up act animation later) Behaviour asset = {b.name}");
+
+        float wait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
+        if (wait > 0f)
+            yield return WaitSecondsRespectPause(wait);
+        else
+            yield return null;
+    }
+
+    IEnumerator DoDie(NPCBehaviour b)
+    {
+        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+            yield return SmoothStopAndIdle();
+
+        Debug.Log($"{name} DIE: (hook up death later) Behaviour asset = {b.name}");
+
+        float wait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
+        if (wait > 0f)
+            yield return WaitSecondsRespectPause(wait);
+        else
+            yield return null;
+    }
+
+    IEnumerator DoGo(NPCBehaviour b)
+    {
+        if (!EnsureAgentOnNavMesh("GoBehaviour")) yield break;
+
+        if (b.waypointVectors == null || b.waypointVectors.Count == 0)
+        {
+            Debug.LogWarning($"{name}: GO behaviour has no waypointVectors in {b.name}.");
+            yield break;
+        }
+
+        agent.isStopped = false;
+
+        for (int i = 0; i < b.waypointVectors.Count; i++)
+        {
+            if (!isRunningRoutine) yield break;
+            while (isPaused) yield return null;
+
+            if (!EnsureAgentOnNavMesh("GoBehaviourStep")) yield break;
+
+            Vector3 target = b.waypointVectors[i];
+
+            agent.isStopped = false;
+            agent.SetDestination(target);
+
+            while (isRunningRoutine && !isPaused && !HasArrived(agent, arriveDistance))
                 yield return null;
 
-            if (!isRunningRoute) yield break;
+            if (!isRunningRoutine) yield break;
 
-            // Let the agent settle a moment so we don't thrash stop/start at the threshold
             if (arriveSettleTime > 0f)
             {
                 float tSettle = 0f;
                 while (tSettle < arriveSettleTime)
                 {
-                    if (!isRunningRoute) yield break;
+                    if (!isRunningRoutine) yield break;
                     while (isPaused) yield return null;
 
                     tSettle += Time.deltaTime;
@@ -252,41 +424,75 @@ public class NPCController : MonoBehaviour
                 }
             }
 
-            if (agent.isOnNavMesh)
-                agent.isStopped = true;
+            yield return SmoothStopAndIdle();
 
-            bool isEnd = (_currentIndex == _resolvedEndIndex);
-            bool isIntermediate = !isEnd;
+            if (b.isTimed && b.timer > 0f)
+                yield return WaitSecondsRespectPause(b.timer);
+        }
+    }
 
-            if (isIntermediate && stopAtIntermediateWaypoints && stopDuration > 0f)
+    IEnumerator GoToSinglePoint(Vector3 target)
+    {
+        if (!EnsureAgentOnNavMesh("LoopReturn")) yield break;
+
+        agent.isStopped = false;
+        agent.SetDestination(target);
+
+        while (isRunningRoutine && !isPaused && !HasArrived(agent, arriveDistance))
+            yield return null;
+
+        if (!isRunningRoutine) yield break;
+
+        if (arriveSettleTime > 0f)
+        {
+            float tSettle = 0f;
+            while (tSettle < arriveSettleTime)
             {
-                float t = 0f;
-                while (t < stopDuration)
-                {
-                    if (!isRunningRoute) yield break;
-                    while (isPaused) yield return null;
+                if (!isRunningRoutine) yield break;
+                while (isPaused) yield return null;
 
-                    t += Time.deltaTime;
-                    yield return null;
-                }
+                tSettle += Time.deltaTime;
+                yield return null;
             }
+        }
+    }
 
-            if (isEnd)
-            {
-                isRunningRoute = false;
+    IEnumerator SmoothStopAndIdle()
+    {
+        if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh)
+            yield break;
 
-                if (agent.isOnNavMesh)
-                {
-                    agent.isStopped = true;
-                    agent.ResetPath();
-                }
+        agent.isStopped = true;
+
+        float t = 0f;
+        while (t < stopFadeOutTime)
+        {
+            if (!isRunningRoutine) yield break;
+            while (isPaused) yield return null;
+
+            if (agent.velocity.sqrMagnitude <= (idleVelocityThreshold * idleVelocityThreshold))
                 break;
-            }
 
-            _currentIndex += step;
+            t += Time.deltaTime;
+            yield return null;
         }
 
-        _routeRoutine = null;
+        agent.ResetPath();
+    }
+
+    IEnumerator WaitSecondsRespectPause(float seconds)
+    {
+        float t = 0f;
+        while (t < seconds)
+        {
+            if (!isRunningRoutine) yield break;
+
+            while (isPaused)
+                yield return null;
+
+            t += Time.deltaTime;
+            yield return null;
+        }
     }
 
     // -----------------------
@@ -319,6 +525,15 @@ public class NPCController : MonoBehaviour
         return false;
     }
 
+    void HardStopAgent(string context)
+    {
+        if (agent == null || !agent.isActiveAndEnabled) return;
+        if (!agent.isOnNavMesh) return;
+
+        agent.isStopped = true;
+        agent.ResetPath();
+    }
+
     static bool HasArrived(NavMeshAgent a, float arriveDist)
     {
         if (a == null) return false;
@@ -335,12 +550,20 @@ public class NPCController : MonoBehaviour
     // Animator driving
     // -----------------------
 
+    void ForceIdlePose()
+    {
+        if (animationController == null) return;
+
+        animationController.SetFloat(paramMovingX, 0f, animDampTime, Time.deltaTime);
+        animationController.SetFloat(paramMovingY, 0f, animDampTime, Time.deltaTime);
+        animationController.SetFloat(paramBlend, 0f, animDampTime, Time.deltaTime);
+    }
+
     void UpdateAnimatorFromMovement()
     {
         if (animationController == null) return;
 
         Vector3 velocity = Vector3.zero;
-
         if (agent != null && agent.enabled && agent.isOnNavMesh)
             velocity = agent.velocity;
 
@@ -349,17 +572,18 @@ public class NPCController : MonoBehaviour
 
         float movingY = Mathf.Clamp(localVel.z, -1f, 1f);
         float movingX = Mathf.Clamp(localVel.x, -1f, 1f);
-
         float blend = (moveSpeed <= 0.001f) ? 0f : Mathf.Clamp01(speed / moveSpeed);
 
-        if (!isRunningRoute || isPaused)
+        if (_reverseAnimations && speed > 0.01f)
+            movingY = -Mathf.Abs(movingY);
+
+        if (!isRunningRoutine || isPaused)
         {
             movingX = 0f;
             movingY = 0f;
             blend = 0f;
         }
 
-        // Damp to avoid jittery blend tree inputs
         animationController.SetFloat(paramMovingX, movingX, animDampTime, Time.deltaTime);
         animationController.SetFloat(paramMovingY, movingY, animDampTime, Time.deltaTime);
         animationController.SetFloat(paramBlend, blend, animDampTime, Time.deltaTime);
@@ -368,7 +592,7 @@ public class NPCController : MonoBehaviour
     void UpdateFacing()
     {
         if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
-        if (!isRunningRoute || isPaused) return;
+        if (!isRunningRoutine || isPaused) return;
 
         Vector3 v = agent.velocity;
         v.y = 0f;
@@ -391,41 +615,41 @@ public class NPCControllerEditor : Editor
         NPCController npc = (NPCController)target;
 
         EditorGUILayout.Space(10);
-        EditorGUILayout.LabelField("NPC Controls", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Routine Controls", EditorStyles.boldLabel);
 
         using (new EditorGUI.DisabledScope(!Application.isPlaying))
         {
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Go")) npc.Go();
-            if (GUILayout.Button("Pause")) npc.Pause();
-            if (GUILayout.Button("Resume")) npc.Resume();
-            if (GUILayout.Button("Stop")) npc.Stop();
+            if (GUILayout.Button("Play Selected")) npc.PlaySelectedRoutine();
+            if (GUILayout.Button("Reverse Selected")) npc.ReverseSelectedRoutine();
+            if (GUILayout.Button("Stop")) npc.StopRoutine();
             EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space(6);
-            EditorGUILayout.LabelField("Jump To Waypoint", EditorStyles.miniBoldLabel);
-
-            if (npc.waypoints != null && npc.waypoints.Count > 0)
-            {
-                EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("First")) npc.JumpToWaypoint(0);
-                if (GUILayout.Button("Last")) npc.JumpToWaypoint(npc.waypoints.Count - 1);
-                EditorGUILayout.EndHorizontal();
-
-                int idx = EditorGUILayout.IntSlider("Index", 0, 0, npc.waypoints.Count - 1);
-                if (GUILayout.Button("Jump"))
-                    npc.JumpToWaypoint(idx);
-            }
-            else
-            {
-                EditorGUILayout.HelpBox("Assign waypoint Transforms in the Waypoints list to enable navigation.", MessageType.Info);
-            }
         }
 
-        EditorGUILayout.Space(6);
         if (!Application.isPlaying)
         {
-            EditorGUILayout.HelpBox("Controls are enabled in Play Mode.", MessageType.None);
+            EditorGUILayout.Space(6);
+            EditorGUILayout.HelpBox("Routine controls are enabled in Play Mode.", MessageType.None);
+        }
+
+        // Helpful debug: show which routine asset is assigned for the selected enum
+        if (npc.routines != null && npc.routines.Count > 0)
+        {
+            NPCRoutine found = null;
+            for (int i = 0; i < npc.routines.Count; i++)
+            {
+                var r = npc.routines[i];
+                if (r != null && r.RoutineType == npc.selectedRoutine)
+                {
+                    found = r;
+                    break;
+                }
+            }
+
+            if (found == null)
+                EditorGUILayout.HelpBox($"No NPCRoutine asset in 'routines' matches selectedRoutine = {npc.selectedRoutine}.", MessageType.Warning);
+            else
+                EditorGUILayout.HelpBox($"Selected routine asset: {found.name} (looping={found.looping}, behaviours={found.RoutineBehaviours?.Count ?? 0})", MessageType.Info);
         }
     }
 }

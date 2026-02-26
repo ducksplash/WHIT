@@ -34,6 +34,7 @@ public enum NPC
     
     // Generic Characters
     ScientistKlaus = 500,
+    HomelessManOne = 501,
 } 
 
 public enum NPCAllegiance
@@ -41,4 +42,22 @@ public enum NPCAllegiance
     Neutral = 100,
     Enemy = 101,
     Friend = 102,
-} 
+}
+
+public enum Behaviour
+{
+    idle = 100,
+    go = 101,
+    say = 102,
+    act = 103,
+    die = 104
+    
+}
+public enum Routine
+{
+    idle = 100,
+    Patrol = 101,
+    ScientistPatrolWarnPlayer = 102,
+    
+    
+}

@@ -38,6 +38,7 @@ public class FirstPersonLook : MonoBehaviour
     [SerializeField] private float pitchClampMin = -60f;
     [SerializeField] private float pitchClampMax = 60f;
 
+    public bool bypassGM;
     
     private Vector3 _pivotStartLocalPos;
     private Coroutine _heightCo;
@@ -79,7 +80,11 @@ public class FirstPersonLook : MonoBehaviour
 
     private void Awake()
     {
-        lookAction = GameMaster.Instance.InputManager.LookAction;
+        if (GameMaster.Instance != null)
+        {
+
+            lookAction = GameMaster.Instance.InputManager.LookAction;
+        }
     }
 
     private void Start()
@@ -103,8 +108,12 @@ public class FirstPersonLook : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (GameMaster.Instance.PauseManager.IsPaused) return;
-        if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
+        if (!bypassGM)
+        {
+            if (GameMaster.Instance.PauseManager.IsPaused) return;
+            if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
+        }
+        
 
         if (cameraPivot != null)
             cameraPivot.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
@@ -117,8 +126,12 @@ public class FirstPersonLook : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (GameMaster.Instance.PauseManager.IsPaused) return;
-        if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
+        if (!bypassGM)
+        {
+            if (GameMaster.Instance.PauseManager.IsPaused) return;
+            if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
+        }
+        
 
         if (_lookLocked)
         {

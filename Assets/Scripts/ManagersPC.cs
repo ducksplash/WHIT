@@ -144,8 +144,8 @@ public class ManagersPC : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-		
-		
+
+	    return; 
 		if (GameMaster.Instance.POWER_SUPPLY_ENABLED)
 		{
 			

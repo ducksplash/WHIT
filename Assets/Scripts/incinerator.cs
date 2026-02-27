@@ -25,7 +25,7 @@ public class incinerator : MonoBehaviour
             Debug.Log("todo: Refactor incinerator to use new Door script");
         }
 
-        
+        return;
 
         if (GameMaster.Instance.POWER_SUPPLY_ENABLED && GameMaster.Instance.INCINERATOR_ENABLED)
         {
@@ -54,6 +54,7 @@ public class incinerator : MonoBehaviour
         }
 
 
+        return;
 
         if (GameMaster.Instance.POWER_SUPPLY_ENABLED && GameMaster.Instance.INCINERATOR_ENABLED)
         {

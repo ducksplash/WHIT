@@ -58,6 +58,10 @@ public enum Routine
     idle = 100,
     Patrol = 101,
     ScientistPatrolWarnPlayer = 102,
+    HomelessSleeping = 103,
+    HomelessSittingIdling = 103,
+    HomelessStandingIdling = 104,
+    HomelessStaggering = 105,
     
     
 }

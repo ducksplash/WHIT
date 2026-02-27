@@ -61,8 +61,17 @@ public class NPCController : MonoBehaviour
     public string paramMovingX = "MovingX";
     public string paramMovingY = "MovingY";
 
+    [Header("ACT Animation")]
+    [Tooltip("How long we wait for the animator to leave the current state after firing the ACT param.")]
+    public float actEnterTimeout = 1.0f;
+
+    [Tooltip("If ACT is NOT timed, we'll wait for the animation to finish, but never longer than this.")]
+    public float actMaxUnTimedDuration = 8.0f;
+
+    [Tooltip("Small buffer after ACT ends to help blend back cleanly.")]
+    public float actExitBuffer = 0.05f;
+
     // Runtime state
-    
     public bool playRoutineOnStart = false;
     [NonSerialized] public bool isRunningRoutine = false;
     [NonSerialized] public bool isPaused = false;
@@ -104,9 +113,8 @@ public class NPCController : MonoBehaviour
 
             agent.updateRotation = false;
         }
-        
+
         if (playRoutineOnStart) PlaySelectedRoutine();
-        
     }
 
     void Update()
@@ -268,26 +276,11 @@ public class NPCController : MonoBehaviour
 
                 switch (b.BehaviourType)
                 {
-                    case Behaviour.idle:
-                        yield return DoIdle(b);
-                        break;
-
-                    case Behaviour.say:
-                        yield return DoSay(b);
-                        break;
-
-                    case Behaviour.go:
-                        yield return DoGo(b);
-                        break;
-
-                    case Behaviour.act:
-                        yield return DoAct(b);
-                        break;
-
-                    case Behaviour.die:
-                        yield return DoDie(b);
-                        break;
-
+                    case Behaviour.idle: yield return DoIdle(b); break;
+                    case Behaviour.say:  yield return DoSay(b);  break;
+                    case Behaviour.go:   yield return DoGo(b);   break;
+                    case Behaviour.act:  yield return DoAct(b);  break;
+                    case Behaviour.die:  yield return DoDie(b);  break;
                     default:
                         Debug.LogWarning($"{name}: Unknown behaviour type {b.BehaviourType} at index {i}.");
                         break;
@@ -354,16 +347,126 @@ public class NPCController : MonoBehaviour
             yield return null;
     }
 
+    /// <summary>
+    /// Proper ACT implementation:
+    /// - Stops movement cleanly (so you don't slide during an act).
+    /// - Fires an animator parameter named by b.animationState (Trigger/Bool/Int/Float supported).
+    /// - Waits either:
+    ///     - b.timer (if b.isTimed), OR
+    ///     - until the entered ACT state finishes (normalizedTime >= 1) or returns to start state,
+    ///       with a safety cap actMaxUnTimedDuration.
+    /// - Clears the parameter ASAP to prevent AnyState re-firing loops.
+    /// </summary>
     IEnumerator DoAct(NPCBehaviour b)
     {
+        // Stop locomotion first so the act doesn't play while walking.
         if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
             yield return SmoothStopAndIdle();
 
-        Debug.Log($"{name} ACT: (hook up act animation later) Behaviour asset = {b.name}");
+        if (animationController == null)
+        {
+            Debug.LogWarning($"{name}: ACT requested but Animator is missing.");
+            yield break;
+        }
 
-        float wait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
-        if (wait > 0f)
-            yield return WaitSecondsRespectPause(wait);
+        // We expect your NPCBehaviour to hold the animator parameter name in animationState.
+        string paramName = b.animationState;
+        if (string.IsNullOrWhiteSpace(paramName))
+        {
+            Debug.LogWarning($"{name}: ACT behaviour '{b.name}' has empty animationState (expected animator parameter name).");
+            // fall back to timer if present
+            float fallbackWait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
+            if (fallbackWait > 0f) yield return WaitSecondsRespectPause(fallbackWait);
+            else yield return null;
+            yield break;
+        }
+
+        AnimatorControllerParameterType? pType = GetAnimatorParameterType(animationController, paramName);
+        if (pType == null)
+        {
+            Debug.LogWarning($"{name}: Animator has no parameter named '{paramName}' (ACT behaviour '{b.name}').");
+            float fallbackWait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
+            if (fallbackWait > 0f) yield return WaitSecondsRespectPause(fallbackWait);
+            else yield return null;
+            yield break;
+        }
+
+        const int layer = 0;
+
+        // Capture where we started (usually locomotion/blend tree state)
+        int startHash = animationController.GetCurrentAnimatorStateInfo(layer).fullPathHash;
+
+        // Fire the param
+        SetAnimatorParamOn(animationController, paramName, pType.Value);
+
+        // Wait for animator to react (transition or state change)
+        bool entered = false;
+        int actHash = startHash;
+
+        float enterT = 0f;
+        while (isRunningRoutine && enterT < actEnterTimeout)
+        {
+            while (isPaused) yield return null;
+
+            AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(layer);
+
+            if (animationController.IsInTransition(layer) || info.fullPathHash != startHash)
+            {
+                entered = true;
+                actHash = info.fullPathHash;
+                break;
+            }
+
+            enterT += Time.deltaTime;
+            yield return null;
+        }
+
+        // Clear ASAP to avoid AnyState re-trigger loops.
+        SetAnimatorParamOff(animationController, paramName, pType.Value);
+
+        // Triggers: extra safety reset next frame too (covers edge cases)
+        if (pType.Value == AnimatorControllerParameterType.Trigger)
+        {
+            yield return null;
+            animationController.ResetTrigger(paramName);
+        }
+
+        bool hasTimer = b.isTimed && b.timer > 0f;
+        float maxWait = hasTimer ? b.timer : actMaxUnTimedDuration;
+
+        float t = 0f;
+        while (isRunningRoutine && t < maxWait)
+        {
+            while (isPaused) yield return null;
+
+            AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(layer);
+
+            if (!hasTimer)
+            {
+                // Prefer: ACT state completes (works for non-looping clips)
+                // NOTE: if ACT state loops, normalizedTime keeps increasing; we still break on >= 1
+                // but looping states might never exit, so safety cap will end it.
+                if (entered && !animationController.IsInTransition(layer) &&
+                    info.fullPathHash == actHash && info.normalizedTime >= 1f)
+                    break;
+
+                // Or: returned to start locomotion state (common setup)
+                if (entered && !animationController.IsInTransition(layer) &&
+                    info.fullPathHash == startHash)
+                    break;
+            }
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        // Final safety clear (covers bool/int/float/trigger)
+        SetAnimatorParamOff(animationController, paramName, pType.Value);
+        if (pType.Value == AnimatorControllerParameterType.Trigger)
+            animationController.ResetTrigger(paramName);
+
+        if (actExitBuffer > 0f)
+            yield return WaitSecondsRespectPause(actExitBuffer);
         else
             yield return null;
     }
@@ -492,6 +595,64 @@ public class NPCController : MonoBehaviour
 
             t += Time.deltaTime;
             yield return null;
+        }
+    }
+
+    // -----------------------
+    // Animator param helpers (ACT)
+    // -----------------------
+
+    AnimatorControllerParameterType? GetAnimatorParameterType(Animator anim, string paramName)
+    {
+        var ps = anim.parameters;
+        for (int i = 0; i < ps.Length; i++)
+            if (ps[i].name == paramName) return ps[i].type;
+        return null;
+    }
+
+    void SetAnimatorParamOn(Animator anim, string paramName, AnimatorControllerParameterType type)
+    {
+        switch (type)
+        {
+            case AnimatorControllerParameterType.Bool:
+                anim.SetBool(paramName, true);
+                break;
+
+            case AnimatorControllerParameterType.Trigger:
+                // Make trigger "edge-triggered"
+                anim.ResetTrigger(paramName);
+                anim.SetTrigger(paramName);
+                break;
+
+            case AnimatorControllerParameterType.Int:
+                anim.SetInteger(paramName, 1);
+                break;
+
+            case AnimatorControllerParameterType.Float:
+                anim.SetFloat(paramName, 1f);
+                break;
+        }
+    }
+
+    void SetAnimatorParamOff(Animator anim, string paramName, AnimatorControllerParameterType type)
+    {
+        switch (type)
+        {
+            case AnimatorControllerParameterType.Bool:
+                anim.SetBool(paramName, false);
+                break;
+
+            case AnimatorControllerParameterType.Trigger:
+                anim.ResetTrigger(paramName);
+                break;
+
+            case AnimatorControllerParameterType.Int:
+                anim.SetInteger(paramName, 0);
+                break;
+
+            case AnimatorControllerParameterType.Float:
+                anim.SetFloat(paramName, 0f);
+                break;
         }
     }
 

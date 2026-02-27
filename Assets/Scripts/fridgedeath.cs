@@ -40,6 +40,7 @@ public class fridgedeath : MonoBehaviour
 
     private void Update()
     {
+        return;
         if (!FridgePower)
         {
             if (GameMaster.Instance.POWER_SUPPLY_ENABLED)

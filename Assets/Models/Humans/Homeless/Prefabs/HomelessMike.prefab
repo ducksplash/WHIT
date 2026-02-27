@@ -238,6 +238,9 @@ MonoBehaviour:
   paramBlend: Blend
   paramMovingX: MovingX
   paramMovingY: MovingY
+  actEnterTimeout: 1
+  actMaxUnTimedDuration: 8
+  actExitBuffer: 0.05
   playRoutineOnStart: 1
 --- !u!1 &1095562285606856345
 GameObject:
@@ -1274,9 +1277,6 @@ GameObject:
   - component: {fileID: 4934870626345081319}
   - component: {fileID: 1954208115365225462}
   - component: {fileID: 8118598525486096459}
-  - component: {fileID: 3424086195304682069}
-  - component: {fileID: 8035931559871799598}
-  - component: {fileID: 8713697350040569376}
   m_Layer: 0
   m_Name: winebottle_3
   m_TagString: Untagged
@@ -1359,80 +1359,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &3424086195304682069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4561152547162839730}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47f7c7cc2c8af4847838ccdba7c9e651, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  EvidenceName: 1000
-  EvidenceDetails: "Test Evidence Special Reserve 2022 is a Lithuanian Crisp White
-    with hints of cinnamon and raspberry overtones. \u20AC4 per 100 cl bottle. 14.7%
-    ABV"
-  EvidenceQuality: 1
-  EvidenceFake: 0
-  PhotographableEvidence: 1
-  selectedDialogue: 0
-  LevelFrom: 
-  EvidenceCollected: 0
-  PlayerSeen: 0
-  EvidenceTransform: {fileID: 0}
-  EvidenceRigidbody: {fileID: 0}
-  EvidenceRenderer: {fileID: 0}
---- !u!65 &8035931559871799598
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4561152547162839730}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.019871911, y: 0.019871915, z: 0.032921154}
-  m_Center: {x: 6.7813816e-10, y: -0.0000000012364897, z: 0.0053501236}
---- !u!54 &8713697350040569376
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4561152547162839730}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 126
-  m_CollisionDetection: 0
 --- !u!1 &4594951413486706601
 GameObject:
   m_ObjectHideFlags: 0

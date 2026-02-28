@@ -365,6 +365,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Pan",
+                    "type": "Button",
+                    "id": "7690a341-3186-4655-b7eb-9d4ccb1e6ac5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1652,6 +1661,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "OSD Backspace",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "da865096-4f02-4a07-a105-114fcc96ec78",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "Hold(duration=0.1)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pan",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

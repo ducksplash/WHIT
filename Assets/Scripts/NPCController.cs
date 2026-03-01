@@ -94,7 +94,12 @@ public class NPCController : MonoBehaviour
     public void Start()
     {
         // MUST be first thing this does:
-        GameMaster.Instance.NPCManager.RegisterNPC(this);
+
+        if (GameMaster.Instance != null)
+        {
+            GameMaster.Instance.NPCManager.RegisterNPC(this);
+        }
+        
 
         if (animationController == null) animationController = GetComponentInChildren<Animator>();
         if (agent == null) agent = GetComponent<NavMeshAgent>();

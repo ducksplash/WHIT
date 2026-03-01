@@ -31,10 +31,14 @@ public enum NPC
     
     // Storyline Characters
     EimearScott = 100,
+    Kim = 101,
+    HollowMan = 102,
+    AlternativeNora = 999,
     
     // Generic Characters
     ScientistKlaus = 500,
     HomelessManOne = 501,
+    Shauna = 502,
 } 
 
 public enum NPCAllegiance

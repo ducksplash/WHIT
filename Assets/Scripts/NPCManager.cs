@@ -39,6 +39,8 @@ public enum NPC
     ScientistKlaus = 500,
     HomelessManOne = 501,
     Shauna = 502,
+    Presha = 503,
+    Jasmine = 504,
 } 
 
 public enum NPCAllegiance

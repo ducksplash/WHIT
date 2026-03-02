@@ -114,7 +114,7 @@ public class NPCController : MonoBehaviour
 
             agent.autoBraking = true;
             agent.autoRepath = true;
-            agent.obstacleAvoidanceType = ObstacleAvoidanceType.LowQualityObstacleAvoidance;
+            agent.obstacleAvoidanceType = ObstacleAvoidanceType.HighQualityObstacleAvoidance;
 
             agent.updateRotation = false;
         }

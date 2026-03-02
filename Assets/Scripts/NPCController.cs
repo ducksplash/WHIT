@@ -61,7 +61,7 @@ public class NPCController : MonoBehaviour
     public string paramMovingX = "MovingX";
     public string paramMovingY = "MovingY";
 
-    [Header("ACT Animation")]
+    [Header("ACT Animation (Routine Behaviour)")]
     [Tooltip("How long we wait for the animator to leave the current state after firing the ACT param.")]
     public float actEnterTimeout = 1.0f;
 
@@ -70,6 +70,24 @@ public class NPCController : MonoBehaviour
 
     [Tooltip("Small buffer after ACT ends to help blend back cleanly.")]
     public float actExitBuffer = 0.05f;
+
+    // -----------------------
+    // Triggered Animations (Naurani-style)
+    // -----------------------
+    [Header("Triggered Animations (Naurani-style)")]
+    [Tooltip("Animator Trigger parameter names you want to be able to fire manually.")]
+    public List<string> triggerNames = new List<string>();
+
+    [HideInInspector] public int selectedTriggerIndex = 0;
+
+    [Tooltip("How long we wait for the animator to change state after firing a trigger.")]
+    public float triggerEnterTimeout = 1.0f;
+
+    [Tooltip("Safety cap if the triggered animation never completes (e.g. loops).")]
+    public float triggerMaxDuration = 8.0f;
+
+    [Tooltip("Small buffer after trigger ends before resuming navmesh.")]
+    public float triggerExitBuffer = 0.05f;
 
     // Runtime state
     public bool playRoutineOnStart = false;
@@ -85,6 +103,18 @@ public class NPCController : MonoBehaviour
     // For looping routines: we must return to the FIRST waypoint before restarting
     Vector3? _loopReturnToFirstWaypoint;
 
+    // Trigger play coroutine
+    Coroutine _triggerCoroutine;
+    bool _isPlayingTriggeredAnimation = false;
+
+    // Trigger restore snapshot
+    bool _triggerSnapshotValid = false;
+    bool _triggerPrevPaused;
+    bool _triggerAgentWasValid;
+    bool _triggerHadPathBefore;
+    bool _triggerWasStoppedBefore;
+    int _triggerStartStateHash; // animator state before trigger
+
     void Reset()
     {
         animationController = GetComponentInChildren<Animator>();
@@ -93,13 +123,10 @@ public class NPCController : MonoBehaviour
 
     public void Start()
     {
-        // MUST be first thing this does:
-
         if (GameMaster.Instance != null)
         {
             GameMaster.Instance.NPCManager.RegisterNPC(this);
         }
-        
 
         if (animationController == null) animationController = GetComponentInChildren<Animator>();
         if (agent == null) agent = GetComponent<NavMeshAgent>();
@@ -214,7 +241,6 @@ public class NPCController : MonoBehaviour
         _activeRoutineAsset = routineAsset;
         _activeBehaviours = routineAsset.RoutineBehaviours;
 
-        // determine loop return point (first waypoint encountered in the routine)
         _loopReturnToFirstWaypoint = FindFirstWaypointInRoutine(_activeBehaviours);
 
         agent.isStopped = false;
@@ -227,7 +253,6 @@ public class NPCController : MonoBehaviour
 
     NPCRoutine FindRoutineAsset(Routine routineType)
     {
-        // Prefer exact match on RoutineType; first match wins
         for (int i = 0; i < routines.Count; i++)
         {
             NPCRoutine r = routines[i];
@@ -264,7 +289,6 @@ public class NPCController : MonoBehaviour
 
         while (isRunningRoutine)
         {
-            // Play through the behaviours once
             for (int i = 0; i < _activeBehaviours.Count; i++)
             {
                 if (!isRunningRoutine) yield break;
@@ -292,21 +316,18 @@ public class NPCController : MonoBehaviour
                 }
             }
 
-            // Finished one pass of the routine
             if (_activeRoutineAsset.looping)
             {
-                // Requirement: if looping and there were waypoints, walk back to the first waypoint before restarting
                 if (_loopReturnToFirstWaypoint.HasValue)
                 {
                     yield return GoToSinglePoint(_loopReturnToFirstWaypoint.Value);
                     yield return SmoothStopAndIdle();
                 }
 
-                // then loop again
                 continue;
             }
 
-            break; // not looping -> finish
+            break;
         }
 
         isRunningRoutine = false;
@@ -342,7 +363,6 @@ public class NPCController : MonoBehaviour
         if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
             yield return SmoothStopAndIdle();
 
-        // You wired this up:
         GameMaster.Instance.DialogueManager.PlayDialogue(b.selectedDialogue, b.timer, DialogueType.normal);
 
         float wait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
@@ -352,19 +372,8 @@ public class NPCController : MonoBehaviour
             yield return null;
     }
 
-    /// <summary>
-    /// Proper ACT implementation:
-    /// - Stops movement cleanly (so you don't slide during an act).
-    /// - Fires an animator parameter named by b.animationState (Trigger/Bool/Int/Float supported).
-    /// - Waits either:
-    ///     - b.timer (if b.isTimed), OR
-    ///     - until the entered ACT state finishes (normalizedTime >= 1) or returns to start state,
-    ///       with a safety cap actMaxUnTimedDuration.
-    /// - Clears the parameter ASAP to prevent AnyState re-firing loops.
-    /// </summary>
     IEnumerator DoAct(NPCBehaviour b)
     {
-        // Stop locomotion first so the act doesn't play while walking.
         if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
             yield return SmoothStopAndIdle();
 
@@ -374,12 +383,10 @@ public class NPCController : MonoBehaviour
             yield break;
         }
 
-        // We expect your NPCBehaviour to hold the animator parameter name in animationState.
         string paramName = b.animationState;
         if (string.IsNullOrWhiteSpace(paramName))
         {
-            Debug.LogWarning($"{name}: ACT behaviour '{b.name}' has empty animationState (expected animator parameter name).");
-            // fall back to timer if present
+            Debug.LogWarning($"{name}: ACT behaviour '{b.name}' has empty animationState.");
             float fallbackWait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
             if (fallbackWait > 0f) yield return WaitSecondsRespectPause(fallbackWait);
             else yield return null;
@@ -397,14 +404,10 @@ public class NPCController : MonoBehaviour
         }
 
         const int layer = 0;
-
-        // Capture where we started (usually locomotion/blend tree state)
         int startHash = animationController.GetCurrentAnimatorStateInfo(layer).fullPathHash;
 
-        // Fire the param
         SetAnimatorParamOn(animationController, paramName, pType.Value);
 
-        // Wait for animator to react (transition or state change)
         bool entered = false;
         int actHash = startHash;
 
@@ -426,10 +429,8 @@ public class NPCController : MonoBehaviour
             yield return null;
         }
 
-        // Clear ASAP to avoid AnyState re-trigger loops.
         SetAnimatorParamOff(animationController, paramName, pType.Value);
 
-        // Triggers: extra safety reset next frame too (covers edge cases)
         if (pType.Value == AnimatorControllerParameterType.Trigger)
         {
             yield return null;
@@ -448,14 +449,10 @@ public class NPCController : MonoBehaviour
 
             if (!hasTimer)
             {
-                // Prefer: ACT state completes (works for non-looping clips)
-                // NOTE: if ACT state loops, normalizedTime keeps increasing; we still break on >= 1
-                // but looping states might never exit, so safety cap will end it.
                 if (entered && !animationController.IsInTransition(layer) &&
                     info.fullPathHash == actHash && info.normalizedTime >= 1f)
                     break;
 
-                // Or: returned to start locomotion state (common setup)
                 if (entered && !animationController.IsInTransition(layer) &&
                     info.fullPathHash == startHash)
                     break;
@@ -465,7 +462,6 @@ public class NPCController : MonoBehaviour
             yield return null;
         }
 
-        // Final safety clear (covers bool/int/float/trigger)
         SetAnimatorParamOff(animationController, paramName, pType.Value);
         if (pType.Value == AnimatorControllerParameterType.Trigger)
             animationController.ResetTrigger(paramName);
@@ -505,7 +501,9 @@ public class NPCController : MonoBehaviour
         for (int i = 0; i < b.waypointVectors.Count; i++)
         {
             if (!isRunningRoutine) yield break;
-            while (isPaused) yield return null;
+
+            while (isPaused)
+                yield return null;
 
             if (!EnsureAgentOnNavMesh("GoBehaviourStep")) yield break;
 
@@ -514,8 +512,11 @@ public class NPCController : MonoBehaviour
             agent.isStopped = false;
             agent.SetDestination(target);
 
-            while (isRunningRoutine && !isPaused && !HasArrived(agent, arriveDistance))
+            while (isRunningRoutine && !HasArrived(agent, arriveDistance))
+            {
+                while (isPaused) yield return null;
                 yield return null;
+            }
 
             if (!isRunningRoutine) yield break;
 
@@ -546,8 +547,11 @@ public class NPCController : MonoBehaviour
         agent.isStopped = false;
         agent.SetDestination(target);
 
-        while (isRunningRoutine && !isPaused && !HasArrived(agent, arriveDistance))
+        while (isRunningRoutine && !HasArrived(agent, arriveDistance))
+        {
+            while (isPaused) yield return null;
             yield return null;
+        }
 
         if (!isRunningRoutine) yield break;
 
@@ -604,7 +608,191 @@ public class NPCController : MonoBehaviour
     }
 
     // -----------------------
-    // Animator param helpers (ACT)
+    // Triggered Animations API (Naurani merged)
+    // -----------------------
+
+    public void PlaySelectedTrigger()
+    {
+        if (triggerNames == null || triggerNames.Count == 0)
+        {
+            Debug.LogWarning($"{name}: No triggerNames defined.");
+            return;
+        }
+
+        selectedTriggerIndex = Mathf.Clamp(selectedTriggerIndex, 0, triggerNames.Count - 1);
+        PlayTrigger(triggerNames[selectedTriggerIndex]);
+    }
+
+    public void PlayTrigger(string triggerParam)
+    {
+        if (string.IsNullOrWhiteSpace(triggerParam))
+        {
+            Debug.LogWarning($"{name}: Trigger param was empty.");
+            return;
+        }
+
+        if (animationController == null)
+        {
+            Debug.LogWarning($"{name}: No Animator assigned.");
+            return;
+        }
+
+        if (_triggerCoroutine != null)
+        {
+            StopCoroutine(_triggerCoroutine);
+            _triggerCoroutine = null;
+        }
+
+        _triggerCoroutine = StartCoroutine(TriggerRoutine(triggerParam));
+    }
+
+    public void PauseTriggeredAnimation()
+    {
+        if (animationController == null) return;
+        animationController.speed = 0f;
+    }
+
+    public void StopTriggeredAnimation()
+    {
+        if (animationController == null) return;
+
+        if (_triggerCoroutine != null)
+        {
+            StopCoroutine(_triggerCoroutine);
+            _triggerCoroutine = null;
+        }
+
+        // Restore routine/agent and snap animator back to pre-trigger state
+        RestoreAfterTriggeredAnimation(forceAnimatorBackToStartState: true);
+
+        // Helps blend tree settle immediately
+        ForceIdlePose();
+    }
+
+    void RestoreAfterTriggeredAnimation(bool forceAnimatorBackToStartState)
+    {
+        if (_triggerSnapshotValid)
+            isPaused = _triggerPrevPaused;
+
+        if (_triggerSnapshotValid && _triggerAgentWasValid && agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+        {
+            if (isRunningRoutine && _triggerHadPathBefore && !_triggerWasStoppedBefore)
+                agent.isStopped = false;
+            else
+                agent.isStopped = _triggerWasStoppedBefore;
+        }
+
+        if (forceAnimatorBackToStartState && _triggerSnapshotValid && animationController != null)
+        {
+            animationController.speed = 1f;
+
+            if (_triggerStartStateHash != 0)
+            {
+                animationController.Play(_triggerStartStateHash, 0, 0f);
+                animationController.Update(0f);
+            }
+        }
+
+        _isPlayingTriggeredAnimation = false;
+        _triggerSnapshotValid = false;
+    }
+
+    IEnumerator TriggerRoutine(string triggerParam)
+    {
+        _isPlayingTriggeredAnimation = true;
+
+        bool prevPaused = isPaused;
+
+        bool agentWasValid = (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh);
+        bool hadPathBefore = agentWasValid && agent.hasPath;
+        bool wasStoppedBefore = agentWasValid && agent.isStopped;
+
+        isPaused = true;
+
+        if (agentWasValid)
+        {
+            // IMPORTANT: do NOT ResetPath, we want to resume where we were going
+            agent.isStopped = true;
+        }
+
+        AnimatorControllerParameterType? pType = GetAnimatorParameterType(animationController, triggerParam);
+        if (pType == null)
+        {
+            Debug.LogWarning($"{name}: Animator has no parameter named '{triggerParam}'.");
+            isPaused = prevPaused;
+            if (agentWasValid) agent.isStopped = wasStoppedBefore;
+            _isPlayingTriggeredAnimation = false;
+            yield break;
+        }
+
+        const int layer = 0;
+        int startHash = animationController.GetCurrentAnimatorStateInfo(layer).fullPathHash;
+
+        // Snapshot state so StopTriggeredAnimation restores correctly
+        _triggerSnapshotValid = true;
+        _triggerPrevPaused = prevPaused;
+        _triggerAgentWasValid = agentWasValid;
+        _triggerHadPathBefore = hadPathBefore;
+        _triggerWasStoppedBefore = wasStoppedBefore;
+        _triggerStartStateHash = startHash;
+
+        animationController.speed = 1f;
+
+        SetAnimatorParamOn(animationController, triggerParam, pType.Value);
+
+        bool entered = false;
+        int triggeredHash = startHash;
+
+        float enterT = 0f;
+        while (enterT < triggerEnterTimeout)
+        {
+            AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(layer);
+
+            if (animationController.IsInTransition(layer) || info.fullPathHash != startHash)
+            {
+                entered = true;
+                triggeredHash = info.fullPathHash;
+                break;
+            }
+
+            enterT += Time.deltaTime;
+            yield return null;
+        }
+
+        SetAnimatorParamOff(animationController, triggerParam, pType.Value);
+        if (pType.Value == AnimatorControllerParameterType.Trigger)
+        {
+            yield return null;
+            animationController.ResetTrigger(triggerParam);
+        }
+
+        float t = 0f;
+        while (t < triggerMaxDuration)
+        {
+            AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(layer);
+
+            if (entered && !animationController.IsInTransition(layer) && info.fullPathHash == triggeredHash)
+            {
+                if (info.normalizedTime >= 1f)
+                    break;
+            }
+
+            if (entered && !animationController.IsInTransition(layer) && info.fullPathHash == startHash)
+                break;
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        if (triggerExitBuffer > 0f)
+            yield return new WaitForSeconds(triggerExitBuffer);
+
+        _triggerCoroutine = null;
+        RestoreAfterTriggeredAnimation(forceAnimatorBackToStartState: false);
+    }
+
+    // -----------------------
+    // Animator param helpers
     // -----------------------
 
     AnimatorControllerParameterType? GetAnimatorParameterType(Animator anim, string paramName)
@@ -624,7 +812,6 @@ public class NPCController : MonoBehaviour
                 break;
 
             case AnimatorControllerParameterType.Trigger:
-                // Make trigger "edge-triggered"
                 anim.ResetTrigger(paramName);
                 anim.SetTrigger(paramName);
                 break;
@@ -705,7 +892,7 @@ public class NPCController : MonoBehaviour
         if (a == null) return false;
         if (!a.isOnNavMesh) return false;
         if (a.pathPending) return false;
-        if (!a.hasPath) return true;
+        if (!a.hasPath) return false;
 
         if (float.IsInfinity(a.remainingDistance)) return false;
 
@@ -798,7 +985,6 @@ public class NPCControllerEditor : Editor
             EditorGUILayout.HelpBox("Routine controls are enabled in Play Mode.", MessageType.None);
         }
 
-        // Helpful debug: show which routine asset is assigned for the selected enum
         if (npc.routines != null && npc.routines.Count > 0)
         {
             NPCRoutine found = null;
@@ -817,6 +1003,34 @@ public class NPCControllerEditor : Editor
             else
                 EditorGUILayout.HelpBox($"Selected routine asset: {found.name} (looping={found.looping}, behaviours={found.RoutineBehaviours?.Count ?? 0})", MessageType.Info);
         }
+
+        EditorGUILayout.Space(12);
+        EditorGUILayout.LabelField("Triggered Animation Controls", EditorStyles.boldLabel);
+
+        if (npc.triggerNames != null && npc.triggerNames.Count > 0)
+        {
+            npc.selectedTriggerIndex = EditorGUILayout.Popup(
+                "Trigger",
+                npc.selectedTriggerIndex,
+                npc.triggerNames.ToArray()
+            );
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("Add at least one trigger name to 'triggerNames'.", MessageType.Info);
+        }
+
+        using (new EditorGUI.DisabledScope(!Application.isPlaying))
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Play Trigger")) npc.PlaySelectedTrigger();
+            if (GUILayout.Button("Pause Anim")) npc.PauseTriggeredAnimation();
+            if (GUILayout.Button("Stop Anim")) npc.StopTriggeredAnimation();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        if (!Application.isPlaying)
+            EditorGUILayout.HelpBox("Buttons work in Play Mode only.", MessageType.None);
     }
 }
 #endif

@@ -375,6 +375,8 @@ public class clickable : Singleton<clickable>
 
     private void SetCursor(Sprite sprite, string text = "", string color = "white")
     {
+        if (!Player.Instance.gameObject.activeSelf) return;
+        
         if (currentSprite != sprite)
         {
             selectcursor.sprite = sprite;

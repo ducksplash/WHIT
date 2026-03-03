@@ -12,11 +12,19 @@ public class UInstance : Singleton<UInstance>
     {    
         //Debug.Log("UInstance Start");
         
-        cutsceneBarsCanvas.alpha = 0;  
-        
+        cutsceneBarsCanvas.alpha = 0;
+
+        EventManager.OnDebugCameraToggle += DebugDisableHUD;
+
     }
-    
-    
+
+
+
+    void DebugDisableHUD(bool b)
+    {
+        Debug.Log("set hud "+b);
+        HudCanvas.alpha = b ? 0 : 1;
+    }
 
     
     // Coroutine to fade out the cutscene bars

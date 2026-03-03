@@ -374,6 +374,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "CameraToggleAction",
+                    "type": "Button",
+                    "id": "8a1b887a-e2c4-4abf-b177-b04f64e60e2a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1672,6 +1681,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Pan",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4dbfd192-6b42-4cff-ac18-176aa42024db",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CameraToggleAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "317e1817-9639-43f6-a5bc-58d182d811ca",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "Hold(duration=6)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CameraToggleAction",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -22,6 +22,7 @@ public class EventManager : MonoBehaviour
     public static event Action<EvidenceName> OnAutoCollectEvidence = (EvidenceName) => { };
     public static event Action<bool> OnPaused = (GamePaused) => { };
     public static event Action<QuestText> OnQuestLoaded = (QuestText) => { };
+    public static event Action<bool> OnDebugCameraToggle = (DebugCamEnabled) => { };
     
     
     
@@ -112,6 +113,11 @@ public class EventManager : MonoBehaviour
     public void QuestLoaded(QuestText QuestText)
     {
         OnQuestLoaded.Invoke(QuestText);
+    }
+
+    public void DebugCamEnabled(bool debugCamOn)
+    {
+        OnDebugCameraToggle.Invoke(debugCamOn);
     }
 
     

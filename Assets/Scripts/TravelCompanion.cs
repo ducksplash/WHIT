@@ -42,8 +42,6 @@ public class TravelCompanion : MonoBehaviour
         notepadMeshRenderers = Notepad.GetComponentsInChildren<MeshRenderer>();
 
         ToggleNotepadVisibility(false);
-
-
     }
 
 

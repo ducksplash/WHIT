@@ -18,6 +18,9 @@ public class Player : Singleton<Player>
     private CharacterController thisCharController;
 
     public Camera MainCam;
+    public Camera DebugCam;
+    public Camera CurrentCamera;
+    
     public float RayCastDistance = 4f;
 
     [Header("Animation")]
@@ -165,6 +168,7 @@ public class Player : Singleton<Player>
     public InputActionReference climbUpAction;
     public InputActionReference climbDownAction;
     public InputActionReference exitLadderAction;
+    public InputActionReference CameraToggleAction;
 
     [Header("Scripts")]
     public FirstPersonLook FirstPersonLook;
@@ -175,13 +179,16 @@ public class Player : Singleton<Player>
 
     private bool walking = false;
 
+    
+    
     public bool MoveOverride;
     public bool ZoomOverride;
 
     void Start()
     {
+        CurrentCamera = MainCam;
+        
         EventManager.OnTorchCollected += TorchCollected;
-
         
         thisCharController = GetComponentInParent<CharacterController>();
         if (thisCharController == null) thisCharController = GetComponent<CharacterController>();
@@ -232,6 +239,8 @@ public class Player : Singleton<Player>
         Noranimator.runtimeAnimatorController = _locomotionOverride;
 
         SetTorchLocomotion(false);
+
+        CameraToggleAction.action.performed += ToggleDebugCamera;
     }
 
 
@@ -239,8 +248,23 @@ public class Player : Singleton<Player>
     {
         SetTorchLocomotion(true);
     }
-    
 
+
+    public void ToggleDebugCamera(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
+    {
+        DebugCam.enabled = false;
+        MainCam.enabled = false;
+
+        
+        CurrentCamera = (CurrentCamera == MainCam) ? DebugCam : MainCam;
+
+        GameMaster.Instance.EventManager.DebugCamEnabled(CurrentCamera == DebugCam);
+        GameMaster.Instance.PauseManager.IsPaused = CurrentCamera == DebugCam;
+        
+        CurrentCamera.enabled = true;
+
+    }
+    
     public void SetTorchLocomotion(bool hasTorch)
     {
         _hasTorch = hasTorch;
@@ -341,14 +365,13 @@ public class Player : Singleton<Player>
 
     void Update()
     {
-        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused)
-            return;
+        if (CurrentCamera == DebugCam) return;
+        
+        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused) return;
 
-        if (MoveOverride && moveAction != null && !moveAction.action.enabled)
-            moveAction.action.Enable();
+        if (MoveOverride && moveAction != null && !moveAction.action.enabled) moveAction.action.Enable();
 
-        if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride)
-            return;
+        if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
 
         HandleMovement();
     }
@@ -363,8 +386,8 @@ public class Player : Singleton<Player>
 
         moveInput = moveAction != null ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
 
-        Vector3 camForward = MainCam != null ? MainCam.transform.forward : transform.forward;
-        Vector3 camRight = MainCam != null ? MainCam.transform.right : transform.right;
+        Vector3 camForward = CurrentCamera != null ? CurrentCamera.transform.forward : transform.forward;
+        Vector3 camRight = CurrentCamera != null ? CurrentCamera.transform.right : transform.right;
 
         camForward.y = 0f;
         camRight.y = 0f;

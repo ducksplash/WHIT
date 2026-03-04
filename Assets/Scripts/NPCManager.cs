@@ -34,6 +34,7 @@ public enum NPC
     Kim = 101,
     HollowMan = 102,
     KieronScott = 103,
+    TomOneill = 104,
     AlternativeNora = 999,
     
     // Generic Characters

@@ -31,10 +31,12 @@ public enum NPC
     
     // Storyline Characters
     EimearScott = 100,
-    Kim = 101,
+    KimShae = 101,
     HollowMan = 102,
     KieronScott = 103,
     TomOneill = 104,
+    EllsworthOhanlon = 105,
+    MichaelDevlin = 106,
     AlternativeNora = 999,
     
     // Generic Characters

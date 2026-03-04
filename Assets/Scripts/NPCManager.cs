@@ -33,6 +33,7 @@ public enum NPC
     EimearScott = 100,
     Kim = 101,
     HollowMan = 102,
+    KieronScott = 103,
     AlternativeNora = 999,
     
     // Generic Characters

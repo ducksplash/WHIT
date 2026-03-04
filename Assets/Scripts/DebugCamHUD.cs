@@ -65,13 +65,12 @@ public class DebugCamHUD : MonoBehaviour
         {
             currentTargetText.text = target == null
                 ? "Current Target: None"
-                : $"Current Target: {target.name}";
+                : $"Current Target: {target.gameObject.GetComponent<NPCController>().thisNPC}";
         }
 
-        // Find NPCController if any
+        
         _npc = null;
-        if (target != null)
-            _npc = target.GetComponentInParent<NPCController>();
+        if (target != null) _npc = target.GetComponentInParent<NPCController>();
 
         bool hasNpc = (_npc != null);
 

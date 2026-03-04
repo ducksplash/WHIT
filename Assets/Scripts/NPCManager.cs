@@ -41,6 +41,7 @@ public enum NPC
     Shauna = 502,
     Presha = 503,
     Jasmine = 504,
+    Saoirse = 505,
 } 
 
 public enum NPCAllegiance

@@ -375,7 +375,7 @@ MonoBehaviour:
   thisNPC: 502
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -450,7 +450,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -472,9 +472,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!195 &5712059
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -6816,7 +6818,7 @@ MonoBehaviour:
   thisNPC: 507
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -6891,7 +6893,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -6913,9 +6915,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!136 &126935130
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -12291,7 +12295,7 @@ MonoBehaviour:
   thisNPC: 504
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -12366,7 +12370,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -12388,9 +12392,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!195 &257629029
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -23625,7 +23631,7 @@ MonoBehaviour:
   thisNPC: 104
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -23700,7 +23706,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -23722,9 +23728,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!1 &521966045
 GameObject:
   m_ObjectHideFlags: 0
@@ -26907,7 +26915,7 @@ MonoBehaviour:
   thisNPC: 101
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -26982,7 +26990,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -27004,9 +27012,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!195 &591589183
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -29883,7 +29893,7 @@ MonoBehaviour:
   thisNPC: 506
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -29958,7 +29968,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -29980,9 +29990,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!136 &666046579
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -37566,7 +37578,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: 0.014450669}
+  m_AnchoredPosition: {x: -0.0012638667, y: 0.01438029}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &860819260
@@ -83053,7 +83065,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: 0.014450669}
+  m_AnchoredPosition: {x: -0.0012638667, y: 0.01438029}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1854544909
@@ -83885,9 +83897,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!195 &1867593930
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -88389,7 +88403,7 @@ MonoBehaviour:
   thisNPC: 505
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -88464,7 +88478,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -88486,9 +88500,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!195 &1941394365
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -90907,7 +90923,7 @@ MonoBehaviour:
   thisNPC: 105
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -90982,7 +90998,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -91004,9 +91020,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!136 &1996530527
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -95646,7 +95664,7 @@ MonoBehaviour:
   thisNPC: 505
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -95721,7 +95739,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -95743,9 +95761,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!195 &2097689553
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -115003,7 +115023,7 @@ MonoBehaviour:
   thisNPC: 100
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -115078,7 +115098,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -115100,9 +115120,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!4 &1405754826573476755
 Transform:
   m_ObjectHideFlags: 0
@@ -117457,7 +117479,7 @@ MonoBehaviour:
   thisNPC: 501
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -117532,7 +117554,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -117554,9 +117576,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!1 &1630949615656319987
 GameObject:
   m_ObjectHideFlags: 0
@@ -156752,7 +156776,7 @@ MonoBehaviour:
   thisNPC: 102
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -156827,7 +156851,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -156849,9 +156873,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!222 &4690743419784222565
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -157919,7 +157945,7 @@ MonoBehaviour:
   thisNPC: 500
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 15
+  activeRadius: 100
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -157994,7 +158020,7 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   modelRoot: {fileID: 0}
-  seatNavSampleRadius: 6
+  seatNavSampleRadius: 30
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
@@ -158016,9 +158042,11 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  standUpByReversingSitDown: 1
   useSitTriggerParam: 0
   sitTriggerParam: SitDown
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
 --- !u!1 &4774676104397483914
 GameObject:
   m_ObjectHideFlags: 0

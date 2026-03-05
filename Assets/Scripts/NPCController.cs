@@ -304,6 +304,10 @@ public class NPCController : MonoBehaviour
     [Tooltip("If true, snap to seat transform position/rotation once seated (recommended).")]
     [SerializeField] private bool snapToSeatWhenSeated = true;
 
+    [Header("Sitting Placement")]
+    [Tooltip("Optional offset applied ONCE when SitDown starts (helps match seatTransform origin to your rig root).")]
+    [SerializeField] private Vector3 seatedRootOffset = Vector3.zero;
+
     [Tooltip("Optional: auto-stand after this many seconds. 0 = never auto-stand.")]
     [SerializeField] private float autoStandAfterSeconds = 0f;
 
@@ -729,8 +733,6 @@ public class NPCController : MonoBehaviour
                 agent.autoBraking = true;
 
                 // FIX: Only initialise sitting once when first entering this state.
-                // Previously this called EnterSitting() unconditionally, which called
-                // ReleaseSeatIfAny() every time — wiping _seat mid-approach.
                 if (prev != NPCState.Sitting)
                     EnterSitting();
 
@@ -768,13 +770,13 @@ public class NPCController : MonoBehaviour
 
         switch (_state)
         {
-            case NPCState.Patrolling:   TickPatrolling(dt, speedMultiplier: 1f); break;
-            case NPCState.Alerted:      TickAlerted(dt); break;
-            case NPCState.Approaching:  TickApproaching(dt); break;
-            case NPCState.Attacking:    TickAttacking(dt); break;
-            case NPCState.Seeking:      TickSeeking(dt); break;
-            case NPCState.Talk:         TickTalk(dt); break;
-            case NPCState.Sitting:      TickSitting(dt); break;
+            case NPCState.Patrolling: TickPatrolling(dt, speedMultiplier: 1f); break;
+            case NPCState.Alerted: TickAlerted(dt); break;
+            case NPCState.Approaching: TickApproaching(dt); break;
+            case NPCState.Attacking: TickAttacking(dt); break;
+            case NPCState.Seeking: TickSeeking(dt); break;
+            case NPCState.Talk: TickTalk(dt); break;
+            case NPCState.Sitting: TickSitting(dt); break;
         }
     }
 
@@ -868,11 +870,6 @@ public class NPCController : MonoBehaviour
                 return;
             }
         }
-
-        // FIX: Removed the sit-specific approach block from TickApproaching entirely.
-        // Previously it called EnterState(NPCState.Sitting) when arriving at pre-sit point,
-        // which triggered EnterSitting() → ReleaseSeatIfAny(), wiping the acquired seat.
-        // The sit approach is now handled entirely within TickSitting/TickApproachFront.
 
         if (currentTarget == null && !(_hasCommand && _commandGoal == NPCState.Sitting))
         {
@@ -1111,7 +1108,7 @@ public class NPCController : MonoBehaviour
     }
 
     // =========================================================
-    // SITTING — fixed sequence
+    // SITTING — fixed sequence (seamless SitDown -> SitIdle)
     // =========================================================
 
     private void EnterSitting()
@@ -1121,8 +1118,6 @@ public class NPCController : MonoBehaviour
         _seatRescanT = 0f;
         _seatedT = 0f;
 
-        // Only release a seat here if we're genuinely starting fresh.
-        // Do NOT call this when re-entering Sitting state mid-sequence.
         ReleaseSeatIfAny();
 
         if (agent && agent.isActiveAndEnabled && agent.isOnNavMesh)
@@ -1144,7 +1139,6 @@ public class NPCController : MonoBehaviour
                 break;
 
             case SitPhase.ApproachingFront:
-                // FIX: Agent must be valid for nav phases
                 if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
                 TickApproachFront();
                 break;
@@ -1152,19 +1146,13 @@ public class NPCController : MonoBehaviour
             case SitPhase.Aligning:
                 if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
                 if (_seatTf == null) { FailSittingAndReturnToPatrol(); return; }
-                {
-                    Vector3 sf = GetSeatFacing();
-                    TickAlign(dt, sf);
-                }
+                TickAlign(dt, GetSeatFacing());
                 break;
 
             case SitPhase.Backstepping:
                 if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
                 if (_seatTf == null) { FailSittingAndReturnToPatrol(); return; }
-                {
-                    Vector3 sf = GetSeatFacing();
-                    TickBackstep(dt, _seatNavPos, sf);
-                }
+                TickBackstep(dt, _seatNavPos, GetSeatFacing());
                 break;
 
             case SitPhase.SitDownPlaying:
@@ -1173,11 +1161,7 @@ public class NPCController : MonoBehaviour
 
             case SitPhase.SittingIdle:
                 if (_seatTf == null) { FailSittingAndReturnToPatrol(); return; }
-                {
-                    Vector3 seatPos = _seatTf.position;
-                    Vector3 sf = GetSeatFacing();
-                    TickSittingIdle(dt, seatPos, sf);
-                }
+                TickSittingIdle(dt, _seatTf.position, GetSeatFacing());
                 break;
 
             case SitPhase.StandUpPlaying:
@@ -1186,9 +1170,6 @@ public class NPCController : MonoBehaviour
         }
     }
 
-    // Returns the direction the NPC should FACE when seated.
-    // The seat's forward is the direction a person faces OUT of the seat,
-    // so we face that direction. Adjust this if your seats use a different convention.
     private Vector3 GetSeatFacing()
     {
         if (_seatTf == null) return transform.forward;
@@ -1208,10 +1189,9 @@ public class NPCController : MonoBehaviour
             _seatRescanT = Mathf.Max(0.05f, seatRescanInterval);
 
             if (TryAcquireSeat())
-                return; // TryAcquireSeat sets phase to ApproachingFront
+                return;
         }
 
-        // Keep standing still while searching
         if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
         {
             agent.isStopped = true;
@@ -1220,8 +1200,8 @@ public class NPCController : MonoBehaviour
 
         ForceIdlePose();
     }
-    
-        private bool TryAcquireSeat()
+
+    private bool TryAcquireSeat()
     {
         float radius = (seatSearchRadius > 0.01f) ? seatSearchRadius : Mathf.Max(0.1f, activeRadius);
         Vector3 center = _spawnPoint;
@@ -1242,7 +1222,6 @@ public class NPCController : MonoBehaviour
             Seat s = seats[i];
             if (!s) continue;
 
-            // Must match seat layer mask (either seat GO or its seatTransform GO can be on SEAT)
             bool matchesMask =
                 (((1 << s.gameObject.layer) & seatLayerMask.value) != 0) ||
                 (s.seatTransform != null && (((1 << s.seatTransform.gameObject.layer) & seatLayerMask.value) != 0));
@@ -1254,12 +1233,10 @@ public class NPCController : MonoBehaviour
 
             Vector3 seatPos = s.seatTransform.position;
 
-            // Must be within radius of spawn (your spec)
             Vector3 d = seatPos - center;
             d.y = 0f;
             if (d.sqrMagnitude > radius * radius) continue;
 
-            // Must have some navmesh nearby (use BIG radius)
             if (!NavMesh.SamplePosition(seatPos, out NavMeshHit seatHit, seatNavSampleRadius, NavMesh.AllAreas))
             {
                 if (seatDebugLogs)
@@ -1290,7 +1267,6 @@ public class NPCController : MonoBehaviour
         _seat = best;
         _seatTf = best.seatTransform;
 
-        // --- Compute seat forward / pre-sit point (world authoring) ---
         Vector3 seatForward = _seatTf.forward;
         seatForward.y = 0f;
         if (seatForward.sqrMagnitude < 0.0001f) seatForward = transform.forward;
@@ -1299,19 +1275,17 @@ public class NPCController : MonoBehaviour
         Vector3 seatPos2 = _seatTf.position;
         _preSitPoint = seatPos2 + seatForward * Mathf.Max(0f, preSitForwardOffset);
 
-        // --- Snap BOTH target points to navmesh ---
         NavMesh.SamplePosition(seatPos2, out NavMeshHit seatHit2, seatNavSampleRadius, NavMesh.AllAreas);
         _seatNavPos = seatHit2.position;
 
         if (!NavMesh.SamplePosition(_preSitPoint, out NavMeshHit preHit, seatNavSampleRadius, NavMesh.AllAreas))
-            _preSitNavPos = _seatNavPos; // fallback
+            _preSitNavPos = _seatNavPos;
         else
             _preSitNavPos = preHit.position;
 
         if (seatDebugLogs)
             Debug.Log($"{name} Sit: ACQUIRED '{_seat.name}' seatPos={seatPos2} seatNav={_seatNavPos} preSit={_preSitPoint} preSitNav={_preSitNavPos}");
 
-        // Approach like Talk/Attack
         agent.enabled = true;
         agent.isStopped = false;
         agent.autoBraking = true;
@@ -1322,14 +1296,10 @@ public class NPCController : MonoBehaviour
         return true;
     }
 
-    // FIX: TickApproachFront no longer uses HasArrived (which requires hasPath=true and
-    // would never trigger when the path auto-clears near the destination).
-    // Instead we use a plain distance check to _preSitNavPos.
     private void TickApproachFront()
     {
         agent.isStopped = false;
 
-        // Re-issue destination if we don't have one or it drifted
         if (!agent.pathPending && (!agent.hasPath || Vector3.Distance(agent.destination, _preSitNavPos) > 0.15f))
             agent.SetDestination(_preSitNavPos);
 
@@ -1355,8 +1325,6 @@ public class NPCController : MonoBehaviour
     {
         agent.isStopped = true;
 
-        // FIX: Face the seat-facing direction (the direction a person faces when seated).
-        // The NPC will then backstep into the seat, ending up correctly oriented.
         Quaternion targetRot = Quaternion.LookRotation(seatFacing, Vector3.up);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, dt * (turnSmoothing * 1.5f));
 
@@ -1377,11 +1345,9 @@ public class NPCController : MonoBehaviour
     {
         agent.isStopped = true;
 
-        // Move backward (opposite to seatFacing) toward the seat position
         float step = Mathf.Max(0.01f, backstepSpeed) * dt;
         transform.position = Vector3.MoveTowards(transform.position, seatNavPos, step);
 
-        // Maintain facing direction during backstep
         Quaternion targetRot = Quaternion.LookRotation(seatFacing, Vector3.up);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, dt * (turnSmoothing * 2.0f));
 
@@ -1411,11 +1377,17 @@ public class NPCController : MonoBehaviour
             agent.enabled = false;
         }
 
-        // Snap facing before playing animation
-        if (_seatTf != null)
+// ✅ Seamless: snap XZ only (keep current Y). Let animation offsets handle height.
+        if (snapToSeatWhenSeated && _seatTf != null)
         {
-            Vector3 f = GetSeatFacing();
-            transform.rotation = Quaternion.LookRotation(f, Vector3.up);
+            Vector3 p = transform.position;
+            Vector3 seatP = _seatTf.position;
+            transform.position = new Vector3(seatP.x, p.y, seatP.z);
+            transform.rotation = Quaternion.LookRotation(GetSeatFacing(), Vector3.up);
+        }
+        else if (_seatTf != null)
+        {
+            transform.rotation = Quaternion.LookRotation(GetSeatFacing(), Vector3.up);
         }
 
         if (animationController != null)
@@ -1446,24 +1418,21 @@ public class NPCController : MonoBehaviour
 
         AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(sitAnimLayer);
 
-        // Reached sit idle — done
+        // ✅ Seamless: when SitIdle is reached, DO NOT snap position (this is what caused the "dip").
         if (!string.IsNullOrWhiteSpace(sitIdleStateName) && info.IsName(sitIdleStateName))
         {
             _sitPhase = SitPhase.SittingIdle;
             _seatedT = 0f;
 
-            if (snapToSeatWhenSeated && _seatTf != null)
-            {
-                transform.position = _seatTf.position;
+            // Rotation only (optional), no teleport.
+            if (_seatTf != null)
                 transform.rotation = Quaternion.LookRotation(GetSeatFacing(), Vector3.up);
-            }
 
             if (seatDebugLogs)
                 Debug.Log($"{name} Sit: Now in SittingIdle.");
             return;
         }
 
-        // Fallback: force state by name if we're stuck in locomotion
         if (_sitTriggerSent && _sitTriggerT >= sitTriggerFallbackDelay)
         {
             bool inSitDown = !string.IsNullOrWhiteSpace(sitDownStateName) && info.IsName(sitDownStateName);
@@ -1490,11 +1459,9 @@ public class NPCController : MonoBehaviour
 
         ForceIdlePose();
 
-        if (snapToSeatWhenSeated)
-        {
-            transform.position = seatPos;
-            transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
-        }
+        // ✅ Seamless: do NOT keep snapping position each frame. That will fight animation and can cause pops.
+        // If you want to "lock" the facing, rotate only.
+        transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
 
         if (autoStandAfterSeconds > 0f)
         {
@@ -1965,10 +1932,6 @@ public class NPCController : MonoBehaviour
         return false;
     }
 
-    // FIX: HasArrived no longer returns true when hasPath is false.
-    // When hasPath is false it means either the path was never computed
-    // or was reset — not that the agent arrived. Use plain distance checks
-    // (as in TickApproachFront) for situations where the path may auto-clear.
     static bool HasArrived(NavMeshAgent a, float arriveDist)
     {
         if (a == null) return false;
@@ -2001,7 +1964,6 @@ public class NPCController : MonoBehaviour
 
         bool inSitWalkup = (_state == NPCState.Sitting && _sitPhase == SitPhase.ApproachingFront);
 
-        // Only kill motion driving once we're past the walk-up phase
         if (_state == NPCState.Sitting && !inSitWalkup)
         {
             vel = Vector3.zero;
@@ -2016,7 +1978,6 @@ public class NPCController : MonoBehaviour
                 useStateMachine &&
                 (_state == NPCState.Approaching || _state == NPCState.Seeking || _state == NPCState.Patrolling || inSitWalkup);
 
-            // If path is pending or velocity hasn't kicked in yet, use desiredVelocity so anim starts immediately
             if (isApproachLike && (agent.pathPending || (v.sqrMagnitude < 0.0004f && dv.sqrMagnitude > 0.0004f)))
                 vel = dv;
             else
@@ -2033,7 +1994,6 @@ public class NPCController : MonoBehaviour
         float movingX = Mathf.Clamp(localVel.x, -1f, 1f);
         float blend = (moveSpeed <= 0.001f) ? 0f : Mathf.Clamp01(speed / moveSpeed);
 
-        // Do not zero params during the sitting walk-up; only after we start align/backstep/sit.
         if (!IsNavDriven() || (_state == NPCState.Sitting && !inSitWalkup))
         {
             movingX = 0f;
@@ -2053,14 +2013,12 @@ public class NPCController : MonoBehaviour
 
         bool inSitWalkup = (_state == NPCState.Sitting && _sitPhase == SitPhase.ApproachingFront);
 
-        // Skip facing only for "locked" states — but allow it during Sitting walk-up
         if (useStateMachine && (_state == NPCState.Alerted || _state == NPCState.Attacking || _state == NPCState.Talk))
             return;
 
         if (useStateMachine && _state == NPCState.Sitting && !inSitWalkup)
             return;
 
-        // Prefer desiredVelocity so we turn immediately (velocity can lag)
         Vector3 v = agent.desiredVelocity;
         if (v.sqrMagnitude < 0.0004f) v = agent.velocity;
 

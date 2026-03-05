@@ -28,7 +28,6 @@ public class GameMaster : MonoBehaviour
     public TravelCompanion TravelCompanion;
     public Pickup Pickup;
     public OnboardingManager OnboardingManager;
-    public EventManager EventManager;
     public TerminalEventManager TerminalEventManager;
     public EvidenceManager EvidenceManager;
     public LanguageManager LanguageManager;
@@ -39,7 +38,7 @@ public class GameMaster : MonoBehaviour
     public QuestManager QuestManager;
     public AudioSlave AudioSlave;
     public LoadingManager LoadingManager;
-    public NPCManager NPCManager;
+    public DebugCamera DebugCam;
     public int DefaultFOV;
 
 
@@ -265,7 +264,8 @@ public enum GAMELEVEL
     NorasFlat,
     TawleyMeats,
     RoarkOutside,
-    RoarkInside
+    RoarkInside,
+    SecretLevel
 }
 
 

@@ -140,7 +140,7 @@ public class TravelCompanion : MonoBehaviour
         
         yield return new WaitForSeconds(0.1f);
         GameMaster.Instance.Player.Noranimator.speed = 0f;
-        GameMaster.Instance.EventManager.StartNotepad(Notepad.transform);
+        EventManager.StartNotepad(Notepad.transform);
         FacePlayerOnY();
 
     }

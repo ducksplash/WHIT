@@ -442,8 +442,7 @@ public class QuestManager : MonoBehaviour
     {
         try
         {
-            if (GameMaster.Instance != null && GameMaster.Instance.EventManager != null)
-                GameMaster.Instance.EventManager.QuestLoaded(questRuntime);
+            if (GameMaster.Instance != null) EventManager.QuestLoaded(questRuntime);
         }
         catch { /* ignore */ }
 

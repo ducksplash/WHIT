@@ -233,7 +233,7 @@ public class OnboardingManager : MonoBehaviour
         StoredPrefs.Instance.SetInt("TORCHCOLLECTED", TORCHCOLLECTED ? 1 : 0);
         StoredPrefs.Instance.Save();
 
-        GameMaster.Instance.EventManager.TorchCollectedEvent();
+        EventManager.TorchCollectedEvent();
         CheckOnboardingStatus();
     }
 
@@ -260,7 +260,7 @@ public class OnboardingManager : MonoBehaviour
         StoredPrefs.Instance.SetInt("NOTEPADCOLLECTED", NOTEPADCOLLECTED ? 1 : 0);
         StoredPrefs.Instance.Save();
 
-        GameMaster.Instance.EventManager.NotepadCollectedEvent();
+        EventManager.NotepadCollectedEvent();
         CheckOnboardingStatus();
     }
 
@@ -287,7 +287,7 @@ public class OnboardingManager : MonoBehaviour
         StoredPrefs.Instance.Save();
 
         CheckOnboardingStatus();
-        GameMaster.Instance.EventManager.PhoneCollectedEvent();
+        EventManager.PhoneCollectedEvent();
     }
 
 
@@ -442,7 +442,7 @@ public class OnboardingManager : MonoBehaviour
         if (torchPickup) torchPickup.SetActive(false);
         if (torchTick) torchTick.alpha = 1;
 
-        GameMaster.Instance.EventManager.TorchCollectedEvent();
+        EventManager.TorchCollectedEvent();
     }
 
     private void RestoreNotepadCollected()
@@ -452,7 +452,7 @@ public class OnboardingManager : MonoBehaviour
         if (notepadPickup) notepadPickup.SetActive(false);
         if (notepadTick) notepadTick.alpha = 1;
 
-        GameMaster.Instance.EventManager.NotepadCollectedEvent();
+        EventManager.NotepadCollectedEvent();
     }
 
 

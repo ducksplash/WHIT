@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -8,41 +7,92 @@ using UnityEngine.UI;
 public class DebugCamHUD : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private OrbitCam orbitCam;
+    [SerializeField] private DebugCamera orbitCam;
 
     [Header("UI")]
     [SerializeField] private TMP_Text currentTargetText;
 
-    [Tooltip("Parent object that contains the trigger/routine controls. Hidden when no valid NPCController target.")]
+    [Tooltip("Optional: shows NPC FSM state (Patrolling/Approaching/etc).")]
+    [SerializeField] private TMP_Text currentStateText;
+
+    [Tooltip("Parent object that contains the controls. Hidden when no valid NPCController target.")]
     [SerializeField] private GameObject controlsRoot;
 
+    // ---------------------------------------------------------
+    // Trigger UI
+    // ---------------------------------------------------------
     [Header("Trigger UI")]
     [SerializeField] private TMP_Dropdown triggerDropdown;
     [SerializeField] private Button playTriggerButton;
 
-    [Header("Routine UI")]
-    [SerializeField] private TMP_Dropdown routineDropdown;
-    [SerializeField] private Button playRoutineButton;
+    // ---------------------------------------------------------
+    // FSM UI
+    // Mirrors NPCController Inspector panel:
+    // - Force Patrol
+    // - Clear Target
+    // ---------------------------------------------------------
+    [Header("FSM UI")]
+    [SerializeField] private Button forcePatrolButton;
+    [SerializeField] private Button clearTargetButton;
+
+    // ---------------------------------------------------------
+    // Target Testing (NPC Enum) UI
+    // Mirrors NPCController Inspector panel:
+    // - Pick NPC enum
+    // - Approach / Attack / Talk
+    // ---------------------------------------------------------
+    [Header("Target Testing UI (NPC Enum)")]
+    [SerializeField] private TMP_Dropdown targetNpcDropdown;
+    [SerializeField] private Button approachButton;
+    [SerializeField] private Button attackButton;
+    [SerializeField] private Button talkButton;
 
     // runtime
     private Transform _lastTarget;
     private NPCController _npc;
 
     private readonly List<string> _triggerOptions = new();
-    private readonly List<Routine> _routineOptions = new();
+
+    // NPC enum dropdown cache
+    private readonly List<NPC> _npcEnumOptions = new();
+    private readonly List<string> _npcEnumLabels = new();
+    private bool _npcEnumBuilt = false;
 
     void Awake()
     {
         if (controlsRoot != null) controlsRoot.SetActive(false);
 
+        // Trigger
         if (playTriggerButton != null) playTriggerButton.onClick.AddListener(OnPlayTriggerClicked);
-        if (playRoutineButton != null) playRoutineButton.onClick.AddListener(OnPlayRoutineClicked);
+
+        // FSM
+        if (forcePatrolButton != null) forcePatrolButton.onClick.AddListener(OnForcePatrolClicked);
+        if (clearTargetButton != null) clearTargetButton.onClick.AddListener(OnClearTargetClicked);
+
+        // Target testing
+        if (approachButton != null) approachButton.onClick.AddListener(OnApproachClicked);
+        if (attackButton != null) attackButton.onClick.AddListener(OnAttackClicked);
+        if (talkButton != null) talkButton.onClick.AddListener(OnTalkClicked);
+
+        if (targetNpcDropdown != null)
+            targetNpcDropdown.onValueChanged.AddListener(OnTargetNpcDropdownChanged);
+
+        BuildNpcEnumDropdownIfNeeded();
     }
 
     void OnDestroy()
     {
         if (playTriggerButton != null) playTriggerButton.onClick.RemoveListener(OnPlayTriggerClicked);
-        if (playRoutineButton != null) playRoutineButton.onClick.RemoveListener(OnPlayRoutineClicked);
+
+        if (forcePatrolButton != null) forcePatrolButton.onClick.RemoveListener(OnForcePatrolClicked);
+        if (clearTargetButton != null) clearTargetButton.onClick.RemoveListener(OnClearTargetClicked);
+
+        if (approachButton != null) approachButton.onClick.RemoveListener(OnApproachClicked);
+        if (attackButton != null) attackButton.onClick.RemoveListener(OnAttackClicked);
+        if (talkButton != null) talkButton.onClick.RemoveListener(OnTalkClicked);
+
+        if (targetNpcDropdown != null)
+            targetNpcDropdown.onValueChanged.RemoveListener(OnTargetNpcDropdownChanged);
     }
 
     void Update()
@@ -50,27 +100,33 @@ public class DebugCamHUD : MonoBehaviour
         if (orbitCam == null) return;
 
         Transform t = orbitCam.GetTarget();
-
         if (t != _lastTarget)
         {
             _lastTarget = t;
             RefreshForTarget(t);
         }
+
+        // Keep state text live (nice for debugging)
+        if (_npc != null && currentStateText != null)
+            currentStateText.text = $"State: {_npc.GetCurrentState()}";
     }
 
     private void RefreshForTarget(Transform target)
     {
+        _npc = null;
+        if (target != null) _npc = target.GetComponentInParent<NPCController>();
+
         // Text
         if (currentTargetText != null)
         {
-            currentTargetText.text = target == null
-                ? "Current Target: None"
-                : $"Current Target: {target.gameObject.GetComponent<NPCController>().thisNPC}";
+            if (_npc == null)
+                currentTargetText.text = "Current Target: None";
+            else
+                currentTargetText.text = $"Current Target: {_npc.thisNPC}";
         }
 
-        
-        _npc = null;
-        if (target != null) _npc = target.GetComponentInParent<NPCController>();
+        if (currentStateText != null)
+            currentStateText.text = (_npc == null) ? "State: -" : $"State: {_npc.GetCurrentState()}";
 
         bool hasNpc = (_npc != null);
 
@@ -78,17 +134,41 @@ public class DebugCamHUD : MonoBehaviour
             controlsRoot.SetActive(hasNpc);
 
         if (!hasNpc)
+        {
+            SetAllControlsInteractable(false);
             return;
+        }
+
+        SetAllControlsInteractable(true);
 
         RefreshTriggerDropdown();
-        RefreshRoutineDropdown();
+        RefreshTargetNpcDropdownSelectionFromNpc();
     }
+
+    private void SetAllControlsInteractable(bool on)
+    {
+        if (playTriggerButton != null) playTriggerButton.interactable = on;
+
+        if (forcePatrolButton != null) forcePatrolButton.interactable = on;
+        if (clearTargetButton != null) clearTargetButton.interactable = on;
+
+        if (approachButton != null) approachButton.interactable = on;
+        if (attackButton != null) attackButton.interactable = on;
+        if (talkButton != null) talkButton.interactable = on;
+
+        if (triggerDropdown != null) triggerDropdown.interactable = on;
+        if (targetNpcDropdown != null) targetNpcDropdown.interactable = on;
+    }
+
+    // =========================================================
+    // Trigger UI
+    // =========================================================
 
     private void RefreshTriggerDropdown()
     {
         _triggerOptions.Clear();
 
-        if (_npc.triggerNames != null)
+        if (_npc != null && _npc.triggerNames != null)
         {
             for (int i = 0; i < _npc.triggerNames.Count; i++)
             {
@@ -112,55 +192,12 @@ public class DebugCamHUD : MonoBehaviour
 
         triggerDropdown.AddOptions(_triggerOptions);
         triggerDropdown.interactable = true;
-        triggerDropdown.value = Mathf.Clamp(_npc.selectedTriggerIndex, 0, _triggerOptions.Count - 1);
+
+        int idx = (_npc != null) ? Mathf.Clamp(_npc.selectedTriggerIndex, 0, _triggerOptions.Count - 1) : 0;
+        triggerDropdown.value = idx;
         triggerDropdown.RefreshShownValue();
 
         if (playTriggerButton != null) playTriggerButton.interactable = true;
-    }
-
-    private void RefreshRoutineDropdown()
-    {
-        _routineOptions.Clear();
-        List<string> labels = new List<string>();
-
-        if (_npc.routines != null)
-        {
-            for (int i = 0; i < _npc.routines.Count; i++)
-            {
-                var routineAsset = _npc.routines[i];
-                if (routineAsset == null) continue;
-
-                Routine r = routineAsset.RoutineType;
-
-                // avoid duplicates if the list contains repeated assets/types
-                if (_routineOptions.Contains(r)) continue;
-
-                _routineOptions.Add(r);
-                labels.Add(r.ToString());
-            }
-        }
-
-        if (routineDropdown == null) return;
-
-        routineDropdown.ClearOptions();
-
-        if (_routineOptions.Count == 0)
-        {
-            routineDropdown.AddOptions(new List<string> { "(No routines)" });
-            routineDropdown.interactable = false;
-            if (playRoutineButton != null) playRoutineButton.interactable = false;
-            return;
-        }
-
-        routineDropdown.AddOptions(labels);
-        routineDropdown.interactable = true;
-
-        // Try to select NPC's current selectedRoutine if it exists in list
-        int idx = _routineOptions.IndexOf(_npc.selectedRoutine);
-        routineDropdown.value = (idx >= 0) ? idx : 0;
-        routineDropdown.RefreshShownValue();
-
-        if (playRoutineButton != null) playRoutineButton.interactable = true;
     }
 
     private void OnPlayTriggerClicked()
@@ -172,24 +209,117 @@ public class DebugCamHUD : MonoBehaviour
         int idx = Mathf.Clamp(triggerDropdown.value, 0, _triggerOptions.Count - 1);
         string trig = _triggerOptions[idx];
 
-        // keep NPC’s inspector index in sync (nice for debugging)
         _npc.selectedTriggerIndex = idx;
-
         _npc.PlayTrigger(trig);
     }
 
-    private void OnPlayRoutineClicked()
+    // =========================================================
+    // FSM UI (Force Patrol / Clear Target)
+    // =========================================================
+
+    private void OnForcePatrolClicked()
     {
         if (_npc == null) return;
-        if (_routineOptions.Count == 0) return;
-        if (routineDropdown == null) return;
+        _npc.ForcePatrol();
+        RefreshForTarget(_lastTarget);
+    }
 
-        int idx = Mathf.Clamp(routineDropdown.value, 0, _routineOptions.Count - 1);
-        Routine routine = _routineOptions[idx];
+    private void OnClearTargetClicked()
+    {
+        if (_npc == null) return;
+        _npc.ClearTarget();
+        RefreshForTarget(_lastTarget);
+    }
 
-        // keep NPC’s selectedRoutine in sync
-        _npc.selectedRoutine = routine;
+    // =========================================================
+    // Target Testing UI (NPC Enum)
+    // =========================================================
 
-        _npc.PlayRoutine(routine);
+    private void BuildNpcEnumDropdownIfNeeded()
+    {
+        if (_npcEnumBuilt) return;
+        _npcEnumBuilt = true;
+
+        _npcEnumOptions.Clear();
+        _npcEnumLabels.Clear();
+
+        Array vals = Enum.GetValues(typeof(NPC));
+        for (int i = 0; i < vals.Length; i++)
+        {
+            NPC v = (NPC)vals.GetValue(i);
+            _npcEnumOptions.Add(v);
+            _npcEnumLabels.Add(v.ToString());
+        }
+
+        if (targetNpcDropdown == null) return;
+
+        targetNpcDropdown.ClearOptions();
+        if (_npcEnumLabels.Count == 0)
+        {
+            targetNpcDropdown.AddOptions(new List<string> { "(No NPC enum values)" });
+            targetNpcDropdown.interactable = false;
+            return;
+        }
+
+        targetNpcDropdown.AddOptions(_npcEnumLabels);
+        targetNpcDropdown.interactable = true;
+        targetNpcDropdown.value = 0;
+        targetNpcDropdown.RefreshShownValue();
+    }
+
+    private void RefreshTargetNpcDropdownSelectionFromNpc()
+    {
+        if (_npc == null) return;
+        if (targetNpcDropdown == null) return;
+        if (_npcEnumOptions.Count == 0) return;
+
+        int idx = _npcEnumOptions.IndexOf(_npc.debugTargetNPC);
+        if (idx < 0) idx = 0;
+
+        targetNpcDropdown.SetValueWithoutNotify(idx);
+        targetNpcDropdown.RefreshShownValue();
+    }
+
+    private void OnTargetNpcDropdownChanged(int idx)
+    {
+        if (_npc == null) return;
+        if (_npcEnumOptions.Count == 0) return;
+
+        idx = Mathf.Clamp(idx, 0, _npcEnumOptions.Count - 1);
+        _npc.debugTargetNPC = _npcEnumOptions[idx];
+    }
+
+    private void OnApproachClicked()
+    {
+        if (_npc == null) return;
+        SyncNpcDebugTargetFromDropdown();
+        _npc.DebugApproachTargetNPC();
+        RefreshForTarget(_lastTarget);
+    }
+
+    private void OnAttackClicked()
+    {
+        if (_npc == null) return;
+        SyncNpcDebugTargetFromDropdown();
+        _npc.DebugAttackTargetNPC();
+        RefreshForTarget(_lastTarget);
+    }
+
+    private void OnTalkClicked()
+    {
+        if (_npc == null) return;
+        SyncNpcDebugTargetFromDropdown();
+        _npc.DebugTalkTargetNPC();
+        RefreshForTarget(_lastTarget);
+    }
+
+    private void SyncNpcDebugTargetFromDropdown()
+    {
+        if (_npc == null) return;
+        if (targetNpcDropdown == null) return;
+        if (_npcEnumOptions.Count == 0) return;
+
+        int idx = Mathf.Clamp(targetNpcDropdown.value, 0, _npcEnumOptions.Count - 1);
+        _npc.debugTargetNPC = _npcEnumOptions[idx];
     }
 }

@@ -114,7 +114,7 @@ public class DialogueManager : MonoBehaviour
         {
             SeenLoaded = true;
             
-            GameMaster.Instance.EventManager.PlayerDataLoaded();
+            EventManager.PlayerDataLoaded();
         }
     }
 

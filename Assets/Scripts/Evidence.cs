@@ -79,7 +79,7 @@ public class Evidence : MonoBehaviour
         EvidenceCollected = true;
         EvidenceBar.EQReadout();
         
-        GameMaster.Instance.EventManager.EvidenceCollected();
+        EventManager.EvidenceCollected();
         //GameMaster.Instance.EvidenceManager.EQThisLevel += EvidenceQuality;
         //StoredPrefs.Instance.SetInt("EQLevel" + GameMaster.Instance.THISLEVEL, GameMaster.Instance.EvidenceManager.EQThisLevel);
         //StoredPrefs.Instance.Save();

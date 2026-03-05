@@ -258,7 +258,7 @@ public class Player : Singleton<Player>
         
         CurrentCamera = (CurrentCamera == MainCam) ? DebugCam : MainCam;
 
-        GameMaster.Instance.EventManager.DebugCamEnabled(CurrentCamera == DebugCam);
+        EventManager.DebugCamEnabled(CurrentCamera == DebugCam);
         GameMaster.Instance.PauseManager.IsPaused = CurrentCamera == DebugCam;
         
         CurrentCamera.enabled = true;

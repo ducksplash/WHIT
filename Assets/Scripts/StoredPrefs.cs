@@ -160,10 +160,10 @@ public class StoredPrefs : MonoBehaviour
     {
         yield return new WaitUntil(() => IsReady);
 
-        while (GameMaster.Instance == null || GameMaster.Instance.EventManager == null)
+        while (GameMaster.Instance == null)
             yield return null;
 
-        GameMaster.Instance.EventManager.PlayerDataLoaded();
+        EventManager.PlayerDataLoaded();
     }
 
     // ===================== GET/SET =====================

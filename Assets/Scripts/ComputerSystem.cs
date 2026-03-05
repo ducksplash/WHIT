@@ -279,7 +279,7 @@ public class ComputerSystem : MonoBehaviour
         if (PCCollider != null) PCCollider.enabled = false;
         if (NearestChair != null) NearestChair.gameObject.SetActive(false);
 
-        GameMaster.Instance.EventManager.StartComputer(ViewableArea);
+        EventManager.StartComputer(ViewableArea);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
@@ -367,7 +367,7 @@ public class ComputerSystem : MonoBehaviour
     public void InputClosePC(InputAction.CallbackContext callbackContext)
     {
         if (ComputerOpen) return;
-        GameMaster.Instance.EventManager.StopComputer();
+        EventManager.StopComputer();
     }
 
     public void HandleBackStepOnly()
@@ -392,7 +392,7 @@ public class ComputerSystem : MonoBehaviour
         }
         else
         {
-            GameMaster.Instance.EventManager.StopComputer();
+            EventManager.StopComputer();
         }
     }
 

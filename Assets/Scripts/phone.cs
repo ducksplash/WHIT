@@ -386,7 +386,7 @@ public class Phone : MonoBehaviour
             TriggerAction.action.performed -= TakePhoto;
             InteractAction.action.performed -= TakePhoto;
             
-            GameMaster.Instance.EventManager.CameraClosed();
+            EventManager.CameraClosed();
         }
 
         if (useThisScreen != MapsScreen)
@@ -465,7 +465,7 @@ public class Phone : MonoBehaviour
         changeScreen(HomeScreen);
         HomeScreenNavver.gameObject.SetActive(true);
 
-        GameMaster.Instance.EventManager.PhoneOpened();
+        EventManager.PhoneOpened();
         GameMaster.Instance.OnboardingManager.OpenedPhone();
         
         
@@ -494,7 +494,7 @@ public class Phone : MonoBehaviour
         
         yield return new WaitForSeconds(0.1f);
         GameMaster.Instance.Player.Noranimator.speed = 0f;
-        GameMaster.Instance.EventManager.StartPhone(transform);
+        EventManager.StartPhone(transform);
         FacePlayerOnY();
 
     }
@@ -554,7 +554,7 @@ public class Phone : MonoBehaviour
         CrosshairCanvas.GetComponent<CanvasGroup>().alpha = 0.9f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        GameMaster.Instance.EventManager.StopPhone();
+        EventManager.StopPhone();
     }
 
 
@@ -935,7 +935,7 @@ public class Phone : MonoBehaviour
             TorchLight.enabled = false;
         }
         
-        GameMaster.Instance.EventManager.CameraOpen();
+        EventManager.CameraOpen();
 
         CameraFlash.enabled = true;
 

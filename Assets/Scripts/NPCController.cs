@@ -1,3 +1,4 @@
+// NPCController.cs
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,19 +11,127 @@ using UnityEditor;
 
 public class NPCController : MonoBehaviour
 {
+    // =========================================================
+    // FSM
+    // =========================================================
+    public enum NPCState
+    {
+        Patrolling,
+        Alerted,
+        Approaching,
+        Attacking,
+        Seeking,
+        Talk,
+        Sitting
+    }
+
     [Header("Identity")]
     public NPC thisNPC = NPC.EimearScott;
+
+    [Header("AI State Machine")]
+    [Tooltip("If true, the NPC runs the FSM.")]
+    public bool useStateMachine = true;
+
+    [Tooltip("Current target the NPC can spot/follow/attack. Set this externally (or via another system).")]
+    public Transform currentTarget;
+
+    [Tooltip("Patrol/seeking area radius from starting point.")]
+    public float activeRadius = 15f;
+
+    [Header("Testing / Overrides")]
+    [Tooltip("TESTING: If enabled, the NPC is allowed to chase/approach targets even when they are outside Active Radius.")]
+    public bool allowApproachOutsideActiveRadius = false;
+
+    [Tooltip("TESTING: Pick a target NPC by enum (uses NPCManager list).")]
+    public NPC debugTargetNPC = NPC.EimearScott;
+
+    [Header("Perception")]
+    [Tooltip("How far the NPC can spot a target.")]
+    public float visionRange = 12f;
+
+    [Tooltip("Field of view in degrees.")]
+    [Range(0f, 360f)] public float visionFOV = 120f;
+
+    [Tooltip("If true, requires line of sight (raycast) to spot/keep target.")]
+    public bool requireLineOfSight = false;
+
+    [Tooltip("Layers that block line of sight (only used if requireLineOfSight = true).")]
+    public LayerMask losBlockers = ~0;
+
+    [Header("Combat")]
+    [Tooltip("Distance at which the NPC switches to Attacking (natural AI, not button-command).")]
+    public float attackRange = 1.8f;
+
+    [Tooltip("Seconds to stay 'Alerted' before Approaching.")]
+    public float alertedDuration = 0.35f;
+
+    [Header("Interaction / Talk")]
+    [Tooltip("Talk distance (and also the button-command 'attack radius' per your test spec).")]
+    public float talkRange = 4.0f;
+
+    [Header("Patrol")]
+    [Tooltip("How often (randomly) the NPC changes direction while patrolling (seconds).")]
+    public Vector2 patrolChangeDirInterval = new Vector2(3f, 7f);
+
+    [Tooltip("Idle pause after reaching a patrol point (seconds).")]
+    public Vector2 patrolArrivePause = new Vector2(0.2f, 1.0f);
+
+    [Tooltip("How many attempts to find a valid navmesh point for patrol.")]
+    public int patrolPointTries = 10;
+
+    [Tooltip("NavMesh sampling radius for each patrol attempt.")]
+    public float patrolSampleRadius = 2.0f;
+
+    [Header("Seeking")]
+    [Tooltip("Seeking is like patrolling but faster.")]
+    public float seekingSpeedMultiplier = 1.2f;
+
+    [Tooltip("Give up seeking after this many seconds, then resume patrolling.")]
+    public float seekGiveUpSeconds = 6f;
+
+    [Tooltip("How often to refresh the approach destination while following (seconds).")]
+    public float approachRepathInterval = 0.25f;
+
+    [Header("Debug (Runtime)")]
+    [SerializeField] private NPCState _state = NPCState.Patrolling;
+
+    [Header("Approach Smoothing")]
+    [Tooltip("Only repath if the target moved at least this far since our last SetDestination.")]
+    public float approachTargetMoveThreshold = 0.35f;
+
+    [Tooltip("Disable autoBraking while chasing a moving target to prevent stop/start.")]
+    public bool disableBrakingWhileApproaching = true;
+
+    public NPCManager sceneNPCManager;
+
+    Vector3 _lastApproachDest;
+    bool _hasLastApproachDest;
+
+    // FSM runtime
+    Vector3 _spawnPoint;
+    Vector3 _patrolDestination;
+    bool _hasPatrolDestination;
+
+    float _stateTimer;
+    float _patrolChangeTimer;
+    float _patrolArriveTimer;
+    float _approachRepathTimer;
+    float _seekTimer;
+
+    Vector3 _lastKnownTargetPos;
+    bool _hasLastKnownTargetPos;
+
+    bool _isConversationLocked = false;
+    NPCController _conversationSpeaker;
+
+    bool _hasCommand = false;
+    NPCState _commandGoal = NPCState.Patrolling;
+
+    NPCController _talkTargetController;
 
     [Header("Components")]
     public Animator animationController;
     public NavMeshAgent agent;
-
-    [Header("Routines (Scriptable Objects)")]
-    [Tooltip("Assign NPCRoutine ScriptableObjects here.")]
-    public List<NPCRoutine> routines = new List<NPCRoutine>();
-
-    [Tooltip("Select which routine to play (by enum).")]
-    public Routine selectedRoutine = Routine.idle;
 
     [Header("Arrival / Blending")]
     [Tooltip("How close to a destination counts as 'arrived'.")]
@@ -36,19 +145,6 @@ public class NPCController : MonoBehaviour
 
     [Tooltip("When agent velocity is below this, we treat the NPC as idle.")]
     public float idleVelocityThreshold = 0.05f;
-
-    [Header("GO Fail-safes")]
-    [Tooltip("Seconds without a path (and not pending) before failing/skipping this waypoint.")]
-    public float goNoPathFailTime = 1.0f;
-
-    [Tooltip("Seconds of near-zero velocity while not arrived before trying a repath (and eventually skipping).")]
-    public float goStuckFailTime = 2.0f;
-
-    [Tooltip("Velocity magnitude below which we consider the agent stuck (while it still should be moving).")]
-    public float goStuckVelThreshold = 0.05f;
-
-    [Tooltip("How many repath attempts before we skip the current waypoint.")]
-    public int goMaxRepathAttemptsPerWaypoint = 1;
 
     [Header("Movement")]
     public float moveSpeed = 3f;
@@ -66,23 +162,13 @@ public class NPCController : MonoBehaviour
     [Tooltip("How far to search to snap this NPC onto the NavMesh if it spawns slightly off-mesh.")]
     public float snapToNavMeshRadius = 2f;
 
-    [Tooltip("If true, Play/Go will try to snap the agent onto the NavMesh automatically.")]
+    [Tooltip("If true, will try to snap the agent onto the NavMesh automatically.")]
     public bool autoSnapToNavMeshOnGo = true;
 
     [Header("Animator Params")]
     public string paramBlend = "Blend";
     public string paramMovingX = "MovingX";
     public string paramMovingY = "MovingY";
-
-    [Header("ACT Animation (Routine Behaviour)")]
-    [Tooltip("How long we wait for the animator to leave the current state after firing the ACT param.")]
-    public float actEnterTimeout = 1.0f;
-
-    [Tooltip("If ACT is NOT timed, we'll wait for the animation to finish, but never longer than this.")]
-    public float actMaxUnTimedDuration = 8.0f;
-
-    [Tooltip("Small buffer after ACT ends to help blend back cleanly.")]
-    public float actExitBuffer = 0.05f;
 
     // -----------------------
     // Triggered Animations (Naurani-style)
@@ -112,18 +198,7 @@ public class NPCController : MonoBehaviour
     [SerializeField] private float locomotionCrossfade = 0.12f;
 
     // Runtime state
-    public bool playRoutineOnStart = false;
-    [NonSerialized] public bool isRunningRoutine = false;
     [NonSerialized] public bool isPaused = false;
-
-    bool _reverseAnimations = false;
-    Coroutine _routineCoroutine;
-
-    NPCRoutine _activeRoutineAsset;
-    List<NPCBehaviour> _activeBehaviours;
-
-    // For looping routines: we must return to the FIRST waypoint before restarting
-    Vector3? _loopReturnToFirstWaypoint;
 
     // Trigger play coroutine
     Coroutine _triggerCoroutine;
@@ -160,11 +235,225 @@ public class NPCController : MonoBehaviour
     bool _hasResumeDestination;
 
     // Trigger snapshot state
-    bool _triggerWasRunningRoutine;
     bool _triggerPrevPaused;
     bool _triggerAgentWasValid;
     bool _triggerHadPathBefore;
     bool _triggerWasStoppedBefore;
+
+    Vector3 _animVelocitySmoothed = Vector3.zero;
+
+    // =========================================================
+    // SITTING
+    // =========================================================
+
+    [SerializeField] private Transform modelRoot;
+
+    private Vector3 _seatNavPos;
+    private Vector3 _preSitNavPos;
+    [SerializeField] private float seatNavSampleRadius = 6.0f;
+
+    [SerializeField] private float sitTriggerFallbackDelay = 0.08f;
+    private float _sitTriggerT = 0f;
+    private bool _sitTriggerSent = false;
+
+    private enum SitPhase
+    {
+        None,
+        SearchingSeat,
+        ApproachingFront,
+        Aligning,
+        Backstepping,
+        SitDownPlaying,
+        SittingIdle,
+        StandUpPlaying
+    }
+
+    [Header("Sitting")]
+    [Tooltip("Seat objects must be on this layer (e.g. a layer named 'Seat').")]
+    [SerializeField] private LayerMask seatLayerMask;
+
+    [SerializeField] private bool seatDebugLogs = false;
+
+    [Tooltip("If Seat colliders are triggers, keep this as Collide.")]
+    [SerializeField] private QueryTriggerInteraction seatQueryTriggers = QueryTriggerInteraction.Collide;
+
+    [Tooltip("How long to try finding a free seat before giving up.")]
+    [SerializeField] private float seatSearchTimeout = 4.0f;
+
+    [Tooltip("How often to rescan for seats while searching.")]
+    [SerializeField] private float seatRescanInterval = 0.35f;
+
+    [Tooltip("Search radius for seats (0 uses activeRadius).")]
+    [SerializeField] private float seatSearchRadius = 0f;
+
+    [Tooltip("We first approach a point in FRONT of the seat so we can turn + backstep onto it.")]
+    [SerializeField] private float preSitForwardOffset = 0.45f;
+
+    [Tooltip("How close to pre-sit point before aligning.")]
+    [SerializeField] private float preSitArriveDistance = 0.35f;
+
+    [Tooltip("How close yaw must be (degrees) before backstep.")]
+    [SerializeField] private float alignYawToleranceDeg = 6f;
+
+    [Tooltip("How far to step back into the seat just before sitting.")]
+    [SerializeField] private float backstepDistance = 0.25f;
+
+    [Tooltip("Speed for backstep (units/sec).")]
+    [SerializeField] private float backstepSpeed = 0.8f;
+
+    [Tooltip("If true, snap to seat transform position/rotation once seated (recommended).")]
+    [SerializeField] private bool snapToSeatWhenSeated = true;
+
+    [Tooltip("Optional: auto-stand after this many seconds. 0 = never auto-stand.")]
+    [SerializeField] private float autoStandAfterSeconds = 0f;
+
+    [Header("Sitting Animations")]
+    [Tooltip("Animator state name for standing->sitting.")]
+    [SerializeField] private string sitDownStateName = "SitDown";
+
+    [Tooltip("Animator state name for seated idle.")]
+    [SerializeField] private string sitIdleStateName = "SitIdle";
+
+    [Tooltip("Animator layer for sit states.")]
+    [SerializeField] private int sitAnimLayer = 0;
+
+    [Tooltip("Crossfade time for sit transitions.")]
+    [SerializeField] private float sitCrossfade = 0.10f;
+
+    [Tooltip("If true, stand up by reversing SitDown (anim.speed=-1) from end to start.")]
+    [SerializeField] private bool standUpByReversingSitDown = true;
+
+    [Tooltip("If you prefer a trigger param instead of CrossFade state name for sit down.")]
+    [SerializeField] private bool useSitTriggerParam = false;
+
+    [SerializeField] private string sitTriggerParam = "SitDown";
+
+    // Sitting runtime
+    private SitPhase _sitPhase = SitPhase.None;
+    private Seat _seat;
+    private Transform _seatTf;
+
+    private float _seatSearchT;
+    private float _seatRescanT;
+    private float _seatedT;
+
+    private Vector3 _preSitPoint;
+
+    // =========================================================
+    // Small shared helpers (FSM)
+    // =========================================================
+
+    bool IsNavDriven()
+    {
+        if (isPaused) return false;
+        if (_isPlayingTriggeredAnimation) return false;
+        return useStateMachine;
+    }
+
+    public NPCController ResolveNPC(NPC npcEnum)
+    {
+        var list = sceneNPCManager != null ? sceneNPCManager.NPCList : null;
+        if (list == null) return null;
+
+        for (int i = 0; i < list.Count; i++)
+        {
+            var c = list[i];
+            if (c != null && c.thisNPC == npcEnum)
+                return c;
+        }
+        return null;
+    }
+
+    public void SetTargetByNPC(NPC npcEnum)
+    {
+        var c = ResolveNPC(npcEnum);
+        if (c == null)
+        {
+            Debug.LogWarning($"{name}: Could not find target NPC '{npcEnum}' in NPCManager list.");
+            return;
+        }
+
+        if (c == this)
+        {
+            Debug.LogWarning($"{name}: Tried to target self ({npcEnum}).");
+            return;
+        }
+
+        SetTarget(c.transform);
+        _talkTargetController = c;
+    }
+
+    public void DebugApproachTargetNPC()
+    {
+        useStateMachine = true;
+        ForceReturnToLocomotion();
+
+        _hasCommand = false;
+        _commandGoal = NPCState.Patrolling;
+
+        SetTargetByNPC(debugTargetNPC);
+
+        if (currentTarget != null)
+            EnterState(NPCState.Approaching);
+    }
+
+    public void DebugAttackTargetNPC()
+    {
+        useStateMachine = true;
+        ForceReturnToLocomotion();
+
+        SetTargetByNPC(debugTargetNPC);
+        if (currentTarget == null) return;
+
+        _hasCommand = true;
+        _commandGoal = NPCState.Attacking;
+
+        float d = Vector3.Distance(transform.position, currentTarget.position);
+        EnterState(d <= talkRange ? NPCState.Attacking : NPCState.Approaching);
+    }
+
+    public void DebugTalkTargetNPC()
+    {
+        useStateMachine = true;
+        ForceReturnToLocomotion();
+
+        SetTargetByNPC(debugTargetNPC);
+        if (currentTarget == null) return;
+
+        _hasCommand = true;
+        _commandGoal = NPCState.Talk;
+
+        float d = Vector3.Distance(transform.position, currentTarget.position);
+        EnterState(d <= talkRange ? NPCState.Talk : NPCState.Approaching);
+    }
+
+    public void StopAndFace(Vector3 worldPos)
+    {
+        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+        }
+
+        ForceIdlePose();
+
+        Vector3 to = worldPos - transform.position;
+        to.y = 0f;
+        if (to.sqrMagnitude < 0.0001f) return;
+
+        Quaternion targetRot = Quaternion.LookRotation(to.normalized, Vector3.up);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * (turnSmoothing * 1.5f));
+    }
+
+    void FaceTowards(Vector3 worldPos, float dt, float speed)
+    {
+        Vector3 to = worldPos - transform.position;
+        to.y = 0f;
+        if (to.sqrMagnitude < 0.0001f) return;
+
+        Quaternion targetRot = Quaternion.LookRotation(to.normalized, Vector3.up);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, dt * speed);
+    }
 
     void ResetAllAnimatorTriggers()
     {
@@ -184,7 +473,7 @@ public class NPCController : MonoBehaviour
         if (!string.IsNullOrEmpty(locomotionStateName))
         {
             animationController.CrossFadeInFixedTime(locomotionStateName, locomotionCrossfade, locomotionLayer, 0f);
-            animationController.Update(0f); // apply immediately
+            animationController.Update(0f);
         }
 
         SnapBlendTreeParamsNow();
@@ -205,9 +494,6 @@ public class NPCController : MonoBehaviour
         float movingX = Mathf.Clamp(localVel.x, -1f, 1f);
         float blend = (moveSpeed <= 0.001f) ? 0f : Mathf.Clamp01(speed / moveSpeed);
 
-        if (_reverseAnimations && speed > 0.01f)
-            movingY = -Mathf.Abs(movingY);
-
         animationController.SetFloat(paramMovingX, movingX);
         animationController.SetFloat(paramMovingY, movingY);
         animationController.SetFloat(paramBlend, blend);
@@ -219,15 +505,25 @@ public class NPCController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
     }
 
+    private void Awake()
+    {
+        var mgr = FindFirstObjectByType<NPCManager>();
+        if (mgr != null)
+        {
+            mgr.RegisterNPC(this);
+        }
+        else
+        {
+            Debug.LogWarning($"{name}: No NPCManager found in scene during Awake. Will retry in Start.");
+        }
+    }
+
     public void Start()
     {
-        if (GameMaster.Instance != null)
-        {
-            GameMaster.Instance.NPCManager.RegisterNPC(this);
-        }
-
         if (animationController == null) animationController = GetComponentInChildren<Animator>();
         if (agent == null) agent = GetComponent<NavMeshAgent>();
+
+        _spawnPoint = transform.position;
 
         if (agent != null)
         {
@@ -242,26 +538,1066 @@ public class NPCController : MonoBehaviour
             agent.obstacleAvoidanceType = ObstacleAvoidanceType.HighQualityObstacleAvoidance;
 
             agent.updateRotation = false;
+
+            agent.avoidancePriority = Mathf.Clamp((Mathf.Abs(gameObject.GetInstanceID()) % 90) + 5, 0, 99);
         }
 
-        agent.avoidancePriority = Mathf.Clamp((Mathf.Abs(gameObject.GetInstanceID()) % 90) + 5, 0, 99);
+        if (seatLayerMask.value == 0)
+        {
+            int seatLayer = LayerMask.NameToLayer("SEAT");
+            if (seatLayer >= 0)
+                seatLayerMask = 1 << seatLayer;
+            else
+                seatLayerMask = 1 << 21;
+        }
 
-        agent.obstacleAvoidanceType = ObstacleAvoidanceType.HighQualityObstacleAvoidance;
+        if (modelRoot == null && animationController != null) modelRoot = animationController.transform;
 
-        if (playRoutineOnStart) PlaySelectedRoutine();
+        if (useStateMachine)
+        {
+            ForceReturnToLocomotion();
+            EnterState(NPCState.Patrolling);
+        }
     }
 
     void Update()
     {
+        if (_isConversationLocked)
+        {
+            if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+                agent.isStopped = true;
+
+            ForceIdlePose();
+
+            if (_conversationSpeaker != null)
+                FaceTowards(_conversationSpeaker.transform.position, Time.deltaTime, turnSmoothing * 1.5f);
+
+            UpdateAnimatorFromMovement();
+            return;
+        }
+
+        if (useStateMachine && !_isPlayingTriggeredAnimation)
+        {
+            if (_state == NPCState.Sitting)
+                TickFSM(Time.deltaTime);
+            else if (EnsureFSMCanRun())
+                TickFSM(Time.deltaTime);
+        }
+
         UpdateAnimatorFromMovement();
         UpdateFacing();
         PreCollisionRenegotiate();
     }
 
+    bool EnsureFSMCanRun()
+    {
+        if (agent == null || !agent.isActiveAndEnabled) return false;
+        if (!EnsureAgentOnNavMesh("FSM")) return false;
+        return true;
+    }
+
+    // =========================================================
+    // FSM: public hooks
+    // =========================================================
+
+    public NPCState GetCurrentState() => _state;
+
+    public void SetTarget(Transform t)
+    {
+        currentTarget = t;
+        if (currentTarget != null)
+        {
+            _lastKnownTargetPos = currentTarget.position;
+            _hasLastKnownTargetPos = true;
+
+            if (useStateMachine && !_isPlayingTriggeredAnimation && !_hasCommand && _state != NPCState.Sitting)
+                EnterState(NPCState.Alerted);
+        }
+    }
+
+    public void ClearTarget()
+    {
+        if (_talkTargetController != null) _talkTargetController.EndConversationAsTarget();
+        currentTarget = null;
+        _talkTargetController = null;
+        _hasCommand = false;
+        _commandGoal = NPCState.Patrolling;
+    }
+
+    public void ForcePatrol()
+    {
+        useStateMachine = true;
+
+        if (_talkTargetController != null) _talkTargetController.EndConversationAsTarget();
+        _hasCommand = false;
+        _commandGoal = NPCState.Patrolling;
+        _talkTargetController = null;
+
+        if (_state == NPCState.Sitting)
+            ReleaseSeatIfAny();
+
+        _sitPhase = SitPhase.None;
+
+        ForceReturnToLocomotion();
+        EnterState(NPCState.Patrolling);
+    }
+
+    // =========================================================
+    // Sitting public API
+    // =========================================================
+
+    public void RequestSitDown()
+    {
+        if (_isConversationLocked) return;
+
+        useStateMachine = true;
+        _hasCommand = true;
+        _commandGoal = NPCState.Sitting;
+
+        EnterState(NPCState.Sitting);
+    }
+
+    public void RequestStandUp()
+    {
+        if (_state != NPCState.Sitting) return;
+
+        if (_sitPhase == SitPhase.SittingIdle || _sitPhase == SitPhase.SitDownPlaying)
+            BeginStandUp();
+    }
+
+    // =========================================================
+    // FSM: core
+    // =========================================================
+
+    void EnterState(NPCState next)
+    {
+        NPCState prev = _state;
+        _state = next;
+        _stateTimer = 0f;
+
+        if (agent == null) return;
+        agent.isStopped = false;
+
+        switch (_state)
+        {
+            case NPCState.Patrolling:
+                agent.speed = moveSpeed;
+                _hasPatrolDestination = false;
+                _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
+                _patrolArriveTimer = 0f;
+                agent.autoBraking = true;
+                break;
+
+            case NPCState.Alerted:
+                agent.speed = moveSpeed;
+                agent.isStopped = true;
+                agent.autoBraking = true;
+                break;
+
+            case NPCState.Approaching:
+                agent.speed = moveSpeed;
+                _approachRepathTimer = 0f;
+                _hasLastApproachDest = false;
+
+                if (disableBrakingWhileApproaching)
+                    agent.autoBraking = false;
+                break;
+
+            case NPCState.Attacking:
+                agent.isStopped = true;
+                agent.autoBraking = true;
+                Debug.Log($"{name} ATTACKING: TODO hook up attack logic/animation.");
+                break;
+
+            case NPCState.Seeking:
+                agent.speed = moveSpeed * Mathf.Max(0.01f, seekingSpeedMultiplier);
+                _seekTimer = 0f;
+                _hasPatrolDestination = false;
+                _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
+                _patrolArriveTimer = 0f;
+                break;
+
+            case NPCState.Talk:
+                agent.isStopped = true;
+                agent.autoBraking = true;
+                agent.ResetPath();
+                Debug.Log($"{name} TALK: TODO hook up talk later. Holding idle until new command.");
+                break;
+
+            case NPCState.Sitting:
+                agent.isStopped = false;
+                agent.autoBraking = true;
+
+                // FIX: Only initialise sitting once when first entering this state.
+                // Previously this called EnterSitting() unconditionally, which called
+                // ReleaseSeatIfAny() every time — wiping _seat mid-approach.
+                if (prev != NPCState.Sitting)
+                    EnterSitting();
+
+                break;
+        }
+    }
+
+    void TickFSM(float dt)
+    {
+        _stateTimer += dt;
+
+        if (currentTarget != null)
+        {
+            _lastKnownTargetPos = currentTarget.position;
+            _hasLastKnownTargetPos = true;
+        }
+
+        if (!_hasCommand && _state != NPCState.Talk && _state != NPCState.Sitting)
+        {
+            if (currentTarget != null && CanSeeTarget(currentTarget))
+            {
+                float distToSpawn = Vector3.Distance(_spawnPoint, currentTarget.position);
+
+                if (distToSpawn > activeRadius && !allowApproachOutsideActiveRadius)
+                {
+                    if (_state != NPCState.Seeking) EnterState(NPCState.Seeking);
+                }
+                else
+                {
+                    if (_state == NPCState.Patrolling || _state == NPCState.Seeking)
+                        EnterState(NPCState.Alerted);
+                }
+            }
+        }
+
+        switch (_state)
+        {
+            case NPCState.Patrolling:   TickPatrolling(dt, speedMultiplier: 1f); break;
+            case NPCState.Alerted:      TickAlerted(dt); break;
+            case NPCState.Approaching:  TickApproaching(dt); break;
+            case NPCState.Attacking:    TickAttacking(dt); break;
+            case NPCState.Seeking:      TickSeeking(dt); break;
+            case NPCState.Talk:         TickTalk(dt); break;
+            case NPCState.Sitting:      TickSitting(dt); break;
+        }
+    }
+
+    void TickPatrolling(float dt, float speedMultiplier)
+    {
+        if (agent == null || !agent.isOnNavMesh) return;
+
+        if (currentTarget != null && CanSeeTarget(currentTarget))
+            return;
+
+        _patrolChangeTimer -= dt;
+        if (_patrolChangeTimer <= 0f)
+        {
+            _hasPatrolDestination = false;
+            _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
+        }
+
+        if (_hasPatrolDestination && HasArrived(agent, arriveDistance))
+        {
+            if (_patrolArriveTimer <= 0f)
+                _patrolArriveTimer = UnityEngine.Random.Range(patrolArrivePause.x, patrolArrivePause.y);
+
+            agent.isStopped = true;
+            _patrolArriveTimer -= dt;
+
+            if (_patrolArriveTimer <= 0f)
+            {
+                agent.isStopped = false;
+                _hasPatrolDestination = false;
+            }
+
+            return;
+        }
+
+        if (!_hasPatrolDestination)
+        {
+            if (TryPickPatrolPoint(_spawnPoint, activeRadius, out _patrolDestination))
+            {
+                agent.isStopped = false;
+                agent.speed = moveSpeed * Mathf.Max(0.01f, speedMultiplier);
+                agent.ResetPath();
+                agent.SetDestination(_patrolDestination);
+                _hasPatrolDestination = true;
+            }
+        }
+    }
+
+    void TickAlerted(float dt)
+    {
+        if (agent != null) agent.isStopped = true;
+
+        if (currentTarget != null)
+        {
+            Vector3 to = currentTarget.position - transform.position;
+            to.y = 0f;
+            if (to.sqrMagnitude > 0.01f)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(to.normalized, Vector3.up);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, dt * (turnSmoothing * 1.25f));
+            }
+        }
+
+        if (_stateTimer >= alertedDuration)
+        {
+            if (currentTarget != null)
+            {
+                float distToSpawn = Vector3.Distance(_spawnPoint, currentTarget.position);
+
+                if (distToSpawn <= activeRadius || allowApproachOutsideActiveRadius)
+                    EnterState(NPCState.Approaching);
+                else
+                    EnterState(NPCState.Seeking);
+            }
+            else
+            {
+                EnterState(NPCState.Seeking);
+            }
+        }
+    }
+
+    void TickApproaching(float dt)
+    {
+        if (agent == null || !agent.isOnNavMesh) return;
+
+        if (!_hasCommand && currentTarget != null)
+        {
+            float distToSpawn = Vector3.Distance(_spawnPoint, currentTarget.position);
+            if (distToSpawn > activeRadius && !allowApproachOutsideActiveRadius)
+            {
+                EnterState(NPCState.Seeking);
+                return;
+            }
+        }
+
+        // FIX: Removed the sit-specific approach block from TickApproaching entirely.
+        // Previously it called EnterState(NPCState.Sitting) when arriving at pre-sit point,
+        // which triggered EnterSitting() → ReleaseSeatIfAny(), wiping the acquired seat.
+        // The sit approach is now handled entirely within TickSitting/TickApproachFront.
+
+        if (currentTarget == null && !(_hasCommand && _commandGoal == NPCState.Sitting))
+        {
+            _hasCommand = false;
+            _commandGoal = NPCState.Patrolling;
+            EnterState(NPCState.Patrolling);
+            return;
+        }
+
+        if (_hasCommand)
+        {
+            if (currentTarget != null)
+            {
+                float distToTarget = Vector3.Distance(transform.position, currentTarget.position);
+
+                if (_commandGoal == NPCState.Talk && distToTarget <= talkRange)
+                {
+                    EnterState(NPCState.Talk);
+                    return;
+                }
+
+                if (_commandGoal == NPCState.Attacking && distToTarget <= talkRange)
+                {
+                    EnterState(NPCState.Attacking);
+                    return;
+                }
+            }
+
+            _approachRepathTimer -= dt;
+            if (_approachRepathTimer <= 0f && currentTarget != null)
+            {
+                _approachRepathTimer = Mathf.Max(0.05f, approachRepathInterval);
+                agent.isStopped = false;
+                agent.SetDestination(currentTarget.position);
+            }
+
+            return;
+        }
+
+        if (currentTarget == null)
+        {
+            EnterState(NPCState.Patrolling);
+            return;
+        }
+
+        float dist = Vector3.Distance(transform.position, currentTarget.position);
+        if (dist <= attackRange)
+        {
+            EnterState(NPCState.Attacking);
+            return;
+        }
+
+        _approachRepathTimer -= dt;
+        if (_approachRepathTimer <= 0f)
+        {
+            _approachRepathTimer = Mathf.Max(0.05f, approachRepathInterval);
+            agent.isStopped = false;
+            agent.SetDestination(currentTarget.position);
+        }
+    }
+
+    void TickAttacking(float dt)
+    {
+        if (_hasCommand && _commandGoal == NPCState.Attacking)
+        {
+            if (agent != null && agent.isOnNavMesh)
+            {
+                agent.isStopped = true;
+                agent.ResetPath();
+            }
+
+            ForceIdlePose();
+
+            if (currentTarget != null)
+                FaceTowards(currentTarget.position, dt, turnSmoothing * 1.25f);
+
+            return;
+        }
+
+        if (currentTarget == null)
+        {
+            EnterState(NPCState.Seeking);
+            return;
+        }
+
+        float distToSpawn = Vector3.Distance(_spawnPoint, currentTarget.position);
+        if (distToSpawn > activeRadius && !allowApproachOutsideActiveRadius)
+        {
+            EnterState(NPCState.Seeking);
+            return;
+        }
+
+        float distToTarget = Vector3.Distance(transform.position, currentTarget.position);
+        if (distToTarget > attackRange * 1.15f)
+        {
+            EnterState(NPCState.Approaching);
+            return;
+        }
+
+        Vector3 to = currentTarget.position - transform.position;
+        to.y = 0f;
+        if (to.sqrMagnitude > 0.01f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(to.normalized, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, dt * (turnSmoothing * 1.25f));
+        }
+    }
+
+    void TickSeeking(float dt)
+    {
+        _seekTimer += dt;
+        if (_seekTimer >= Mathf.Max(0.01f, seekGiveUpSeconds))
+        {
+            EnterState(NPCState.Patrolling);
+            return;
+        }
+
+        if (currentTarget != null && CanSeeTarget(currentTarget))
+        {
+            float distToSpawn = Vector3.Distance(_spawnPoint, currentTarget.position);
+            if (distToSpawn <= activeRadius || allowApproachOutsideActiveRadius)
+            {
+                EnterState(NPCState.Alerted);
+                return;
+            }
+        }
+
+        TickPatrolling(dt, speedMultiplier: seekingSpeedMultiplier);
+    }
+
+    void TickTalk(float dt)
+    {
+        if (agent != null && agent.isOnNavMesh)
+            agent.isStopped = true;
+
+        ForceIdlePose();
+
+        if (currentTarget == null)
+        {
+            _hasCommand = false;
+            _commandGoal = NPCState.Patrolling;
+            EnterState(NPCState.Patrolling);
+            return;
+        }
+
+        FaceTowards(currentTarget.position, dt, turnSmoothing * 1.5f);
+
+        if (_talkTargetController == null)
+            _talkTargetController = currentTarget.GetComponentInParent<NPCController>();
+
+        if (_talkTargetController != null)
+            _talkTargetController.BeginConversationAsTarget(this);
+    }
+
+    public void BeginConversationAsTarget(NPCController speaker)
+    {
+        if (speaker == null) return;
+
+        if (!_isConversationLocked)
+        {
+            useStateMachine = false;
+
+            if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+            {
+                agent.isStopped = true;
+                agent.ResetPath();
+            }
+
+            ForceIdlePose();
+        }
+
+        _isConversationLocked = true;
+        _conversationSpeaker = speaker;
+    }
+
+    public void EndConversationAsTarget()
+    {
+        _isConversationLocked = false;
+        _conversationSpeaker = null;
+    }
+
+    bool CanSeeTarget(Transform t)
+    {
+        if (t == null) return false;
+
+        Vector3 to = t.position - transform.position;
+        float dist = to.magnitude;
+        if (dist > visionRange) return false;
+
+        Vector3 flatTo = to; flatTo.y = 0f;
+        Vector3 fwd = transform.forward; fwd.y = 0f;
+
+        if (flatTo.sqrMagnitude > 0.0001f && fwd.sqrMagnitude > 0.0001f)
+        {
+            float angle = Vector3.Angle(fwd.normalized, flatTo.normalized);
+            if (angle > visionFOV * 0.5f) return false;
+        }
+
+        if (requireLineOfSight)
+        {
+            Vector3 origin = transform.position + Vector3.up * 1.6f;
+            Vector3 targetPos = t.position + Vector3.up * 1.2f;
+            Vector3 dir = (targetPos - origin);
+            float d = dir.magnitude;
+            if (d > 0.001f)
+            {
+                dir /= d;
+                if (Physics.Raycast(origin, dir, out _, d, losBlockers, QueryTriggerInteraction.Ignore))
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool TryPickPatrolPoint(Vector3 center, float radius, out Vector3 result)
+    {
+        result = center;
+
+        for (int i = 0; i < Mathf.Max(1, patrolPointTries); i++)
+        {
+            Vector2 r = UnityEngine.Random.insideUnitCircle * radius;
+            Vector3 candidate = center + new Vector3(r.x, 0f, r.y);
+
+            if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, patrolSampleRadius, NavMesh.AllAreas))
+            {
+                if (Vector3.Distance(center, hit.position) <= radius + 0.25f)
+                {
+                    result = hit.position;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // =========================================================
+    // SITTING — fixed sequence
+    // =========================================================
+
+    private void EnterSitting()
+    {
+        _sitPhase = SitPhase.SearchingSeat;
+        _seatSearchT = 0f;
+        _seatRescanT = 0f;
+        _seatedT = 0f;
+
+        // Only release a seat here if we're genuinely starting fresh.
+        // Do NOT call this when re-entering Sitting state mid-sequence.
+        ReleaseSeatIfAny();
+
+        if (agent && agent.isActiveAndEnabled && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+        }
+    }
+
+    private void TickSitting(float dt)
+    {
+        _hasCommand = true;
+        _commandGoal = NPCState.Sitting;
+
+        switch (_sitPhase)
+        {
+            case SitPhase.SearchingSeat:
+                TickSearchingSeat(dt);
+                break;
+
+            case SitPhase.ApproachingFront:
+                // FIX: Agent must be valid for nav phases
+                if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+                TickApproachFront();
+                break;
+
+            case SitPhase.Aligning:
+                if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+                if (_seatTf == null) { FailSittingAndReturnToPatrol(); return; }
+                {
+                    Vector3 sf = GetSeatFacing();
+                    TickAlign(dt, sf);
+                }
+                break;
+
+            case SitPhase.Backstepping:
+                if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+                if (_seatTf == null) { FailSittingAndReturnToPatrol(); return; }
+                {
+                    Vector3 sf = GetSeatFacing();
+                    TickBackstep(dt, _seatNavPos, sf);
+                }
+                break;
+
+            case SitPhase.SitDownPlaying:
+                TickSitDownPlaying(dt);
+                break;
+
+            case SitPhase.SittingIdle:
+                if (_seatTf == null) { FailSittingAndReturnToPatrol(); return; }
+                {
+                    Vector3 seatPos = _seatTf.position;
+                    Vector3 sf = GetSeatFacing();
+                    TickSittingIdle(dt, seatPos, sf);
+                }
+                break;
+
+            case SitPhase.StandUpPlaying:
+                TickStandUpPlaying(dt);
+                break;
+        }
+    }
+
+    // Returns the direction the NPC should FACE when seated.
+    // The seat's forward is the direction a person faces OUT of the seat,
+    // so we face that direction. Adjust this if your seats use a different convention.
+    private Vector3 GetSeatFacing()
+    {
+        if (_seatTf == null) return transform.forward;
+        Vector3 f = _seatTf.forward;
+        f.y = 0f;
+        if (f.sqrMagnitude < 0.0001f) return transform.forward;
+        return f.normalized;
+    }
+
+    private void TickSearchingSeat(float dt)
+    {
+        _seatSearchT += dt;
+        _seatRescanT -= dt;
+
+        if (_seatRescanT <= 0f)
+        {
+            _seatRescanT = Mathf.Max(0.05f, seatRescanInterval);
+
+            if (TryAcquireSeat())
+                return; // TryAcquireSeat sets phase to ApproachingFront
+        }
+
+        // Keep standing still while searching
+        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+        }
+
+        ForceIdlePose();
+    }
+    
+        private bool TryAcquireSeat()
+    {
+        float radius = (seatSearchRadius > 0.01f) ? seatSearchRadius : Mathf.Max(0.1f, activeRadius);
+        Vector3 center = _spawnPoint;
+
+        Seat[] seats = FindObjectsByType<Seat>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        if (seats == null || seats.Length == 0)
+        {
+            if (seatDebugLogs) Debug.Log($"{name} Sit: No Seat components found (including inactive).");
+            return false;
+        }
+
+        Seat best = null;
+        float bestSqr = float.PositiveInfinity;
+
+        for (int i = 0; i < seats.Length; i++)
+        {
+            Seat s = seats[i];
+            if (!s) continue;
+
+            // Must match seat layer mask (either seat GO or its seatTransform GO can be on SEAT)
+            bool matchesMask =
+                (((1 << s.gameObject.layer) & seatLayerMask.value) != 0) ||
+                (s.seatTransform != null && (((1 << s.seatTransform.gameObject.layer) & seatLayerMask.value) != 0));
+
+            if (!matchesMask) continue;
+            if (!s.IsValid) continue;
+            if (s.seatTransform == null) continue;
+            if (s.IsOccupied) continue;
+
+            Vector3 seatPos = s.seatTransform.position;
+
+            // Must be within radius of spawn (your spec)
+            Vector3 d = seatPos - center;
+            d.y = 0f;
+            if (d.sqrMagnitude > radius * radius) continue;
+
+            // Must have some navmesh nearby (use BIG radius)
+            if (!NavMesh.SamplePosition(seatPos, out NavMeshHit seatHit, seatNavSampleRadius, NavMesh.AllAreas))
+            {
+                if (seatDebugLogs)
+                    Debug.Log($"{name} Sit: REJECT '{s.name}' reason=navmesh_sample_failed seatPos={seatPos} sampleR={seatNavSampleRadius}");
+                continue;
+            }
+
+            float sqr = (transform.position - seatPos).sqrMagnitude;
+            if (sqr < bestSqr)
+            {
+                best = s;
+                bestSqr = sqr;
+            }
+        }
+
+        if (best == null)
+        {
+            Debug.LogWarning($"{name} Sit: Seats found, but none had NavMesh within {seatNavSampleRadius}m (or were valid/free/in-range/matching mask).");
+            return false;
+        }
+
+        if (!best.TryOccupy(this))
+        {
+            Debug.LogWarning($"{name} Sit: Seat '{best.name}' refused occupancy (TryOccupy false).");
+            return false;
+        }
+
+        _seat = best;
+        _seatTf = best.seatTransform;
+
+        // --- Compute seat forward / pre-sit point (world authoring) ---
+        Vector3 seatForward = _seatTf.forward;
+        seatForward.y = 0f;
+        if (seatForward.sqrMagnitude < 0.0001f) seatForward = transform.forward;
+        seatForward.Normalize();
+
+        Vector3 seatPos2 = _seatTf.position;
+        _preSitPoint = seatPos2 + seatForward * Mathf.Max(0f, preSitForwardOffset);
+
+        // --- Snap BOTH target points to navmesh ---
+        NavMesh.SamplePosition(seatPos2, out NavMeshHit seatHit2, seatNavSampleRadius, NavMesh.AllAreas);
+        _seatNavPos = seatHit2.position;
+
+        if (!NavMesh.SamplePosition(_preSitPoint, out NavMeshHit preHit, seatNavSampleRadius, NavMesh.AllAreas))
+            _preSitNavPos = _seatNavPos; // fallback
+        else
+            _preSitNavPos = preHit.position;
+
+        if (seatDebugLogs)
+            Debug.Log($"{name} Sit: ACQUIRED '{_seat.name}' seatPos={seatPos2} seatNav={_seatNavPos} preSit={_preSitPoint} preSitNav={_preSitNavPos}");
+
+        // Approach like Talk/Attack
+        agent.enabled = true;
+        agent.isStopped = false;
+        agent.autoBraking = true;
+        agent.ResetPath();
+        agent.SetDestination(_preSitNavPos);
+
+        _sitPhase = SitPhase.ApproachingFront;
+        return true;
+    }
+
+    // FIX: TickApproachFront no longer uses HasArrived (which requires hasPath=true and
+    // would never trigger when the path auto-clears near the destination).
+    // Instead we use a plain distance check to _preSitNavPos.
+    private void TickApproachFront()
+    {
+        agent.isStopped = false;
+
+        // Re-issue destination if we don't have one or it drifted
+        if (!agent.pathPending && (!agent.hasPath || Vector3.Distance(agent.destination, _preSitNavPos) > 0.15f))
+            agent.SetDestination(_preSitNavPos);
+
+        float dist = Vector3.Distance(
+            new Vector3(transform.position.x, 0f, transform.position.z),
+            new Vector3(_preSitNavPos.x, 0f, _preSitNavPos.z)
+        );
+
+        float threshold = Mathf.Max(preSitArriveDistance, arriveDistance);
+
+        if (dist <= threshold)
+        {
+            if (seatDebugLogs)
+                Debug.Log($"{name} Sit: Arrived at pre-sit point (dist={dist:F2}). Transitioning to Aligning.");
+
+            agent.isStopped = true;
+            agent.ResetPath();
+            _sitPhase = SitPhase.Aligning;
+        }
+    }
+
+    private void TickAlign(float dt, Vector3 seatFacing)
+    {
+        agent.isStopped = true;
+
+        // FIX: Face the seat-facing direction (the direction a person faces when seated).
+        // The NPC will then backstep into the seat, ending up correctly oriented.
+        Quaternion targetRot = Quaternion.LookRotation(seatFacing, Vector3.up);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, dt * (turnSmoothing * 1.5f));
+
+        float yawDelta = Mathf.Abs(Mathf.DeltaAngle(transform.eulerAngles.y, targetRot.eulerAngles.y));
+
+        if (seatDebugLogs)
+            Debug.Log($"{name} Sit: Aligning — yawDelta={yawDelta:F1} tolerance={alignYawToleranceDeg}");
+
+        if (yawDelta <= Mathf.Max(0.5f, alignYawToleranceDeg))
+        {
+            if (seatDebugLogs)
+                Debug.Log($"{name} Sit: Aligned. Transitioning to Backstepping.");
+            _sitPhase = SitPhase.Backstepping;
+        }
+    }
+
+    private void TickBackstep(float dt, Vector3 seatNavPos, Vector3 seatFacing)
+    {
+        agent.isStopped = true;
+
+        // Move backward (opposite to seatFacing) toward the seat position
+        float step = Mathf.Max(0.01f, backstepSpeed) * dt;
+        transform.position = Vector3.MoveTowards(transform.position, seatNavPos, step);
+
+        // Maintain facing direction during backstep
+        Quaternion targetRot = Quaternion.LookRotation(seatFacing, Vector3.up);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, dt * (turnSmoothing * 2.0f));
+
+        float dist = Vector3.Distance(
+            new Vector3(transform.position.x, 0f, transform.position.z),
+            new Vector3(seatNavPos.x, 0f, seatNavPos.z)
+        );
+
+        if (seatDebugLogs)
+            Debug.Log($"{name} Sit: Backstepping — dist to seat={dist:F2}");
+
+        if (dist <= 0.12f)
+        {
+            if (seatDebugLogs)
+                Debug.Log($"{name} Sit: Backstepped into seat. Beginning SitDown.");
+            BeginSitDown();
+        }
+    }
+
+    private void BeginSitDown()
+    {
+        if (agent != null)
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+            agent.velocity = Vector3.zero;
+            agent.enabled = false;
+        }
+
+        // Snap facing before playing animation
+        if (_seatTf != null)
+        {
+            Vector3 f = GetSeatFacing();
+            transform.rotation = Quaternion.LookRotation(f, Vector3.up);
+        }
+
+        if (animationController != null)
+        {
+            _animVelocitySmoothed = Vector3.zero;
+
+            animationController.SetFloat(paramMovingX, 0f);
+            animationController.SetFloat(paramMovingY, 0f);
+            animationController.SetFloat(paramBlend, 0f);
+
+            ResetAllAnimatorTriggers();
+            animationController.CrossFadeInFixedTime(sitDownStateName, sitCrossfade, sitAnimLayer, 0f);
+
+            if (seatDebugLogs)
+                Debug.Log($"{name} Sit: CrossFade to '{sitDownStateName}'.");
+        }
+
+        _sitTriggerSent = true;
+        _sitTriggerT = 0f;
+        _sitPhase = SitPhase.SitDownPlaying;
+    }
+
+    private void TickSitDownPlaying(float dt)
+    {
+        if (animationController == null) return;
+
+        _sitTriggerT += dt;
+
+        AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(sitAnimLayer);
+
+        // Reached sit idle — done
+        if (!string.IsNullOrWhiteSpace(sitIdleStateName) && info.IsName(sitIdleStateName))
+        {
+            _sitPhase = SitPhase.SittingIdle;
+            _seatedT = 0f;
+
+            if (snapToSeatWhenSeated && _seatTf != null)
+            {
+                transform.position = _seatTf.position;
+                transform.rotation = Quaternion.LookRotation(GetSeatFacing(), Vector3.up);
+            }
+
+            if (seatDebugLogs)
+                Debug.Log($"{name} Sit: Now in SittingIdle.");
+            return;
+        }
+
+        // Fallback: force state by name if we're stuck in locomotion
+        if (_sitTriggerSent && _sitTriggerT >= sitTriggerFallbackDelay)
+        {
+            bool inSitDown = !string.IsNullOrWhiteSpace(sitDownStateName) && info.IsName(sitDownStateName);
+            bool inSitIdle = !string.IsNullOrWhiteSpace(sitIdleStateName) && info.IsName(sitIdleStateName);
+
+            if (!inSitDown && !inSitIdle)
+            {
+                if (seatDebugLogs)
+                    Debug.Log($"{name} Sit: Fallback — forcing Play('{sitDownStateName}').");
+                animationController.Play(sitDownStateName, sitAnimLayer, 0f);
+            }
+
+            _sitTriggerSent = false;
+        }
+    }
+
+    private void TickSittingIdle(float dt, Vector3 seatPos, Vector3 seatForward)
+    {
+        if (agent != null && agent.enabled)
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+        }
+
+        ForceIdlePose();
+
+        if (snapToSeatWhenSeated)
+        {
+            transform.position = seatPos;
+            transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
+        }
+
+        if (autoStandAfterSeconds > 0f)
+        {
+            _seatedT += dt;
+            if (_seatedT >= autoStandAfterSeconds)
+                BeginStandUp();
+        }
+    }
+
+    private void BeginStandUp()
+    {
+        agent.isStopped = true;
+        agent.ResetPath();
+
+        if (animationController == null)
+        {
+            FinishStandUp();
+            return;
+        }
+
+        ResetAllAnimatorTriggers();
+
+        if (standUpByReversingSitDown && !string.IsNullOrWhiteSpace(sitDownStateName))
+        {
+            animationController.speed = -1f;
+            animationController.Play(sitDownStateName, sitAnimLayer, 1f);
+            animationController.Update(0f);
+            _sitPhase = SitPhase.StandUpPlaying;
+            return;
+        }
+
+        animationController.speed = 1f;
+        ForceReturnToLocomotion();
+        FinishStandUp();
+    }
+
+    private void TickStandUpPlaying(float dt)
+    {
+        if (animationController == null)
+        {
+            FinishStandUp();
+            return;
+        }
+
+        AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(sitAnimLayer);
+
+        if (!animationController.IsInTransition(sitAnimLayer) && info.normalizedTime <= 0.02f)
+        {
+            animationController.speed = 1f;
+            ForceReturnToLocomotion();
+            FinishStandUp();
+        }
+    }
+
+    private void FinishStandUp()
+    {
+        if (agent != null)
+        {
+            agent.enabled = true;
+            if (agent.isActiveAndEnabled)
+                agent.Warp(_seatNavPos);
+        }
+
+        ReleaseSeatIfAny();
+
+        _hasCommand = false;
+        _commandGoal = NPCState.Patrolling;
+
+        _sitPhase = SitPhase.None;
+        EnterState(NPCState.Patrolling);
+    }
+
+    private void FailSittingAndReturnToPatrol()
+    {
+        ReleaseSeatIfAny();
+
+        _hasCommand = false;
+        _commandGoal = NPCState.Patrolling;
+
+        _sitPhase = SitPhase.None;
+        EnterState(NPCState.Patrolling);
+    }
+
+    private void ReleaseSeatIfAny()
+    {
+        if (_seat != null)
+            _seat.Release(this);
+
+        _seat = null;
+        _seatTf = null;
+    }
+
+    // =========================================================
+    // Crowd avoidance / renegotiate
+    // =========================================================
+
     void PreCollisionRenegotiate()
     {
-        if (!isRunningRoutine || isPaused) return;
+        if (!IsNavDriven()) return;
         if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+
+        if (useStateMachine && (_state == NPCState.Alerted || _state == NPCState.Attacking || _state == NPCState.Talk || _state == NPCState.Sitting))
+            return;
 
         if (agent.pathPending) return;
         if (!agent.hasPath) return;
@@ -358,7 +1694,7 @@ public class NPCController : MonoBehaviour
         float t = 0f;
         while (t < sidestepDuration)
         {
-            if (!isRunningRoutine) break;
+            if (!IsNavDriven()) break;
             while (isPaused) yield return null;
 
             t += Time.deltaTime;
@@ -367,7 +1703,7 @@ public class NPCController : MonoBehaviour
 
         agent.avoidancePriority = prevPriority;
 
-        if (isRunningRoutine && !isPaused && _hasResumeDestination && agent.isOnNavMesh)
+        if (IsNavDriven() && _hasResumeDestination && agent.isOnNavMesh)
         {
             agent.isStopped = false;
             agent.ResetPath();
@@ -388,573 +1724,9 @@ public class NPCController : MonoBehaviour
         return false;
     }
 
-    // -----------------------
-    // Routine controls
-    // -----------------------
-
-    public void PlaySelectedRoutine()
-    {
-        _reverseAnimations = false;
-        StartRoutineInternal(selectedRoutine);
-    }
-
-    public void ReverseSelectedRoutine()
-    {
-        _reverseAnimations = true;
-        StartRoutineInternal(selectedRoutine);
-    }
-
-    public void PlayRoutine(Routine routineType)
-    {
-        _reverseAnimations = false;
-        StartRoutineInternal(routineType);
-    }
-
-    public void ReverseRoutine(Routine routineType)
-    {
-        _reverseAnimations = true;
-        StartRoutineInternal(routineType);
-    }
-
-    public void StopRoutine()
-    {
-        isRunningRoutine = false;
-        isPaused = false;
-
-        if (_routineCoroutine != null)
-        {
-            StopCoroutine(_routineCoroutine);
-            _routineCoroutine = null;
-        }
-
-        _activeRoutineAsset = null;
-        _activeBehaviours = null;
-        _loopReturnToFirstWaypoint = null;
-
-        HardStopAgent("StopRoutine");
-        ForceIdlePose();
-    }
-
-    void StartRoutineInternal(Routine routineType)
-    {
-        // If a triggered animation is playing, stop it so routines can own the character again.
-        if (_triggerCoroutine != null || _isPlayingTriggeredAnimation)
-        {
-            StopTriggeredAnimation();
-            ResetAllAnimatorTriggers();
-            isPaused = false;
-        }
-
-        // Force animator back to locomotion/blend tree so MoveX/MoveY/Blend drive properly.
-        ForceReturnToLocomotion();
-
-        if (routines == null || routines.Count == 0)
-        {
-            Debug.LogWarning($"{name}: No NPCRoutine assets assigned.");
-            return;
-        }
-
-        NPCRoutine routineAsset = FindRoutineAsset(routineType);
-        if (routineAsset == null)
-        {
-            Debug.LogWarning($"{name}: No NPCRoutine asset found for routine type '{routineType}'.");
-            return;
-        }
-
-        if (routineAsset.RoutineBehaviours == null || routineAsset.RoutineBehaviours.Count == 0)
-        {
-            Debug.LogWarning($"{name}: Routine '{routineType}' has no behaviours.");
-            return;
-        }
-
-        if (agent == null)
-        {
-            Debug.LogWarning($"{name}: No NavMeshAgent found. Add one to use 'go' behaviours.");
-            return;
-        }
-
-        if (!EnsureAgentOnNavMesh("StartRoutine")) return;
-
-        if (_routineCoroutine != null)
-            StopCoroutine(_routineCoroutine);
-
-        isPaused = false;
-        isRunningRoutine = true;
-
-        selectedRoutine = routineType;
-        _activeRoutineAsset = routineAsset;
-
-        _activeBehaviours = new List<NPCBehaviour>(routineAsset.RoutineBehaviours);
-
-        _loopReturnToFirstWaypoint = FindFirstWaypointInRoutine(_activeBehaviours);
-
-        agent.isStopped = false;
-        agent.speed = moveSpeed;
-        agent.angularSpeed = angularSpeed;
-        agent.acceleration = acceleration;
-
-        _routineCoroutine = StartCoroutine(RoutineCoroutine());
-    }
-
-    NPCRoutine FindRoutineAsset(Routine routineType)
-    {
-        for (int i = 0; i < routines.Count; i++)
-        {
-            NPCRoutine r = routines[i];
-            if (r != null && r.RoutineType == routineType)
-                return r;
-        }
-        return null;
-    }
-
-    Vector3? FindFirstWaypointInRoutine(List<NPCBehaviour> behaviours)
-    {
-        if (behaviours == null) return null;
-
-        for (int i = 0; i < behaviours.Count; i++)
-        {
-            NPCBehaviour b = behaviours[i];
-            if (b == null) continue;
-
-            if (b.BehaviourType == Behaviour.go && b.waypointVectors != null && b.waypointVectors.Count > 0)
-                return b.waypointVectors[0];
-        }
-
-        return null;
-    }
-
-    IEnumerator RoutineCoroutine()
-    {
-        if (_activeRoutineAsset == null || _activeBehaviours == null || _activeBehaviours.Count == 0)
-        {
-            isRunningRoutine = false;
-            _routineCoroutine = null;
-            yield break;
-        }
-
-        while (isRunningRoutine)
-        {
-            for (int i = 0; i < _activeBehaviours.Count; i++)
-            {
-                if (!isRunningRoutine) yield break;
-
-                while (isPaused)
-                    yield return null;
-
-                NPCBehaviour b = _activeBehaviours[i];
-                if (b == null)
-                {
-                    Debug.LogWarning($"{name}: Routine item {i} is null, skipping.");
-                    continue;
-                }
-
-                switch (b.BehaviourType)
-                {
-                    case Behaviour.idle: yield return DoIdle(b); break;
-                    case Behaviour.say:  yield return DoSay(b); break;
-                    case Behaviour.go:   yield return DoGo(b); break;
-                    case Behaviour.act:  yield return DoAct(b); break;
-                    case Behaviour.die:  yield return DoDie(b); break;
-                    default:
-                        Debug.LogWarning($"{name}: Unknown behaviour type {b.BehaviourType} at index {i}.");
-                        break;
-                }
-            }
-
-            if (_activeRoutineAsset.looping)
-            {
-                if (_loopReturnToFirstWaypoint.HasValue)
-                {
-                    yield return GoToSinglePoint(_loopReturnToFirstWaypoint.Value);
-                    yield return SmoothStopAndIdle();
-                }
-
-                continue;
-            }
-
-            break;
-        }
-
-        isRunningRoutine = false;
-        _routineCoroutine = null;
-        _activeRoutineAsset = null;
-        _activeBehaviours = null;
-        _loopReturnToFirstWaypoint = null;
-
-        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
-            yield return SmoothStopAndIdle();
-
-        ForceIdlePose();
-    }
-
-    // -----------------------
-    // Behaviour executors
-    // -----------------------
-
-    IEnumerator DoIdle(NPCBehaviour b)
-    {
-        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
-            yield return SmoothStopAndIdle();
-
-        float wait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
-        if (wait > 0f) yield return WaitSecondsRespectPause(wait);
-        else yield return null;
-    }
-
-    IEnumerator DoSay(NPCBehaviour b)
-    {
-        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
-            yield return SmoothStopAndIdle();
-
-        GameMaster.Instance.DialogueManager.PlayDialogue(b.selectedDialogue, b.timer, DialogueType.normal);
-
-        float wait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
-        if (wait > 0f) yield return WaitSecondsRespectPause(wait);
-        else yield return null;
-    }
-
-    IEnumerator DoAct(NPCBehaviour b)
-    {
-        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
-            yield return SmoothStopAndIdle();
-
-        if (animationController == null)
-        {
-            Debug.LogWarning($"{name}: ACT requested but Animator is missing.");
-            yield break;
-        }
-
-        string paramName = b.animationState;
-        if (string.IsNullOrWhiteSpace(paramName))
-        {
-            Debug.LogWarning($"{name}: ACT behaviour '{b.name}' has empty animationState.");
-            float fallbackWait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
-            if (fallbackWait > 0f) yield return WaitSecondsRespectPause(fallbackWait);
-            else yield return null;
-            yield break;
-        }
-
-        AnimatorControllerParameterType? pType = GetAnimatorParameterType(animationController, paramName);
-        if (pType == null)
-        {
-            Debug.LogWarning($"{name}: Animator has no parameter named '{paramName}' (ACT behaviour '{b.name}').");
-            float fallbackWait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
-            if (fallbackWait > 0f) yield return WaitSecondsRespectPause(fallbackWait);
-            else yield return null;
-            yield break;
-        }
-
-        const int layer = 0;
-        int startHash = animationController.GetCurrentAnimatorStateInfo(layer).fullPathHash;
-
-        SetAnimatorParamOn(animationController, paramName, pType.Value);
-
-        bool entered = false;
-        int actHash = startHash;
-
-        float enterT = 0f;
-        while (isRunningRoutine && enterT < actEnterTimeout)
-        {
-            while (isPaused) yield return null;
-
-            AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(layer);
-            if (animationController.IsInTransition(layer) || info.fullPathHash != startHash)
-            {
-                entered = true;
-                actHash = info.fullPathHash;
-                break;
-            }
-
-            enterT += Time.deltaTime;
-            yield return null;
-        }
-
-        SetAnimatorParamOff(animationController, paramName, pType.Value);
-
-        if (pType.Value == AnimatorControllerParameterType.Trigger)
-        {
-            yield return null;
-            animationController.ResetTrigger(paramName);
-        }
-
-        bool hasTimer = b.isTimed && b.timer > 0f;
-        float maxWait = hasTimer ? b.timer : actMaxUnTimedDuration;
-
-        float t = 0f;
-        while (isRunningRoutine && t < maxWait)
-        {
-            while (isPaused) yield return null;
-
-            AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(layer);
-
-            if (!hasTimer)
-            {
-                if (entered && !animationController.IsInTransition(layer) &&
-                    info.fullPathHash == actHash && info.normalizedTime >= 1f)
-                    break;
-
-                if (entered && !animationController.IsInTransition(layer) &&
-                    info.fullPathHash == startHash)
-                    break;
-            }
-
-            t += Time.deltaTime;
-            yield return null;
-        }
-
-        SetAnimatorParamOff(animationController, paramName, pType.Value);
-        if (pType.Value == AnimatorControllerParameterType.Trigger)
-            animationController.ResetTrigger(paramName);
-
-        if (actExitBuffer > 0f)
-            yield return WaitSecondsRespectPause(actExitBuffer);
-        else
-            yield return null;
-    }
-
-    IEnumerator DoDie(NPCBehaviour b)
-    {
-        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
-            yield return SmoothStopAndIdle();
-
-        Debug.Log($"{name} DIE: (hook up death later) Behaviour asset = {b.name}");
-
-        float wait = (b.isTimed && b.timer > 0f) ? b.timer : 0f;
-        if (wait > 0f) yield return WaitSecondsRespectPause(wait);
-        else yield return null;
-    }
-
-    IEnumerator DoGo(NPCBehaviour b)
-    {
-        if (!EnsureAgentOnNavMesh("GoBehaviour")) yield break;
-
-        if (b.waypointVectors == null || b.waypointVectors.Count == 0)
-        {
-            Debug.LogWarning($"{name}: GO behaviour has no waypointVectors in {b.name}.");
-            yield break;
-        }
-
-        agent.isStopped = false;
-
-        for (int i = 0; i < b.waypointVectors.Count; i++)
-        {
-            if (!isRunningRoutine) yield break;
-            while (isPaused) yield return null;
-
-            if (!EnsureAgentOnNavMesh("GoBehaviourStep")) yield break;
-
-            Vector3 target = b.waypointVectors[i];
-
-            agent.isStopped = false;
-            agent.ResetPath();
-            agent.SetDestination(target);
-
-            float noPathT = 0f;
-            float stuckT = 0f;
-            int repathAttempts = 0;
-
-            while (isRunningRoutine)
-            {
-                while (isPaused) yield return null;
-
-                if (HasArrived(agent, arriveDistance))
-                    break;
-
-                if (!agent.pathPending && !agent.hasPath)
-                {
-                    noPathT += Time.deltaTime;
-                    if (noPathT >= goNoPathFailTime)
-                    {
-                        Debug.LogWarning($"{name}: GO failed (no path) to waypoint {i} in behaviour {b.name}. Skipping waypoint.");
-                        break;
-                    }
-                }
-                else
-                {
-                    noPathT = 0f;
-                }
-
-                float stopDist = Mathf.Max(arriveDistance, agent.stoppingDistance);
-                bool farFromGoal = (!agent.pathPending && agent.hasPath &&
-                                   !float.IsInfinity(agent.remainingDistance) &&
-                                   agent.remainingDistance > stopDist + 0.05f);
-
-                if (farFromGoal && agent.velocity.magnitude < goStuckVelThreshold)
-                {
-                    stuckT += Time.deltaTime;
-
-                    if (stuckT >= goStuckFailTime)
-                    {
-                        if (repathAttempts < goMaxRepathAttemptsPerWaypoint)
-                        {
-                            repathAttempts++;
-                            stuckT = 0f;
-                            noPathT = 0f;
-
-                            agent.ResetPath();
-                            agent.SetDestination(target);
-                        }
-                        else
-                        {
-                            Debug.LogWarning($"{name}: GO stuck on waypoint {i} in behaviour {b.name}. Skipping waypoint.");
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    stuckT = 0f;
-                }
-
-                yield return null;
-            }
-
-            if (!isRunningRoutine) yield break;
-
-            if (arriveSettleTime > 0f)
-            {
-                float tSettle = 0f;
-                while (tSettle < arriveSettleTime)
-                {
-                    if (!isRunningRoutine) yield break;
-                    while (isPaused) yield return null;
-
-                    tSettle += Time.deltaTime;
-                    yield return null;
-                }
-            }
-
-            yield return SmoothStopAndIdle();
-
-            if (b.isTimed && b.timer > 0f)
-                yield return WaitSecondsRespectPause(b.timer);
-        }
-    }
-
-    IEnumerator GoToSinglePoint(Vector3 target)
-    {
-        if (!EnsureAgentOnNavMesh("LoopReturn")) yield break;
-
-        agent.isStopped = false;
-        agent.ResetPath();
-        agent.SetDestination(target);
-
-        float noPathT = 0f;
-        float stuckT = 0f;
-        int repathAttempts = 0;
-
-        while (isRunningRoutine)
-        {
-            while (isPaused) yield return null;
-
-            if (HasArrived(agent, arriveDistance))
-                break;
-
-            if (!agent.pathPending && !agent.hasPath)
-            {
-                noPathT += Time.deltaTime;
-                if (noPathT >= goNoPathFailTime)
-                {
-                    Debug.LogWarning($"{name}: LoopReturn failed (no path) to first waypoint. Continuing loop anyway.");
-                    break;
-                }
-            }
-            else
-            {
-                noPathT = 0f;
-            }
-
-            float stopDist = Mathf.Max(arriveDistance, agent.stoppingDistance);
-            bool farFromGoal = (!agent.pathPending && agent.hasPath &&
-                               !float.IsInfinity(agent.remainingDistance) &&
-                               agent.remainingDistance > stopDist + 0.05f);
-
-            if (farFromGoal && agent.velocity.magnitude < goStuckVelThreshold)
-            {
-                stuckT += Time.deltaTime;
-                if (stuckT >= goStuckFailTime)
-                {
-                    if (repathAttempts < goMaxRepathAttemptsPerWaypoint)
-                    {
-                        repathAttempts++;
-                        stuckT = 0f;
-                        noPathT = 0f;
-
-                        agent.ResetPath();
-                        agent.SetDestination(target);
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"{name}: LoopReturn stuck. Continuing loop anyway.");
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                stuckT = 0f;
-            }
-
-            yield return null;
-        }
-
-        if (!isRunningRoutine) yield break;
-
-        if (arriveSettleTime > 0f)
-        {
-            float tSettle = 0f;
-            while (tSettle < arriveSettleTime)
-            {
-                if (!isRunningRoutine) yield break;
-                while (isPaused) yield return null;
-
-                tSettle += Time.deltaTime;
-                yield return null;
-            }
-        }
-    }
-
-    IEnumerator SmoothStopAndIdle()
-    {
-        if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh)
-            yield break;
-
-        agent.isStopped = true;
-
-        float t = 0f;
-        while (t < stopFadeOutTime)
-        {
-            if (!isRunningRoutine) yield break;
-            while (isPaused) yield return null;
-
-            if (agent.velocity.sqrMagnitude <= (idleVelocityThreshold * idleVelocityThreshold))
-                break;
-
-            t += Time.deltaTime;
-            yield return null;
-        }
-
-        agent.ResetPath();
-    }
-
-    IEnumerator WaitSecondsRespectPause(float seconds)
-    {
-        float t = 0f;
-        while (t < seconds)
-        {
-            if (!isRunningRoutine) yield break;
-
-            while (isPaused)
-                yield return null;
-
-            t += Time.deltaTime;
-            yield return null;
-        }
-    }
-
-    // -----------------------
+    // =========================================================
     // Triggered Animations API
-    // -----------------------
+    // =========================================================
 
     public void PlaySelectedTrigger()
     {
@@ -1015,15 +1787,9 @@ public class NPCController : MonoBehaviour
         isPaused = _triggerPrevPaused;
 
         if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
-        {
-            if (isRunningRoutine && !_triggerPrevPaused)
-                agent.isStopped = false;
-            else
-                agent.isStopped = _triggerWasStoppedBefore;
-        }
+            agent.isStopped = _triggerWasStoppedBefore;
 
-        // ensure blend tree state is active again if we’re going back to a routine
-        if (isRunningRoutine && !isPaused)
+        if (useStateMachine && !isPaused)
             ForceReturnToLocomotion();
     }
 
@@ -1032,7 +1798,6 @@ public class NPCController : MonoBehaviour
         _isPlayingTriggeredAnimation = true;
 
         _triggerPrevPaused = isPaused;
-        _triggerWasRunningRoutine = isRunningRoutine;
 
         _triggerAgentWasValid = (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh);
         _triggerHadPathBefore = _triggerAgentWasValid && agent.hasPath;
@@ -1041,7 +1806,7 @@ public class NPCController : MonoBehaviour
         isPaused = true;
 
         if (_triggerAgentWasValid)
-            agent.isStopped = true; // do NOT ResetPath
+            agent.isStopped = true;
 
         if (animationController == null)
         {
@@ -1128,31 +1893,14 @@ public class NPCController : MonoBehaviour
         isPaused = _triggerPrevPaused;
 
         if (_triggerAgentWasValid)
-        {
-            if (_triggerWasRunningRoutine && !_triggerPrevPaused)
-            {
-                if (_triggerHadPathBefore)
-                    agent.isStopped = false;
-                else
-                    agent.isStopped = _triggerWasStoppedBefore;
-            }
-            else
-            {
-                agent.isStopped = _triggerWasStoppedBefore;
-            }
-        }
+            agent.isStopped = _triggerWasStoppedBefore;
 
         _isPlayingTriggeredAnimation = false;
         _triggerCoroutine = null;
 
-        // ensure we’re actually back in the locomotion/blend tree so params drive animation (no sliding)
-        if (isRunningRoutine && !isPaused)
+        if (useStateMachine && !isPaused)
             ForceReturnToLocomotion();
     }
-
-    // -----------------------
-    // Animator param helpers
-    // -----------------------
 
     AnimatorControllerParameterType? GetAnimatorParameterType(Animator anim, string paramName)
     {
@@ -1166,22 +1914,13 @@ public class NPCController : MonoBehaviour
     {
         switch (type)
         {
-            case AnimatorControllerParameterType.Bool:
-                anim.SetBool(paramName, true);
-                break;
-
+            case AnimatorControllerParameterType.Bool: anim.SetBool(paramName, true); break;
             case AnimatorControllerParameterType.Trigger:
                 anim.ResetTrigger(paramName);
                 anim.SetTrigger(paramName);
                 break;
-
-            case AnimatorControllerParameterType.Int:
-                anim.SetInteger(paramName, 1);
-                break;
-
-            case AnimatorControllerParameterType.Float:
-                anim.SetFloat(paramName, 1f);
-                break;
+            case AnimatorControllerParameterType.Int: anim.SetInteger(paramName, 1); break;
+            case AnimatorControllerParameterType.Float: anim.SetFloat(paramName, 1f); break;
         }
     }
 
@@ -1189,26 +1928,15 @@ public class NPCController : MonoBehaviour
     {
         switch (type)
         {
-            case AnimatorControllerParameterType.Bool:
-                anim.SetBool(paramName, false);
-                break;
-
-            case AnimatorControllerParameterType.Trigger:
-                anim.ResetTrigger(paramName);
-                break;
-
-            case AnimatorControllerParameterType.Int:
-                anim.SetInteger(paramName, 0);
-                break;
-
-            case AnimatorControllerParameterType.Float:
-                anim.SetFloat(paramName, 0f);
-                break;
+            case AnimatorControllerParameterType.Bool: anim.SetBool(paramName, false); break;
+            case AnimatorControllerParameterType.Trigger: anim.ResetTrigger(paramName); break;
+            case AnimatorControllerParameterType.Int: anim.SetInteger(paramName, 0); break;
+            case AnimatorControllerParameterType.Float: anim.SetFloat(paramName, 0f); break;
         }
     }
 
     // -----------------------
-    // NavMesh safety helpers
+    // NavMesh helpers
     // -----------------------
 
     bool EnsureAgentOnNavMesh(string context)
@@ -1237,23 +1965,16 @@ public class NPCController : MonoBehaviour
         return false;
     }
 
-    void HardStopAgent(string context)
-    {
-        if (agent == null || !agent.isActiveAndEnabled) return;
-        if (!agent.isOnNavMesh) return;
-
-        agent.isStopped = true;
-        agent.ResetPath();
-    }
-
+    // FIX: HasArrived no longer returns true when hasPath is false.
+    // When hasPath is false it means either the path was never computed
+    // or was reset — not that the agent arrived. Use plain distance checks
+    // (as in TickApproachFront) for situations where the path may auto-clear.
     static bool HasArrived(NavMeshAgent a, float arriveDist)
     {
         if (a == null) return false;
         if (!a.isOnNavMesh) return false;
         if (a.pathPending) return false;
-
         if (!a.hasPath) return false;
-
         if (float.IsInfinity(a.remainingDistance)) return false;
 
         return a.remainingDistance <= Mathf.Max(arriveDist, a.stoppingDistance);
@@ -1276,21 +1997,44 @@ public class NPCController : MonoBehaviour
     {
         if (animationController == null) return;
 
-        Vector3 velocity = Vector3.zero;
-        if (agent != null && agent.enabled && agent.isOnNavMesh)
-            velocity = agent.velocity;
+        Vector3 vel = Vector3.zero;
 
-        Vector3 localVel = transform.InverseTransformDirection(velocity);
-        float speed = velocity.magnitude;
+        bool inSitWalkup = (_state == NPCState.Sitting && _sitPhase == SitPhase.ApproachingFront);
+
+        // Only kill motion driving once we're past the walk-up phase
+        if (_state == NPCState.Sitting && !inSitWalkup)
+        {
+            vel = Vector3.zero;
+            _animVelocitySmoothed = Vector3.zero;
+        }
+        else if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            Vector3 v = agent.velocity;
+            Vector3 dv = agent.desiredVelocity;
+
+            bool isApproachLike =
+                useStateMachine &&
+                (_state == NPCState.Approaching || _state == NPCState.Seeking || _state == NPCState.Patrolling || inSitWalkup);
+
+            // If path is pending or velocity hasn't kicked in yet, use desiredVelocity so anim starts immediately
+            if (isApproachLike && (agent.pathPending || (v.sqrMagnitude < 0.0004f && dv.sqrMagnitude > 0.0004f)))
+                vel = dv;
+            else
+                vel = v;
+        }
+
+        float smooth = (animDampTime <= 0.0001f) ? 0.0001f : animDampTime;
+        _animVelocitySmoothed = Vector3.Lerp(_animVelocitySmoothed, vel, Time.deltaTime / smooth);
+
+        Vector3 localVel = transform.InverseTransformDirection(_animVelocitySmoothed);
+        float speed = _animVelocitySmoothed.magnitude;
 
         float movingY = Mathf.Clamp(localVel.z, -1f, 1f);
         float movingX = Mathf.Clamp(localVel.x, -1f, 1f);
         float blend = (moveSpeed <= 0.001f) ? 0f : Mathf.Clamp01(speed / moveSpeed);
 
-        if (_reverseAnimations && speed > 0.01f)
-            movingY = -Mathf.Abs(movingY);
-
-        if (!isRunningRoutine || isPaused)
+        // Do not zero params during the sitting walk-up; only after we start align/backstep/sit.
+        if (!IsNavDriven() || (_state == NPCState.Sitting && !inSitWalkup))
         {
             movingX = 0f;
             movingY = 0f;
@@ -1305,12 +2049,23 @@ public class NPCController : MonoBehaviour
     void UpdateFacing()
     {
         if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
-        if (!isRunningRoutine || isPaused) return;
+        if (!IsNavDriven()) return;
 
-        Vector3 v = agent.velocity;
+        bool inSitWalkup = (_state == NPCState.Sitting && _sitPhase == SitPhase.ApproachingFront);
+
+        // Skip facing only for "locked" states — but allow it during Sitting walk-up
+        if (useStateMachine && (_state == NPCState.Alerted || _state == NPCState.Attacking || _state == NPCState.Talk))
+            return;
+
+        if (useStateMachine && _state == NPCState.Sitting && !inSitWalkup)
+            return;
+
+        // Prefer desiredVelocity so we turn immediately (velocity can lag)
+        Vector3 v = agent.desiredVelocity;
+        if (v.sqrMagnitude < 0.0004f) v = agent.velocity;
+
         v.y = 0f;
-
-        if (v.sqrMagnitude < 0.01f) return;
+        if (v.sqrMagnitude < 0.0004f) return;
 
         Quaternion targetRot = Quaternion.LookRotation(v.normalized, Vector3.up);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * turnSmoothing);
@@ -1326,24 +2081,6 @@ public class NPCControllerEditor : Editor
         DrawDefaultInspector();
 
         NPCController npc = (NPCController)target;
-
-        EditorGUILayout.Space(10);
-        EditorGUILayout.LabelField("Routine Controls", EditorStyles.boldLabel);
-
-        using (new EditorGUI.DisabledScope(!Application.isPlaying))
-        {
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Play Selected")) npc.PlaySelectedRoutine();
-            if (GUILayout.Button("Reverse Selected")) npc.ReverseSelectedRoutine();
-            if (GUILayout.Button("Stop")) npc.StopRoutine();
-            EditorGUILayout.EndHorizontal();
-        }
-
-        if (!Application.isPlaying)
-        {
-            EditorGUILayout.Space(6);
-            EditorGUILayout.HelpBox("Routine controls are enabled in Play Mode.", MessageType.None);
-        }
 
         EditorGUILayout.Space(12);
         EditorGUILayout.LabelField("Triggered Animation Controls", EditorStyles.boldLabel);
@@ -1372,6 +2109,42 @@ public class NPCControllerEditor : Editor
 
         if (!Application.isPlaying)
             EditorGUILayout.HelpBox("Buttons work in Play Mode only.", MessageType.None);
+
+        EditorGUILayout.Space(12);
+        EditorGUILayout.LabelField("FSM Controls", EditorStyles.boldLabel);
+
+        using (new EditorGUI.DisabledScope(!Application.isPlaying))
+        {
+            EditorGUILayout.LabelField("Current State", npc.GetCurrentState().ToString());
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Force Patrol")) npc.ForcePatrol();
+            if (GUILayout.Button("Clear Target")) npc.ClearTarget();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        EditorGUILayout.Space(12);
+        EditorGUILayout.LabelField("Target Testing (NPC Enum)", EditorStyles.boldLabel);
+
+        using (new EditorGUI.DisabledScope(!Application.isPlaying))
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Approach")) npc.DebugApproachTargetNPC();
+            if (GUILayout.Button("Attack")) npc.DebugAttackTargetNPC();
+            if (GUILayout.Button("Talk")) npc.DebugTalkTargetNPC();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        EditorGUILayout.Space(12);
+        EditorGUILayout.LabelField("Sitting Controls", EditorStyles.boldLabel);
+
+        using (new EditorGUI.DisabledScope(!Application.isPlaying))
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Request Sit Down")) npc.RequestSitDown();
+            if (GUILayout.Button("Request Stand Up")) npc.RequestStandUp();
+            EditorGUILayout.EndHorizontal();
+        }
     }
 }
 #endif

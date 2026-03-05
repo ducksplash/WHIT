@@ -1,25 +1,32 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class NPCManager : MonoBehaviour
 {
     public List<NPCController> NPCList = new List<NPCController>();
-    
 
+    private void Awake()
+    {
+        EventManager.OnRegisterNPC += RegisterNPC;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnRegisterNPC -= RegisterNPC;
+    }
 
     public void RegisterNPC(NPCController thisNPC)
     {
-        if (NPCList.Contains(thisNPC))
+        if (thisNPC == null) return;
+
+        Debug.Log("attempting to register: " + thisNPC);
+
+        if (!NPCList.Contains(thisNPC))
         {
-            Debug.Log("found");
-        }
-        else
-        {
-            
+            thisNPC.sceneNPCManager = this;
             NPCList.Add(thisNPC);
+            Debug.Log(thisNPC + " added");
         }
     }
 }
@@ -37,15 +44,16 @@ public enum NPC
     TomOneill = 104,
     EllsworthOhanlon = 105,
     MichaelDevlin = 106,
-    AlternativeNora = 999,
-    
-    // Generic Characters
     ScientistKlaus = 500,
     HomelessManOne = 501,
     Shauna = 502,
     Presha = 503,
     Jasmine = 504,
     Saoirse = 505,
+    Diane = 506,
+    Mairead = 507,
+    AlternativeNora = 999,
+    
 } 
 
 public enum NPCAllegiance

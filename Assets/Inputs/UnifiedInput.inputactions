@@ -383,6 +383,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Secret",
+                    "type": "Button",
+                    "id": "cd0ad4f5-b3c9-44b8-982a-872756f2ef29",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1686,6 +1695,17 @@
                 },
                 {
                     "name": "",
+                    "id": "cf90e7d8-9837-4cf1-9cdb-c9fb163ca47b",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pan",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "4dbfd192-6b42-4cff-ac18-176aa42024db",
                     "path": "",
                     "interactions": "",
@@ -1703,6 +1723,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "CameraToggleAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "27d0a47c-4912-42be-9506-35b22934437e",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "Hold(duration=5)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CameraToggleAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d5d084e0-a20a-44d5-b2fe-631254a451ea",
+                    "path": "<Keyboard>/numpadPeriod",
+                    "interactions": "Hold(duration=5)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Secret",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "402f1189-6259-4dff-9df4-dbcda4d98751",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "Hold(duration=5)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Secret",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class EventManager : MonoBehaviour
+public static class EventManager
 {    
     
     public static event Action OnGameStarted = () => { };
@@ -25,99 +25,106 @@ public class EventManager : MonoBehaviour
     public static event Action<bool> OnDebugCameraToggle = (DebugCamEnabled) => { };
     
     
+    public static event Action<NPCController> OnRegisterNPC = (NPCCont) => { };
     
     //public static event Action OnLightSwitchClick = () => { };
     //public static event Action<bool> OnBoolToggled = (bool) => { };
     
     
     
-    public void GameStartedEvent()
+    public static void GameStartedEvent()
     {
         OnGameStarted.Invoke();
     }
     
-    public void TorchCollectedEvent()
+    public static void TorchCollectedEvent()
     {
         //Debug.Log("TorchCollectedEvent");
         OnTorchCollected.Invoke();
     }
     
-    public void NotepadCollectedEvent()
+    public static void NotepadCollectedEvent()
     {
         //Debug.Log("NotepadCollected");
         OnNotepadCollected.Invoke();
     }
-    public void PhoneCollectedEvent()
+    public static void PhoneCollectedEvent()
     {
         //Debug.Log("PhoneCollectedEvent");
         OnPhoneCollected.Invoke();
     }
     
-    public void GamePaused(bool GamePaused)
+    public static void GamePaused(bool GamePaused)
     {
         //Debug.Log("OnPaused");
         OnPaused.Invoke(GamePaused);
     }
-    public void PlayerDataLoaded()
+    public static void PlayerDataLoaded()
     {
         ////Debug.Log("PlayerDataLoaded");
         OnPlayerDataLoaded.Invoke();
     }
-    public void PhoneOpened()
+    public static void PhoneOpened()
     {
         //Debug.Log("PhoneOpened");
         OnPhoneOpened.Invoke();
     }
-    public void EvidenceLoaded()
+    public static void EvidenceLoaded()
     {
         //Debug.Log("EvidenceLoaded");
         OnEvidenceLoaded.Invoke();
     }
-    public void EvidenceCollected()
+    public static void EvidenceCollected()
     {
         OnEvidenceCollected.Invoke();
     }
-    public void StartComputer(Transform pcTransform)
+    public static void StartComputer(Transform pcTransform)
     {
         OnStartComputer.Invoke(pcTransform);
     }
-    public void StartPhone(Transform phoneTransform)
+    public static void StartPhone(Transform phoneTransform)
     {
         OnStartPhone.Invoke(phoneTransform);
     }
-    public void StartNotepad(Transform notepadTransform)
+    public static void StartNotepad(Transform notepadTransform)
     {
         OnStartNotepad.Invoke(notepadTransform);
     }
-    public void AutocollectEvidence(EvidenceName evidenceName)
+    public static void AutocollectEvidence(EvidenceName evidenceName)
     {
         //Debug.Log("AutocollectEvidence");
         OnAutoCollectEvidence.Invoke(evidenceName);
     }
-    public void StopComputer()
+    public static void StopComputer()
     {
         OnStopComputer.Invoke();
     }
-    public void StopPhone()
+    public static void StopPhone()
     {
         OnStopPhone.Invoke();
     }
-    public void CameraOpen()
+    public static void CameraOpen()
     {
         OnCameraOpen.Invoke();
     }
-    public void CameraClosed()
+    public static void CameraClosed()
     {
         OnCameraClosed.Invoke();
     }
-    public void QuestLoaded(QuestText QuestText)
+    public static void QuestLoaded(QuestText QuestText)
     {
         OnQuestLoaded.Invoke(QuestText);
     }
 
-    public void DebugCamEnabled(bool debugCamOn)
+    public static void DebugCamEnabled(bool debugCamOn)
     {
         OnDebugCameraToggle.Invoke(debugCamOn);
+    }
+
+    public static void RegisterNPC(NPCController thisNPC)
+    {
+        Debug.Log("Register "+thisNPC.thisNPC);
+        OnRegisterNPC.Invoke(thisNPC);
     }
 
     

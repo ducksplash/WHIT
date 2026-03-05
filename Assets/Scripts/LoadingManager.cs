@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class LoadingManager : MonoBehaviour
 {
@@ -17,12 +18,17 @@ public class LoadingManager : MonoBehaviour
     public float fadeDuration = 3f;
     public AnimationCurve fadeCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
+    
     [Header("Fade Stability")]
     [Tooltip("Caps the fade step per frame so scene-load stalls don't cause big alpha jumps.")]
     public float maxFadeStepSeconds = 1f / 30f; // 30 FPS step cap (smooth)
 
+    public InputActionReference hotToGo;
+    
     private Coroutine _fadeCo;
     private bool _isLoading;
+
+    private bool inSecret;
 
     // scene-load handshake
     private bool _sceneLoadedFlag;
@@ -30,6 +36,7 @@ public class LoadingManager : MonoBehaviour
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
+        hotToGo.action.performed += LoadSecretLevel;
 
         // Start black if desired
         if (fadeCanvas != null)
@@ -56,11 +63,21 @@ public class LoadingManager : MonoBehaviour
         if (_isLoading) return;
         StartCoroutine(LoadLevelSequence(levelName, onFinished));
     }
+    
+    
+    public void LoadSecretLevel(InputAction.CallbackContext callbackContext)
+    {
+        if (_isLoading) return;
+
+        GAMELEVEL toGoTo = inSecret ? GAMELEVEL.NorasFlat : GAMELEVEL.SecretLevel;
+        
+        StartCoroutine(LoadLevelSequence(toGoTo));
+    }
 
     // ---------------------------------------------------------------------
     // Master sequence
     // ---------------------------------------------------------------------
-    private IEnumerator LoadLevelSequence(GAMELEVEL levelName, Action onFinished)
+    private IEnumerator LoadLevelSequence(GAMELEVEL levelName, Action onFinished = null)
     {
         _isLoading = true;
 

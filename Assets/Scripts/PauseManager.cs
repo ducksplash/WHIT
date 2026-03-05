@@ -108,8 +108,7 @@ public class PauseManager : MonoBehaviour
 
         ApplyPauseStateVisuals();
 
-        var gm = GameMaster.Instance;
-        gm?.EventManager?.GamePaused(true);
+        EventManager.GamePaused(true);
     }
 
     private void UnpauseGame()
@@ -122,8 +121,7 @@ public class PauseManager : MonoBehaviour
 
         ApplyPauseStateVisuals();
 
-        var gm = GameMaster.Instance;
-        gm?.EventManager?.GamePaused(false);
+        EventManager.GamePaused(false);
     }
 
     private void CacheLookSensitivityIfNeeded()

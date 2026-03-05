@@ -49,7 +49,7 @@ public class EvidenceManager : MonoBehaviour
             {
                 
                 //Debug.Log("autocollect evidence.Key "+evidence.Key);
-                GameMaster.Instance.EventManager.AutocollectEvidence(evidence.Key);
+                EventManager.AutocollectEvidence(evidence.Key);
             }
         }
 
@@ -113,7 +113,7 @@ public class EvidenceManager : MonoBehaviour
 
         EvidenceLoaded = true;
         
-        GameMaster.Instance.EventManager.EvidenceLoaded();
+        EventManager.EvidenceLoaded();
         ApplyCollectedEvidence();
     }
     

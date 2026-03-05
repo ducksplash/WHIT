@@ -245,7 +245,6 @@ public class NPCController : MonoBehaviour
     // =========================================================
     // SITTING
     // =========================================================
-
     [SerializeField] private Transform modelRoot;
 
     private Vector3 _seatNavPos;
@@ -269,7 +268,7 @@ public class NPCController : MonoBehaviour
     }
 
     [Header("Sitting")]
-    [Tooltip("Seat objects must be on this layer (e.g. a layer named 'Seat').")]
+    [Tooltip("Seat objects must be on this layer (e.g. a layer named 'SEAT').")]
     [SerializeField] private LayerMask seatLayerMask;
 
     [SerializeField] private bool seatDebugLogs = false;
@@ -305,7 +304,7 @@ public class NPCController : MonoBehaviour
     [SerializeField] private bool snapToSeatWhenSeated = true;
 
     [Header("Sitting Placement")]
-    [Tooltip("Optional offset applied ONCE when SitDown starts (helps match seatTransform origin to your rig root).")]
+    [Tooltip("Kept for compatibility. Not used for vertical compensation (you already have animation offsets).")]
     [SerializeField] private Vector3 seatedRootOffset = Vector3.zero;
 
     [Tooltip("Optional: auto-stand after this many seconds. 0 = never auto-stand.")]
@@ -324,13 +323,16 @@ public class NPCController : MonoBehaviour
     [Tooltip("Crossfade time for sit transitions.")]
     [SerializeField] private float sitCrossfade = 0.10f;
 
-    [Tooltip("If true, stand up by reversing SitDown (anim.speed=-1) from end to start.")]
-    [SerializeField] private bool standUpByReversingSitDown = true;
-
     [Tooltip("If you prefer a trigger param instead of CrossFade state name for sit down.")]
     [SerializeField] private bool useSitTriggerParam = false;
 
     [SerializeField] private string sitTriggerParam = "SitDown";
+
+    // StandUp (your new trigger/state)
+    [Header("Stand Up Animations")]
+    [SerializeField] private bool useStandUpTriggerParam = true;
+    [SerializeField] private string standUpTriggerParam = "StandUp";
+    [SerializeField] private string standUpStateName = "StandUp";
 
     // Sitting runtime
     private SitPhase _sitPhase = SitPhase.None;
@@ -346,7 +348,6 @@ public class NPCController : MonoBehaviour
     // =========================================================
     // Small shared helpers (FSM)
     // =========================================================
-
     bool IsNavDriven()
     {
         if (isPaused) return false;
@@ -368,6 +369,71 @@ public class NPCController : MonoBehaviour
         return null;
     }
 
+    private void EnsureSeatLayerMask()
+    {
+        seatLayerMask = LayerMask.GetMask("SEAT");
+        if (seatLayerMask.value == 0)
+            Debug.LogWarning($"{name}: Layer 'SEAT' not found. Create it in Project Settings > Tags and Layers.");
+    }
+
+    // =========================================================
+    // NavMesh safety helpers (CRITICAL to avoid red errors)
+    // =========================================================
+    private bool AgentReady()
+    {
+        return agent != null && agent.isActiveAndEnabled && agent.enabled && agent.isOnNavMesh;
+    }
+
+    private bool TryGetNavmeshPoint(Vector3 near, out Vector3 navPos)
+    {
+        navPos = near;
+        if (NavMesh.SamplePosition(near, out NavMeshHit hit, snapToNavMeshRadius, NavMesh.AllAreas))
+        {
+            navPos = hit.position;
+            return true;
+        }
+        return false;
+    }
+
+    private void DetachAgentForAnimation()
+    {
+        if (agent == null) return;
+
+        if (AgentReady())
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+        }
+
+        agent.velocity = Vector3.zero;
+        agent.enabled = false;
+    }
+
+    private void ReattachAgentToNavmeshAtCurrentXZ()
+    {
+        if (agent == null) return;
+
+        Vector3 desired = transform.position;
+        if (TryGetNavmeshPoint(desired, out Vector3 navPos))
+        {
+            // IMPORTANT: ground the root to navmesh (fixes seated vertical offset being "locked in")
+            transform.position = navPos;
+
+            agent.enabled = true;
+            agent.Warp(navPos);
+            agent.isStopped = false;
+            agent.ResetPath();
+        }
+        else
+        {
+            agent.enabled = true;
+            Debug.LogWarning($"{name}: Could not find NavMesh near {desired} to reattach agent.");
+        }
+    }
+
+    // =========================================================
+    // Target helpers
+    // =========================================================
     public void SetTargetByNPC(NPC npcEnum)
     {
         var c = ResolveNPC(npcEnum);
@@ -396,7 +462,6 @@ public class NPCController : MonoBehaviour
         _commandGoal = NPCState.Patrolling;
 
         SetTargetByNPC(debugTargetNPC);
-
         if (currentTarget != null)
             EnterState(NPCState.Approaching);
     }
@@ -433,7 +498,7 @@ public class NPCController : MonoBehaviour
 
     public void StopAndFace(Vector3 worldPos)
     {
-        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+        if (AgentReady())
         {
             agent.isStopped = true;
             agent.ResetPath();
@@ -488,7 +553,7 @@ public class NPCController : MonoBehaviour
         if (animationController == null) return;
 
         Vector3 velocity = Vector3.zero;
-        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        if (AgentReady())
             velocity = agent.velocity;
 
         Vector3 localVel = transform.InverseTransformDirection(velocity);
@@ -511,15 +576,11 @@ public class NPCController : MonoBehaviour
 
     private void Awake()
     {
+        EnsureSeatLayerMask();
+
         var mgr = FindFirstObjectByType<NPCManager>();
-        if (mgr != null)
-        {
-            mgr.RegisterNPC(this);
-        }
-        else
-        {
-            Debug.LogWarning($"{name}: No NPCManager found in scene during Awake. Will retry in Start.");
-        }
+        if (mgr != null) mgr.RegisterNPC(this);
+        else Debug.LogWarning($"{name}: No NPCManager found in scene during Awake. Will retry in Start.");
     }
 
     public void Start()
@@ -542,17 +603,13 @@ public class NPCController : MonoBehaviour
             agent.obstacleAvoidanceType = ObstacleAvoidanceType.HighQualityObstacleAvoidance;
 
             agent.updateRotation = false;
-
             agent.avoidancePriority = Mathf.Clamp((Mathf.Abs(gameObject.GetInstanceID()) % 90) + 5, 0, 99);
         }
 
         if (seatLayerMask.value == 0)
         {
             int seatLayer = LayerMask.NameToLayer("SEAT");
-            if (seatLayer >= 0)
-                seatLayerMask = 1 << seatLayer;
-            else
-                seatLayerMask = 1 << 21;
+            if (seatLayer >= 0) seatLayerMask = 1 << seatLayer;
         }
 
         if (modelRoot == null && animationController != null) modelRoot = animationController.transform;
@@ -568,7 +625,7 @@ public class NPCController : MonoBehaviour
     {
         if (_isConversationLocked)
         {
-            if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+            if (AgentReady())
                 agent.isStopped = true;
 
             ForceIdlePose();
@@ -603,7 +660,6 @@ public class NPCController : MonoBehaviour
     // =========================================================
     // FSM: public hooks
     // =========================================================
-
     public NPCState GetCurrentState() => _state;
 
     public void SetTarget(Transform t)
@@ -630,17 +686,39 @@ public class NPCController : MonoBehaviour
 
     public void ForcePatrol()
     {
+        if (animationController != null) animationController.speed = 1f;
+
         useStateMachine = true;
 
         if (_talkTargetController != null) _talkTargetController.EndConversationAsTarget();
-        _hasCommand = false;
-        _commandGoal = NPCState.Patrolling;
         _talkTargetController = null;
 
+        // If we were in sitting, hard-exit sitting cleanly
         if (_state == NPCState.Sitting)
+        {
+            _sitPhase = SitPhase.None;
+            _hasCommand = false;
+            _commandGoal = NPCState.Patrolling;
+
+            // Stop seated animation influence then ground to navmesh (fixes feet clipping)
+            ForceReturnToLocomotion();
+            ReattachAgentToNavmeshAtCurrentXZ();
             ReleaseSeatIfAny();
 
-        _sitPhase = SitPhase.None;
+            EnterState(NPCState.Patrolling);
+            return;
+        }
+
+        _hasCommand = false;
+        _commandGoal = NPCState.Patrolling;
+
+        // Ensure agent is valid
+        if (agent != null && agent.isActiveAndEnabled)
+        {
+            if (!agent.enabled) agent.enabled = true;
+            if (!agent.isOnNavMesh && TryGetNavmeshPoint(transform.position, out Vector3 navPos))
+                agent.Warp(navPos);
+        }
 
         ForceReturnToLocomotion();
         EnterState(NPCState.Patrolling);
@@ -649,7 +727,6 @@ public class NPCController : MonoBehaviour
     // =========================================================
     // Sitting public API
     // =========================================================
-
     public void RequestSitDown()
     {
         if (_isConversationLocked) return;
@@ -672,49 +749,66 @@ public class NPCController : MonoBehaviour
     // =========================================================
     // FSM: core
     // =========================================================
-
     void EnterState(NPCState next)
     {
         NPCState prev = _state;
         _state = next;
         _stateTimer = 0f;
 
-        if (agent == null) return;
-        agent.isStopped = false;
+        // DO NOT blindly touch nav agent here; Sitting/StandUp intentionally disables it.
+        if (AgentReady())
+            agent.isStopped = false;
 
         switch (_state)
         {
             case NPCState.Patrolling:
-                agent.speed = moveSpeed;
+                if (AgentReady())
+                {
+                    agent.speed = moveSpeed;
+                    agent.autoBraking = true;
+                    agent.isStopped = false;
+                }
                 _hasPatrolDestination = false;
                 _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
                 _patrolArriveTimer = 0f;
-                agent.autoBraking = true;
                 break;
 
             case NPCState.Alerted:
-                agent.speed = moveSpeed;
-                agent.isStopped = true;
-                agent.autoBraking = true;
+                if (AgentReady())
+                {
+                    agent.speed = moveSpeed;
+                    agent.isStopped = true;
+                    agent.autoBraking = true;
+                }
                 break;
 
             case NPCState.Approaching:
-                agent.speed = moveSpeed;
+                if (AgentReady())
+                {
+                    agent.speed = moveSpeed;
+                    if (disableBrakingWhileApproaching)
+                        agent.autoBraking = false;
+                    agent.isStopped = false;
+                }
                 _approachRepathTimer = 0f;
                 _hasLastApproachDest = false;
-
-                if (disableBrakingWhileApproaching)
-                    agent.autoBraking = false;
                 break;
 
             case NPCState.Attacking:
-                agent.isStopped = true;
-                agent.autoBraking = true;
+                if (AgentReady())
+                {
+                    agent.isStopped = true;
+                    agent.autoBraking = true;
+                }
                 Debug.Log($"{name} ATTACKING: TODO hook up attack logic/animation.");
                 break;
 
             case NPCState.Seeking:
-                agent.speed = moveSpeed * Mathf.Max(0.01f, seekingSpeedMultiplier);
+                if (AgentReady())
+                {
+                    agent.speed = moveSpeed * Mathf.Max(0.01f, seekingSpeedMultiplier);
+                    agent.isStopped = false;
+                }
                 _seekTimer = 0f;
                 _hasPatrolDestination = false;
                 _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
@@ -722,20 +816,19 @@ public class NPCController : MonoBehaviour
                 break;
 
             case NPCState.Talk:
-                agent.isStopped = true;
-                agent.autoBraking = true;
-                agent.ResetPath();
+                if (AgentReady())
+                {
+                    agent.isStopped = true;
+                    agent.autoBraking = true;
+                    agent.ResetPath();
+                }
                 Debug.Log($"{name} TALK: TODO hook up talk later. Holding idle until new command.");
                 break;
 
             case NPCState.Sitting:
-                agent.isStopped = false;
-                agent.autoBraking = true;
-
-                // FIX: Only initialise sitting once when first entering this state.
+                // only initialize once
                 if (prev != NPCState.Sitting)
                     EnterSitting();
-
                 break;
         }
     }
@@ -782,7 +875,7 @@ public class NPCController : MonoBehaviour
 
     void TickPatrolling(float dt, float speedMultiplier)
     {
-        if (agent == null || !agent.isOnNavMesh) return;
+        if (!AgentReady()) return;
 
         if (currentTarget != null && CanSeeTarget(currentTarget))
             return;
@@ -826,7 +919,7 @@ public class NPCController : MonoBehaviour
 
     void TickAlerted(float dt)
     {
-        if (agent != null) agent.isStopped = true;
+        if (AgentReady()) agent.isStopped = true;
 
         if (currentTarget != null)
         {
@@ -859,7 +952,7 @@ public class NPCController : MonoBehaviour
 
     void TickApproaching(float dt)
     {
-        if (agent == null || !agent.isOnNavMesh) return;
+        if (!AgentReady()) return;
 
         if (!_hasCommand && currentTarget != null)
         {
@@ -935,7 +1028,7 @@ public class NPCController : MonoBehaviour
     {
         if (_hasCommand && _commandGoal == NPCState.Attacking)
         {
-            if (agent != null && agent.isOnNavMesh)
+            if (AgentReady())
             {
                 agent.isStopped = true;
                 agent.ResetPath();
@@ -1002,7 +1095,7 @@ public class NPCController : MonoBehaviour
 
     void TickTalk(float dt)
     {
-        if (agent != null && agent.isOnNavMesh)
+        if (AgentReady())
             agent.isStopped = true;
 
         ForceIdlePose();
@@ -1032,7 +1125,7 @@ public class NPCController : MonoBehaviour
         {
             useStateMachine = false;
 
-            if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+            if (AgentReady())
             {
                 agent.isStopped = true;
                 agent.ResetPath();
@@ -1108,9 +1201,8 @@ public class NPCController : MonoBehaviour
     }
 
     // =========================================================
-    // SITTING — fixed sequence (seamless SitDown -> SitIdle)
+    // SITTING
     // =========================================================
-
     private void EnterSitting()
     {
         _sitPhase = SitPhase.SearchingSeat;
@@ -1120,10 +1212,18 @@ public class NPCController : MonoBehaviour
 
         ReleaseSeatIfAny();
 
-        if (agent && agent.isActiveAndEnabled && agent.isOnNavMesh)
+        // Ensure agent is usable for approach phases
+        if (agent != null)
         {
-            agent.isStopped = true;
-            agent.ResetPath();
+            if (!agent.enabled) agent.enabled = true;
+            if (!agent.isOnNavMesh && TryGetNavmeshPoint(transform.position, out Vector3 navPos))
+                agent.Warp(navPos);
+
+            if (AgentReady())
+            {
+                agent.isStopped = true;
+                agent.ResetPath();
+            }
         }
     }
 
@@ -1139,18 +1239,18 @@ public class NPCController : MonoBehaviour
                 break;
 
             case SitPhase.ApproachingFront:
-                if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+                if (!AgentReady()) return;
                 TickApproachFront();
                 break;
 
             case SitPhase.Aligning:
-                if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+                if (!AgentReady()) return;
                 if (_seatTf == null) { FailSittingAndReturnToPatrol(); return; }
                 TickAlign(dt, GetSeatFacing());
                 break;
 
             case SitPhase.Backstepping:
-                if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+                if (!AgentReady()) return;
                 if (_seatTf == null) { FailSittingAndReturnToPatrol(); return; }
                 TickBackstep(dt, _seatNavPos, GetSeatFacing());
                 break;
@@ -1187,12 +1287,11 @@ public class NPCController : MonoBehaviour
         if (_seatRescanT <= 0f)
         {
             _seatRescanT = Mathf.Max(0.05f, seatRescanInterval);
-
             if (TryAcquireSeat())
                 return;
         }
 
-        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+        if (AgentReady())
         {
             agent.isStopped = true;
             agent.ResetPath();
@@ -1286,7 +1385,12 @@ public class NPCController : MonoBehaviour
         if (seatDebugLogs)
             Debug.Log($"{name} Sit: ACQUIRED '{_seat.name}' seatPos={seatPos2} seatNav={_seatNavPos} preSit={_preSitPoint} preSitNav={_preSitNavPos}");
 
-        agent.enabled = true;
+        if (!agent.enabled) agent.enabled = true;
+        if (!agent.isOnNavMesh && TryGetNavmeshPoint(transform.position, out Vector3 navPos))
+            agent.Warp(navPos);
+
+        if (!AgentReady()) return false;
+
         agent.isStopped = false;
         agent.autoBraking = true;
         agent.ResetPath();
@@ -1369,15 +1473,10 @@ public class NPCController : MonoBehaviour
 
     private void BeginSitDown()
     {
-        if (agent != null)
-        {
-            agent.isStopped = true;
-            agent.ResetPath();
-            agent.velocity = Vector3.zero;
-            agent.enabled = false;
-        }
+        // Disable agent for sit animations (prevents sliding + avoids resume/reset errors)
+        DetachAgentForAnimation();
 
-// ✅ Seamless: snap XZ only (keep current Y). Let animation offsets handle height.
+        // Snap XZ only; do NOT touch Y (you already have animation offsets)
         if (snapToSeatWhenSeated && _seatTf != null)
         {
             Vector3 p = transform.position;
@@ -1399,10 +1498,18 @@ public class NPCController : MonoBehaviour
             animationController.SetFloat(paramBlend, 0f);
 
             ResetAllAnimatorTriggers();
-            animationController.CrossFadeInFixedTime(sitDownStateName, sitCrossfade, sitAnimLayer, 0f);
+
+            if (useSitTriggerParam && !string.IsNullOrWhiteSpace(sitTriggerParam))
+            {
+                animationController.SetTrigger(sitTriggerParam);
+            }
+            else
+            {
+                animationController.CrossFadeInFixedTime(sitDownStateName, sitCrossfade, sitAnimLayer, 0f);
+            }
 
             if (seatDebugLogs)
-                Debug.Log($"{name} Sit: CrossFade to '{sitDownStateName}'.");
+                Debug.Log($"{name} Sit: Start SitDown.");
         }
 
         _sitTriggerSent = true;
@@ -1418,13 +1525,12 @@ public class NPCController : MonoBehaviour
 
         AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(sitAnimLayer);
 
-        // ✅ Seamless: when SitIdle is reached, DO NOT snap position (this is what caused the "dip").
+        // when SitIdle is reached, transition to idle phase
         if (!string.IsNullOrWhiteSpace(sitIdleStateName) && info.IsName(sitIdleStateName))
         {
             _sitPhase = SitPhase.SittingIdle;
             _seatedT = 0f;
 
-            // Rotation only (optional), no teleport.
             if (_seatTf != null)
                 transform.rotation = Quaternion.LookRotation(GetSeatFacing(), Vector3.up);
 
@@ -1433,12 +1539,13 @@ public class NPCController : MonoBehaviour
             return;
         }
 
+        // fallback if animator didn't enter expected states quickly
         if (_sitTriggerSent && _sitTriggerT >= sitTriggerFallbackDelay)
         {
             bool inSitDown = !string.IsNullOrWhiteSpace(sitDownStateName) && info.IsName(sitDownStateName);
             bool inSitIdle = !string.IsNullOrWhiteSpace(sitIdleStateName) && info.IsName(sitIdleStateName);
 
-            if (!inSitDown && !inSitIdle)
+            if (!inSitDown && !inSitIdle && !string.IsNullOrWhiteSpace(sitDownStateName))
             {
                 if (seatDebugLogs)
                     Debug.Log($"{name} Sit: Fallback — forcing Play('{sitDownStateName}').");
@@ -1451,16 +1558,10 @@ public class NPCController : MonoBehaviour
 
     private void TickSittingIdle(float dt, Vector3 seatPos, Vector3 seatForward)
     {
-        if (agent != null && agent.enabled)
-        {
-            agent.isStopped = true;
-            agent.ResetPath();
-        }
-
+        // agent is disabled while seated -> no nav calls here
         ForceIdlePose();
 
-        // ✅ Seamless: do NOT keep snapping position each frame. That will fight animation and can cause pops.
-        // If you want to "lock" the facing, rotate only.
+        // Rotate only if you want to keep facing consistent
         transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
 
         if (autoStandAfterSeconds > 0f)
@@ -1473,64 +1574,68 @@ public class NPCController : MonoBehaviour
 
     private void BeginStandUp()
     {
-        agent.isStopped = true;
-        agent.ResetPath();
+        if (_sitPhase == SitPhase.StandUpPlaying) return;
+
+        // Keep agent detached while stand-up anim plays
+        DetachAgentForAnimation();
 
         if (animationController == null)
         {
-            FinishStandUp();
+            FinishStandUpToPatrol();
             return;
         }
 
         ResetAllAnimatorTriggers();
+        animationController.speed = 1f;
 
-        if (standUpByReversingSitDown && !string.IsNullOrWhiteSpace(sitDownStateName))
+        if (useStandUpTriggerParam && !string.IsNullOrWhiteSpace(standUpTriggerParam))
         {
-            animationController.speed = -1f;
-            animationController.Play(sitDownStateName, sitAnimLayer, 1f);
-            animationController.Update(0f);
-            _sitPhase = SitPhase.StandUpPlaying;
-            return;
+            animationController.SetTrigger(standUpTriggerParam);
+        }
+        else if (!string.IsNullOrWhiteSpace(standUpStateName))
+        {
+            animationController.CrossFadeInFixedTime(standUpStateName, sitCrossfade, sitAnimLayer, 0f);
         }
 
-        animationController.speed = 1f;
-        ForceReturnToLocomotion();
-        FinishStandUp();
+        _sitPhase = SitPhase.StandUpPlaying;
     }
 
     private void TickStandUpPlaying(float dt)
     {
         if (animationController == null)
         {
-            FinishStandUp();
+            FinishStandUpToPatrol();
             return;
         }
 
         AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(sitAnimLayer);
 
-        if (!animationController.IsInTransition(sitAnimLayer) && info.normalizedTime <= 0.02f)
+        bool inStandUp = !string.IsNullOrWhiteSpace(standUpStateName) && info.IsName(standUpStateName);
+
+        // Only finish once we've actually reached StandUp and it completed.
+        if (inStandUp && !animationController.IsInTransition(sitAnimLayer) && info.normalizedTime >= 1f)
         {
-            animationController.speed = 1f;
-            ForceReturnToLocomotion();
-            FinishStandUp();
+            FinishStandUpToPatrol();
         }
     }
 
-    private void FinishStandUp()
+    private void FinishStandUpToPatrol()
     {
-        if (agent != null)
+        if (animationController != null)
         {
-            agent.enabled = true;
-            if (agent.isActiveAndEnabled)
-                agent.Warp(_seatNavPos);
+            animationController.speed = 1f;
+            ForceReturnToLocomotion();
         }
+
+        // Critical: re-ground root to NavMesh at current XZ to clear seated vertical offset
+        ReattachAgentToNavmeshAtCurrentXZ();
 
         ReleaseSeatIfAny();
 
         _hasCommand = false;
         _commandGoal = NPCState.Patrolling;
-
         _sitPhase = SitPhase.None;
+
         EnterState(NPCState.Patrolling);
     }
 
@@ -1542,6 +1647,11 @@ public class NPCController : MonoBehaviour
         _commandGoal = NPCState.Patrolling;
 
         _sitPhase = SitPhase.None;
+
+        // Make sure locomotion resumes cleanly
+        if (animationController != null) ForceReturnToLocomotion();
+        ReattachAgentToNavmeshAtCurrentXZ();
+
         EnterState(NPCState.Patrolling);
     }
 
@@ -1557,11 +1667,10 @@ public class NPCController : MonoBehaviour
     // =========================================================
     // Crowd avoidance / renegotiate
     // =========================================================
-
     void PreCollisionRenegotiate()
     {
         if (!IsNavDriven()) return;
-        if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+        if (!AgentReady()) return;
 
         if (useStateMachine && (_state == NPCState.Alerted || _state == NPCState.Attacking || _state == NPCState.Talk || _state == NPCState.Sitting))
             return;
@@ -1631,7 +1740,7 @@ public class NPCController : MonoBehaviour
 
     IEnumerator SidestepAvoidanceCoroutine(NPCController other)
     {
-        if (agent == null || !agent.isOnNavMesh) yield break;
+        if (!AgentReady()) yield break;
 
         int sign = ((gameObject.GetInstanceID() & 1) == 0) ? 1 : -1;
 
@@ -1670,7 +1779,7 @@ public class NPCController : MonoBehaviour
 
         agent.avoidancePriority = prevPriority;
 
-        if (IsNavDriven() && _hasResumeDestination && agent.isOnNavMesh)
+        if (IsNavDriven() && _hasResumeDestination && AgentReady())
         {
             agent.isStopped = false;
             agent.ResetPath();
@@ -1694,7 +1803,6 @@ public class NPCController : MonoBehaviour
     // =========================================================
     // Triggered Animations API
     // =========================================================
-
     public void PlaySelectedTrigger()
     {
         if (triggerNames == null || triggerNames.Count == 0)
@@ -1753,7 +1861,7 @@ public class NPCController : MonoBehaviour
 
         isPaused = _triggerPrevPaused;
 
-        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+        if (AgentReady())
             agent.isStopped = _triggerWasStoppedBefore;
 
         if (useStateMachine && !isPaused)
@@ -1766,7 +1874,7 @@ public class NPCController : MonoBehaviour
 
         _triggerPrevPaused = isPaused;
 
-        _triggerAgentWasValid = (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh);
+        _triggerAgentWasValid = AgentReady();
         _triggerHadPathBefore = _triggerAgentWasValid && agent.hasPath;
         _triggerWasStoppedBefore = _triggerAgentWasValid && agent.isStopped;
 
@@ -1784,7 +1892,6 @@ public class NPCController : MonoBehaviour
         }
 
         animationController.speed = 1f;
-
         ResetAllAnimatorTriggers();
 
         AnimatorControllerParameterType? pType = GetAnimatorParameterType(animationController, triggerParam);
@@ -1859,7 +1966,7 @@ public class NPCController : MonoBehaviour
 
         isPaused = _triggerPrevPaused;
 
-        if (_triggerAgentWasValid)
+        if (_triggerAgentWasValid && AgentReady())
             agent.isStopped = _triggerWasStoppedBefore;
 
         _isPlayingTriggeredAnimation = false;
@@ -1905,7 +2012,6 @@ public class NPCController : MonoBehaviour
     // -----------------------
     // NavMesh helpers
     // -----------------------
-
     bool EnsureAgentOnNavMesh(string context)
     {
         if (agent == null || !agent.isActiveAndEnabled)
@@ -1924,6 +2030,7 @@ public class NPCController : MonoBehaviour
 
         if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, snapToNavMeshRadius, NavMesh.AllAreas))
         {
+            if (!agent.enabled) agent.enabled = true;
             agent.Warp(hit.position);
             return agent.isOnNavMesh;
         }
@@ -1946,7 +2053,6 @@ public class NPCController : MonoBehaviour
     // -----------------------
     // Animator driving
     // -----------------------
-
     void ForceIdlePose()
     {
         if (animationController == null) return;
@@ -1969,7 +2075,7 @@ public class NPCController : MonoBehaviour
             vel = Vector3.zero;
             _animVelocitySmoothed = Vector3.zero;
         }
-        else if (agent != null && agent.enabled && agent.isOnNavMesh)
+        else if (AgentReady())
         {
             Vector3 v = agent.velocity;
             Vector3 dv = agent.desiredVelocity;
@@ -2008,7 +2114,7 @@ public class NPCController : MonoBehaviour
 
     void UpdateFacing()
     {
-        if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+        if (!AgentReady()) return;
         if (!IsNavDriven()) return;
 
         bool inSitWalkup = (_state == NPCState.Sitting && _sitPhase == SitPhase.ApproachingFront);

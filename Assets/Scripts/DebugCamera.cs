@@ -221,8 +221,16 @@ public class DebugCamera : MonoBehaviour
 
     private void Start()
     {
-        flyLookSensitivity = GameMaster.Instance.MouseSensitivity;
-        sensitivity = GameMaster.Instance.MouseSensitivity;
+        if (GameMaster.Instance != null)
+        {
+            flyLookSensitivity = GameMaster.Instance.MouseSensitivity;
+            sensitivity = GameMaster.Instance.MouseSensitivity;
+        }
+        else
+        {
+            flyLookSensitivity = 0.02f;
+            sensitivity = 0.02f;
+        }
     }
 
     void OnEnable()

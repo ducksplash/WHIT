@@ -46,6 +46,9 @@ public class DebugCamHUD : MonoBehaviour
     [SerializeField] private Button approachButton;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button talkButton;
+    [SerializeField] private Button toggleButton;
+    [SerializeField] private Button sitButton;
+    [SerializeField] private Button standButton;
 
     // runtime
     private Transform _lastTarget;
@@ -74,8 +77,13 @@ public class DebugCamHUD : MonoBehaviour
         if (attackButton != null) attackButton.onClick.AddListener(OnAttackClicked);
         if (talkButton != null) talkButton.onClick.AddListener(OnTalkClicked);
 
-        if (targetNpcDropdown != null)
-            targetNpcDropdown.onValueChanged.AddListener(OnTargetNpcDropdownChanged);
+        if (targetNpcDropdown != null) targetNpcDropdown.onValueChanged.AddListener(OnTargetNpcDropdownChanged);
+        
+        
+        if (sitButton != null) sitButton.onClick.AddListener(OnSitClicked);
+        if (standButton != null) standButton.onClick.AddListener(OnStandClicked);
+        
+        if (toggleButton != null) toggleButton.onClick.AddListener(OnToggleClicked);
 
         BuildNpcEnumDropdownIfNeeded();
     }
@@ -84,6 +92,8 @@ public class DebugCamHUD : MonoBehaviour
     {
         if (playTriggerButton != null) playTriggerButton.onClick.RemoveListener(OnPlayTriggerClicked);
 
+        if (sitButton != null) sitButton.onClick.RemoveListener(OnSitClicked);
+        if (standButton != null) standButton.onClick.RemoveListener(OnStandClicked);
         if (forcePatrolButton != null) forcePatrolButton.onClick.RemoveListener(OnForcePatrolClicked);
         if (clearTargetButton != null) clearTargetButton.onClick.RemoveListener(OnClearTargetClicked);
 
@@ -160,6 +170,10 @@ public class DebugCamHUD : MonoBehaviour
         if (targetNpcDropdown != null) targetNpcDropdown.interactable = on;
     }
 
+    
+    
+    
+    
     // =========================================================
     // Trigger UI
     // =========================================================
@@ -211,6 +225,20 @@ public class DebugCamHUD : MonoBehaviour
 
         _npc.selectedTriggerIndex = idx;
         _npc.PlayTrigger(trig);
+    }
+
+    private void OnSitClicked()
+    {
+        if (_npc == null) return;
+        _npc.RequestSitDown();
+        RefreshForTarget(_lastTarget);
+    }
+
+    private void OnStandClicked()
+    {
+        if (_npc == null) return;
+        _npc.RequestStandUp();
+        RefreshForTarget(_lastTarget);
     }
 
     // =========================================================
@@ -297,6 +325,20 @@ public class DebugCamHUD : MonoBehaviour
         RefreshForTarget(_lastTarget);
     }
 
+    private void OnToggleClicked()
+    {        
+        if (_npc == null) return;
+
+        MeNPC me = _npc.gameObject.GetComponent<MeNPC>();
+
+        if (me != null)
+        {
+            me.ToggleRenderer();
+        }
+        
+        RefreshForTarget(_lastTarget);
+    }
+    
     private void OnAttackClicked()
     {
         if (_npc == null) return;

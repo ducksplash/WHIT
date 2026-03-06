@@ -104,6 +104,16 @@ public class NPCController : MonoBehaviour
 
     public NPCManager sceneNPCManager;
 
+    [SerializeField] float faceMinSpeed = 0.08f;      // ignore micro jitter
+    [SerializeField] float faceMinDistance = 0.15f;   // ignore tiny steering shifts
+    [SerializeField] float faceMaxDegPerSec = 540f;   // hard cap rotation speed
+    
+    [Header("Turn / BlendTree Driving")]
+    [SerializeField] private float turnAngleForFullX = 90f;   // angle (deg) that maps to MovingX=+/-1
+    [SerializeField] private float turnInPlaceSpeed = 160f;   // deg/sec when mostly stationary
+    [SerializeField] private float turnWhileMovingSpeed = 260f; // deg/sec while moving
+    [SerializeField] private float turnInPlaceSpeedThreshold = 0.15f; // m/s below this = turn-in-place
+    
     Vector3 _lastApproachDest;
     bool _hasLastApproachDest;
 
@@ -227,6 +237,8 @@ public class NPCController : MonoBehaviour
     [Tooltip("How often to run the proximity check.")]
     public float renegotiateCheckInterval = 0.15f;
 
+    public MeNPC npcMetaActions;
+    
     float _renegotiateT;
     float _renegotiateCooldownT;
     Coroutine _sidestepCoroutine;
@@ -249,7 +261,6 @@ public class NPCController : MonoBehaviour
 
     private Vector3 _seatNavPos;
     private Vector3 _preSitNavPos;
-    [SerializeField] private float seatNavSampleRadius = 6.0f;
 
     [SerializeField] private float sitTriggerFallbackDelay = 0.08f;
     private float _sitTriggerT = 0f;
@@ -632,8 +643,7 @@ public class NPCController : MonoBehaviour
 
             if (_conversationSpeaker != null)
                 FaceTowards(_conversationSpeaker.transform.position, Time.deltaTime, turnSmoothing * 1.5f);
-
-            UpdateAnimatorFromMovement();
+            UpdateLocomotionAndFacing();
             return;
         }
 
@@ -644,9 +654,7 @@ public class NPCController : MonoBehaviour
             else if (EnsureFSMCanRun())
                 TickFSM(Time.deltaTime);
         }
-
-        UpdateAnimatorFromMovement();
-        UpdateFacing();
+        UpdateLocomotionAndFacing();
         PreCollisionRenegotiate();
     }
 
@@ -684,6 +692,70 @@ public class NPCController : MonoBehaviour
         _commandGoal = NPCState.Patrolling;
     }
 
+    void UpdateLocomotionAndFacing()
+    {
+        if (animationController == null) return;
+
+        bool inSitWalkup = (_state == NPCState.Sitting && _sitPhase == SitPhase.ApproachingFront);
+        bool allowNavLocomotion = AgentReady() && IsNavDriven() && !(_state == NPCState.Sitting && !inSitWalkup);
+
+        // Default idle
+        float movingX = 0f;
+        float movingY = 0f;
+        float blend = 0f;
+
+        if (allowNavLocomotion)
+        {
+            // Stable desired direction (better than desiredVelocity for jitter)
+            Vector3 to = agent.steeringTarget - transform.position;
+            to.y = 0f;
+
+            Vector3 desiredDir;
+            if (to.sqrMagnitude > 0.0001f)
+                desiredDir = to.normalized;
+            else
+            {
+                Vector3 dv = agent.desiredVelocity; dv.y = 0f;
+                desiredDir = (dv.sqrMagnitude > 0.0001f) ? dv.normalized : transform.forward;
+            }
+
+            // Current planar speed (use desiredVelocity when starting to move)
+            Vector3 v = agent.velocity; v.y = 0f;
+            Vector3 dv2 = agent.desiredVelocity; dv2.y = 0f;
+
+            float speed = v.magnitude;
+            if (agent.pathPending || (speed < 0.05f && dv2.magnitude > 0.05f))
+                speed = dv2.magnitude;
+
+            // Angle to desired direction drives turn blend
+            float signedAngle = Vector3.SignedAngle(transform.forward, desiredDir, Vector3.up);
+
+            // MovingX = turn amount, MovingY = forward intent
+            movingX = Mathf.Clamp(signedAngle / Mathf.Max(1f, turnAngleForFullX), -1f, 1f);
+
+            // If you have a forward-walk blend, keep Y positive by speed.
+            // If your blend tree expects negative for backing up, you can use cos(angle)*speed instead.
+            movingY = Mathf.Clamp01(speed / Mathf.Max(0.01f, moveSpeed));
+
+            blend = Mathf.Clamp01(speed / Mathf.Max(0.01f, moveSpeed));
+
+            // --- ROTATION (don’t spin instantly) ---
+            // Turn in place when slow; turn faster when moving.
+            float turnRate = (speed < turnInPlaceSpeedThreshold) ? turnInPlaceSpeed : turnWhileMovingSpeed;
+
+            // Optional: if you want “turn-in-place” even at 0 speed, rotate anyway based on angle.
+            // This makes the turn anim actually show because MovingX stays non-zero while rotating.
+            Quaternion targetRot = Quaternion.LookRotation(desiredDir, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, turnRate * Time.deltaTime);
+        }
+
+        // Damp animator params (keep your existing damp time behavior)
+        animationController.SetFloat(paramMovingX, movingX, animDampTime, Time.deltaTime);
+        animationController.SetFloat(paramMovingY, movingY, animDampTime, Time.deltaTime);
+        animationController.SetFloat(paramBlend,   blend,   animDampTime, Time.deltaTime);
+    }
+    
+    
     public void ForcePatrol()
     {
         if (animationController != null) animationController.speed = 1f;
@@ -995,8 +1067,18 @@ public class NPCController : MonoBehaviour
             if (_approachRepathTimer <= 0f && currentTarget != null)
             {
                 _approachRepathTimer = Mathf.Max(0.05f, approachRepathInterval);
-                agent.isStopped = false;
-                agent.SetDestination(currentTarget.position);
+
+                Vector3 newDest = currentTarget.position;
+
+                // Only update if target actually moved enough
+                if (!_hasLastApproachDest || (newDest - _lastApproachDest).sqrMagnitude >= (approachTargetMoveThreshold * approachTargetMoveThreshold))
+                {
+                    _lastApproachDest = newDest;
+                    _hasLastApproachDest = true;
+
+                    agent.isStopped = false;
+                    agent.SetDestination(newDest);
+                }
             }
 
             return;
@@ -1336,10 +1418,10 @@ public class NPCController : MonoBehaviour
             d.y = 0f;
             if (d.sqrMagnitude > radius * radius) continue;
 
-            if (!NavMesh.SamplePosition(seatPos, out NavMeshHit seatHit, seatNavSampleRadius, NavMesh.AllAreas))
+            if (!NavMesh.SamplePosition(seatPos, out NavMeshHit seatHit, activeRadius, NavMesh.AllAreas))
             {
                 if (seatDebugLogs)
-                    Debug.Log($"{name} Sit: REJECT '{s.name}' reason=navmesh_sample_failed seatPos={seatPos} sampleR={seatNavSampleRadius}");
+                    Debug.Log($"{name} Sit: REJECT '{s.name}' reason=navmesh_sample_failed seatPos={seatPos} sampleR={activeRadius}");
                 continue;
             }
 
@@ -1353,7 +1435,7 @@ public class NPCController : MonoBehaviour
 
         if (best == null)
         {
-            Debug.LogWarning($"{name} Sit: Seats found, but none had NavMesh within {seatNavSampleRadius}m (or were valid/free/in-range/matching mask).");
+            Debug.LogWarning($"{name} Sit: Seats found, but none had NavMesh within {activeRadius}m (or were valid/free/in-range/matching mask).");
             return false;
         }
 
@@ -1374,10 +1456,10 @@ public class NPCController : MonoBehaviour
         Vector3 seatPos2 = _seatTf.position;
         _preSitPoint = seatPos2 + seatForward * Mathf.Max(0f, preSitForwardOffset);
 
-        NavMesh.SamplePosition(seatPos2, out NavMeshHit seatHit2, seatNavSampleRadius, NavMesh.AllAreas);
+        NavMesh.SamplePosition(seatPos2, out NavMeshHit seatHit2, activeRadius, NavMesh.AllAreas);
         _seatNavPos = seatHit2.position;
 
-        if (!NavMesh.SamplePosition(_preSitPoint, out NavMeshHit preHit, seatNavSampleRadius, NavMesh.AllAreas))
+        if (!NavMesh.SamplePosition(_preSitPoint, out NavMeshHit preHit, activeRadius, NavMesh.AllAreas))
             _preSitNavPos = _seatNavPos;
         else
             _preSitNavPos = preHit.position;
@@ -2118,21 +2200,25 @@ public class NPCController : MonoBehaviour
         if (!IsNavDriven()) return;
 
         bool inSitWalkup = (_state == NPCState.Sitting && _sitPhase == SitPhase.ApproachingFront);
+        if (useStateMachine && (_state == NPCState.Alerted || _state == NPCState.Attacking || _state == NPCState.Talk)) return;
+        if (useStateMachine && _state == NPCState.Sitting && !inSitWalkup) return;
 
-        if (useStateMachine && (_state == NPCState.Alerted || _state == NPCState.Attacking || _state == NPCState.Talk))
+        // If we're basically not moving, don't try to rotate (prevents jitter at low speeds)
+        Vector3 planarVel = agent.velocity; planarVel.y = 0f;
+        if (planarVel.magnitude < faceMinSpeed) return;
+
+        // Use steeringTarget (next corner). Much more stable than desiredVelocity.
+        Vector3 to = agent.steeringTarget - transform.position;
+        to.y = 0f;
+
+        if (to.sqrMagnitude < faceMinDistance * faceMinDistance)
             return;
 
-        if (useStateMachine && _state == NPCState.Sitting && !inSitWalkup)
-            return;
+        Quaternion targetRot = Quaternion.LookRotation(to.normalized, Vector3.up);
 
-        Vector3 v = agent.desiredVelocity;
-        if (v.sqrMagnitude < 0.0004f) v = agent.velocity;
-
-        v.y = 0f;
-        if (v.sqrMagnitude < 0.0004f) return;
-
-        Quaternion targetRot = Quaternion.LookRotation(v.normalized, Vector3.up);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * turnSmoothing);
+        // RotateTowards avoids overshoot + wobble better than Slerp with a huge dt*speed.
+        float maxStep = faceMaxDegPerSec * Time.deltaTime;
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, maxStep);
     }
 }
 

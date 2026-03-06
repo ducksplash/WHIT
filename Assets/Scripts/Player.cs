@@ -262,7 +262,6 @@ public class Player : Singleton<Player>
         GameMaster.Instance.PauseManager.IsPaused = CurrentCamera == DebugCam;
         
         CurrentCamera.enabled = true;
-
     }
     
     public void SetTorchLocomotion(bool hasTorch)

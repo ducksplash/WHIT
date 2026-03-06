@@ -29,7 +29,9 @@ public class Seat : MonoBehaviour
     public void Release(NPCController who)
     {
         if (who != null && occupiedBy == who)
+        {
             occupiedBy = null;
+        }
 
         // Keep bool as source-of-truth for designers, but clear it if we were the owner.
         if (occupiedBy == null)

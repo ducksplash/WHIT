@@ -24,7 +24,7 @@ public class NPCManager : MonoBehaviour
 
         if (!NPCList.Contains(thisNPC))
         {
-            //thisNPC.sceneNPCManager = this;
+            thisNPC.sceneNPCManager = this;
             NPCList.Add(thisNPC);
             Debug.Log(thisNPC + " added");
         }

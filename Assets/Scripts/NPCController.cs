@@ -244,7 +244,7 @@ public class NPCController : MonoBehaviour
 
     private Action _pendingPostStandAction;
     private bool _executePendingActionAfterStand = false;
-    
+
     float _renegotiateT;
     float _renegotiateCooldownT;
     Coroutine _sidestepCoroutine;
@@ -466,21 +466,89 @@ public class NPCController : MonoBehaviour
         return best;
     }
 
-    private void UnregisterAsConversationSpeaker()
+    private bool IsInConversation()
     {
-        if (_talkTargetController != null && _registeredAsConversationSpeaker)
-        {
-            _talkTargetController.EndConversationAsTarget(this);
-        }
+        return _registeredAsConversationSpeaker
+               || _isConversationLocked
+               || _talkTargetController != null
+               || _conversationSpeakers.Count > 0;
+    }
+
+    private NPCController GetConversationPartner()
+    {
+        if (_talkTargetController != null)
+            return _talkTargetController;
+
+        if (currentTarget != null)
+            return currentTarget.GetComponentInParent<NPCController>();
+
+        return null;
+    }
+
+    private void EndConversationLocalOnly(NPCController other)
+    {
+        if (other != null)
+            _conversationSpeakers.Remove(other);
+
+        _conversationSpeakers.Clear();
+        _primaryConversationSpeaker = null;
+        _isConversationLocked = false;
 
         _registeredAsConversationSpeaker = false;
         _talkTargetController = null;
+
+        if (other != null && currentTarget == other.transform)
+            currentTarget = null;
+
+        useStateMachine = true;
+
+        if (AgentReady())
+        {
+            agent.isStopped = false;
+            agent.ResetPath();
+        }
+
+        // Do not force locomotion while still sitting.
+        if (animationController != null && _state != NPCState.Sitting)
+            ForceReturnToLocomotion();
+
+        if (_state == NPCState.Talk)
+        {
+            _hasCommand = false;
+            _commandGoal = NPCState.Patrolling;
+            EnterState(NPCState.Patrolling);
+        }
+    }
+
+    private void EndConversationForBoth()
+    {
+        if (!IsInConversation())
+            return;
+
+        NPCController other = GetConversationPartner();
+
+        EndConversationLocalOnly(other);
+
+        if (other != null)
+            other.EndConversationLocalOnly(this);
+    }
+
+    private void UnregisterAsConversationSpeaker()
+    {
+        if (!IsInConversation())
+        {
+            _registeredAsConversationSpeaker = false;
+            _talkTargetController = null;
+            return;
+        }
+
+        EndConversationForBoth();
     }
 
     private void InterruptAllTransientActions(bool returnToLocomotion = true)
     {
         UnregisterAsConversationSpeaker();
-        
+
         if (_triggerCoroutine != null)
         {
             StopCoroutine(_triggerCoroutine);
@@ -521,8 +589,9 @@ public class NPCController : MonoBehaviour
                 agent.ResetPath();
             }
         }
+
         ResetLocomotionState();
-        
+
         if (returnToLocomotion && animationController != null)
         {
             ForceReturnToLocomotion();
@@ -580,6 +649,7 @@ public class NPCController : MonoBehaviour
             EnterState(NPCState.Approaching);
     }
 
+
     public void DebugAttackTargetNPC()
     {
         if (TryQueueActionAfterStand(() =>
@@ -593,6 +663,12 @@ public class NPCController : MonoBehaviour
 
                 _hasCommand = true;
                 _commandGoal = NPCState.Attacking;
+
+                if (AgentReady())
+                {
+                    agent.autoBraking = false;
+                    agent.stoppingDistance = Mathf.Max(arriveDistance, talkRange * 0.8f);
+                }
 
                 float d = Vector3.Distance(transform.position, currentTarget.position);
                 EnterState(d <= talkRange ? NPCState.Attacking : NPCState.Approaching);
@@ -611,10 +687,18 @@ public class NPCController : MonoBehaviour
         _hasCommand = true;
         _commandGoal = NPCState.Attacking;
 
+        if (AgentReady())
+        {
+            agent.autoBraking = false;
+            agent.stoppingDistance = Mathf.Max(arriveDistance, talkRange * 0.8f);
+        }
+
         float d = Vector3.Distance(transform.position, currentTarget.position);
         EnterState(d <= talkRange ? NPCState.Attacking : NPCState.Approaching);
     }
 
+
+    
     public void DebugTalkTargetNPC()
     {
         if (TryQueueActionAfterStand(() =>
@@ -628,6 +712,12 @@ public class NPCController : MonoBehaviour
 
                 _hasCommand = true;
                 _commandGoal = NPCState.Talk;
+
+                if (AgentReady())
+                {
+                    agent.autoBraking = false;
+                    agent.stoppingDistance = Mathf.Max(arriveDistance, talkRange * 0.8f);
+                }
 
                 float d = Vector3.Distance(transform.position, currentTarget.position);
                 EnterState(d <= talkRange ? NPCState.Talk : NPCState.Approaching);
@@ -645,6 +735,12 @@ public class NPCController : MonoBehaviour
 
         _hasCommand = true;
         _commandGoal = NPCState.Talk;
+
+        if (AgentReady())
+        {
+            agent.autoBraking = false;
+            agent.stoppingDistance = Mathf.Max(arriveDistance, talkRange * 0.8f);
+        }
 
         float d = Vector3.Distance(transform.position, currentTarget.position);
         EnterState(d <= talkRange ? NPCState.Talk : NPCState.Approaching);
@@ -831,7 +927,7 @@ public class NPCController : MonoBehaviour
 
     public void ClearTarget()
     {
-        UnregisterAsConversationSpeaker();
+        EndConversationForBoth();
 
         currentTarget = null;
         _hasCommand = false;
@@ -879,20 +975,16 @@ public class NPCController : MonoBehaviour
             float speed01 = Mathf.Clamp01(speed / Mathf.Max(0.01f, moveSpeed));
             float signedAngle = Vector3.SignedAngle(transform.forward, desiredDir, Vector3.up);
 
-            // Dead zone tiny steering corrections so they don't look like a limp.
             const float turnDeadZone = 8f;
             if (Mathf.Abs(signedAngle) < turnDeadZone)
                 signedAngle = 0f;
 
-            // Reduce turn contribution while actually walking forward.
-            // Full turn-in-place at low speed, much less while moving.
             float turnWeight = (speed < turnInPlaceSpeedThreshold) ? 1f : 0.35f;
 
             movingX = Mathf.Clamp((signedAngle / Mathf.Max(1f, turnAngleForFullX)) * turnWeight, -1f, 1f);
             movingY = speed01;
             blend = speed01;
 
-            // Optional cleanup: if moving forward strongly, suppress tiny x drift entirely.
             if (speed01 > 0.35f && Mathf.Abs(movingX) < 0.2f)
                 movingX = 0f;
 
@@ -919,7 +1011,7 @@ public class NPCController : MonoBehaviour
             animationController.SetFloat(paramBlend, 0f);
         }
     }
-    
+
     public void ForcePatrol()
     {
         if (TryQueueActionAfterStand(() =>
@@ -939,6 +1031,8 @@ public class NPCController : MonoBehaviour
                         agent.Warp(navPos);
                 }
 
+                agent.stoppingDistance = Mathf.Max(arriveDistance, 0.05f);
+                
                 _hasResumeDestination = false;
                 _resumeDestination = Vector3.zero;
 
@@ -972,6 +1066,7 @@ public class NPCController : MonoBehaviour
         ForceReturnToLocomotion();
         EnterState(NPCState.Patrolling);
     }
+
     // =========================================================
     // Sitting public API
     // =========================================================
@@ -979,13 +1074,32 @@ public class NPCController : MonoBehaviour
     {
         if (_isConversationLocked) return;
 
-        InterruptAllTransientActions();
+        // If already somewhere inside the sitting system...
+        if (_state == NPCState.Sitting)
+        {
+            // If genuinely seated / seat animation / standing up:
+            // stand first, then restart the whole sit command.
+            if (_sitPhase == SitPhase.SittingIdle ||
+                _sitPhase == SitPhase.SitDownPlaying ||
+                _sitPhase == SitPhase.StandUpPlaying)
+            {
+                _pendingPostStandAction = StartSitCommandFresh;
+                _executePendingActionAfterStand = true;
 
-        useStateMachine = true;
-        _hasCommand = true;
-        _commandGoal = NPCState.Sitting;
+                if (_sitPhase != SitPhase.StandUpPlaying)
+                    BeginStandUp();
 
-        EnterState(NPCState.Sitting);
+                return;
+            }
+
+            // If we are still searching / walking to seat / aligning / backstepping,
+            // just restart the sit process immediately.
+            StartSitCommandFresh();
+            return;
+        }
+
+        // Normal sit request from non-sitting state.
+        StartSitCommandFresh();
     }
 
     public void RequestStandUp()
@@ -996,9 +1110,8 @@ public class NPCController : MonoBehaviour
             BeginStandUp();
     }
 
-    // =========================================================
-    // FSM: core
-    // =========================================================
+
+
     void EnterState(NPCState next)
     {
         NPCState prev = _state;
@@ -1020,7 +1133,9 @@ public class NPCController : MonoBehaviour
                     agent.speed = moveSpeed;
                     agent.autoBraking = true;
                     agent.isStopped = false;
+                    agent.stoppingDistance = Mathf.Max(arriveDistance, 0.05f);
                 }
+
                 _hasPatrolDestination = false;
                 _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
                 _patrolArriveTimer = 0f;
@@ -1032,7 +1147,9 @@ public class NPCController : MonoBehaviour
                     agent.speed = moveSpeed;
                     agent.isStopped = true;
                     agent.autoBraking = true;
+                    agent.stoppingDistance = Mathf.Max(arriveDistance, 0.05f);
                 }
+
                 break;
 
             case NPCState.Approaching:
@@ -1041,10 +1158,19 @@ public class NPCController : MonoBehaviour
                     agent.speed = moveSpeed;
                     if (disableBrakingWhileApproaching)
                         agent.autoBraking = false;
+
                     agent.isStopped = false;
+                    ApplyStoppingDistanceForCurrentMode();
                 }
+
                 _approachRepathTimer = 0f;
                 _hasLastApproachDest = false;
+
+                // Important: command approaches should push destination immediately,
+                // so the first click never feels ignored.
+                if (_hasCommand)
+                    PushImmediateCommandDestination();
+
                 break;
 
             case NPCState.Attacking:
@@ -1052,7 +1178,9 @@ public class NPCController : MonoBehaviour
                 {
                     agent.isStopped = true;
                     agent.autoBraking = true;
+                    agent.stoppingDistance = Mathf.Max(arriveDistance, 0.05f);
                 }
+
                 Debug.Log($"{name} ATTACKING: TODO hook up attack logic/animation.");
                 break;
 
@@ -1061,7 +1189,9 @@ public class NPCController : MonoBehaviour
                 {
                     agent.speed = moveSpeed * Mathf.Max(0.01f, seekingSpeedMultiplier);
                     agent.isStopped = false;
+                    agent.stoppingDistance = Mathf.Max(arriveDistance, 0.05f);
                 }
+
                 _seekTimer = 0f;
                 _hasPatrolDestination = false;
                 _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
@@ -1074,7 +1204,9 @@ public class NPCController : MonoBehaviour
                     agent.isStopped = true;
                     agent.autoBraking = true;
                     agent.ResetPath();
+                    agent.stoppingDistance = Mathf.Max(arriveDistance, 0.05f);
                 }
+
                 Debug.Log($"{name} TALK: TODO hook up talk later. Holding idle until new command.");
                 break;
 
@@ -1202,9 +1334,12 @@ public class NPCController : MonoBehaviour
         }
     }
 
+
     void TickApproaching(float dt)
     {
         if (!AgentReady()) return;
+
+        ApplyStoppingDistanceForCurrentMode();
 
         if (!_hasCommand && currentTarget != null)
         {
@@ -1249,8 +1384,14 @@ public class NPCController : MonoBehaviour
                 _approachRepathTimer = Mathf.Max(0.05f, approachRepathInterval);
 
                 Vector3 newDest = currentTarget.position;
+                float thresholdSqr = approachTargetMoveThreshold * approachTargetMoveThreshold;
 
-                if (!_hasLastApproachDest || (newDest - _lastApproachDest).sqrMagnitude >= (approachTargetMoveThreshold * approachTargetMoveThreshold))
+                // Always push the first destination.
+                // After that, only update if the target moved enough, or if we somehow lost the path.
+                if (!_hasLastApproachDest ||
+                    !agent.hasPath ||
+                    agent.pathStatus != NavMeshPathStatus.PathComplete ||
+                    (newDest - _lastApproachDest).sqrMagnitude >= thresholdSqr)
                 {
                     _lastApproachDest = newDest;
                     _hasLastApproachDest = true;
@@ -1280,8 +1421,21 @@ public class NPCController : MonoBehaviour
         if (_approachRepathTimer <= 0f)
         {
             _approachRepathTimer = Mathf.Max(0.05f, approachRepathInterval);
-            agent.isStopped = false;
-            agent.SetDestination(currentTarget.position);
+
+            Vector3 newDest = currentTarget.position;
+            float thresholdSqr = approachTargetMoveThreshold * approachTargetMoveThreshold;
+
+            if (!_hasLastApproachDest ||
+                !agent.hasPath ||
+                agent.pathStatus != NavMeshPathStatus.PathComplete ||
+                (newDest - _lastApproachDest).sqrMagnitude >= thresholdSqr)
+            {
+                _lastApproachDest = newDest;
+                _hasLastApproachDest = true;
+
+                agent.isStopped = false;
+                agent.SetDestination(newDest);
+            }
         }
     }
 
@@ -1363,7 +1517,7 @@ public class NPCController : MonoBehaviour
 
         if (currentTarget == null)
         {
-            UnregisterAsConversationSpeaker();
+            EndConversationForBoth();
 
             _hasCommand = false;
             _commandGoal = NPCState.Patrolling;
@@ -1378,6 +1532,12 @@ public class NPCController : MonoBehaviour
 
         if (_talkTargetController != null && !_registeredAsConversationSpeaker)
         {
+            currentTarget = _talkTargetController.transform;
+            _talkTargetController.currentTarget = transform;
+            _talkTargetController._talkTargetController = this;
+            _talkTargetController._lastKnownTargetPos = transform.position;
+            _talkTargetController._hasLastKnownTargetPos = true;
+
             _talkTargetController.BeginConversationAsTarget(this);
             _registeredAsConversationSpeaker = true;
         }
@@ -1389,6 +1549,11 @@ public class NPCController : MonoBehaviour
 
         bool wasEmpty = _conversationSpeakers.Count == 0;
         _conversationSpeakers.Add(speaker);
+
+        _talkTargetController = speaker;
+        currentTarget = speaker.transform;
+        _lastKnownTargetPos = speaker.transform.position;
+        _hasLastKnownTargetPos = true;
 
         if (wasEmpty)
         {
@@ -1425,7 +1590,8 @@ public class NPCController : MonoBehaviour
                 agent.ResetPath();
             }
 
-            ForceReturnToLocomotion();
+            if (_state != NPCState.Sitting && animationController != null)
+                ForceReturnToLocomotion();
 
             if (_state == NPCState.Talk)
                 EnterState(NPCState.Patrolling);
@@ -1505,6 +1671,9 @@ public class NPCController : MonoBehaviour
             if (!agent.enabled) agent.enabled = true;
             if (!agent.isOnNavMesh && TryGetNavmeshPoint(transform.position, out Vector3 navPos))
                 agent.Warp(navPos);
+
+            agent.autoBraking = true;
+            agent.stoppingDistance = Mathf.Max(0.05f, arriveDistance);
 
             if (AgentReady())
             {
@@ -1680,6 +1849,7 @@ public class NPCController : MonoBehaviour
 
         agent.isStopped = false;
         agent.autoBraking = true;
+        agent.stoppingDistance = Mathf.Max(0.05f, arriveDistance);
         agent.ResetPath();
         agent.SetDestination(_preSitNavPos);
 
@@ -1690,21 +1860,29 @@ public class NPCController : MonoBehaviour
     private void TickApproachFront()
     {
         agent.isStopped = false;
+        agent.autoBraking = true;
+        agent.stoppingDistance = Mathf.Max(0.05f, arriveDistance);
 
         if (!agent.pathPending && (!agent.hasPath || Vector3.Distance(agent.destination, _preSitNavPos) > 0.15f))
             agent.SetDestination(_preSitNavPos);
 
-        float dist = Vector3.Distance(
+        float planarDist = Vector3.Distance(
             new Vector3(transform.position.x, 0f, transform.position.z),
             new Vector3(_preSitNavPos.x, 0f, _preSitNavPos.z)
         );
 
-        float threshold = Mathf.Max(preSitArriveDistance, arriveDistance);
+        float threshold = Mathf.Max(preSitArriveDistance, agent.stoppingDistance + 0.05f);
 
-        if (dist <= threshold)
+        bool navArrived =
+            !agent.pathPending &&
+            agent.hasPath &&
+            !float.IsInfinity(agent.remainingDistance) &&
+            agent.remainingDistance <= Mathf.Max(agent.stoppingDistance, 0.05f) + 0.02f;
+
+        if (planarDist <= threshold || navArrived)
         {
             if (seatDebugLogs)
-                Debug.Log($"{name} Sit: Arrived at pre-sit point (dist={dist:F2}). Transitioning to Aligning.");
+                Debug.Log($"{name} Sit: Arrived at pre-sit point (planarDist={planarDist:F2}, remaining={agent.remainingDistance:F2}). Transitioning to Aligning.");
 
             agent.isStopped = true;
             agent.ResetPath();
@@ -1914,7 +2092,7 @@ public class NPCController : MonoBehaviour
 
         StartCoroutine(FinishStandUpGroundingRoutine());
     }
-    
+
     private IEnumerator FinishStandUpGroundingRoutine()
     {
         ReattachAgentToNavmeshAtCurrentXZ();
@@ -1934,9 +2112,9 @@ public class NPCController : MonoBehaviour
         _sitPhase = SitPhase.None;
         _state = NPCState.Patrolling;
 
-        ExecutePendingPostStandAction();
+        bool executedQueuedAction = ExecutePendingPostStandAction();
 
-        if (!_executePendingActionAfterStand)
+        if (!executedQueuedAction)
             EnterState(NPCState.Patrolling);
     }
 
@@ -2137,7 +2315,7 @@ public class NPCController : MonoBehaviour
                     _triggerCoroutine = null;
                 }
 
-                UnregisterAsConversationSpeaker();
+                EndConversationForBoth();
                 _triggerCoroutine = StartCoroutine(TriggerRoutine(triggerParam));
             }))
         {
@@ -2150,7 +2328,7 @@ public class NPCController : MonoBehaviour
             _triggerCoroutine = null;
         }
 
-        UnregisterAsConversationSpeaker();
+        EndConversationForBoth();
         _triggerCoroutine = StartCoroutine(TriggerRoutine(triggerParam));
     }
 
@@ -2161,8 +2339,8 @@ public class NPCController : MonoBehaviour
 
     private bool TryQueueActionAfterStand(Action action)
     {
-        if (_isConversationLocked)
-            BreakConversationLockImmediate();
+        if (IsInConversation())
+            EndConversationForBoth();
 
         if (!IsSeatedOrStandingUp())
             return false;
@@ -2176,19 +2354,20 @@ public class NPCController : MonoBehaviour
         return true;
     }
 
-    private void ExecutePendingPostStandAction()
+    private bool ExecutePendingPostStandAction()
     {
         if (!_executePendingActionAfterStand)
-            return;
-
-        _executePendingActionAfterStand = false;
+            return false;
 
         Action action = _pendingPostStandAction;
+
+        _executePendingActionAfterStand = false;
         _pendingPostStandAction = null;
 
         action?.Invoke();
+        return true;
     }
-    
+
     public void PauseTriggeredAnimation()
     {
         if (animationController == null) return;
@@ -2330,51 +2509,6 @@ public class NPCController : MonoBehaviour
             ForceReturnToLocomotion();
     }
 
-    private void BreakConversationLockImmediate()
-    {
-        UnregisterAsConversationSpeaker();
-
-        foreach (var speaker in _conversationSpeakers)
-        {
-            if (speaker == null) continue;
-            speaker._registeredAsConversationSpeaker = false;
-            speaker._talkTargetController = null;
-
-            if (speaker._state == NPCState.Talk)
-            {
-                speaker._hasCommand = false;
-                speaker._commandGoal = NPCState.Patrolling;
-                speaker.currentTarget = null;
-                speaker.useStateMachine = true;
-
-                if (speaker.AgentReady())
-                {
-                    speaker.agent.isStopped = false;
-                    speaker.agent.ResetPath();
-                }
-
-                if (speaker.animationController != null)
-                    speaker.ForceReturnToLocomotion();
-
-                speaker.EnterState(NPCState.Patrolling);
-            }
-        }
-
-        _conversationSpeakers.Clear();
-        _primaryConversationSpeaker = null;
-        _isConversationLocked = false;
-        useStateMachine = true;
-
-        if (AgentReady())
-        {
-            agent.isStopped = false;
-            agent.ResetPath();
-        }
-
-        if (animationController != null)
-            ForceReturnToLocomotion();
-    }
-    
     AnimatorControllerParameterType? GetAnimatorParameterType(Animator anim, string paramName)
     {
         var ps = anim.parameters;
@@ -2533,6 +2667,101 @@ public class NPCController : MonoBehaviour
 
         float maxStep = faceMaxDegPerSec * Time.deltaTime;
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, maxStep);
+    }
+    
+    // ADD these helper methods anywhere inside NPCController (for example under "Small shared helpers")
+
+    private float GetCommandStoppingDistance()
+    {
+        if (!_hasCommand)
+            return Mathf.Max(arriveDistance, 0.05f);
+
+        switch (_commandGoal)
+        {
+            case NPCState.Talk:
+                // Stop a little inside talk radius so the command feels responsive,
+                // but not so close that the NPC tries to body into the target.
+                return Mathf.Max(arriveDistance, talkRange * 0.8f);
+
+            case NPCState.Attacking:
+                // Your command attack uses talkRange per your test behaviour.
+                return Mathf.Max(arriveDistance, talkRange * 0.8f);
+
+            case NPCState.Sitting:
+                return Mathf.Max(arriveDistance, 0.05f);
+
+            default:
+                return Mathf.Max(arriveDistance, 0.05f);
+        }
+    }
+
+    private void ApplyStoppingDistanceForCurrentMode()
+    {
+        if (agent == null) return;
+
+        if (_state == NPCState.Approaching && _hasCommand)
+        {
+            agent.stoppingDistance = GetCommandStoppingDistance();
+        }
+        else
+        {
+            agent.stoppingDistance = Mathf.Max(arriveDistance, 0.05f);
+        }
+    }
+    
+    private void StartSitCommandFresh()
+    {
+        InterruptAllTransientActions();
+
+        currentTarget = null;
+        _talkTargetController = null;
+        _registeredAsConversationSpeaker = false;
+
+        useStateMachine = true;
+        _hasCommand = true;
+        _commandGoal = NPCState.Sitting;
+
+        _hasLastApproachDest = false;
+        _hasPatrolDestination = false;
+        _hasResumeDestination = false;
+        _resumeDestination = Vector3.zero;
+
+        if (agent != null)
+        {
+            if (!agent.enabled) agent.enabled = true;
+            if (!agent.isOnNavMesh && TryGetNavmeshPoint(transform.position, out Vector3 navPos))
+                agent.Warp(navPos);
+        }
+
+        if (AgentReady())
+        {
+            agent.autoBraking = true;
+            agent.stoppingDistance = Mathf.Max(0.05f, arriveDistance);
+            agent.isStopped = false;
+            agent.ResetPath();
+        }
+
+        _state = NPCState.Sitting;
+        _stateTimer = 0f;
+
+        EnterSitting();
+    }
+
+    private void PushImmediateCommandDestination()
+    {
+        if (!AgentReady()) return;
+        if (!_hasCommand) return;
+        if (currentTarget == null) return;
+
+        Vector3 dest = currentTarget.position;
+
+        _lastApproachDest = dest;
+        _hasLastApproachDest = true;
+        _approachRepathTimer = Mathf.Max(0.05f, approachRepathInterval);
+
+        agent.isStopped = false;
+        agent.ResetPath();
+        agent.SetDestination(dest);
     }
 }
 

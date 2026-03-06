@@ -7,10 +7,17 @@ public class MeNPC : MonoBehaviour
     public List<SkinnedMeshRenderer> npcRendererOutfitOne;
     public List<SkinnedMeshRenderer> npcRendererOutfitTwo;
 
-
+    public NPCController npcController;
+    
+    public string ThisNPCName;
+    
     private void Start()
     {
+        npcController = GetComponent<NPCController>();
         ToggleFirstOutfit(true);
+
+
+        ThisNPCName = npcController.thisNPC.ToString().Replace("_"," ");
     }
 
     public void ToggleFirstOutfit(bool overrideOn = false)

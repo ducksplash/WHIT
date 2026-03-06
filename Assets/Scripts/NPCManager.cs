@@ -31,21 +31,21 @@ public class NPCManager : MonoBehaviour
     }
 }
 
-
-
 public enum NPC
 {
     
     // Storyline Characters
-    EimearScott = 100,
-    KimShae = 101,
-    HollowMan = 102,
-    KieronScott = 103,
-    TomOneill = 104,
-    EllsworthOhanlon = 105,
-    MichaelDevlin = 106,
-    ScientistKlaus = 500,
-    HomelessManOne = 501,
+    Eimear_Scott = 100,
+    Kim_Shae = 101,
+    Hollow = 102,
+    Kieron_Scott = 103,
+    Tom_Oneill = 104,
+    Ellsworth_Ohanlon = 105,
+    Michael_Devlin = 106,
+    
+    
+    Klaus = 500,
+    Mike = 501,
     Shauna = 502,
     Presha = 503,
     Jasmine = 504,

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using UnityEditor.Experimental.GraphView;
 
 public class FirstPersonLook : MonoBehaviour
 {
@@ -78,14 +79,7 @@ public class FirstPersonLook : MonoBehaviour
     private Quaternion _deviceBaseLocalRot;
     private bool _deviceBaseCaptured;
 
-    private void Awake()
-    {
-        if (GameMaster.Instance != null)
-        {
 
-            lookAction = GameMaster.Instance.InputManager.LookAction;
-        }
-    }
 
     private void Start()
     {
@@ -102,10 +96,9 @@ public class FirstPersonLook : MonoBehaviour
         // Phone camera app
         EventManager.OnCameraOpen += PhoneCameraOpen;
         EventManager.OnCameraClosed += PhoneCameraClosed;
-
-        lookAction.action.Enable();
     }
 
+    
     void FixedUpdate()
     {
         if (!bypassGM)

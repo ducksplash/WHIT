@@ -72,7 +72,13 @@ public class DebugCamHUD : MonoBehaviour
     private readonly List<string> _npcEnumLabels = new();
     private bool _npcEnumBuilt = false;
 
-    void Awake()
+
+    private void Awake()
+    {
+        BuildNpcEnumDropdownIfNeeded();
+    }
+
+    void OnEnable()
     {
         if (controlsRoot != null) controlsRoot.SetActive(false);
 
@@ -108,12 +114,12 @@ public class DebugCamHUD : MonoBehaviour
         if (orbitDistanceSlider != null) orbitDistanceSlider.onValueChanged.AddListener(OnOrbitDistanceSliderChanged);
         if (followDistanceSlider != null) followDistanceSlider.onValueChanged.AddListener(OnFollowDistanceSliderChanged);
         
-        
-        BuildNpcEnumDropdownIfNeeded();
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
+        OnClearTargetClicked();
+        
         if (playTriggerButton != null) playTriggerButton.onClick.RemoveListener(OnPlayTriggerClicked);
 
         if (sitButton != null) sitButton.onClick.RemoveListener(OnSitClicked);
@@ -129,8 +135,7 @@ public class DebugCamHUD : MonoBehaviour
         if (toggleOneButton != null) toggleOneButton.onClick.RemoveListener(OnToggleOutfitOneClicked);
         if (toggleTwoButton != null) toggleTwoButton.onClick.RemoveListener(OnToggleOutfitTwoClicked);
 
-        if (targetNpcDropdown != null)
-            targetNpcDropdown.onValueChanged.RemoveListener(OnTargetNpcDropdownChanged);
+        if (targetNpcDropdown != null) targetNpcDropdown.onValueChanged.RemoveListener(OnTargetNpcDropdownChanged);
         
         if (panHorizontalButton != null) panHorizontalButton.onClick.RemoveListener(OnPanHorizontalClicked);
         if (panVerticalButton != null) panVerticalButton.onClick.RemoveListener(OnPanVerticalClicked);
@@ -169,7 +174,7 @@ public class DebugCamHUD : MonoBehaviour
             if (_npc == null)
                 currentTargetText.text = "Current Target: None";
             else
-                currentTargetText.text = $"Current Target: {_npc.thisNPC}";
+                currentTargetText.text = $"Current Target: {_npc.GetComponent<MeNPC>().ThisNPCName}";
         }
 
         if (currentStateText != null)

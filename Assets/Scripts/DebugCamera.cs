@@ -118,6 +118,13 @@ public class DebugCamera : MonoBehaviour
     [SerializeField] private float debugRaySeconds = 1.0f;
     [SerializeField] private bool debugLogs = false;
 
+    [Header("UI Distance Mapping")]
+    [Tooltip("Higher values give more control near the close end of the orbit slider.")]
+    [SerializeField] private float orbitDistanceSliderExponent = 2.2f;
+
+    [Tooltip("Higher values give more control near the close end of the follow slider.")]
+    [SerializeField] private float followDistanceSliderExponent = 2.2f;
+
     private enum CamMode { Fly, Orbit, PanHorizontal, PanVertical, Follow }
     [SerializeField] private CamMode _mode = CamMode.Fly;
 
@@ -156,6 +163,12 @@ public class DebugCamera : MonoBehaviour
 
     private float _defaultOrbitDistance;
     private float _defaultFollowDistance;
+
+    // Cached pan snapshot so pan path does not change if target turns mid-pan
+    private Vector3 _panCenterWorld;
+    private Vector3 _panAxisWorld;
+    private Vector3 _panForwardWorld;
+    private float _panFrontDistanceWorld;
 
     void Awake()
     {
@@ -201,8 +214,6 @@ public class DebugCamera : MonoBehaviour
 
     void OnEnable()
     {
-        if (lookAction != null)
-            lookAction.action.Enable();
 
         if (holdClick != null)
         {
@@ -232,48 +243,32 @@ public class DebugCamera : MonoBehaviour
 
         if (zoomAction != null)
             zoomAction.action.Enable();
-
-        if (flyMoveAction != null)
-            flyMoveAction.action.Enable();
     }
 
     void OnDisable()
     {
-        if (lookAction != null)
-            lookAction.action.Disable();
-
         if (holdClick != null)
         {
             holdClick.action.performed -= OnHoldStart;
             holdClick.action.canceled -= OnHoldEnd;
-            holdClick.action.Disable();
         }
 
         if (flyFastHold != null)
         {
             flyFastHold.action.performed -= OnFlyFastStart;
             flyFastHold.action.canceled -= OnFlyFastEnd;
-            flyFastHold.action.Disable();
         }
 
         if (pickClick != null)
         {
             pickClick.action.performed -= OnPick;
-            pickClick.action.Disable();
         }
 
         if (escapeButton != null)
         {
             escapeButton.action.performed -= OnEscape;
-            escapeButton.action.Disable();
         }
-
-        if (zoomAction != null)
-            zoomAction.action.Disable();
-
-        if (flyMoveAction != null)
-            flyMoveAction.action.Disable();
-
+        
         StopPanInternal();
         SetCaptured(false);
     }
@@ -352,6 +347,49 @@ public class DebugCamera : MonoBehaviour
         return _mode == CamMode.Orbit || _mode == CamMode.Follow;
     }
 
+    private float SliderToDistance(float t, float exponent)
+    {
+        t = Mathf.Clamp01(t);
+        exponent = Mathf.Max(0.01f, exponent);
+
+        float curved = Mathf.Pow(t, exponent);
+        return Mathf.Lerp(minDistance, maxDistance, curved);
+    }
+
+    private float DistanceToSlider(float d, float exponent)
+    {
+        exponent = Mathf.Max(0.01f, exponent);
+
+        float linear = Mathf.InverseLerp(minDistance, maxDistance, d);
+        return Mathf.Pow(Mathf.Clamp01(linear), 1f / exponent);
+    }
+
+    private void CachePanSnapshot(bool horizontal)
+    {
+        if (character == null) return;
+
+        Vector3 center = GetOrbitCenterWorld();
+
+        Vector3 forward = character.forward;
+        forward.y = 0f;
+        if (forward.sqrMagnitude < 0.000001f)
+            forward = transform.forward;
+        forward.Normalize();
+
+        Vector3 right = character.right;
+        right.y = 0f;
+        if (right.sqrMagnitude < 0.000001f)
+            right = Vector3.Cross(Vector3.up, forward);
+        right.Normalize();
+
+        _panCenterWorld = center;
+        _panForwardWorld = forward;
+        _panAxisWorld = horizontal ? right : Vector3.up;
+        _panFrontDistanceWorld = (panFrontDistance > 0.0001f)
+            ? panFrontDistance
+            : Mathf.Clamp(distance, minDistance, maxDistance);
+    }
+
     private void ResetZoomToDefault()
     {
         distance = Mathf.Clamp(_defaultOrbitDistance, minDistance, maxDistance);
@@ -383,7 +421,6 @@ public class DebugCamera : MonoBehaviour
         _flyAngles = new Vector2(yaw, pitch);
         _flyLookApplied = Vector2.zero;
 
-        // NO TARGET = captured cursor
         SetCaptured(true);
 
         transform.rotation = Quaternion.Euler(_flyAngles.y, _flyAngles.x, 0f);
@@ -601,7 +638,6 @@ public class DebugCamera : MonoBehaviour
         _isHoldingRotate = false;
         _appliedDelta = Vector2.zero;
 
-        // TARGET SELECTED = visible cursor
         SetCaptured(false);
 
         if (_mode == CamMode.Follow)
@@ -743,19 +779,13 @@ public class DebugCamera : MonoBehaviour
         if (character == null) return;
         t01 = Mathf.Clamp01(t01);
 
-        Vector3 center = GetOrbitCenterWorld();
-        Transform t = character;
+        Vector3 basePos = _panCenterWorld - (_panForwardWorld * _panFrontDistanceWorld);
 
-        float front = (panFrontDistance > 0.0001f) ? panFrontDistance : Mathf.Clamp(distance, minDistance, maxDistance);
-
-        Vector3 axis = t.right;
-        Vector3 basePos = center - (t.forward * front);
-
-        Vector3 start = basePos + axis * (-panExtent);
-        Vector3 end = basePos + axis * (panExtent);
+        Vector3 start = basePos + _panAxisWorld * (-panExtent);
+        Vector3 end = basePos + _panAxisWorld * (panExtent);
 
         transform.position = Vector3.Lerp(start, end, t01);
-        transform.rotation = Quaternion.LookRotation((center - transform.position).normalized, Vector3.up);
+        transform.rotation = Quaternion.LookRotation((_panCenterWorld - transform.position).normalized, Vector3.up);
     }
 
     public void PanVertical(float t01)
@@ -763,30 +793,26 @@ public class DebugCamera : MonoBehaviour
         if (character == null) return;
         t01 = Mathf.Clamp01(t01);
 
-        Vector3 center = GetOrbitCenterWorld();
-        Transform t = character;
+        Vector3 basePos = _panCenterWorld - (_panForwardWorld * _panFrontDistanceWorld);
 
-        float front = (panFrontDistance > 0.0001f) ? panFrontDistance : Mathf.Clamp(distance, minDistance, maxDistance);
-
-        Vector3 axis = Vector3.up;
-        Vector3 basePos = center - (t.forward * front);
-
-        Vector3 start = basePos + axis * (-panExtent);
-        Vector3 end = basePos + axis * (panExtent);
+        Vector3 start = basePos + _panAxisWorld * (-panExtent);
+        Vector3 end = basePos + _panAxisWorld * (panExtent);
 
         transform.position = Vector3.Lerp(start, end, t01);
-        transform.rotation = Quaternion.LookRotation((center - transform.position).normalized, Vector3.up);
+        transform.rotation = Quaternion.LookRotation((_panCenterWorld - transform.position).normalized, Vector3.up);
     }
 
     public void PlayPanHorizontal()
     {
         if (character == null) return;
+        CachePanSnapshot(true);
         StartPanInternal(CamMode.PanHorizontal);
     }
 
     public void PlayPanVertical()
     {
         if (character == null) return;
+        CachePanSnapshot(false);
         StartPanInternal(CamMode.PanVertical);
     }
 
@@ -1023,25 +1049,24 @@ public class DebugCamera : MonoBehaviour
 
     public void UI_SetOrbitDistanceNormalized(float t)
     {
-        distance = Mathf.Lerp(minDistance, maxDistance, Mathf.Clamp01(t));
+        distance = SliderToDistance(t, orbitDistanceSliderExponent);
     }
 
     public void UI_SetFollowDistanceNormalized(float t)
     {
-        followDistance = Mathf.Lerp(minDistance, maxDistance, Mathf.Clamp01(t));
+        followDistance = SliderToDistance(t, followDistanceSliderExponent);
     }
 
     public float UI_GetOrbitDistanceNormalized()
     {
-        return Mathf.InverseLerp(minDistance, maxDistance, distance);
+        return DistanceToSlider(distance, orbitDistanceSliderExponent);
     }
 
     public float UI_GetFollowDistanceNormalized()
     {
-        return Mathf.InverseLerp(minDistance, maxDistance, followDistance);
+        return DistanceToSlider(followDistance, followDistanceSliderExponent);
     }
-    
-    
+
     public Transform GetTarget() => character;
     public bool IsPanning => _panCo != null;
     public bool FollowEnabled => followEnabled;

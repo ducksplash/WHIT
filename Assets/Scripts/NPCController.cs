@@ -26,7 +26,7 @@ public class NPCController : MonoBehaviour
     }
 
     [Header("Identity")]
-    public NPC thisNPC = NPC.EimearScott;
+    public NPC thisNPC = NPC.Eimear_Scott;
 
     [Header("AI State Machine")]
     [Tooltip("If true, the NPC runs the FSM.")]
@@ -43,7 +43,7 @@ public class NPCController : MonoBehaviour
     public bool allowApproachOutsideActiveRadius = false;
 
     [Tooltip("TESTING: Pick a target NPC by enum (uses NPCManager list).")]
-    public NPC debugTargetNPC = NPC.EimearScott;
+    public NPC debugTargetNPC = NPC.Eimear_Scott;
 
     [Header("Perception")]
     [Tooltip("How far the NPC can spot a target.")]
@@ -242,6 +242,9 @@ public class NPCController : MonoBehaviour
 
     public MeNPC npcMetaActions;
 
+    private Action _pendingPostStandAction;
+    private bool _executePendingActionAfterStand = false;
+    
     float _renegotiateT;
     float _renegotiateCooldownT;
     Coroutine _sidestepCoroutine;
@@ -477,7 +480,7 @@ public class NPCController : MonoBehaviour
     private void InterruptAllTransientActions(bool returnToLocomotion = true)
     {
         UnregisterAsConversationSpeaker();
-
+        
         if (_triggerCoroutine != null)
         {
             StopCoroutine(_triggerCoroutine);
@@ -518,9 +521,12 @@ public class NPCController : MonoBehaviour
                 agent.ResetPath();
             }
         }
-
+        ResetLocomotionState();
+        
         if (returnToLocomotion && animationController != null)
+        {
             ForceReturnToLocomotion();
+        }
     }
 
     // =========================================================
@@ -547,6 +553,22 @@ public class NPCController : MonoBehaviour
 
     public void DebugApproachTargetNPC()
     {
+        if (TryQueueActionAfterStand(() =>
+            {
+                InterruptAllTransientActions();
+
+                useStateMachine = true;
+                _hasCommand = false;
+                _commandGoal = NPCState.Patrolling;
+
+                SetTargetByNPC(debugTargetNPC);
+                if (currentTarget != null)
+                    EnterState(NPCState.Approaching);
+            }))
+        {
+            return;
+        }
+
         InterruptAllTransientActions();
 
         useStateMachine = true;
@@ -560,6 +582,25 @@ public class NPCController : MonoBehaviour
 
     public void DebugAttackTargetNPC()
     {
+        if (TryQueueActionAfterStand(() =>
+            {
+                InterruptAllTransientActions();
+
+                useStateMachine = true;
+
+                SetTargetByNPC(debugTargetNPC);
+                if (currentTarget == null) return;
+
+                _hasCommand = true;
+                _commandGoal = NPCState.Attacking;
+
+                float d = Vector3.Distance(transform.position, currentTarget.position);
+                EnterState(d <= talkRange ? NPCState.Attacking : NPCState.Approaching);
+            }))
+        {
+            return;
+        }
+
         InterruptAllTransientActions();
 
         useStateMachine = true;
@@ -576,6 +617,25 @@ public class NPCController : MonoBehaviour
 
     public void DebugTalkTargetNPC()
     {
+        if (TryQueueActionAfterStand(() =>
+            {
+                InterruptAllTransientActions();
+
+                useStateMachine = true;
+
+                SetTargetByNPC(debugTargetNPC);
+                if (currentTarget == null) return;
+
+                _hasCommand = true;
+                _commandGoal = NPCState.Talk;
+
+                float d = Vector3.Distance(transform.position, currentTarget.position);
+                EnterState(d <= talkRange ? NPCState.Talk : NPCState.Approaching);
+            }))
+        {
+            return;
+        }
+
         InterruptAllTransientActions();
 
         useStateMachine = true;
@@ -775,6 +835,8 @@ public class NPCController : MonoBehaviour
 
         currentTarget = null;
         _hasCommand = false;
+        _hasResumeDestination = false;
+        _resumeDestination = Vector3.zero;
         _commandGoal = NPCState.Patrolling;
     }
 
@@ -799,25 +861,42 @@ public class NPCController : MonoBehaviour
                 desiredDir = to.normalized;
             else
             {
-                Vector3 dv = agent.desiredVelocity; dv.y = 0f;
+                Vector3 dv = agent.desiredVelocity;
+                dv.y = 0f;
                 desiredDir = (dv.sqrMagnitude > 0.0001f) ? dv.normalized : transform.forward;
             }
 
-            Vector3 v = agent.velocity; v.y = 0f;
-            Vector3 dv2 = agent.desiredVelocity; dv2.y = 0f;
+            Vector3 v = agent.velocity;
+            v.y = 0f;
+
+            Vector3 dv2 = agent.desiredVelocity;
+            dv2.y = 0f;
 
             float speed = v.magnitude;
             if (agent.pathPending || (speed < 0.05f && dv2.magnitude > 0.05f))
                 speed = dv2.magnitude;
 
+            float speed01 = Mathf.Clamp01(speed / Mathf.Max(0.01f, moveSpeed));
             float signedAngle = Vector3.SignedAngle(transform.forward, desiredDir, Vector3.up);
 
-            movingX = Mathf.Clamp(signedAngle / Mathf.Max(1f, turnAngleForFullX), -1f, 1f);
-            movingY = Mathf.Clamp01(speed / Mathf.Max(0.01f, moveSpeed));
-            blend = Mathf.Clamp01(speed / Mathf.Max(0.01f, moveSpeed));
+            // Dead zone tiny steering corrections so they don't look like a limp.
+            const float turnDeadZone = 8f;
+            if (Mathf.Abs(signedAngle) < turnDeadZone)
+                signedAngle = 0f;
+
+            // Reduce turn contribution while actually walking forward.
+            // Full turn-in-place at low speed, much less while moving.
+            float turnWeight = (speed < turnInPlaceSpeedThreshold) ? 1f : 0.35f;
+
+            movingX = Mathf.Clamp((signedAngle / Mathf.Max(1f, turnAngleForFullX)) * turnWeight, -1f, 1f);
+            movingY = speed01;
+            blend = speed01;
+
+            // Optional cleanup: if moving forward strongly, suppress tiny x drift entirely.
+            if (speed01 > 0.35f && Mathf.Abs(movingX) < 0.2f)
+                movingX = 0f;
 
             float turnRate = (speed < turnInPlaceSpeedThreshold) ? turnInPlaceSpeed : turnWhileMovingSpeed;
-
             Quaternion targetRot = Quaternion.LookRotation(desiredDir, Vector3.up);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, turnRate * Time.deltaTime);
         }
@@ -827,28 +906,55 @@ public class NPCController : MonoBehaviour
         animationController.SetFloat(paramBlend, blend, animDampTime, Time.deltaTime);
     }
 
+    private void ResetLocomotionState()
+    {
+        _animVelocitySmoothed = Vector3.zero;
+        _hasLastApproachDest = false;
+        _hasResumeDestination = false;
+
+        if (animationController != null)
+        {
+            animationController.SetFloat(paramMovingX, 0f);
+            animationController.SetFloat(paramMovingY, 0f);
+            animationController.SetFloat(paramBlend, 0f);
+        }
+    }
+    
     public void ForcePatrol()
     {
+        if (TryQueueActionAfterStand(() =>
+            {
+                InterruptAllTransientActions();
+
+                if (animationController != null) animationController.speed = 1f;
+
+                useStateMachine = true;
+                _hasCommand = false;
+                _commandGoal = NPCState.Patrolling;
+
+                if (agent != null && agent.isActiveAndEnabled)
+                {
+                    if (!agent.enabled) agent.enabled = true;
+                    if (!agent.isOnNavMesh && TryGetNavmeshPoint(transform.position, out Vector3 navPos))
+                        agent.Warp(navPos);
+                }
+
+                _hasResumeDestination = false;
+                _resumeDestination = Vector3.zero;
+
+                ResetLocomotionState();
+                ForceReturnToLocomotion();
+                EnterState(NPCState.Patrolling);
+            }))
+        {
+            return;
+        }
+
         InterruptAllTransientActions();
 
         if (animationController != null) animationController.speed = 1f;
 
         useStateMachine = true;
-
-        if (_state == NPCState.Sitting)
-        {
-            _sitPhase = SitPhase.None;
-            _hasCommand = false;
-            _commandGoal = NPCState.Patrolling;
-
-            ForceReturnToLocomotion();
-            ReattachAgentToNavmeshAtCurrentXZ();
-            ReleaseSeatIfAny();
-
-            EnterState(NPCState.Patrolling);
-            return;
-        }
-
         _hasCommand = false;
         _commandGoal = NPCState.Patrolling;
 
@@ -859,10 +965,13 @@ public class NPCController : MonoBehaviour
                 agent.Warp(navPos);
         }
 
+        _hasResumeDestination = false;
+        _resumeDestination = Vector3.zero;
+
+        ResetLocomotionState();
         ForceReturnToLocomotion();
         EnterState(NPCState.Patrolling);
     }
-
     // =========================================================
     // Sitting public API
     // =========================================================
@@ -1794,9 +1903,8 @@ public class NPCController : MonoBehaviour
         {
             animationController.speed = 1f;
             ForceReturnToLocomotion();
+            animationController.Update(0f);
         }
-
-        ReattachAgentToNavmeshAtCurrentXZ();
 
         ReleaseSeatIfAny();
 
@@ -1804,7 +1912,32 @@ public class NPCController : MonoBehaviour
         _commandGoal = NPCState.Patrolling;
         _sitPhase = SitPhase.None;
 
-        EnterState(NPCState.Patrolling);
+        StartCoroutine(FinishStandUpGroundingRoutine());
+    }
+    
+    private IEnumerator FinishStandUpGroundingRoutine()
+    {
+        ReattachAgentToNavmeshAtCurrentXZ();
+
+        yield return null;
+
+        ReattachAgentToNavmeshAtCurrentXZ();
+
+        if (animationController != null)
+        {
+            animationController.Update(0f);
+            ForceIdlePose();
+        }
+
+        _hasCommand = false;
+        _commandGoal = NPCState.Patrolling;
+        _sitPhase = SitPhase.None;
+        _state = NPCState.Patrolling;
+
+        ExecutePendingPostStandAction();
+
+        if (!_executePendingActionAfterStand)
+            EnterState(NPCState.Patrolling);
     }
 
     private void FailSittingAndReturnToPatrol()
@@ -1996,6 +2129,21 @@ public class NPCController : MonoBehaviour
             return;
         }
 
+        if (TryQueueActionAfterStand(() =>
+            {
+                if (_triggerCoroutine != null)
+                {
+                    StopCoroutine(_triggerCoroutine);
+                    _triggerCoroutine = null;
+                }
+
+                UnregisterAsConversationSpeaker();
+                _triggerCoroutine = StartCoroutine(TriggerRoutine(triggerParam));
+            }))
+        {
+            return;
+        }
+
         if (_triggerCoroutine != null)
         {
             StopCoroutine(_triggerCoroutine);
@@ -2006,6 +2154,38 @@ public class NPCController : MonoBehaviour
         _triggerCoroutine = StartCoroutine(TriggerRoutine(triggerParam));
     }
 
+    private bool IsSeatedOrStandingUp()
+    {
+        return _state == NPCState.Sitting && _sitPhase != SitPhase.None;
+    }
+
+    private bool TryQueueActionAfterStand(Action action)
+    {
+        if (!IsSeatedOrStandingUp())
+            return false;
+
+        _pendingPostStandAction = action;
+        _executePendingActionAfterStand = true;
+
+        if (_sitPhase != SitPhase.StandUpPlaying)
+            BeginStandUp();
+
+        return true;
+    }
+
+    private void ExecutePendingPostStandAction()
+    {
+        if (!_executePendingActionAfterStand)
+            return;
+
+        _executePendingActionAfterStand = false;
+
+        Action action = _pendingPostStandAction;
+        _pendingPostStandAction = null;
+
+        action?.Invoke();
+    }
+    
     public void PauseTriggeredAnimation()
     {
         if (animationController == null) return;

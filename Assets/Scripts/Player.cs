@@ -259,8 +259,14 @@ public class Player : Singleton<Player>
 
         if (CurrentCamera == DebugCam) DebugCam.gameObject.SetActive(true);
         
+        if (CurrentCamera == MainCam)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        
+        
         EventManager.DebugCamEnabled(CurrentCamera == DebugCam);
-        GameMaster.Instance.PauseManager.IsPaused = CurrentCamera == DebugCam;
         
         CurrentCamera.enabled = true;
     }

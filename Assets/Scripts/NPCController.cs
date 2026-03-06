@@ -2161,6 +2161,9 @@ public class NPCController : MonoBehaviour
 
     private bool TryQueueActionAfterStand(Action action)
     {
+        if (_isConversationLocked)
+            BreakConversationLockImmediate();
+
         if (!IsSeatedOrStandingUp())
             return false;
 
@@ -2327,6 +2330,51 @@ public class NPCController : MonoBehaviour
             ForceReturnToLocomotion();
     }
 
+    private void BreakConversationLockImmediate()
+    {
+        UnregisterAsConversationSpeaker();
+
+        foreach (var speaker in _conversationSpeakers)
+        {
+            if (speaker == null) continue;
+            speaker._registeredAsConversationSpeaker = false;
+            speaker._talkTargetController = null;
+
+            if (speaker._state == NPCState.Talk)
+            {
+                speaker._hasCommand = false;
+                speaker._commandGoal = NPCState.Patrolling;
+                speaker.currentTarget = null;
+                speaker.useStateMachine = true;
+
+                if (speaker.AgentReady())
+                {
+                    speaker.agent.isStopped = false;
+                    speaker.agent.ResetPath();
+                }
+
+                if (speaker.animationController != null)
+                    speaker.ForceReturnToLocomotion();
+
+                speaker.EnterState(NPCState.Patrolling);
+            }
+        }
+
+        _conversationSpeakers.Clear();
+        _primaryConversationSpeaker = null;
+        _isConversationLocked = false;
+        useStateMachine = true;
+
+        if (AgentReady())
+        {
+            agent.isStopped = false;
+            agent.ResetPath();
+        }
+
+        if (animationController != null)
+            ForceReturnToLocomotion();
+    }
+    
     AnimatorControllerParameterType? GetAnimatorParameterType(Animator anim, string paramName)
     {
         var ps = anim.parameters;

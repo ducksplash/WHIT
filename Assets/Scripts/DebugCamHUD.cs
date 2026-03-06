@@ -18,6 +18,15 @@ public class DebugCamHUD : MonoBehaviour
     [Tooltip("Parent object that contains the controls. Hidden when no valid NPCController target.")]
     [SerializeField] private GameObject controlsRoot;
 
+    [Header("Camera UI")]
+    [SerializeField] private Button panHorizontalButton;
+    [SerializeField] private Button panVerticalButton;
+    [SerializeField] private Button stopPanButton;
+    [SerializeField] private Toggle followToggle;
+    [SerializeField] private Button resetZoomButton;
+    [SerializeField] private Slider orbitDistanceSlider;
+    [SerializeField] private Slider followDistanceSlider;
+    
     // ---------------------------------------------------------
     // Trigger UI
     // ---------------------------------------------------------
@@ -89,6 +98,17 @@ public class DebugCamHUD : MonoBehaviour
         if (toggleOneButton != null) toggleOneButton.onClick.AddListener(OnToggleOutfitOneClicked);
         if (toggleTwoButton != null) toggleTwoButton.onClick.AddListener(OnToggleOutfitTwoClicked);
 
+        // Camera UI
+        if (panHorizontalButton != null) panHorizontalButton.onClick.AddListener(OnPanHorizontalClicked);
+        if (panVerticalButton != null) panVerticalButton.onClick.AddListener(OnPanVerticalClicked);
+        if (stopPanButton != null) stopPanButton.onClick.AddListener(OnStopPanClicked);
+        if (resetZoomButton != null) resetZoomButton.onClick.AddListener(OnResetZoomClicked);
+
+        if (followToggle != null) followToggle.onValueChanged.AddListener(OnFollowToggleChanged);
+        if (orbitDistanceSlider != null) orbitDistanceSlider.onValueChanged.AddListener(OnOrbitDistanceSliderChanged);
+        if (followDistanceSlider != null) followDistanceSlider.onValueChanged.AddListener(OnFollowDistanceSliderChanged);
+        
+        
         BuildNpcEnumDropdownIfNeeded();
     }
 
@@ -111,6 +131,15 @@ public class DebugCamHUD : MonoBehaviour
 
         if (targetNpcDropdown != null)
             targetNpcDropdown.onValueChanged.RemoveListener(OnTargetNpcDropdownChanged);
+        
+        if (panHorizontalButton != null) panHorizontalButton.onClick.RemoveListener(OnPanHorizontalClicked);
+        if (panVerticalButton != null) panVerticalButton.onClick.RemoveListener(OnPanVerticalClicked);
+        if (stopPanButton != null) stopPanButton.onClick.RemoveListener(OnStopPanClicked);
+        if (resetZoomButton != null) resetZoomButton.onClick.RemoveListener(OnResetZoomClicked);
+
+        if (followToggle != null) followToggle.onValueChanged.RemoveListener(OnFollowToggleChanged);
+        if (orbitDistanceSlider != null) orbitDistanceSlider.onValueChanged.RemoveListener(OnOrbitDistanceSliderChanged);
+        if (followDistanceSlider != null) followDistanceSlider.onValueChanged.RemoveListener(OnFollowDistanceSliderChanged);
     }
 
     void Update()
@@ -154,6 +183,7 @@ public class DebugCamHUD : MonoBehaviour
         if (!hasNpc)
         {
             SetAllControlsInteractable(false);
+            RefreshCameraUI();
             return;
         }
 
@@ -176,9 +206,56 @@ public class DebugCamHUD : MonoBehaviour
 
         if (triggerDropdown != null) triggerDropdown.interactable = on;
         if (targetNpcDropdown != null) targetNpcDropdown.interactable = on;
+        
+        RefreshCameraUI();
     }
 
+    private void OnPanHorizontalClicked()
+    {
+        if (orbitCam == null) return;
+        orbitCam.UI_PlayPanHorizontal();
+        RefreshCameraUI();
+    }
 
+    private void OnPanVerticalClicked()
+    {
+        if (orbitCam == null) return;
+        orbitCam.UI_PlayPanVertical();
+        RefreshCameraUI();
+    }
+
+    private void OnStopPanClicked()
+    {
+        if (orbitCam == null) return;
+        orbitCam.UI_StopPan();
+        RefreshCameraUI();
+    }
+
+    private void OnFollowToggleChanged(bool on)
+    {
+        if (orbitCam == null) return;
+        orbitCam.UI_SetFollowEnabled(on);
+        RefreshCameraUI();
+    }
+
+    private void OnResetZoomClicked()
+    {
+        if (orbitCam == null) return;
+        orbitCam.UI_ResetZoom();
+        RefreshCameraUI();
+    }
+
+    private void OnOrbitDistanceSliderChanged(float value)
+    {
+        if (orbitCam == null) return;
+        orbitCam.UI_SetOrbitDistanceNormalized(value);
+    }
+
+    private void OnFollowDistanceSliderChanged(float value)
+    {
+        if (orbitCam == null) return;
+        orbitCam.UI_SetFollowDistanceNormalized(value);
+    }
 
     void OnXClicked()
     {
@@ -188,7 +265,25 @@ public class DebugCamHUD : MonoBehaviour
         RefreshForTarget(null);
     }
     
-    
+    private void RefreshCameraUI()
+    {
+        if (orbitCam == null) return;
+
+        bool hasTarget = orbitCam.GetTarget() != null;
+
+        if (followToggle != null)
+            followToggle.SetIsOnWithoutNotify(hasTarget && orbitCam.FollowEnabled);
+
+        if (orbitDistanceSlider != null)
+            orbitDistanceSlider.SetValueWithoutNotify(orbitCam.UI_GetOrbitDistanceNormalized());
+
+        if (followDistanceSlider != null)
+            followDistanceSlider.SetValueWithoutNotify(orbitCam.UI_GetFollowDistanceNormalized());
+
+        if (panHorizontalButton != null) panHorizontalButton.interactable = hasTarget;
+        if (panVerticalButton != null) panVerticalButton.interactable = hasTarget;
+        if (followToggle != null) followToggle.interactable = hasTarget;
+    }
     
     // =========================================================
     // Trigger UI

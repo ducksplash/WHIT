@@ -197,9 +197,7 @@ public class Player : Singleton<Player>
 
         SpawnPoint = transform.position;
         speed = sprintspeed;
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        
 
         if (Noranimator == null)
             Noranimator = GetComponentInChildren<Animator>(true);
@@ -253,11 +251,14 @@ public class Player : Singleton<Player>
     public void ToggleDebugCamera(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
         DebugCam.enabled = false;
+        DebugCam.gameObject.SetActive(false);
         MainCam.enabled = false;
 
         
         CurrentCamera = (CurrentCamera == MainCam) ? DebugCam : MainCam;
 
+        if (CurrentCamera == DebugCam) DebugCam.gameObject.SetActive(true);
+        
         EventManager.DebugCamEnabled(CurrentCamera == DebugCam);
         GameMaster.Instance.PauseManager.IsPaused = CurrentCamera == DebugCam;
         

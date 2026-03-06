@@ -15,13 +15,13 @@ public class DebugCamera : MonoBehaviour
     [SerializeField] private InputActionReference lookAction;
 
     [Header("Inputs")]
-    [Tooltip("Hold this to lock cursor + rotate (eg: Right Mouse Button). Only works in Orbit mode.")]
+    [Tooltip("Hold this to rotate while a target is selected.")]
     [SerializeField] private InputActionReference holdClick;
 
-    [Tooltip("Click this (while NOT holding) to pick a new target (eg: Left Mouse Button).")]
+    [Tooltip("Click this to pick a new target. Only works in Fly mode.")]
     [SerializeField] private InputActionReference pickClick;
 
-    [Tooltip("Press this to abandon Target and re-enter free cam")]
+    [Tooltip("Press this to abandon target and re-enter free cam.")]
     [SerializeField] private InputActionReference escapeButton;
 
     [Header("Fly Cam Inputs")]
@@ -30,23 +30,23 @@ public class DebugCamera : MonoBehaviour
 
     [Header("Fly Cam Tuning")]
     [SerializeField] private float flyMoveSpeed = 6f;
-    [SerializeField] private float flyLookSensitivity = 0.08f; // degrees per mouse unit (tune to taste)
+    [SerializeField] private float flyLookSensitivity = 0.08f;
     [SerializeField] private float flyLookSmoothing = 6f;
-    [SerializeField] private bool flyKeepLevelMovement = true; // movement stays on ground plane
+    [SerializeField] private bool flyKeepLevelMovement = true;
 
     [Header("Fly Cam Speed Modifier")]
-    [SerializeField] private InputActionReference flyFastHold; // eg: Left Shift (Button)
+    [SerializeField] private InputActionReference flyFastHold;
     [SerializeField] private float flyFastMultiplier = 3f;
 
     private NavMeshAgent _agent;
-    
     private bool _flyFastHeld;
-    
+
     [Header("Target Picking")]
     [SerializeField] private string targetLayerName = "CameraTarget";
     [SerializeField] private float pickDistance = 500f;
 
     public enum PickFrom { MousePosition, ScreenCenter, CameraForward }
+
     [Tooltip("MousePosition = ray from cursor. ScreenCenter = ray where camera is looking. CameraForward = ray from transform.forward.")]
     [SerializeField] private PickFrom pickFrom = PickFrom.MousePosition;
 
@@ -60,7 +60,7 @@ public class DebugCamera : MonoBehaviour
     [Tooltip("Fallback center offset if we can't find a collider center.")]
     public Vector3 centerOffsetFallback = new Vector3(0f, 1.6f, 0f);
 
-    [Tooltip("If true, when setting/retargeting we will orbit around collider bounds center (recommended).")]
+    [Tooltip("If true, when setting/retargeting we will orbit around collider bounds center.")]
     [SerializeField] private bool orbitAroundColliderCenter = true;
 
     [Header("Orbit")]
@@ -77,43 +77,28 @@ public class DebugCamera : MonoBehaviour
     [SerializeField] private float pitchClampMax = 60f;
 
     [Header("Pan (Test / Cinematic)")]
-    [Tooltip("Pan takes this many seconds from start to end.")]
     [SerializeField] private float panDurationSeconds = 3f;
-
-    [Tooltip("Pan goes from -extent to +extent along the chosen axis.")]
     [SerializeField] private float panExtent = 10f;
-
-    [Tooltip("While panning, camera stays this far in FRONT of target (positive means in front). If 0, uses current orbit distance.")]
     [SerializeField] private float panFrontDistance = 0f;
 
-    [Tooltip("Scrub time for pan preview/testing (0..1).")]
     [Range(0f, 1f)]
     [SerializeField] private float panTime01 = 0f;
 
     [Header("FollowCam")]
     [SerializeField] private bool followEnabled = false;
-
-    [Tooltip("Distance behind target (in movement direction).")]
     [SerializeField] private float followDistance = 4f;
-
-    [Tooltip("Height above target center.")]
     [SerializeField] private float followHeight = 1.5f;
-
-    [Tooltip("Optional sideways offset relative to movement direction.")]
     [SerializeField] private float followSideOffset = 0f;
-
-    [Tooltip("Minimum planar speed to consider the target 'moving'.")]
     [SerializeField] private float followMinMoveSpeed = 0.05f;
 
     [Header("Follow Laziness")]
-    [Tooltip("How long (seconds) to smooth the movement direction (bigger = less jitter, lazier turns).")]
     [SerializeField] private float followDirSmoothTime = 0.25f;
 
     [Header("Zoom (Orbit + Follow)")]
-    [SerializeField] private InputActionReference zoomAction; // typically Mouse Scroll (Vector2)
-    [SerializeField] private float zoomSpeed = 0.25f;         // how strong scroll is
-    [SerializeField] private bool zoomAffectsFOV = false;     // if true, also drives ZoomNaura
-    [SerializeField] private ZoomNaura zoomNaura;             // optional reference
+    [SerializeField] private InputActionReference zoomAction;
+    [SerializeField] private float zoomSpeed = 0.25f;
+    [SerializeField] private bool zoomAffectsFOV = false;
+    [SerializeField] private ZoomNaura zoomNaura;
 
     [Tooltip("How long (seconds) for position to catch up (bigger = lazier position).")]
     [SerializeField] private float followPosSmoothTime = 0.20f;
@@ -125,10 +110,7 @@ public class DebugCamera : MonoBehaviour
     [SerializeField] private float followMaxPosSpeed = 0f;
 
     [Header("Keep Level (No Tilt)")]
-    [Tooltip("If true, follow camera rotation is Y-only (no pitch/roll).")]
     [SerializeField] private bool followKeepLevel = true;
-
-    [Tooltip("If true, orbit camera also stays level (no pitch/roll).")]
     [SerializeField] private bool orbitKeepLevel = false;
 
     [Header("Debug")]
@@ -136,60 +118,44 @@ public class DebugCamera : MonoBehaviour
     [SerializeField] private float debugRaySeconds = 1.0f;
     [SerializeField] private bool debugLogs = false;
 
-    // -----------------------
-    // Runtime
-    // -----------------------
-
     private enum CamMode { Fly, Orbit, PanHorizontal, PanVertical, Follow }
     [SerializeField] private CamMode _mode = CamMode.Fly;
 
     private bool _isHoldingRotate;
-    private Vector2 _orbitAngles;   // x=yaw, y=pitch
+    private Vector2 _orbitAngles;
     private Vector2 _appliedDelta;
 
     private Camera _cam;
     private int _targetLayer;
     private int _targetLayerMask;
 
-    // Orbit center expressed in LOCAL space of `character`
     private Vector3 _centerOffsetLocal;
-
-    // Live center collider (so center updates if collider is on animated/moving child)
     private Collider _centerCollider;
 
-    // Pan state
     private Coroutine _panCo;
 
-    // Saved orbit view to restore after pan / follow
     private Vector2 _savedOrbitAngles;
     private float _savedOrbitDistance;
     private Vector3 _savedCenterOffsetLocal;
 
-    // Follow toggle watcher
     private bool _prevFollowEnabled;
 
-    // Movement-direction tracking
     private Vector3 _prevCenter;
     private Vector3 _lastMoveDir = Vector3.forward;
     private Rigidbody _rb;
     private CharacterController _cc;
 
-    // Smoothed direction state (filters jitter)
     private Vector3 _smoothedMoveDir = Vector3.forward;
-    private Vector3 _smoothedMoveDirVel; // SmoothDamp ref
+    private Vector3 _smoothedMoveDirVel;
 
-    // Smooth position + yaw
-    private Vector3 _followPosVel;       // SmoothDamp ref
-    private float _followYawVel;         // SmoothDampAngle ref
+    private Vector3 _followPosVel;
+    private float _followYawVel;
 
-    // Fly cam state
-    private Vector2 _flyAngles;          // x=yaw, y=pitch
-    private Vector2 _flyLookApplied;     // smoothing
-    private bool _flyCaptured = true;
+    private Vector2 _flyAngles;
+    private Vector2 _flyLookApplied;
 
-    // -----------------------
-    // Unity
-    // -----------------------
+    private float _defaultOrbitDistance;
+    private float _defaultFollowDistance;
 
     void Awake()
     {
@@ -210,14 +176,14 @@ public class DebugCamera : MonoBehaviour
         RefreshCenterOffsetLocal(null);
 
         _prevFollowEnabled = followEnabled;
+        _defaultOrbitDistance = distance;
+        _defaultFollowDistance = followDistance;
 
-        // Start in Fly if no character
         if (character == null)
             EnterFlyMode();
         else
             EnterTargetModeAfterSet(character);
     }
-
 
     private void Start()
     {
@@ -235,13 +201,18 @@ public class DebugCamera : MonoBehaviour
 
     void OnEnable()
     {
-        if (lookAction != null) lookAction.action.Enable();
+        if (lookAction != null)
+            lookAction.action.Enable();
 
         if (holdClick != null)
         {
             holdClick.action.Enable();
             holdClick.action.performed += OnHoldStart;
-            holdClick.action.canceled += OnHoldEnd;    
+            holdClick.action.canceled += OnHoldEnd;
+        }
+
+        if (flyFastHold != null)
+        {
             flyFastHold.action.Enable();
             flyFastHold.action.performed += OnFlyFastStart;
             flyFastHold.action.canceled += OnFlyFastEnd;
@@ -259,23 +230,30 @@ public class DebugCamera : MonoBehaviour
             escapeButton.action.performed += OnEscape;
         }
 
-        if (zoomAction != null) zoomAction.action.Enable();
+        if (zoomAction != null)
+            zoomAction.action.Enable();
 
-        if (flyMoveAction != null) flyMoveAction.action.Enable();
+        if (flyMoveAction != null)
+            flyMoveAction.action.Enable();
     }
 
     void OnDisable()
     {
-        if (lookAction != null) lookAction.action.Disable();
+        if (lookAction != null)
+            lookAction.action.Disable();
 
         if (holdClick != null)
-        {   
-            flyFastHold.action.performed -= OnFlyFastStart;
-            flyFastHold.action.canceled -= OnFlyFastEnd;
-            flyFastHold.action.Disable();
+        {
             holdClick.action.performed -= OnHoldStart;
             holdClick.action.canceled -= OnHoldEnd;
             holdClick.action.Disable();
+        }
+
+        if (flyFastHold != null)
+        {
+            flyFastHold.action.performed -= OnFlyFastStart;
+            flyFastHold.action.canceled -= OnFlyFastEnd;
+            flyFastHold.action.Disable();
         }
 
         if (pickClick != null)
@@ -290,8 +268,11 @@ public class DebugCamera : MonoBehaviour
             escapeButton.action.Disable();
         }
 
-        if (zoomAction != null) zoomAction.action.Disable();
-        if (flyMoveAction != null) flyMoveAction.action.Disable();
+        if (zoomAction != null)
+            zoomAction.action.Disable();
+
+        if (flyMoveAction != null)
+            flyMoveAction.action.Disable();
 
         StopPanInternal();
         SetCaptured(false);
@@ -306,7 +287,7 @@ public class DebugCamera : MonoBehaviour
     {
         _flyFastHeld = false;
     }
-    
+
     void Update()
     {
         if (character == null && _mode != CamMode.Fly)
@@ -327,7 +308,6 @@ public class DebugCamera : MonoBehaviour
             return;
         }
 
-        // In target modes, only orbit-rotate while holding.
         if (_mode != CamMode.Orbit) return;
         if (!_isHoldingRotate) return;
         if (lookAction == null || character == null) return;
@@ -341,12 +321,12 @@ public class DebugCamera : MonoBehaviour
         _orbitAngles += _appliedDelta;
         _orbitAngles.y = Mathf.Clamp(_orbitAngles.y, pitchClampMin, pitchClampMax);
     }
+
     void LateUpdate()
     {
         switch (_mode)
         {
             case CamMode.Fly:
-                // Fly already applied in Update
                 break;
 
             case CamMode.Orbit:
@@ -367,13 +347,24 @@ public class DebugCamera : MonoBehaviour
         }
     }
 
-    // -----------------------
-    // Fly Cam
-    // -----------------------
+    private bool IsTargetCameraMode()
+    {
+        return _mode == CamMode.Orbit || _mode == CamMode.Follow;
+    }
+
+    private void ResetZoomToDefault()
+    {
+        distance = Mathf.Clamp(_defaultOrbitDistance, minDistance, maxDistance);
+        followDistance = Mathf.Clamp(_defaultFollowDistance, minDistance, maxDistance);
+
+        if (zoomNaura != null)
+            zoomNaura.ResetZoomImmediate();
+    }
 
     void EnterFlyMode()
     {
         StopPanInternal();
+        ResetZoomToDefault();
 
         character = null;
         _centerCollider = null;
@@ -383,23 +374,18 @@ public class DebugCamera : MonoBehaviour
 
         _mode = CamMode.Fly;
 
-        // ✅ Robust: seed from current forward (not euler x/y directly)
-        Vector3 fwd = transform.forward;
-        fwd.Normalize();
+        Vector3 fwd = transform.forward.normalized;
 
         float yaw = Mathf.Atan2(fwd.x, fwd.z) * Mathf.Rad2Deg;
         float pitch = -Mathf.Asin(Mathf.Clamp(fwd.y, -1f, 1f)) * Mathf.Rad2Deg;
-
         pitch = Mathf.Clamp(pitch, pitchClampMin, pitchClampMax);
 
         _flyAngles = new Vector2(yaw, pitch);
         _flyLookApplied = Vector2.zero;
 
-        // ✅ In Fly mode: cursor should be visible by default (so you can click to pick)
-        _flyCaptured = false;
-        SetCaptured(false);
+        // NO TARGET = captured cursor
+        SetCaptured(true);
 
-        // Apply rotation immediately so it doesn't "snap" next frame
         transform.rotation = Quaternion.Euler(_flyAngles.y, _flyAngles.x, 0f);
     }
 
@@ -415,7 +401,6 @@ public class DebugCamera : MonoBehaviour
 
         _flyAngles.x += _flyLookApplied.x;
         _flyAngles.y -= _flyLookApplied.y;
-
         _flyAngles.y = Mathf.Clamp(_flyAngles.y, pitchClampMin, pitchClampMax);
 
         transform.rotation = Quaternion.Euler(_flyAngles.y, _flyAngles.x, 0f);
@@ -425,7 +410,7 @@ public class DebugCamera : MonoBehaviour
     {
         if (flyMoveAction == null) return;
 
-        Vector2 move = flyMoveAction.action.ReadValue<Vector2>(); // X=strafe, Y=forward
+        Vector2 move = flyMoveAction.action.ReadValue<Vector2>();
         if (move.sqrMagnitude < 0.000001f) return;
 
         float dt = Time.deltaTime;
@@ -434,8 +419,6 @@ public class DebugCamera : MonoBehaviour
         Vector3 fwd = transform.forward;
         Vector3 right = transform.right;
 
-        // OPTIONAL: if you still want a "keep level" option, keep this block.
-        // For your requested behavior, set flyKeepLevelMovement = false.
         if (flyKeepLevelMovement)
         {
             fwd.y = 0f;
@@ -444,16 +427,10 @@ public class DebugCamera : MonoBehaviour
             right.Normalize();
         }
 
-        // Normalize input so diagonals aren't faster
         Vector2 input = move.normalized;
-
         Vector3 wishDir = (right * input.x + fwd * input.y);
         transform.position += wishDir * (speed * dt);
     }
-
-    // -----------------------
-    // Zoom (Orbit + Follow)
-    // -----------------------
 
     private void HandleZoomInput()
     {
@@ -470,15 +447,11 @@ public class DebugCamera : MonoBehaviour
 
         if (zoomAffectsFOV && zoomNaura != null)
         {
-            float t = Mathf.InverseLerp(maxDistance, minDistance, distance); // near = 1
+            float t = Mathf.InverseLerp(maxDistance, minDistance, distance);
             zoomNaura.zoomAmount = Mathf.Clamp01(t);
             zoomNaura.AutoZoomToAmount(zoomNaura.zoomAmount);
         }
     }
-
-    // -----------------------
-    // Hold-to-rotate (Orbit mode only)
-    // -----------------------
 
     private void OnHoldStart(InputAction.CallbackContext _)
     {
@@ -486,7 +459,6 @@ public class DebugCamera : MonoBehaviour
         {
             _isHoldingRotate = true;
             _appliedDelta = Vector2.zero;
-            SetCaptured(true);
         }
     }
 
@@ -496,7 +468,6 @@ public class DebugCamera : MonoBehaviour
         {
             _isHoldingRotate = false;
             _appliedDelta = Vector2.zero;
-            SetCaptured(false);
         }
     }
 
@@ -506,25 +477,14 @@ public class DebugCamera : MonoBehaviour
         Cursor.visible = !captured;
     }
 
-    // -----------------------
-    // Escape: clear target
-    // -----------------------
-
     private void OnEscape(InputAction.CallbackContext _)
     {
-        // Abandon target and re-enter free cam
         EnterFlyMode();
     }
 
-    // -----------------------
-    // Picking (only when NOT holding)
-    // -----------------------
-
     private void OnPick(InputAction.CallbackContext _)
     {
-        // Only allow selecting a new target while in free-fly mode.
         if (_mode != CamMode.Fly) return;
-        if (_isHoldingRotate) return;
         TryPickTargetOnce();
     }
 
@@ -532,7 +492,7 @@ public class DebugCamera : MonoBehaviour
     {
         EnterFlyMode();
     }
-    
+
     private void TryPickTargetOnce()
     {
         if (_cam == null) return;
@@ -550,7 +510,7 @@ public class DebugCamera : MonoBehaviour
             return;
         }
 
-        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
         for (int i = 0; i < hits.Length; i++)
         {
@@ -572,13 +532,16 @@ public class DebugCamera : MonoBehaviour
                 Vector2 center = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
                 return _cam.ScreenPointToRay(center);
             }
+
             case PickFrom.CameraForward:
                 return new Ray(transform.position, transform.forward);
 
             case PickFrom.MousePosition:
             default:
             {
-                if (Mouse.current == null) return new Ray(transform.position, transform.forward);
+                if (Mouse.current == null)
+                    return new Ray(transform.position, transform.forward);
+
                 Vector2 screenPos = Mouse.current.position.ReadValue();
                 return _cam.ScreenPointToRay(screenPos);
             }
@@ -611,10 +574,6 @@ public class DebugCamera : MonoBehaviour
         return null;
     }
 
-    // -----------------------
-    // Target / Orbit center
-    // -----------------------
-
     public void SetTarget(Transform newTarget) => SetTarget(newTarget, null);
 
     public void SetTarget(Transform newTarget, Collider pickedCollider)
@@ -637,12 +596,12 @@ public class DebugCamera : MonoBehaviour
         _smoothedMoveDir = _lastMoveDir;
         _smoothedMoveDirVel = Vector3.zero;
 
-        // When we have a target, return to Orbit/Follow
         _mode = followEnabled ? CamMode.Follow : CamMode.Orbit;
 
-        // In orbit, cursor is only captured while holding rotate.
         _isHoldingRotate = false;
         _appliedDelta = Vector2.zero;
+
+        // TARGET SELECTED = visible cursor
         SetCaptured(false);
 
         if (_mode == CamMode.Follow)
@@ -706,18 +665,12 @@ public class DebugCamera : MonoBehaviour
         _rb = character.GetComponentInParent<Rigidbody>();
         if (_rb == null) _rb = character.GetComponent<Rigidbody>();
 
-        // Prefer NavMeshAgent for NPCs
         _agent = character.GetComponentInParent<NavMeshAgent>();
         if (_agent == null) _agent = character.GetComponent<NavMeshAgent>();
 
-        // Optional: keep CC support if you ever target a player character
         _cc = character.GetComponentInParent<CharacterController>();
         if (_cc == null) _cc = character.GetComponent<CharacterController>();
     }
-
-    // -----------------------
-    // Orbit
-    // -----------------------
 
     private void ApplyOrbit()
     {
@@ -784,10 +737,6 @@ public class DebugCamera : MonoBehaviour
         _orbitAngles = new Vector2(yaw, pitch);
         _appliedDelta = Vector2.zero;
     }
-
-    // -----------------------
-    // Pan API (unchanged)
-    // -----------------------
 
     public void PanHorizontal(float t01)
     {
@@ -908,10 +857,6 @@ public class DebugCamera : MonoBehaviour
             SeedFollowLazyState();
     }
 
-    // -----------------------
-    // FollowCam (Y-only)
-    // -----------------------
-
     public void SetFollowCam(bool enabled)
     {
         followEnabled = enabled;
@@ -956,7 +901,6 @@ public class DebugCamera : MonoBehaviour
 
     private Vector3 GetPlanarVelocity(Vector3 center, float dt)
     {
-        // ✅ NPCs: use NavMeshAgent velocity if available
         if (_agent != null && _agent.isActiveAndEnabled && _agent.isOnNavMesh)
         {
             Vector3 v = _agent.velocity;
@@ -966,7 +910,7 @@ public class DebugCamera : MonoBehaviour
 
         if (_rb != null)
         {
-            Vector3 v = _rb.linearVelocity; // note: Unity Rigidbody uses .velocity; keeping your existing line as-is
+            Vector3 v = _rb.linearVelocity;
             v.y = 0f;
             return v;
         }
@@ -978,7 +922,6 @@ public class DebugCamera : MonoBehaviour
             return v;
         }
 
-        // fallback: center delta
         if (dt > 0.000001f)
         {
             Vector3 v = (center - _prevCenter) / dt;
@@ -1034,9 +977,71 @@ public class DebugCamera : MonoBehaviour
     }
 
     // -----------------------
-    // Convenience
+    // UI API
     // -----------------------
 
+    public bool HasTarget() => character != null;
+
+    public void UI_PlayPanHorizontal()
+    {
+        if (!HasTarget()) return;
+        PlayPanHorizontal();
+    }
+
+    public void UI_PlayPanVertical()
+    {
+        if (!HasTarget()) return;
+        PlayPanVertical();
+    }
+
+    public void UI_StopPan()
+    {
+        StopPan();
+    }
+
+    public void UI_SetFollowEnabled(bool enabled)
+    {
+        if (!HasTarget())
+        {
+            followEnabled = false;
+            _prevFollowEnabled = false;
+            return;
+        }
+
+        SetFollowCam(enabled);
+    }
+
+    public void UI_ToggleFollow()
+    {
+        UI_SetFollowEnabled(!followEnabled);
+    }
+
+    public void UI_ResetZoom()
+    {
+        ResetZoomToDefault();
+    }
+
+    public void UI_SetOrbitDistanceNormalized(float t)
+    {
+        distance = Mathf.Lerp(minDistance, maxDistance, Mathf.Clamp01(t));
+    }
+
+    public void UI_SetFollowDistanceNormalized(float t)
+    {
+        followDistance = Mathf.Lerp(minDistance, maxDistance, Mathf.Clamp01(t));
+    }
+
+    public float UI_GetOrbitDistanceNormalized()
+    {
+        return Mathf.InverseLerp(minDistance, maxDistance, distance);
+    }
+
+    public float UI_GetFollowDistanceNormalized()
+    {
+        return Mathf.InverseLerp(minDistance, maxDistance, followDistance);
+    }
+    
+    
     public Transform GetTarget() => character;
     public bool IsPanning => _panCo != null;
     public bool FollowEnabled => followEnabled;

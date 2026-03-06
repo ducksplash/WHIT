@@ -104,16 +104,16 @@ public class NPCController : MonoBehaviour
 
     public NPCManager sceneNPCManager;
 
-    [SerializeField] float faceMinSpeed = 0.08f;      // ignore micro jitter
-    [SerializeField] float faceMinDistance = 0.15f;   // ignore tiny steering shifts
-    [SerializeField] float faceMaxDegPerSec = 540f;   // hard cap rotation speed
-    
+    [SerializeField] float faceMinSpeed = 0.08f;
+    [SerializeField] float faceMinDistance = 0.15f;
+    [SerializeField] float faceMaxDegPerSec = 540f;
+
     [Header("Turn / BlendTree Driving")]
-    [SerializeField] private float turnAngleForFullX = 90f;   // angle (deg) that maps to MovingX=+/-1
-    [SerializeField] private float turnInPlaceSpeed = 160f;   // deg/sec when mostly stationary
-    [SerializeField] private float turnWhileMovingSpeed = 260f; // deg/sec while moving
-    [SerializeField] private float turnInPlaceSpeedThreshold = 0.15f; // m/s below this = turn-in-place
-    
+    [SerializeField] private float turnAngleForFullX = 90f;
+    [SerializeField] private float turnInPlaceSpeed = 160f;
+    [SerializeField] private float turnWhileMovingSpeed = 260f;
+    [SerializeField] private float turnInPlaceSpeedThreshold = 0.15f;
+
     Vector3 _lastApproachDest;
     bool _hasLastApproachDest;
 
@@ -131,13 +131,16 @@ public class NPCController : MonoBehaviour
     Vector3 _lastKnownTargetPos;
     bool _hasLastKnownTargetPos;
 
+    // Conversation ownership
+    private readonly HashSet<NPCController> _conversationSpeakers = new HashSet<NPCController>();
+    private NPCController _primaryConversationSpeaker;
     bool _isConversationLocked = false;
-    NPCController _conversationSpeaker;
 
     bool _hasCommand = false;
     NPCState _commandGoal = NPCState.Patrolling;
 
     NPCController _talkTargetController;
+    bool _registeredAsConversationSpeaker = false;
 
     [Header("Components")]
     public Animator animationController;
@@ -238,7 +241,7 @@ public class NPCController : MonoBehaviour
     public float renegotiateCheckInterval = 0.15f;
 
     public MeNPC npcMetaActions;
-    
+
     float _renegotiateT;
     float _renegotiateCooldownT;
     Coroutine _sidestepCoroutine;
@@ -339,7 +342,6 @@ public class NPCController : MonoBehaviour
 
     [SerializeField] private string sitTriggerParam = "SitDown";
 
-    // StandUp (your new trigger/state)
     [Header("Stand Up Animations")]
     [SerializeField] private bool useStandUpTriggerParam = true;
     [SerializeField] private string standUpTriggerParam = "StandUp";
@@ -388,7 +390,7 @@ public class NPCController : MonoBehaviour
     }
 
     // =========================================================
-    // NavMesh safety helpers (CRITICAL to avoid red errors)
+    // NavMesh safety helpers
     // =========================================================
     private bool AgentReady()
     {
@@ -427,7 +429,6 @@ public class NPCController : MonoBehaviour
         Vector3 desired = transform.position;
         if (TryGetNavmeshPoint(desired, out Vector3 navPos))
         {
-            // IMPORTANT: ground the root to navmesh (fixes seated vertical offset being "locked in")
             transform.position = navPos;
 
             agent.enabled = true;
@@ -440,6 +441,86 @@ public class NPCController : MonoBehaviour
             agent.enabled = true;
             Debug.LogWarning($"{name}: Could not find NavMesh near {desired} to reattach agent.");
         }
+    }
+
+    private NPCController GetNearestConversationSpeaker()
+    {
+        NPCController best = null;
+        float bestSqr = float.PositiveInfinity;
+
+        foreach (var s in _conversationSpeakers)
+        {
+            if (s == null) continue;
+
+            float sqr = (s.transform.position - transform.position).sqrMagnitude;
+            if (sqr < bestSqr)
+            {
+                bestSqr = sqr;
+                best = s;
+            }
+        }
+
+        return best;
+    }
+
+    private void UnregisterAsConversationSpeaker()
+    {
+        if (_talkTargetController != null && _registeredAsConversationSpeaker)
+        {
+            _talkTargetController.EndConversationAsTarget(this);
+        }
+
+        _registeredAsConversationSpeaker = false;
+        _talkTargetController = null;
+    }
+
+    private void InterruptAllTransientActions(bool returnToLocomotion = true)
+    {
+        UnregisterAsConversationSpeaker();
+
+        if (_triggerCoroutine != null)
+        {
+            StopCoroutine(_triggerCoroutine);
+            _triggerCoroutine = null;
+        }
+
+        _isPlayingTriggeredAnimation = false;
+        isPaused = false;
+
+        if (animationController != null)
+        {
+            animationController.speed = 1f;
+            ResetAllAnimatorTriggers();
+        }
+
+        _conversationSpeakers.Clear();
+        _primaryConversationSpeaker = null;
+        _isConversationLocked = false;
+
+        if (_sidestepCoroutine != null)
+        {
+            StopCoroutine(_sidestepCoroutine);
+            _sidestepCoroutine = null;
+        }
+
+        _hasResumeDestination = false;
+
+        if (agent != null)
+        {
+            if (!agent.enabled) agent.enabled = true;
+
+            if (!agent.isOnNavMesh && TryGetNavmeshPoint(transform.position, out Vector3 navPos))
+                agent.Warp(navPos);
+
+            if (AgentReady())
+            {
+                agent.isStopped = false;
+                agent.ResetPath();
+            }
+        }
+
+        if (returnToLocomotion && animationController != null)
+            ForceReturnToLocomotion();
     }
 
     // =========================================================
@@ -466,9 +547,9 @@ public class NPCController : MonoBehaviour
 
     public void DebugApproachTargetNPC()
     {
-        useStateMachine = true;
-        ForceReturnToLocomotion();
+        InterruptAllTransientActions();
 
+        useStateMachine = true;
         _hasCommand = false;
         _commandGoal = NPCState.Patrolling;
 
@@ -479,8 +560,9 @@ public class NPCController : MonoBehaviour
 
     public void DebugAttackTargetNPC()
     {
+        InterruptAllTransientActions();
+
         useStateMachine = true;
-        ForceReturnToLocomotion();
 
         SetTargetByNPC(debugTargetNPC);
         if (currentTarget == null) return;
@@ -494,8 +576,9 @@ public class NPCController : MonoBehaviour
 
     public void DebugTalkTargetNPC()
     {
+        InterruptAllTransientActions();
+
         useStateMachine = true;
-        ForceReturnToLocomotion();
 
         SetTargetByNPC(debugTargetNPC);
         if (currentTarget == null) return;
@@ -641,8 +724,10 @@ public class NPCController : MonoBehaviour
 
             ForceIdlePose();
 
-            if (_conversationSpeaker != null)
-                FaceTowards(_conversationSpeaker.transform.position, Time.deltaTime, turnSmoothing * 1.5f);
+            _primaryConversationSpeaker = GetNearestConversationSpeaker();
+            if (_primaryConversationSpeaker != null)
+                FaceTowards(_primaryConversationSpeaker.transform.position, Time.deltaTime, turnSmoothing * 1.5f);
+
             UpdateLocomotionAndFacing();
             return;
         }
@@ -654,6 +739,7 @@ public class NPCController : MonoBehaviour
             else if (EnsureFSMCanRun())
                 TickFSM(Time.deltaTime);
         }
+
         UpdateLocomotionAndFacing();
         PreCollisionRenegotiate();
     }
@@ -685,9 +771,9 @@ public class NPCController : MonoBehaviour
 
     public void ClearTarget()
     {
-        if (_talkTargetController != null) _talkTargetController.EndConversationAsTarget();
+        UnregisterAsConversationSpeaker();
+
         currentTarget = null;
-        _talkTargetController = null;
         _hasCommand = false;
         _commandGoal = NPCState.Patrolling;
     }
@@ -699,14 +785,12 @@ public class NPCController : MonoBehaviour
         bool inSitWalkup = (_state == NPCState.Sitting && _sitPhase == SitPhase.ApproachingFront);
         bool allowNavLocomotion = AgentReady() && IsNavDriven() && !(_state == NPCState.Sitting && !inSitWalkup);
 
-        // Default idle
         float movingX = 0f;
         float movingY = 0f;
         float blend = 0f;
 
         if (allowNavLocomotion)
         {
-            // Stable desired direction (better than desiredVelocity for jitter)
             Vector3 to = agent.steeringTarget - transform.position;
             to.y = 0f;
 
@@ -719,7 +803,6 @@ public class NPCController : MonoBehaviour
                 desiredDir = (dv.sqrMagnitude > 0.0001f) ? dv.normalized : transform.forward;
             }
 
-            // Current planar speed (use desiredVelocity when starting to move)
             Vector3 v = agent.velocity; v.y = 0f;
             Vector3 dv2 = agent.desiredVelocity; dv2.y = 0f;
 
@@ -727,52 +810,37 @@ public class NPCController : MonoBehaviour
             if (agent.pathPending || (speed < 0.05f && dv2.magnitude > 0.05f))
                 speed = dv2.magnitude;
 
-            // Angle to desired direction drives turn blend
             float signedAngle = Vector3.SignedAngle(transform.forward, desiredDir, Vector3.up);
 
-            // MovingX = turn amount, MovingY = forward intent
             movingX = Mathf.Clamp(signedAngle / Mathf.Max(1f, turnAngleForFullX), -1f, 1f);
-
-            // If you have a forward-walk blend, keep Y positive by speed.
-            // If your blend tree expects negative for backing up, you can use cos(angle)*speed instead.
             movingY = Mathf.Clamp01(speed / Mathf.Max(0.01f, moveSpeed));
-
             blend = Mathf.Clamp01(speed / Mathf.Max(0.01f, moveSpeed));
 
-            // --- ROTATION (don’t spin instantly) ---
-            // Turn in place when slow; turn faster when moving.
             float turnRate = (speed < turnInPlaceSpeedThreshold) ? turnInPlaceSpeed : turnWhileMovingSpeed;
 
-            // Optional: if you want “turn-in-place” even at 0 speed, rotate anyway based on angle.
-            // This makes the turn anim actually show because MovingX stays non-zero while rotating.
             Quaternion targetRot = Quaternion.LookRotation(desiredDir, Vector3.up);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, turnRate * Time.deltaTime);
         }
 
-        // Damp animator params (keep your existing damp time behavior)
         animationController.SetFloat(paramMovingX, movingX, animDampTime, Time.deltaTime);
         animationController.SetFloat(paramMovingY, movingY, animDampTime, Time.deltaTime);
-        animationController.SetFloat(paramBlend,   blend,   animDampTime, Time.deltaTime);
+        animationController.SetFloat(paramBlend, blend, animDampTime, Time.deltaTime);
     }
-    
-    
+
     public void ForcePatrol()
     {
+        InterruptAllTransientActions();
+
         if (animationController != null) animationController.speed = 1f;
 
         useStateMachine = true;
 
-        if (_talkTargetController != null) _talkTargetController.EndConversationAsTarget();
-        _talkTargetController = null;
-
-        // If we were in sitting, hard-exit sitting cleanly
         if (_state == NPCState.Sitting)
         {
             _sitPhase = SitPhase.None;
             _hasCommand = false;
             _commandGoal = NPCState.Patrolling;
 
-            // Stop seated animation influence then ground to navmesh (fixes feet clipping)
             ForceReturnToLocomotion();
             ReattachAgentToNavmeshAtCurrentXZ();
             ReleaseSeatIfAny();
@@ -784,7 +852,6 @@ public class NPCController : MonoBehaviour
         _hasCommand = false;
         _commandGoal = NPCState.Patrolling;
 
-        // Ensure agent is valid
         if (agent != null && agent.isActiveAndEnabled)
         {
             if (!agent.enabled) agent.enabled = true;
@@ -802,6 +869,8 @@ public class NPCController : MonoBehaviour
     public void RequestSitDown()
     {
         if (_isConversationLocked) return;
+
+        InterruptAllTransientActions();
 
         useStateMachine = true;
         _hasCommand = true;
@@ -824,10 +893,13 @@ public class NPCController : MonoBehaviour
     void EnterState(NPCState next)
     {
         NPCState prev = _state;
+
+        if (prev == NPCState.Talk && next != NPCState.Talk)
+            UnregisterAsConversationSpeaker();
+
         _state = next;
         _stateTimer = 0f;
 
-        // DO NOT blindly touch nav agent here; Sitting/StandUp intentionally disables it.
         if (AgentReady())
             agent.isStopped = false;
 
@@ -898,7 +970,6 @@ public class NPCController : MonoBehaviour
                 break;
 
             case NPCState.Sitting:
-                // only initialize once
                 if (prev != NPCState.Sitting)
                     EnterSitting();
                 break;
@@ -1070,7 +1141,6 @@ public class NPCController : MonoBehaviour
 
                 Vector3 newDest = currentTarget.position;
 
-                // Only update if target actually moved enough
                 if (!_hasLastApproachDest || (newDest - _lastApproachDest).sqrMagnitude >= (approachTargetMoveThreshold * approachTargetMoveThreshold))
                 {
                     _lastApproachDest = newDest;
@@ -1184,6 +1254,8 @@ public class NPCController : MonoBehaviour
 
         if (currentTarget == null)
         {
+            UnregisterAsConversationSpeaker();
+
             _hasCommand = false;
             _commandGoal = NPCState.Patrolling;
             EnterState(NPCState.Patrolling);
@@ -1195,15 +1267,21 @@ public class NPCController : MonoBehaviour
         if (_talkTargetController == null)
             _talkTargetController = currentTarget.GetComponentInParent<NPCController>();
 
-        if (_talkTargetController != null)
+        if (_talkTargetController != null && !_registeredAsConversationSpeaker)
+        {
             _talkTargetController.BeginConversationAsTarget(this);
+            _registeredAsConversationSpeaker = true;
+        }
     }
 
     public void BeginConversationAsTarget(NPCController speaker)
     {
         if (speaker == null) return;
 
-        if (!_isConversationLocked)
+        bool wasEmpty = _conversationSpeakers.Count == 0;
+        _conversationSpeakers.Add(speaker);
+
+        if (wasEmpty)
         {
             useStateMachine = false;
 
@@ -1216,14 +1294,33 @@ public class NPCController : MonoBehaviour
             ForceIdlePose();
         }
 
-        _isConversationLocked = true;
-        _conversationSpeaker = speaker;
+        _isConversationLocked = _conversationSpeakers.Count > 0;
+        _primaryConversationSpeaker = GetNearestConversationSpeaker();
     }
 
-    public void EndConversationAsTarget()
+    public void EndConversationAsTarget(NPCController speaker)
     {
-        _isConversationLocked = false;
-        _conversationSpeaker = null;
+        if (speaker != null)
+            _conversationSpeakers.Remove(speaker);
+
+        _primaryConversationSpeaker = GetNearestConversationSpeaker();
+        _isConversationLocked = _conversationSpeakers.Count > 0;
+
+        if (!_isConversationLocked)
+        {
+            useStateMachine = true;
+
+            if (AgentReady())
+            {
+                agent.isStopped = false;
+                agent.ResetPath();
+            }
+
+            ForceReturnToLocomotion();
+
+            if (_state == NPCState.Talk)
+                EnterState(NPCState.Patrolling);
+        }
     }
 
     bool CanSeeTarget(Transform t)
@@ -1294,7 +1391,6 @@ public class NPCController : MonoBehaviour
 
         ReleaseSeatIfAny();
 
-        // Ensure agent is usable for approach phases
         if (agent != null)
         {
             if (!agent.enabled) agent.enabled = true;
@@ -1555,10 +1651,8 @@ public class NPCController : MonoBehaviour
 
     private void BeginSitDown()
     {
-        // Disable agent for sit animations (prevents sliding + avoids resume/reset errors)
         DetachAgentForAnimation();
 
-        // Snap XZ only; do NOT touch Y (you already have animation offsets)
         if (snapToSeatWhenSeated && _seatTf != null)
         {
             Vector3 p = transform.position;
@@ -1607,7 +1701,6 @@ public class NPCController : MonoBehaviour
 
         AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(sitAnimLayer);
 
-        // when SitIdle is reached, transition to idle phase
         if (!string.IsNullOrWhiteSpace(sitIdleStateName) && info.IsName(sitIdleStateName))
         {
             _sitPhase = SitPhase.SittingIdle;
@@ -1621,7 +1714,6 @@ public class NPCController : MonoBehaviour
             return;
         }
 
-        // fallback if animator didn't enter expected states quickly
         if (_sitTriggerSent && _sitTriggerT >= sitTriggerFallbackDelay)
         {
             bool inSitDown = !string.IsNullOrWhiteSpace(sitDownStateName) && info.IsName(sitDownStateName);
@@ -1640,10 +1732,7 @@ public class NPCController : MonoBehaviour
 
     private void TickSittingIdle(float dt, Vector3 seatPos, Vector3 seatForward)
     {
-        // agent is disabled while seated -> no nav calls here
         ForceIdlePose();
-
-        // Rotate only if you want to keep facing consistent
         transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
 
         if (autoStandAfterSeconds > 0f)
@@ -1658,7 +1747,6 @@ public class NPCController : MonoBehaviour
     {
         if (_sitPhase == SitPhase.StandUpPlaying) return;
 
-        // Keep agent detached while stand-up anim plays
         DetachAgentForAnimation();
 
         if (animationController == null)
@@ -1694,7 +1782,6 @@ public class NPCController : MonoBehaviour
 
         bool inStandUp = !string.IsNullOrWhiteSpace(standUpStateName) && info.IsName(standUpStateName);
 
-        // Only finish once we've actually reached StandUp and it completed.
         if (inStandUp && !animationController.IsInTransition(sitAnimLayer) && info.normalizedTime >= 1f)
         {
             FinishStandUpToPatrol();
@@ -1709,7 +1796,6 @@ public class NPCController : MonoBehaviour
             ForceReturnToLocomotion();
         }
 
-        // Critical: re-ground root to NavMesh at current XZ to clear seated vertical offset
         ReattachAgentToNavmeshAtCurrentXZ();
 
         ReleaseSeatIfAny();
@@ -1730,7 +1816,6 @@ public class NPCController : MonoBehaviour
 
         _sitPhase = SitPhase.None;
 
-        // Make sure locomotion resumes cleanly
         if (animationController != null) ForceReturnToLocomotion();
         ReattachAgentToNavmeshAtCurrentXZ();
 
@@ -1917,6 +2002,7 @@ public class NPCController : MonoBehaviour
             _triggerCoroutine = null;
         }
 
+        UnregisterAsConversationSpeaker();
         _triggerCoroutine = StartCoroutine(TriggerRoutine(triggerParam));
     }
 
@@ -1943,7 +2029,7 @@ public class NPCController : MonoBehaviour
 
         isPaused = _triggerPrevPaused;
 
-        if (AgentReady())
+        if (_triggerAgentWasValid && AgentReady())
             agent.isStopped = _triggerWasStoppedBefore;
 
         if (useStateMachine && !isPaused)
@@ -1963,7 +2049,10 @@ public class NPCController : MonoBehaviour
         isPaused = true;
 
         if (_triggerAgentWasValid)
+        {
             agent.isStopped = true;
+            agent.ResetPath();
+        }
 
         if (animationController == null)
         {
@@ -2203,11 +2292,9 @@ public class NPCController : MonoBehaviour
         if (useStateMachine && (_state == NPCState.Alerted || _state == NPCState.Attacking || _state == NPCState.Talk)) return;
         if (useStateMachine && _state == NPCState.Sitting && !inSitWalkup) return;
 
-        // If we're basically not moving, don't try to rotate (prevents jitter at low speeds)
         Vector3 planarVel = agent.velocity; planarVel.y = 0f;
         if (planarVel.magnitude < faceMinSpeed) return;
 
-        // Use steeringTarget (next corner). Much more stable than desiredVelocity.
         Vector3 to = agent.steeringTarget - transform.position;
         to.y = 0f;
 
@@ -2216,7 +2303,6 @@ public class NPCController : MonoBehaviour
 
         Quaternion targetRot = Quaternion.LookRotation(to.normalized, Vector3.up);
 
-        // RotateTowards avoids overshoot + wobble better than Slerp with a huge dt*speed.
         float maxStep = faceMaxDegPerSec * Time.deltaTime;
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, maxStep);
     }

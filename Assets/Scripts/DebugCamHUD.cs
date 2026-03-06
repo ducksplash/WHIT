@@ -46,9 +46,11 @@ public class DebugCamHUD : MonoBehaviour
     [SerializeField] private Button approachButton;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button talkButton;
-    [SerializeField] private Button toggleButton;
+    [SerializeField] private Button toggleOneButton;
+    [SerializeField] private Button toggleTwoButton;
     [SerializeField] private Button sitButton;
     [SerializeField] private Button standButton;
+    [SerializeField] private Button xButton;
 
     // runtime
     private Transform _lastTarget;
@@ -82,8 +84,10 @@ public class DebugCamHUD : MonoBehaviour
         
         if (sitButton != null) sitButton.onClick.AddListener(OnSitClicked);
         if (standButton != null) standButton.onClick.AddListener(OnStandClicked);
+        if (xButton != null) xButton.onClick.AddListener(OnXClicked);
         
-        if (toggleButton != null) toggleButton.onClick.AddListener(OnToggleClicked);
+        if (toggleOneButton != null) toggleOneButton.onClick.AddListener(OnToggleOutfitOneClicked);
+        if (toggleTwoButton != null) toggleTwoButton.onClick.AddListener(OnToggleOutfitTwoClicked);
 
         BuildNpcEnumDropdownIfNeeded();
     }
@@ -100,6 +104,10 @@ public class DebugCamHUD : MonoBehaviour
         if (approachButton != null) approachButton.onClick.RemoveListener(OnApproachClicked);
         if (attackButton != null) attackButton.onClick.RemoveListener(OnAttackClicked);
         if (talkButton != null) talkButton.onClick.RemoveListener(OnTalkClicked);
+        if (xButton != null) xButton.onClick.RemoveListener(OnXClicked);
+        
+        if (toggleOneButton != null) toggleOneButton.onClick.RemoveListener(OnToggleOutfitOneClicked);
+        if (toggleTwoButton != null) toggleTwoButton.onClick.RemoveListener(OnToggleOutfitTwoClicked);
 
         if (targetNpcDropdown != null)
             targetNpcDropdown.onValueChanged.RemoveListener(OnTargetNpcDropdownChanged);
@@ -170,7 +178,15 @@ public class DebugCamHUD : MonoBehaviour
         if (targetNpcDropdown != null) targetNpcDropdown.interactable = on;
     }
 
-    
+
+
+    void OnXClicked()
+    {
+        if (orbitCam != null) orbitCam.ClearTargetAndEnterFlyMode();
+
+        _lastTarget = null;
+        RefreshForTarget(null);
+    }
     
     
     
@@ -325,7 +341,7 @@ public class DebugCamHUD : MonoBehaviour
         RefreshForTarget(_lastTarget);
     }
 
-    private void OnToggleClicked()
+    private void OnToggleOutfitOneClicked()
     {        
         if (_npc == null) return;
 
@@ -333,7 +349,20 @@ public class DebugCamHUD : MonoBehaviour
 
         if (me != null)
         {
-            me.ToggleRenderer();
+            me.ToggleFirstOutfit();
+        }
+        
+        RefreshForTarget(_lastTarget);
+    }
+    private void OnToggleOutfitTwoClicked()
+    {        
+        if (_npc == null) return;
+
+        MeNPC me = _npc.gameObject.GetComponent<MeNPC>();
+
+        if (me != null)
+        {
+            me.ToggleSecondOutfit();
         }
         
         RefreshForTarget(_lastTarget);

@@ -309,8 +309,6 @@ public class DebugCamera : MonoBehaviour
     
     void Update()
     {
-        // Escape clears target and returns to Fly
-        // (handled by callback too; this is just safety if you disable callbacks)
         if (character == null && _mode != CamMode.Fly)
             EnterFlyMode();
 
@@ -322,15 +320,14 @@ public class DebugCamera : MonoBehaviour
 
         HandleZoomInput();
 
-
         if (_mode == CamMode.Fly)
         {
-            ApplyFlyLook();  // now only rotates while RMB held
+            ApplyFlyLook();
             ApplyFlyMove();
             return;
         }
 
-        // Orbit rotate only while holding (existing behaviour)
+        // In target modes, only orbit-rotate while holding.
         if (_mode != CamMode.Orbit) return;
         if (!_isHoldingRotate) return;
         if (lookAction == null || character == null) return;
@@ -344,7 +341,6 @@ public class DebugCamera : MonoBehaviour
         _orbitAngles += _appliedDelta;
         _orbitAngles.y = Mathf.Clamp(_orbitAngles.y, pitchClampMin, pitchClampMax);
     }
-
     void LateUpdate()
     {
         switch (_mode)
@@ -411,17 +407,14 @@ public class DebugCamera : MonoBehaviour
     {
         if (lookAction == null) return;
 
-        // ✅ Only rotate in Fly while holding RMB (so mouse can be used to click when not holding)
-        if (!_flyCaptured) return;
-
         Vector2 raw = lookAction.action.ReadValue<Vector2>();
 
         float smooth = Mathf.Max(1f, flyLookSmoothing);
         Vector2 targetDelta = raw * (flyLookSensitivity * smooth);
         _flyLookApplied = Vector2.Lerp(_flyLookApplied, targetDelta, 1f / smooth);
 
-        _flyAngles.x += _flyLookApplied.x;   // yaw
-        _flyAngles.y -= _flyLookApplied.y;   // pitch
+        _flyAngles.x += _flyLookApplied.x;
+        _flyAngles.y -= _flyLookApplied.y;
 
         _flyAngles.y = Mathf.Clamp(_flyAngles.y, pitchClampMin, pitchClampMax);
 
@@ -494,15 +487,6 @@ public class DebugCamera : MonoBehaviour
             _isHoldingRotate = true;
             _appliedDelta = Vector2.zero;
             SetCaptured(true);
-            return;
-        }
-
-        if (_mode == CamMode.Fly)
-        {
-            _flyCaptured = true;
-            _flyLookApplied = Vector2.zero;
-            SetCaptured(true);
-            return;
         }
     }
 
@@ -513,15 +497,6 @@ public class DebugCamera : MonoBehaviour
             _isHoldingRotate = false;
             _appliedDelta = Vector2.zero;
             SetCaptured(false);
-            return;
-        }
-
-        if (_mode == CamMode.Fly)
-        {
-            _flyCaptured = false;
-            _flyLookApplied = Vector2.zero;
-            SetCaptured(false);
-            return;
         }
     }
 
@@ -547,11 +522,17 @@ public class DebugCamera : MonoBehaviour
 
     private void OnPick(InputAction.CallbackContext _)
     {
-        // In fly mode, we still allow picking if you click the pick button.
+        // Only allow selecting a new target while in free-fly mode.
+        if (_mode != CamMode.Fly) return;
         if (_isHoldingRotate) return;
         TryPickTargetOnce();
     }
 
+    public void ClearTargetAndEnterFlyMode()
+    {
+        EnterFlyMode();
+    }
+    
     private void TryPickTargetOnce()
     {
         if (_cam == null) return;

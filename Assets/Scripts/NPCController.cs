@@ -1405,31 +1405,7 @@ public class NPCController : MonoBehaviour
         bool inLieDown = !string.IsNullOrWhiteSpace(lieDownStateName) && info.IsName(lieDownStateName);
         bool inLieIdle = !string.IsNullOrWhiteSpace(lieIdleStateName) && info.IsName(lieIdleStateName);
 
-        if (!_snappedToBedLyingPose)
-        {
-            bool shouldSnap =
-                inLieIdle ||
-                (inLieDown && !animationController.IsInTransition(lieAnimLayer) && info.normalizedTime >= 0.80f) ||
-                (!_forcedLiePoseByTimer && _lieTriggerT >= lieDownSnapDelay);
-
-            if (shouldSnap)
-            {
-                SnapToBedLyingPoseNow();
-
-                if (_lieTriggerT >= lieDownSnapDelay)
-                    _forcedLiePoseByTimer = true;
-            }
-        }
-
-        if (inLieIdle)
-        {
-            _liePhase = LiePhase.LyingIdle;
-            _lyingT = 0f;
-
-            if (bedDebugLogs) Debug.Log($"{name} Bed: LyingIdle.");
-            return;
-        }
-
+        // Fallback: if the trigger didn't land, force-play the LieDown state
         if (_lieTriggerSent && _lieTriggerT >= lieTriggerFallbackDelay)
         {
             if (!inLieDown && !inLieIdle && !string.IsNullOrWhiteSpace(lieDownStateName))
@@ -1441,13 +1417,37 @@ public class NPCController : MonoBehaviour
             _lieTriggerSent = false;
         }
 
-        if (_snappedToBedLyingPose && _lieTriggerT >= Mathf.Max(lieDownSnapDelay, 0.9f))
+        // Once LieDown animation is complete (or animator has moved past it), snap and trigger LieIdle
+        bool lieDownFinished =
+            inLieIdle || // animator auto-transitioned already
+            (inLieDown && !animationController.IsInTransition(lieAnimLayer) && info.normalizedTime >= 0.95f);
+
+        // Timer-based fallback in case state detection fails
+        bool timedOut = _lieTriggerT >= Mathf.Max(lieDownSnapDelay + 0.5f, 1.5f);
+
+        if (lieDownFinished || timedOut)
         {
+            if (!_snappedToBedLyingPose)
+                SnapToBedLyingPoseNow();
+
+            if (!inLieIdle)
+            {
+                // Trigger the LieIdle animation
+                ResetAllAnimatorTriggers();
+                if (useLieIdleTriggerParam && !string.IsNullOrWhiteSpace(lieIdleTriggerParam))
+                    animationController.SetTrigger(lieIdleTriggerParam);
+                else if (!string.IsNullOrWhiteSpace(lieIdleStateName))
+                    animationController.CrossFadeInFixedTime(lieIdleStateName, lieCrossfade, lieAnimLayer, 0f);
+
+                if (bedDebugLogs)
+                    Debug.Log($"{name} Bed: LieDown complete — snapped and triggering LieIdle. (timedOut={timedOut})");
+            }
+
             _liePhase = LiePhase.LyingIdle;
             _lyingT = 0f;
 
-            if (bedDebugLogs)
-                Debug.LogWarning($"{name} Bed: Forced LyingIdle after timed snap.");
+            if (bedDebugLogs) Debug.Log($"{name} Bed: LyingIdle.");
+            return;
         }
     }
 
@@ -1493,6 +1493,11 @@ public class NPCController : MonoBehaviour
             FinishWakeUpToPatrol();
             return;
         }
+
+        // Ensure blend tree is zeroed so NPC isn't visually "walking" while lying
+        animationController.SetFloat(paramMovingX, 0f);
+        animationController.SetFloat(paramMovingY, 0f);
+        animationController.SetFloat(paramBlend, 0f);
 
         ResetAllAnimatorTriggers();
         animationController.speed = 1f;

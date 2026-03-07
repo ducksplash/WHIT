@@ -399,14 +399,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 2039754100}
   agent: {fileID: 5712059}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 4
   angularSpeed: 360
   acceleration: 8
@@ -453,18 +458,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 21
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.45
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -481,13 +491,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
-  preLieArriveDistance: 0.45
+  preLieArriveDistance: 0.1
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -510,7 +519,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 5712056}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -7149,14 +7158,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 829739569}
   agent: {fileID: 126935131}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 4
   angularSpeed: 360
   acceleration: 8
@@ -7203,18 +7217,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 21
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.1
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -7231,13 +7250,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -7283,7 +7301,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 126935128}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -12762,14 +12780,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 1512451716}
   agent: {fileID: 257629029}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 4
   angularSpeed: 360
   acceleration: 8
@@ -12816,18 +12839,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 21
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.45
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -12844,13 +12872,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
-  preLieArriveDistance: 0.45
+  preLieArriveDistance: 0.1
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -12873,7 +12900,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 257629027}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -24370,7 +24397,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 521070076}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -24421,14 +24448,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 1645056553}
   agent: {fileID: 521070079}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 4
   angularSpeed: 360
   acceleration: 8
@@ -24475,18 +24507,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 21
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.1
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -24503,13 +24540,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -24799,6 +24835,7 @@ GameObject:
   - component: {fileID: 544021923}
   - component: {fileID: 544021922}
   - component: {fileID: 544021924}
+  - component: {fileID: 544021925}
   m_Layer: 21
   m_Name: nuHomeOfficeChair
   m_TagString: Untagged
@@ -24865,6 +24902,22 @@ MonoBehaviour:
   seatTransform: {fileID: 1636478245}
   occupied: 0
   occupiedBy: {fileID: 0}
+--- !u!208 &544021925
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544021921}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.005, y: 0.1, z: 0.1}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.001, y: 0.05, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &546663110
 GameObject:
   m_ObjectHideFlags: 0
@@ -28083,14 +28136,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 1148413897}
   agent: {fileID: 591589183}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 4
   angularSpeed: 360
   acceleration: 8
@@ -28137,18 +28195,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 524288
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.6
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.1
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -28165,13 +28228,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -28194,7 +28256,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 591589181}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -29266,6 +29328,7 @@ GameObject:
   - component: {fileID: 610956157}
   - component: {fileID: 610956156}
   - component: {fileID: 610956155}
+  - component: {fileID: 610956158}
   m_Layer: 21
   m_Name: nuHomeOfficeChair_2
   m_TagString: Untagged
@@ -29332,6 +29395,22 @@ Transform:
   - {fileID: 867900453}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -108.08, z: 0}
+--- !u!208 &610956158
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610956154}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.005, y: 0.1, z: 0.1}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.001, y: 0.05, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &611142857
 GameObject:
   m_ObjectHideFlags: 0
@@ -31397,14 +31476,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 1081656107}
   agent: {fileID: 666046580}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 4
   angularSpeed: 360
   acceleration: 8
@@ -31451,18 +31535,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 21
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.1
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -31479,13 +31568,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -31531,7 +31619,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 666046577}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -48242,6 +48330,7 @@ GameObject:
   - component: {fileID: 1008918348}
   - component: {fileID: 1008918347}
   - component: {fileID: 1008918346}
+  - component: {fileID: 1008918349}
   m_Layer: 21
   m_Name: nuHomeOfficeChair_1
   m_TagString: Untagged
@@ -48308,6 +48397,22 @@ Transform:
   - {fileID: 1923451844}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -108.08, z: 0}
+--- !u!208 &1008918349
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1008918345}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.005, y: 0.1, z: 0.1}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.001, y: 0.05, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1010161875
 GameObject:
   m_ObjectHideFlags: 0
@@ -88966,14 +89071,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 1125781131}
   agent: {fileID: 1867593930}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 4
   angularSpeed: 360
   acceleration: 8
@@ -89020,18 +89130,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 2097152
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.45
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -89048,13 +89163,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
-  preLieArriveDistance: 0.45
+  preLieArriveDistance: 0.1
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -89077,7 +89191,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1867593928}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -93268,14 +93382,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 1149756780}
   agent: {fileID: 1941394365}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 4
   angularSpeed: 360
   acceleration: 8
@@ -93322,18 +93441,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 21
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.45
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -93350,13 +93474,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
-  preLieArriveDistance: 0.45
+  preLieArriveDistance: 0.1
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -93379,7 +93502,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1941394361}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -96091,14 +96214,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 662645956}
   agent: {fileID: 1996530528}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 4
   angularSpeed: 360
   acceleration: 8
@@ -96145,18 +96273,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 21
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.1
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -96173,13 +96306,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -96225,7 +96357,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1996530525}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -101135,14 +101267,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 1379347203}
   agent: {fileID: 2097689553}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 4
   angularSpeed: 360
   acceleration: 8
@@ -101189,18 +101326,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 21
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.1
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -101217,13 +101359,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -101246,7 +101387,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 2097689549}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -119098,7 +119239,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 8943626011633960090}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -121034,14 +121175,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 919132149029488273}
   agent: {fileID: 5838113051383243656}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 4
   angularSpeed: 360
   acceleration: 8
@@ -121088,18 +121234,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 21
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.1
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -121116,13 +121267,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -123606,14 +123756,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 805024191}
   agent: {fileID: 1727164573504354525}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 0.2
   angularSpeed: 200
   acceleration: 3
@@ -123660,18 +123815,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 21
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.1
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -123688,13 +123848,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -163012,14 +163171,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 733367978}
   agent: {fileID: 1199897597207792507}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 3
   angularSpeed: 360
   acceleration: 8
@@ -163066,18 +163230,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 21
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.1
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -163094,13 +163263,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -164192,14 +164360,19 @@ MonoBehaviour:
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
+  faceMinSpeed: 0.08
+  faceMinDistance: 0.15
+  faceMaxDegPerSec: 540
   turnAngleForFullX: 90
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
   animationController: {fileID: 985951259}
   agent: {fileID: 7599671848180252352}
-  animationRootOverride: {fileID: 0}
   arriveDistance: 0.3
+  arriveSettleTime: 0.05
+  stopFadeOutTime: 0.35
+  idleVelocityThreshold: 0.05
   moveSpeed: 3
   angularSpeed: 360
   acceleration: 8
@@ -164246,18 +164419,23 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
+  modelRoot: {fileID: 0}
   sitTriggerFallbackDelay: 0.08
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 21
   seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
   seatRescanInterval: 0.35
   seatSearchRadius: 0
-  preSitForwardOffset: 0.45
-  preSitArriveDistance: 0.35
+  preSitForwardOffset: 1
+  preSitArriveDistance: 0.2
   alignYawToleranceDeg: 6
-  backstepSpeed: 0.8
+  backstepDistance: 0.45
+  backstepSpeed: 2
   snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
@@ -164274,13 +164452,12 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
-  preLieForwardOffset: 0.7
-  preLieArriveDistance: 0.45
+  preLieArriveDistance: 0.1
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
   autoWakeAfterSeconds: 0
   bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.55
+  lieDownSnapDelay: 0.01
   lieDownStateName: LieDown
   lieIdleStateName: LieIdle
   lieAnimLayer: 0
@@ -177121,7 +177298,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 4565736434850166452}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -198273,7 +198450,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 7599671848180252351}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50

@@ -26,7 +26,7 @@ public class DebugCamHUD : MonoBehaviour
     [SerializeField] private Button resetZoomButton;
     [SerializeField] private Slider orbitDistanceSlider;
     [SerializeField] private Slider followDistanceSlider;
-    
+
     // ---------------------------------------------------------
     // Trigger UI
     // ---------------------------------------------------------
@@ -59,6 +59,8 @@ public class DebugCamHUD : MonoBehaviour
     [SerializeField] private Button toggleTwoButton;
     [SerializeField] private Button sitButton;
     [SerializeField] private Button standButton;
+    [SerializeField] private Button lieButton;
+    [SerializeField] private Button wakeButton;
     [SerializeField] private Button xButton;
 
     // runtime
@@ -71,7 +73,6 @@ public class DebugCamHUD : MonoBehaviour
     private readonly List<NPC> _npcEnumOptions = new();
     private readonly List<string> _npcEnumLabels = new();
     private bool _npcEnumBuilt = false;
-
 
     private void Awake()
     {
@@ -95,12 +96,13 @@ public class DebugCamHUD : MonoBehaviour
         if (talkButton != null) talkButton.onClick.AddListener(OnTalkClicked);
 
         if (targetNpcDropdown != null) targetNpcDropdown.onValueChanged.AddListener(OnTargetNpcDropdownChanged);
-        
-        
+
         if (sitButton != null) sitButton.onClick.AddListener(OnSitClicked);
         if (standButton != null) standButton.onClick.AddListener(OnStandClicked);
+        if (lieButton != null) lieButton.onClick.AddListener(OnLieClicked);
+        if (wakeButton != null) wakeButton.onClick.AddListener(OnWakeClicked);
         if (xButton != null) xButton.onClick.AddListener(OnXClicked);
-        
+
         if (toggleOneButton != null) toggleOneButton.onClick.AddListener(OnToggleOutfitOneClicked);
         if (toggleTwoButton != null) toggleTwoButton.onClick.AddListener(OnToggleOutfitTwoClicked);
 
@@ -113,17 +115,19 @@ public class DebugCamHUD : MonoBehaviour
         if (followToggle != null) followToggle.onValueChanged.AddListener(OnFollowToggleChanged);
         if (orbitDistanceSlider != null) orbitDistanceSlider.onValueChanged.AddListener(OnOrbitDistanceSliderChanged);
         if (followDistanceSlider != null) followDistanceSlider.onValueChanged.AddListener(OnFollowDistanceSliderChanged);
-        
     }
 
     void OnDisable()
     {
         OnClearTargetClicked();
-        
+
         if (playTriggerButton != null) playTriggerButton.onClick.RemoveListener(OnPlayTriggerClicked);
 
         if (sitButton != null) sitButton.onClick.RemoveListener(OnSitClicked);
         if (standButton != null) standButton.onClick.RemoveListener(OnStandClicked);
+        if (lieButton != null) lieButton.onClick.RemoveListener(OnLieClicked);
+        if (wakeButton != null) wakeButton.onClick.RemoveListener(OnWakeClicked);
+
         if (forcePatrolButton != null) forcePatrolButton.onClick.RemoveListener(OnForcePatrolClicked);
         if (clearTargetButton != null) clearTargetButton.onClick.RemoveListener(OnClearTargetClicked);
 
@@ -131,12 +135,12 @@ public class DebugCamHUD : MonoBehaviour
         if (attackButton != null) attackButton.onClick.RemoveListener(OnAttackClicked);
         if (talkButton != null) talkButton.onClick.RemoveListener(OnTalkClicked);
         if (xButton != null) xButton.onClick.RemoveListener(OnXClicked);
-        
+
         if (toggleOneButton != null) toggleOneButton.onClick.RemoveListener(OnToggleOutfitOneClicked);
         if (toggleTwoButton != null) toggleTwoButton.onClick.RemoveListener(OnToggleOutfitTwoClicked);
 
         if (targetNpcDropdown != null) targetNpcDropdown.onValueChanged.RemoveListener(OnTargetNpcDropdownChanged);
-        
+
         if (panHorizontalButton != null) panHorizontalButton.onClick.RemoveListener(OnPanHorizontalClicked);
         if (panVerticalButton != null) panVerticalButton.onClick.RemoveListener(OnPanVerticalClicked);
         if (stopPanButton != null) stopPanButton.onClick.RemoveListener(OnStopPanClicked);
@@ -158,7 +162,6 @@ public class DebugCamHUD : MonoBehaviour
             RefreshForTarget(t);
         }
 
-        // Keep state text live (nice for debugging)
         if (_npc != null && currentStateText != null)
             currentStateText.text = $"State: {_npc.GetCurrentState()}";
     }
@@ -168,7 +171,6 @@ public class DebugCamHUD : MonoBehaviour
         _npc = null;
         if (target != null) _npc = target.GetComponentInParent<NPCController>();
 
-        // Text
         if (currentTargetText != null)
         {
             if (_npc == null)
@@ -209,9 +211,17 @@ public class DebugCamHUD : MonoBehaviour
         if (attackButton != null) attackButton.interactable = on;
         if (talkButton != null) talkButton.interactable = on;
 
+        if (sitButton != null) sitButton.interactable = on;
+        if (standButton != null) standButton.interactable = on;
+        if (lieButton != null) lieButton.interactable = on;
+        if (wakeButton != null) wakeButton.interactable = on;
+
+        if (toggleOneButton != null) toggleOneButton.interactable = on;
+        if (toggleTwoButton != null) toggleTwoButton.interactable = on;
+
         if (triggerDropdown != null) triggerDropdown.interactable = on;
         if (targetNpcDropdown != null) targetNpcDropdown.interactable = on;
-        
+
         RefreshCameraUI();
     }
 
@@ -269,7 +279,7 @@ public class DebugCamHUD : MonoBehaviour
         _lastTarget = null;
         RefreshForTarget(null);
     }
-    
+
     private void RefreshCameraUI()
     {
         if (orbitCam == null) return;
@@ -289,7 +299,7 @@ public class DebugCamHUD : MonoBehaviour
         if (panVerticalButton != null) panVerticalButton.interactable = hasTarget;
         if (followToggle != null) followToggle.interactable = hasTarget;
     }
-    
+
     // =========================================================
     // Trigger UI
     // =========================================================
@@ -354,6 +364,20 @@ public class DebugCamHUD : MonoBehaviour
     {
         if (_npc == null) return;
         _npc.RequestStandUp();
+        RefreshForTarget(_lastTarget);
+    }
+
+    private void OnLieClicked()
+    {
+        if (_npc == null) return;
+        _npc.RequestLieDown();
+        RefreshForTarget(_lastTarget);
+    }
+
+    private void OnWakeClicked()
+    {
+        if (_npc == null) return;
+        _npc.RequestWakeUp();
         RefreshForTarget(_lastTarget);
     }
 
@@ -442,32 +466,27 @@ public class DebugCamHUD : MonoBehaviour
     }
 
     private void OnToggleOutfitOneClicked()
-    {        
+    {
         if (_npc == null) return;
 
         MeNPC me = _npc.gameObject.GetComponent<MeNPC>();
-
         if (me != null)
-        {
             me.ToggleFirstOutfit();
-        }
-        
+
         RefreshForTarget(_lastTarget);
     }
+
     private void OnToggleOutfitTwoClicked()
-    {        
+    {
         if (_npc == null) return;
 
         MeNPC me = _npc.gameObject.GetComponent<MeNPC>();
-
         if (me != null)
-        {
             me.ToggleSecondOutfit();
-        }
-        
+
         RefreshForTarget(_lastTarget);
     }
-    
+
     private void OnAttackClicked()
     {
         if (_npc == null) return;

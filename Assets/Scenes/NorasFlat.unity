@@ -338,6 +338,10 @@ GameObject:
   - component: {fileID: 5712059}
   - component: {fileID: 5712058}
   - component: {fileID: 5712060}
+  - component: {fileID: 5712065}
+  - component: {fileID: 5712064}
+  - component: {fileID: 5712063}
+  - component: {fileID: 5712062}
   m_Layer: 22
   m_Name: NPC_Shauna
   m_TagString: Untagged
@@ -458,58 +462,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 21
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.45
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.1
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!195 &5712059
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -575,6 +531,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &5712062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5712056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &5712063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5712056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &5712064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5712056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &5712065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5712056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!1 &5788769
 GameObject:
   m_ObjectHideFlags: 0
@@ -7113,6 +7167,10 @@ GameObject:
   - component: {fileID: 126935131}
   - component: {fileID: 126935130}
   - component: {fileID: 126935129}
+  - component: {fileID: 126935137}
+  - component: {fileID: 126935136}
+  - component: {fileID: 126935135}
+  - component: {fileID: 126935134}
   m_Layer: 22
   m_Name: NPC_Mairead
   m_TagString: Untagged
@@ -7217,58 +7275,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 21
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.1
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.45
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!136 &126935130
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -7349,6 +7359,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &126935134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126935128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &126935135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126935128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &126935136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126935128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &126935137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126935128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!1 &129709592
 GameObject:
   m_ObjectHideFlags: 0
@@ -12735,6 +12843,10 @@ GameObject:
   - component: {fileID: 257629029}
   - component: {fileID: 257629028}
   - component: {fileID: 257629031}
+  - component: {fileID: 257629036}
+  - component: {fileID: 257629035}
+  - component: {fileID: 257629034}
+  - component: {fileID: 257629033}
   m_Layer: 22
   m_Name: NPC_Jasmine
   m_TagString: Untagged
@@ -12839,58 +12951,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 21
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.45
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.1
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!195 &257629029
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -12973,6 +13037,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &257629033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 257629027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &257629034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 257629027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &257629035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 257629027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &257629036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 257629027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!1 &260052164
 GameObject:
   m_ObjectHideFlags: 0
@@ -24342,6 +24504,10 @@ GameObject:
   - component: {fileID: 521070079}
   - component: {fileID: 521070078}
   - component: {fileID: 521070080}
+  - component: {fileID: 521070085}
+  - component: {fileID: 521070084}
+  - component: {fileID: 521070083}
+  - component: {fileID: 521070082}
   m_Layer: 22
   m_Name: NPC_Tom ONeill
   m_TagString: Untagged
@@ -24507,58 +24673,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 21
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.1
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.45
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!114 &521070081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24577,6 +24695,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &521070082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521070076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &521070083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521070076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &521070084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521070076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &521070085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521070076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!1 &521966045
 GameObject:
   m_ObjectHideFlags: 0
@@ -28091,6 +28307,10 @@ GameObject:
   - component: {fileID: 591589183}
   - component: {fileID: 591589182}
   - component: {fileID: 591589185}
+  - component: {fileID: 591589190}
+  - component: {fileID: 591589189}
+  - component: {fileID: 591589188}
+  - component: {fileID: 591589187}
   m_Layer: 22
   m_Name: NPC_FeckingKim
   m_TagString: Untagged
@@ -28195,58 +28415,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 524288
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.1
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.45
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!195 &591589183
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -28327,6 +28499,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &591589187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 591589181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &591589188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 591589181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &591589189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 591589181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &591589190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 591589181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!1 &592722287
 GameObject:
   m_ObjectHideFlags: 0
@@ -31431,6 +31701,10 @@ GameObject:
   - component: {fileID: 666046580}
   - component: {fileID: 666046579}
   - component: {fileID: 666046578}
+  - component: {fileID: 666046586}
+  - component: {fileID: 666046585}
+  - component: {fileID: 666046584}
+  - component: {fileID: 666046583}
   m_Layer: 22
   m_Name: NPC_Diane
   m_TagString: Untagged
@@ -31535,58 +31809,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 21
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.1
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.45
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!136 &666046579
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -31669,6 +31895,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &666046583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666046577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &666046584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666046577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &666046585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666046577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &666046586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666046577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!1 &670599363
 GameObject:
   m_ObjectHideFlags: 0
@@ -72673,7 +72997,7 @@ MonoBehaviour:
   QuestManager: {fileID: 169549909}
   AudioSlave: {fileID: 670599365}
   LoadingManager: {fileID: 1097157902}
-  DebugCam: {fileID: 0}
+  DebugCam: {fileID: 1121291268}
   DefaultFOV: 0
   NORASPCPASSWORD: 1629
   MouseSensitivity: 0.2
@@ -89026,6 +89350,10 @@ GameObject:
   - component: {fileID: 1867593930}
   - component: {fileID: 1867593929}
   - component: {fileID: 1867593932}
+  - component: {fileID: 1867593937}
+  - component: {fileID: 1867593936}
+  - component: {fileID: 1867593935}
+  - component: {fileID: 1867593934}
   m_Layer: 22
   m_Name: NPC_Presha
   m_TagString: Untagged
@@ -89130,58 +89458,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 2097152
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.45
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.1
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!195 &1867593930
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -89263,6 +89543,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &1867593934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867593928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &1867593935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867593928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &1867593936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867593928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &1867593937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867593928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!1 &1868197996
 GameObject:
   m_ObjectHideFlags: 0
@@ -93298,6 +93676,10 @@ GameObject:
   - component: {fileID: 1941394365}
   - component: {fileID: 1941394364}
   - component: {fileID: 1941394363}
+  - component: {fileID: 1941394370}
+  - component: {fileID: 1941394369}
+  - component: {fileID: 1941394368}
+  - component: {fileID: 1941394367}
   m_Layer: 22
   m_Name: NPC_Saoirse
   m_TagString: Untagged
@@ -93441,58 +93823,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 21
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.45
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.1
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!195 &1941394365
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -93535,6 +93869,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &1941394367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1941394361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &1941394368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1941394361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &1941394369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1941394361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &1941394370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1941394361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!1 &1942407595
 GameObject:
   m_ObjectHideFlags: 0
@@ -96169,6 +96601,10 @@ GameObject:
   - component: {fileID: 1996530528}
   - component: {fileID: 1996530527}
   - component: {fileID: 1996530526}
+  - component: {fileID: 1996530534}
+  - component: {fileID: 1996530533}
+  - component: {fileID: 1996530532}
+  - component: {fileID: 1996530531}
   m_Layer: 22
   m_Name: NPC_Ellsworth OHanlon
   m_TagString: Untagged
@@ -96273,58 +96709,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 21
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.1
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.45
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!136 &1996530527
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -96405,6 +96793,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &1996530531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1996530525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &1996530532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1996530525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &1996530533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1996530525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &1996530534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1996530525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!1 &1996589513
 GameObject:
   m_ObjectHideFlags: 0
@@ -101183,6 +101669,10 @@ GameObject:
   - component: {fileID: 2097689553}
   - component: {fileID: 2097689552}
   - component: {fileID: 2097689551}
+  - component: {fileID: 2097689558}
+  - component: {fileID: 2097689557}
+  - component: {fileID: 2097689556}
+  - component: {fileID: 2097689555}
   m_Layer: 22
   m_Name: NPC_Kieron
   m_TagString: Untagged
@@ -101326,58 +101816,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 21
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.1
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.45
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!195 &2097689553
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -101418,6 +101860,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &2097689555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2097689549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &2097689556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2097689549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &2097689557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2097689549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &2097689558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2097689549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!4 &2103076610 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ff08a64a2120d314c9f394fa4a72d4b3,
@@ -121234,58 +121774,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 21
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.1
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 524288
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.45
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!1 &1415320747241418303
 GameObject:
   m_ObjectHideFlags: 0
@@ -123815,58 +124307,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 21
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.1
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.45
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!4 &1630648064287436865
 Transform:
   m_ObjectHideFlags: 0
@@ -161377,6 +161821,10 @@ GameObject:
   - component: {fileID: 1405184281431643902}
   - component: {fileID: 5838113051383243656}
   - component: {fileID: 5838113051383243659}
+  - component: {fileID: 5838113051383243663}
+  - component: {fileID: 5838113051383243662}
+  - component: {fileID: 5838113051383243661}
+  - component: {fileID: 5838113051383243660}
   m_Layer: 22
   m_Name: NPC_EimearScott
   m_TagString: Untagged
@@ -163230,58 +163678,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 21
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.1
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 524288
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.45
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!222 &4690743419784222565
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -164419,58 +164819,10 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  modelRoot: {fileID: 0}
-  sitTriggerFallbackDelay: 0.08
-  seatLayerMask:
-    serializedVersion: 2
-    m_Bits: 21
-  seatDebugLogs: 0
-  seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
-  preSitForwardOffset: 1
-  preSitArriveDistance: 0.2
-  alignYawToleranceDeg: 6
-  backstepDistance: 0.45
-  backstepSpeed: 2
-  snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
-  autoStandAfterSeconds: 0
-  sitDownStateName: SitDown
-  sitIdleStateName: SitIdle
-  sitAnimLayer: 0
-  sitCrossfade: 0.1
-  useSitTriggerParam: 0
-  sitTriggerParam: SitDown
-  useStandUpTriggerParam: 1
-  standUpTriggerParam: StandUp
-  standUpStateName: StandUp
-  bedLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  bedDebugLogs: 0
-  bedRescanInterval: 0.35
-  bedSearchRadius: 0
-  preLieArriveDistance: 0.1
-  bedAlignYawToleranceDeg: 6
-  snapToBedWhenLying: 1
-  autoWakeAfterSeconds: 0
-  bodyRecoverySampleRadius: 4
-  lieDownSnapDelay: 0.01
-  lieDownStateName: LieDown
-  lieIdleStateName: LieIdle
-  lieAnimLayer: 0
-  lieCrossfade: 0.1
-  useLieDownTriggerParam: 1
-  lieDownTriggerParam: LieDown
-  lieTriggerFallbackDelay: 0.08
-  useLieIdleTriggerParam: 1
-  lieIdleTriggerParam: LieIdle
-  useWakeUpTriggerParam: 1
-  wakeUpTriggerParam: WakeUp
-  wakeUpStateName: WakeUp
-  wakeTriggerFallbackDelay: 0.08
+  _sitting: {fileID: 0}
+  _lying: {fileID: 0}
+  _talk: {fileID: 0}
+  _combat: {fileID: 0}
 --- !u!1 &4774676104397483914
 GameObject:
   m_ObjectHideFlags: 0
@@ -177353,6 +177705,104 @@ CapsuleCollider:
   m_Height: 3.5286007
   m_Direction: 1
   m_Center: {x: -0.064878926, y: 1.9918747, z: 0.059611008}
+--- !u!114 &5838113051383243660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4565736434850166452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &5838113051383243661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4565736434850166452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &5838113051383243662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4565736434850166452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &5838113051383243663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4565736434850166452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!33 &5838811376235001963
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -198434,6 +198884,10 @@ GameObject:
   - component: {fileID: 4773921320751449693}
   - component: {fileID: 7599671848180252352}
   - component: {fileID: 7599671848180252353}
+  - component: {fileID: 7599671848180252358}
+  - component: {fileID: 7599671848180252357}
+  - component: {fileID: 7599671848180252356}
+  - component: {fileID: 7599671848180252355}
   m_Layer: 22
   m_Name: NPC_ScientistKlaus
   m_TagString: Untagged
@@ -198506,6 +198960,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &7599671848180252355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7599671848180252351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &7599671848180252356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7599671848180252351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &7599671848180252357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7599671848180252351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &7599671848180252358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7599671848180252351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!1 &7600681706259130587
 GameObject:
   m_ObjectHideFlags: 0
@@ -213500,6 +214052,10 @@ GameObject:
   - component: {fileID: 1727164573504354525}
   - component: {fileID: 1630457273694131014}
   - component: {fileID: 8886761447540492272}
+  - component: {fileID: 8886761447540492277}
+  - component: {fileID: 8886761447540492276}
+  - component: {fileID: 8886761447540492275}
+  - component: {fileID: 8886761447540492274}
   m_Layer: 22
   m_Name: NPC_HomelessMike
   m_TagString: Untagged
@@ -213550,6 +214106,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &8886761447540492274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8886761447540492271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &8886761447540492275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8886761447540492271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &8886761447540492276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8886761447540492271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &8886761447540492277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8886761447540492271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!33 &8886789400169211275
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -213938,6 +214592,10 @@ GameObject:
   - component: {fileID: 5392806538472164311}
   - component: {fileID: 5887108826346273523}
   - component: {fileID: 8943626011633960091}
+  - component: {fileID: 8943626011633960096}
+  - component: {fileID: 8943626011633960095}
+  - component: {fileID: 8943626011633960094}
+  - component: {fileID: 8943626011633960093}
   m_Layer: 22
   m_Name: NPC_KlausHollow
   m_TagString: Untagged
@@ -213988,6 +214646,104 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcController: {fileID: 0}
   ThisNPCName: 
+--- !u!114 &8943626011633960093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8943626011633960090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f876a4c9297b119439b08bcf70c9f757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCTalkBehaviour
+--- !u!114 &8943626011633960094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8943626011633960090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34f6da4df67bc84886a202ab6691bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCSittingBehaviour
+  seatLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  seatDebugLogs: 0
+  seatQueryTriggers: 2
+  seatSearchTimeout: 4
+  seatRescanInterval: 0.35
+  seatSearchRadius: 0
+  preSitForwardOffset: 0.45
+  preSitArriveDistance: 0.35
+  alignYawToleranceDeg: 6
+  backstepDistance: 0.25
+  backstepSpeed: 0.8
+  snapToSeatWhenSeated: 1
+  seatedRootOffset: {x: 0, y: 0, z: 0}
+  autoStandAfterSeconds: 0
+  sitDownStateName: SitDown
+  sitIdleStateName: SitIdle
+  sitAnimLayer: 0
+  sitCrossfade: 0.1
+  useSitTriggerParam: 0
+  sitTriggerParam: SitDown
+  sitTriggerFallbackDelay: 0.08
+  useStandUpTriggerParam: 1
+  standUpTriggerParam: StandUp
+  standUpStateName: StandUp
+--- !u!114 &8943626011633960095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8943626011633960090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dc41e9a0d7c1d4283b16afd81ba3d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
+  bedLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  bedDebugLogs: 0
+  bedRescanInterval: 0.35
+  bedSearchRadius: 0
+  preLieArriveDistance: 0.45
+  bedAlignYawToleranceDeg: 6
+  snapToBedWhenLying: 1
+  autoWakeAfterSeconds: 0
+  bodyRecoverySampleRadius: 4
+  lieDownStateName: LieDown
+  lieIdleStateName: LieIdle
+  lieAnimLayer: 0
+  lieCrossfade: 0.1
+  useLieDownTriggerParam: 1
+  lieDownTriggerParam: LieDown
+  lieTriggerFallbackDelay: 0.08
+  useLieIdleTriggerParam: 1
+  lieIdleTriggerParam: LieIdle
+  useWakeUpTriggerParam: 1
+  wakeUpTriggerParam: WakeUp
+  wakeUpStateName: WakeUp
+  wakeTriggerFallbackDelay: 0.08
+--- !u!114 &8943626011633960096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8943626011633960090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f9323ed508cdd41b9549a76a7051a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCCombatBehaviour
 --- !u!224 &8951847542062789305
 RectTransform:
   m_ObjectHideFlags: 0

@@ -1,21 +1,15 @@
-// NPCLyingBehaviour.cs
-// Handles the full lie-down / wake-up sub-FSM.
-// Attach alongside NPCController. NPCController calls Init() then delegates
-// EnterLying() / TickLying() / RequestWakeUp() to this component.
-
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class NPCLyingBehaviour : NPCBehaviourBase
 {
-    // =========================================================
-    // Sub-FSM
-    // =========================================================
     public enum LiePhase
     {
         None,
         SearchingBed,
+        RoutingToLadder,
+        ClimbingLadder,
         ApproachingFront,
         Aligning,
         LieDownPlaying,
@@ -23,69 +17,67 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         WakeUpPlaying
     }
 
-    // =========================================================
-    // Inspector
-    // =========================================================
     [Header("Lying / Bed")]
     [SerializeField] private LayerMask bedLayerMask;
-    [SerializeField] private bool  bedDebugLogs       = false;
-    [SerializeField] private float bedRescanInterval  = 0.35f;
-    [SerializeField] private float bedSearchRadius    = 0f;
-    [SerializeField] private float preLieArriveDistance    = 0.45f;
+    [SerializeField] private bool bedDebugLogs = false;
+    [SerializeField] private float bedRescanInterval = 0.35f;
+    [SerializeField] private float bedSearchRadius = 0f;
+    [SerializeField] private float preLieArriveDistance = 0.45f;
     [SerializeField] private float bedAlignYawToleranceDeg = 6f;
-    [SerializeField] private bool  snapToBedWhenLying      = true;
+    [SerializeField] private bool snapToBedWhenLying = true;
 
     [Header("Lying Placement")]
-    [SerializeField] private float autoWakeAfterSeconds    = 0f;
+    [SerializeField] private float autoWakeAfterSeconds = 0f;
     [SerializeField] private float bodyRecoverySampleRadius = 4f;
 
     [Header("Lying Animations")]
-    [SerializeField] private string lieDownStateName   = "LieDown";
-    [SerializeField] private string lieIdleStateName   = "LieIdle";
-    [SerializeField] private int    lieAnimLayer       = 0;
-    [SerializeField] private float  lieCrossfade       = 0.10f;
-    [SerializeField] private bool   useLieDownTriggerParam  = true;
-    [SerializeField] private string lieDownTriggerParam     = "LieDown";
-    [SerializeField] private float  lieTriggerFallbackDelay = 0.08f;
-    [SerializeField] private bool   useLieIdleTriggerParam  = true;
-    [SerializeField] private string lieIdleTriggerParam     = "LieIdle";
+    [SerializeField] private string lieDownStateName = "LieDown";
+    [SerializeField] private string lieIdleStateName = "LieIdle";
+    [SerializeField] private int lieAnimLayer = 0;
+    [SerializeField] private float lieCrossfade = 0.10f;
+    [SerializeField] private bool useLieDownTriggerParam = true;
+    [SerializeField] private string lieDownTriggerParam = "LieDown";
+    [SerializeField] private float lieTriggerFallbackDelay = 0.08f;
+    [SerializeField] private bool useLieIdleTriggerParam = true;
+    [SerializeField] private string lieIdleTriggerParam = "LieIdle";
 
     [Header("Wake Up Animations")]
-    [SerializeField] private bool   useWakeUpTriggerParam   = true;
-    [SerializeField] private string wakeUpTriggerParam      = "WakeUp";
-    [SerializeField] private string wakeUpStateName         = "WakeUp";
-    [SerializeField] private float  wakeTriggerFallbackDelay = 0.08f;
+    [SerializeField] private bool useWakeUpTriggerParam = true;
+    [SerializeField] private string wakeUpTriggerParam = "WakeUp";
+    [SerializeField] private string wakeUpStateName = "WakeUp";
+    [SerializeField] private float wakeTriggerFallbackDelay = 0.08f;
 
-    // =========================================================
-    // Runtime
-    // =========================================================
     public LiePhase Phase => _liePhase;
+    public bool IsApproachingFront => _liePhase == LiePhase.ApproachingFront;
+    public bool IsRoutingToLadder => _liePhase == LiePhase.RoutingToLadder;
+
     private LiePhase _liePhase = LiePhase.None;
 
-    private Bed       _bed;
+    private Bed _bed;
     private Transform _bedTf;
     private Transform _bedFootTf;
     private Transform _bedLieTf;
-    private Vector3   _bedNavPos;
-    private Vector3   _preLieNavPos;
-    private Vector3   _bedLieWorldPos;
-    private bool      _snappedToBedLyingPose;
+    private Vector3 _bedNavPos;
+    private Vector3 _preLieNavPos;
+    private Vector3 _bedLieWorldPos;
+    private bool _snappedToBedLyingPose;
 
     private float _bedRescanT;
     private float _lyingT;
     private float _lieTriggerT;
     private float _wakeTriggerT;
-    private bool  _lieTriggerSent;
-    private bool  _wakeTriggerSent;
+    private bool _lieTriggerSent;
+    private bool _wakeTriggerSent;
 
-    // Animation root cache (lying offsets the animation root; we restore it on wake)
+    private Ladder _routeLadder;
+    private bool _routeGoingUp;
+    private Vector3 _routeApproachPoint;
+    private Vector3 _routeExitPoint;
+
     private Transform _animationRoot;
-    private bool      _hasAnimationRootCachedXZ;
-    private Vector2   _animationRootCachedLocalXZ;
+    private bool _hasAnimationRootCachedXZ;
+    private Vector2 _animationRootCachedLocalXZ;
 
-    // =========================================================
-    // Init
-    // =========================================================
     public override void Init(NPCController controller)
     {
         base.Init(controller);
@@ -107,23 +99,18 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         _hasAnimationRootCachedXZ = false;
     }
 
-    // =========================================================
-    // Public API (called by NPCController)
-    // =========================================================
-    public bool IsApproachingFront => _liePhase == LiePhase.ApproachingFront;
-    public bool IsActive           => _liePhase != LiePhase.None;
-
     public void EnterLying()
     {
-        _liePhase          = LiePhase.SearchingBed;
-        _bedRescanT        = 0f;
-        _lyingT            = 0f;
-        _lieTriggerT       = 0f;
-        _wakeTriggerT      = 0f;
-        _lieTriggerSent    = false;
-        _wakeTriggerSent   = false;
+        _liePhase = LiePhase.SearchingBed;
+        _bedRescanT = 0f;
+        _lyingT = 0f;
+        _lieTriggerT = 0f;
+        _wakeTriggerT = 0f;
+        _lieTriggerSent = false;
+        _wakeTriggerSent = false;
         _snappedToBedLyingPose = false;
 
+        ClearLadderRoute();
         ReleaseBedIfAny();
 
         if (Agent != null)
@@ -132,7 +119,7 @@ public class NPCLyingBehaviour : NPCBehaviourBase
             if (!Agent.isOnNavMesh && TryGetNavmeshPoint(Body.position, out Vector3 navPos))
                 Agent.Warp(navPos);
 
-            Agent.autoBraking     = true;
+            Agent.autoBraking = true;
             Agent.stoppingDistance = Mathf.Max(0.05f, ArriveDistance);
 
             if (AgentReady())
@@ -147,7 +134,15 @@ public class NPCLyingBehaviour : NPCBehaviourBase
     {
         switch (_liePhase)
         {
-            case LiePhase.SearchingBed:    TickSearchingBed(dt);                            break;
+            case LiePhase.SearchingBed:
+                TickSearchingBed(dt);
+                break;
+            case LiePhase.RoutingToLadder:
+                TickRoutingToLadder();
+                break;
+            case LiePhase.ClimbingLadder:
+                ForceIdlePose();
+                break;
             case LiePhase.ApproachingFront:
                 if (AgentReady()) TickApproachBedFront();
                 break;
@@ -155,16 +150,19 @@ public class NPCLyingBehaviour : NPCBehaviourBase
                 if (_bedTf == null) { Fail(); return; }
                 if (AgentReady()) TickAlignToBed(dt, GetBedFacing());
                 break;
-            case LiePhase.LieDownPlaying:  TickLieDownPlaying(dt);                         break;
+            case LiePhase.LieDownPlaying:
+                TickLieDownPlaying(dt);
+                break;
             case LiePhase.LyingIdle:
                 if (_bedTf == null) { Fail(); return; }
                 TickLyingIdle(dt, GetBedFacing());
                 break;
-            case LiePhase.WakeUpPlaying:   TickWakeUpPlaying(dt);                          break;
+            case LiePhase.WakeUpPlaying:
+                TickWakeUpPlaying(dt);
+                break;
         }
     }
 
-    /// <summary>Called externally (e.g. NPCController.RequestWakeUp) to begin waking up.</summary>
     public void BeginWakeUp()
     {
         if (_liePhase == LiePhase.WakeUpPlaying) return;
@@ -179,7 +177,7 @@ public class NPCLyingBehaviour : NPCBehaviourBase
 
         Anim.SetFloat(ParamMovingX, 0f);
         Anim.SetFloat(ParamMovingY, 0f);
-        Anim.SetFloat(ParamBlend,   0f);
+        Anim.SetFloat(ParamBlend, 0f);
 
         ResetAllAnimatorTriggers();
         Anim.speed = 1f;
@@ -189,14 +187,11 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         else if (!string.IsNullOrWhiteSpace(wakeUpStateName))
             Anim.CrossFadeInFixedTime(wakeUpStateName, lieCrossfade, lieAnimLayer, 0f);
 
-        _wakeTriggerT    = 0f;
+        _wakeTriggerT = 0f;
         _wakeTriggerSent = true;
-        _liePhase        = LiePhase.WakeUpPlaying;
+        _liePhase = LiePhase.WakeUpPlaying;
     }
 
-    // =========================================================
-    // Bed-facing helper
-    // =========================================================
     private Vector3 GetBedFacing()
     {
         if (_bedFootTf != null && _bedLieTf != null)
@@ -207,15 +202,13 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         }
         if (_bedFootTf != null)
         {
-            Vector3 f = _bedFootTf.forward; f.y = 0f;
+            Vector3 f = _bedFootTf.forward;
+            f.y = 0f;
             if (f.sqrMagnitude > 0.0001f) return f.normalized;
         }
         return Body.forward;
     }
 
-    // =========================================================
-    // Sub-phase ticks
-    // =========================================================
     private void TickSearchingBed(float dt)
     {
         _bedRescanT -= dt;
@@ -233,7 +226,7 @@ public class NPCLyingBehaviour : NPCBehaviourBase
     private bool TryAcquireBed()
     {
         float radius = (bedSearchRadius > 0.01f) ? bedSearchRadius : Mathf.Max(0.1f, ActiveRadius);
-        Bed[] beds   = FindObjectsByType<Bed>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        Bed[] beds = FindObjectsByType<Bed>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
         if (beds == null || beds.Length == 0)
         {
@@ -241,7 +234,7 @@ public class NPCLyingBehaviour : NPCBehaviourBase
             return false;
         }
 
-        Bed   best    = null;
+        Bed best = null;
         float bestSqr = float.PositiveInfinity;
 
         foreach (var b in beds)
@@ -249,8 +242,8 @@ public class NPCLyingBehaviour : NPCBehaviourBase
             if (!b || b.bedFootTransform == null || b.bedLyingTransform == null || b.IsOccupied) continue;
 
             bool matchesMask =
-                ((1 << b.gameObject.layer)               & bedLayerMask.value) != 0 ||
-                ((1 << b.bedFootTransform.gameObject.layer)  & bedLayerMask.value) != 0 ||
+                ((1 << b.gameObject.layer) & bedLayerMask.value) != 0 ||
+                ((1 << b.bedFootTransform.gameObject.layer) & bedLayerMask.value) != 0 ||
                 ((1 << b.bedLyingTransform.gameObject.layer) & bedLayerMask.value) != 0;
 
             if (!matchesMask) continue;
@@ -269,55 +262,191 @@ public class NPCLyingBehaviour : NPCBehaviourBase
             if (sqr < bestSqr) { best = b; bestSqr = sqr; }
         }
 
-        if (best == null) { Debug.LogWarning($"{name} Bed: No valid/free bed found."); return false; }
-        if (!best.TryOccupy(npc)) { Debug.LogWarning($"{name} Bed: '{best.name}' refused occupancy."); return false; }
+        if (best == null)
+        {
+            if (bedDebugLogs) Debug.LogWarning($"{name} Bed: No valid/free bed found.");
+            return false;
+        }
 
-        _bed       = best;
-        _bedTf     = best.transform;
+        if (!best.TryOccupy(npc))
+        {
+            Debug.LogWarning($"{name} Bed: '{best.name}' refused occupancy.");
+            return false;
+        }
+
+        _bed = best;
+        _bedTf = best.transform;
         _bedFootTf = best.bedFootTransform;
-        _bedLieTf  = best.bedLyingTransform;
+        _bedLieTf = best.bedLyingTransform;
 
         Vector3 bedFootPos = _bedFootTf.position;
-        Vector3 bedLiePos  = _bedLieTf.position;
+        Vector3 bedLiePos = _bedLieTf.position;
 
         if (!NavMesh.SamplePosition(bedLiePos, out NavMeshHit bedLieHit, ActiveRadius, NavMesh.AllAreas))
         {
             Debug.LogWarning($"{name} Bed: Could not sample lying NavMesh point.");
-            ReleaseBedIfAny(); return false;
+            ReleaseBedIfAny();
+            return false;
         }
-        _bedNavPos      = bedLieHit.position;
+        _bedNavPos = bedLieHit.position;
         _bedLieWorldPos = bedLiePos;
 
         if (!NavMesh.SamplePosition(bedFootPos, out NavMeshHit footHit, ActiveRadius, NavMesh.AllAreas))
         {
             Debug.LogWarning($"{name} Bed: Could not sample foot NavMesh point.");
-            ReleaseBedIfAny(); return false;
+            ReleaseBedIfAny();
+            return false;
         }
         _preLieNavPos = footHit.position;
-
-        if (bedDebugLogs) Debug.Log($"{name} Bed: ACQUIRED '{_bed.name}'");
 
         if (!Agent.enabled) Agent.enabled = true;
         if (!Agent.isOnNavMesh && TryGetNavmeshPoint(Body.position, out Vector3 navPos))
             Agent.Warp(navPos);
 
-        if (!AgentReady()) return false;
+        if (!AgentReady())
+        {
+            if (bedDebugLogs) Debug.LogWarning($"{name} Bed: agent not ready after acquiring '{_bed?.name}'.");
+            ReleaseBedIfAny();
+            return false;
+        }
 
-        Agent.isStopped        = false;
-        Agent.autoBraking      = true;
-        Agent.stoppingDistance  = Mathf.Max(0.05f, ArriveDistance);
+        if (npc.CanReachPosition(_preLieNavPos, out NavMeshPath directPath))
+        {
+            if (bedDebugLogs) Debug.Log($"{name} Bed: direct path to bed ok");
+
+            Agent.isStopped = false;
+            Agent.autoBraking = true;
+            Agent.stoppingDistance = Mathf.Max(0.05f, ArriveDistance);
+            Agent.ResetPath();
+            Agent.SetPath(directPath);
+
+            _liePhase = LiePhase.ApproachingFront;
+            return true;
+        }
+
+        if (npc.TryFindLadderRoute(_preLieNavPos, out Ladder ladder, out bool goingUp, out Vector3 approachPoint, out Vector3 exitPoint, out NavMeshPath ladderPath))
+        {
+            _routeLadder = ladder;
+            _routeGoingUp = goingUp;
+            _routeApproachPoint = approachPoint;
+            _routeExitPoint = exitPoint;
+
+            if (bedDebugLogs)
+                Debug.Log($"{name} Bed: routing via ladder '{ladder.name}' goingUp={goingUp}");
+
+            Agent.isStopped = false;
+            Agent.autoBraking = true;
+            Agent.stoppingDistance = Mathf.Max(0.05f, ArriveDistance);
+            Agent.ResetPath();
+            Agent.SetPath(ladderPath);
+
+            _liePhase = LiePhase.RoutingToLadder;
+            return true;
+        }
+
+        if (bedDebugLogs)
+            Debug.LogWarning($"{name} Bed: REJECT '{_bed?.name}' no direct path and no ladder route");
+
+        ReleaseBedIfAny();
+        ClearLadderRoute();
+        return false;
+    }
+
+    private void TickRoutingToLadder()
+    {
+        if (_routeLadder == null)
+        {
+            if (bedDebugLogs) Debug.LogWarning($"{name} Bed: RoutingToLadder but no ladder.");
+            Fail();
+            return;
+        }
+
+        Agent.isStopped = false;
+        Agent.autoBraking = true;
+        Agent.stoppingDistance = Mathf.Max(0.05f, ArriveDistance);
+
+        if (!Agent.pathPending && Agent.pathStatus == NavMeshPathStatus.PathInvalid)
+        {
+            if (bedDebugLogs) Debug.LogWarning($"{name} Bed: ladder approach path became invalid.");
+            Fail();
+            return;
+        }
+
+        if (!Agent.pathPending && !Agent.hasPath)
+        {
+            if (bedDebugLogs) Debug.LogWarning($"{name} Bed: lost ladder approach path.");
+            Fail();
+            return;
+        }
+
+        float dist = Vector3.Distance(
+            new Vector3(Body.position.x, 0f, Body.position.z),
+            new Vector3(_routeApproachPoint.x, 0f, _routeApproachPoint.z));
+
+        if (dist <= npc.ladderApproachArriveDistance)
+        {
+            if (bedDebugLogs) Debug.Log($"{name} Bed: reached ladder approach, starting climb.");
+
+            Agent.isStopped = true;
+            Agent.ResetPath();
+            _liePhase = LiePhase.ClimbingLadder;
+
+            npc.StartLadderTraversal(_routeLadder, _routeGoingUp, OnFinishedLadderRoute);
+        }
+    }
+
+    private void OnFinishedLadderRoute()
+    {
+        if (bedDebugLogs) Debug.Log($"{name} Bed: ladder traversal complete");
+
+        if (_bed == null || _bedTf == null)
+        {
+            Fail();
+            return;
+        }
+
+        if (!AgentReady())
+        {
+            if (bedDebugLogs) Debug.LogWarning($"{name} Bed: agent not ready after ladder.");
+            Fail();
+            return;
+        }
+
+        if (!npc.CanReachPosition(_preLieNavPos, out NavMeshPath path))
+        {
+            if (bedDebugLogs) Debug.LogWarning($"{name} Bed: cannot reach bed after ladder.");
+            Fail();
+            return;
+        }
+
+        Agent.isStopped = false;
+        Agent.autoBraking = true;
+        Agent.stoppingDistance = Mathf.Max(0.05f, ArriveDistance);
         Agent.ResetPath();
-        Agent.SetDestination(_preLieNavPos);
+        Agent.SetPath(path);
 
         _liePhase = LiePhase.ApproachingFront;
-        return true;
     }
 
     private void TickApproachBedFront()
     {
-        Agent.isStopped       = false;
-        Agent.autoBraking     = true;
+        Agent.isStopped = false;
+        Agent.autoBraking = true;
         Agent.stoppingDistance = Mathf.Max(0.05f, ArriveDistance);
+
+        if (!Agent.pathPending && Agent.pathStatus == NavMeshPathStatus.PathInvalid)
+        {
+            if (bedDebugLogs) Debug.LogWarning($"{name} Bed: path became invalid while approaching bed.");
+            Fail();
+            return;
+        }
+
+        if (!Agent.pathPending && !Agent.hasPath)
+        {
+            if (bedDebugLogs) Debug.LogWarning($"{name} Bed: lost path while approaching bed.");
+            Fail();
+            return;
+        }
 
         if (!Agent.pathPending && (!Agent.hasPath || Vector3.Distance(Agent.destination, _preLieNavPos) > 0.15f))
             Agent.SetDestination(_preLieNavPos);
@@ -375,7 +504,7 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         {
             Anim.SetFloat(ParamMovingX, 0f);
             Anim.SetFloat(ParamMovingY, 0f);
-            Anim.SetFloat(ParamBlend,   0f);
+            Anim.SetFloat(ParamBlend, 0f);
 
             ResetAllAnimatorTriggers();
 
@@ -387,9 +516,9 @@ public class NPCLyingBehaviour : NPCBehaviourBase
             if (bedDebugLogs) Debug.Log($"{name} Bed: LieDown trigger fired.");
         }
 
-        _lieTriggerT    = 0f;
+        _lieTriggerT = 0f;
         _lieTriggerSent = true;
-        _liePhase       = LiePhase.LieDownPlaying;
+        _liePhase = LiePhase.LieDownPlaying;
     }
 
     private void TickLieDownPlaying(float dt)
@@ -436,7 +565,7 @@ public class NPCLyingBehaviour : NPCBehaviourBase
             }
 
             _liePhase = LiePhase.LyingIdle;
-            _lyingT   = 0f;
+            _lyingT = 0f;
             if (bedDebugLogs) Debug.Log($"{name} Bed: LyingIdle.");
         }
     }
@@ -464,12 +593,13 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         _wakeTriggerT += dt;
         AnimatorStateInfo info = Anim.GetCurrentAnimatorStateInfo(lieAnimLayer);
 
-        bool inWakeUp  = !string.IsNullOrWhiteSpace(wakeUpStateName)  && info.IsName(wakeUpStateName);
+        bool inWakeUp = !string.IsNullOrWhiteSpace(wakeUpStateName) && info.IsName(wakeUpStateName);
         bool inLieIdle = !string.IsNullOrWhiteSpace(lieIdleStateName) && info.IsName(lieIdleStateName);
 
         if (inWakeUp && !Anim.IsInTransition(lieAnimLayer) && info.normalizedTime >= 1f)
         {
-            FinishWakeUpToPatrol(); return;
+            FinishWakeUpToPatrol();
+            return;
         }
 
         if (_wakeTriggerSent && _wakeTriggerT >= wakeTriggerFallbackDelay)
@@ -485,7 +615,8 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         if (_wakeTriggerT >= Mathf.Max(0.25f, TriggerMaxDuration))
         {
             if (bedDebugLogs) Debug.LogWarning($"{name} Bed: WakeUp timeout.");
-            FinishWakeUpToPatrol(); return;
+            FinishWakeUpToPatrol();
+            return;
         }
 
         if (_wakeTriggerT > 0.20f && !Anim.IsInTransition(lieAnimLayer) && !inWakeUp && !inLieIdle)
@@ -495,19 +626,17 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         }
     }
 
-    // =========================================================
-    // Finish / Fail
-    // =========================================================
     private void FinishWakeUpToPatrol()
     {
         Vector3 preferred = _preLieNavPos != Vector3.zero ? _preLieNavPos
-                          : (_bedNavPos   != Vector3.zero ? _bedNavPos : Body.position);
+                          : (_bedNavPos != Vector3.zero ? _bedNavPos : Body.position);
 
         ReleaseBedIfAny();
+        ClearLadderRoute();
 
-        npc.HasCommand  = false;
+        npc.HasCommand = false;
         npc.CommandGoal = NPCController.NPCState.Patrolling;
-        _liePhase       = LiePhase.None;
+        _liePhase = LiePhase.None;
         npc.SetStateDirectly(NPCController.NPCState.Patrolling);
 
         StartCoroutine(FinishWakeUpGroundingRoutine(preferred));
@@ -531,9 +660,9 @@ public class NPCLyingBehaviour : NPCBehaviourBase
             ForceIdlePose();
         }
 
-        npc.HasCommand  = false;
+        npc.HasCommand = false;
         npc.CommandGoal = NPCController.NPCState.Patrolling;
-        _liePhase       = LiePhase.None;
+        _liePhase = LiePhase.None;
         npc.SetStateDirectly(NPCController.NPCState.Patrolling);
 
         npc.ExecutePendingPostStandAction();
@@ -542,13 +671,14 @@ public class NPCLyingBehaviour : NPCBehaviourBase
     private void Fail()
     {
         Vector3 preferred = _preLieNavPos != Vector3.zero ? _preLieNavPos
-                          : (_bedNavPos   != Vector3.zero ? _bedNavPos : Body.position);
+                          : (_bedNavPos != Vector3.zero ? _bedNavPos : Body.position);
 
         ReleaseBedIfAny();
+        ClearLadderRoute();
 
-        npc.HasCommand  = false;
+        npc.HasCommand = false;
         npc.CommandGoal = NPCController.NPCState.Patrolling;
-        _liePhase       = LiePhase.None;
+        _liePhase = LiePhase.None;
         npc.SetStateDirectly(NPCController.NPCState.Patrolling);
 
         RestoreStandingBodyAt(preferred, bodyRecoverySampleRadius);
@@ -561,14 +691,22 @@ public class NPCLyingBehaviour : NPCBehaviourBase
     private void ReleaseBedIfAny()
     {
         _bed?.Release(npc);
-        _bed            = null;
-        _bedTf          = null;
-        _bedFootTf      = null;
-        _bedLieTf       = null;
-        _bedNavPos      = Vector3.zero;
-        _preLieNavPos   = Vector3.zero;
+        _bed = null;
+        _bedTf = null;
+        _bedFootTf = null;
+        _bedLieTf = null;
+        _bedNavPos = Vector3.zero;
+        _preLieNavPos = Vector3.zero;
         _bedLieWorldPos = Vector3.zero;
         _snappedToBedLyingPose = false;
+    }
+
+    private void ClearLadderRoute()
+    {
+        _routeLadder = null;
+        _routeGoingUp = false;
+        _routeApproachPoint = Vector3.zero;
+        _routeExitPoint = Vector3.zero;
     }
 
     private void SnapToBedLyingPoseNow()
@@ -580,15 +718,12 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         if (bedDebugLogs) Debug.Log($"{name} Bed: Snapped to lying pose.");
     }
 
-    // =========================================================
-    // Animation root cache helpers
-    // =========================================================
     private void CacheAnimationRootLocalXZ()
     {
         if (_animationRoot == null) return;
         Vector3 lp = _animationRoot.localPosition;
         _animationRootCachedLocalXZ = new Vector2(lp.x, lp.z);
-        _hasAnimationRootCachedXZ   = true;
+        _hasAnimationRootCachedXZ = true;
     }
 
     private void RestoreAnimationRootLocalXZ()

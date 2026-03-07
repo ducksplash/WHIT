@@ -1,4 +1,3 @@
-// NPCController.cs  (refactored — behaviour plugins handle Sitting / Lying / Talk / Combat)
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,9 +10,6 @@ using UnityEditor;
 
 public class NPCController : MonoBehaviour
 {
-    // =========================================================
-    // FSM state enum
-    // =========================================================
     public enum NPCState
     {
         Patrolling,
@@ -23,12 +19,10 @@ public class NPCController : MonoBehaviour
         Seeking,
         Talk,
         Sitting,
-        Lying
+        Lying,
+        ClimbingLadder
     }
 
-    // =========================================================
-    // Inspector
-    // =========================================================
     [Header("Identity")]
     public NPC thisNPC = NPC.Eimear_Scott;
 
@@ -39,7 +33,7 @@ public class NPCController : MonoBehaviour
 
     [Header("Testing / Overrides")]
     public bool allowApproachOutsideActiveRadius = false;
-    public NPC  debugTargetNPC = NPC.Eimear_Scott;
+    public NPC debugTargetNPC = NPC.Eimear_Scott;
 
     [Header("Perception")]
     public float visionRange = 12f;
@@ -48,7 +42,7 @@ public class NPCController : MonoBehaviour
     public LayerMask losBlockers = ~0;
 
     [Header("Combat")]
-    public float attackRange   = 1.8f;
+    public float attackRange = 1.8f;
     public float alertedDuration = 0.35f;
 
     [Header("Interaction / Talk")]
@@ -56,13 +50,13 @@ public class NPCController : MonoBehaviour
 
     [Header("Patrol")]
     public Vector2 patrolChangeDirInterval = new Vector2(3f, 7f);
-    public Vector2 patrolArrivePause       = new Vector2(0.2f, 1.0f);
-    public int     patrolPointTries   = 10;
-    public float   patrolSampleRadius = 2.0f;
+    public Vector2 patrolArrivePause = new Vector2(0.2f, 1.0f);
+    public int patrolPointTries = 10;
+    public float patrolSampleRadius = 2.0f;
 
     [Header("Seeking")]
     public float seekingSpeedMultiplier = 1.2f;
-    public float seekGiveUpSeconds      = 6f;
+    public float seekGiveUpSeconds = 6f;
     public float approachRepathInterval = 0.25f;
 
     [Header("Debug (Runtime)")]
@@ -70,45 +64,45 @@ public class NPCController : MonoBehaviour
 
     [Header("Approach Smoothing")]
     public float approachTargetMoveThreshold = 0.35f;
-    public bool  disableBrakingWhileApproaching = true;
+    public bool disableBrakingWhileApproaching = true;
 
     public NPCManager sceneNPCManager;
 
-    [SerializeField] float faceMinSpeed    = 0.08f;
+    [SerializeField] float faceMinSpeed = 0.08f;
     [SerializeField] float faceMinDistance = 0.15f;
     [SerializeField] float faceMaxDegPerSec = 540f;
 
     [Header("Turn / BlendTree Driving")]
-    [SerializeField] private float turnAngleForFullX         = 90f;
-    [SerializeField] private float turnInPlaceSpeed          = 160f;
-    [SerializeField] private float turnWhileMovingSpeed      = 260f;
+    [SerializeField] private float turnAngleForFullX = 90f;
+    [SerializeField] private float turnInPlaceSpeed = 160f;
+    [SerializeField] private float turnWhileMovingSpeed = 260f;
     [SerializeField] private float turnInPlaceSpeedThreshold = 0.15f;
 
     [Header("Components")]
-    public Animator    animationController;
+    public Animator animationController;
     public NavMeshAgent agent;
 
     [Header("Arrival / Blending")]
-    public float arriveDistance         = 0.3f;
-    public float arriveSettleTime       = 0.05f;
-    public float stopFadeOutTime        = 0.35f;
-    public float idleVelocityThreshold  = 0.05f;
+    public float arriveDistance = 0.3f;
+    public float arriveSettleTime = 0.05f;
+    public float stopFadeOutTime = 0.35f;
+    public float idleVelocityThreshold = 0.05f;
 
     [Header("Movement")]
-    public float moveSpeed    = 3f;
+    public float moveSpeed = 3f;
     public float angularSpeed = 240f;
     public float acceleration = 8f;
 
     [Header("Smoothing")]
-    public float animDampTime  = 0.15f;
+    public float animDampTime = 0.15f;
     public float turnSmoothing = 10f;
 
     [Header("NavMesh Placement")]
-    public float snapToNavMeshRadius    = 2f;
-    public bool  autoSnapToNavMeshOnGo  = true;
+    public float snapToNavMeshRadius = 2f;
+    public bool autoSnapToNavMeshOnGo = true;
 
     [Header("Animator Params")]
-    public string paramBlend   = "Blend";
+    public string paramBlend = "Blend";
     public string paramMovingX = "MovingX";
     public string paramMovingY = "MovingY";
 
@@ -116,52 +110,54 @@ public class NPCController : MonoBehaviour
     public List<string> triggerNames = new List<string>();
     [HideInInspector] public int selectedTriggerIndex = 0;
     public float triggerEnterTimeout = 1.0f;
-    public float triggerMaxDuration  = 8.0f;
-    public float triggerExitBuffer   = 0.05f;
+    public float triggerMaxDuration = 8.0f;
+    public float triggerExitBuffer = 0.05f;
 
     [Header("Locomotion / Blend Tree Return")]
     [SerializeField] private string locomotionStateName = "Locomotion";
-    [SerializeField] private int    locomotionLayer     = 0;
-    [SerializeField] private float  locomotionCrossfade = 0.12f;
+    [SerializeField] private int locomotionLayer = 0;
+    [SerializeField] private float locomotionCrossfade = 0.12f;
 
     [Header("Crowd Avoidance")]
-    public LayerMask npcLayerMask        = ~0;
-    public float personalSpaceRadius     = 0.9f;
-    [Range(-1f, 1f)]
-    public float inFrontDotThreshold     = 0.35f;
-    public float sidestepDistance        = 0.9f;
-    public float sidestepDuration        = 0.7f;
-    public float renegotiateCooldown     = 0.8f;
+    public LayerMask npcLayerMask = ~0;
+    public float personalSpaceRadius = 0.9f;
+    [Range(-1f, 1f)] public float inFrontDotThreshold = 0.35f;
+    public float sidestepDistance = 0.9f;
+    public float sidestepDuration = 0.7f;
+    public float renegotiateCooldown = 0.8f;
     public float renegotiateCheckInterval = 0.15f;
 
     public MeNPC npcMetaActions;
 
+    [Header("Ladders")]
+    public bool useLadders = true;
+    public float ladderApproachArriveDistance = 0.45f;
+    public float ladderClimbSpeed = 1.6f;
+    public float ladderFacingSlerp = 18f;
+    public float ladderMinHeightDeltaForUp = 0.25f;
+    public string climbUpTriggerName = "ClimbUpLadder";
+    public string climbDownTriggerName = "ClimbDownLadder";
+    public float ladderNavmeshSnapRadius = 3f;
+    public bool ladderDebugLogs = true;
+
     [Header("Behaviour Plugins")]
     [SerializeField] private NPCSittingBehaviour _sitting;
-    [SerializeField] private NPCLyingBehaviour   _lying;
-    [SerializeField] private NPCTalkBehaviour    _talk;
-    [SerializeField] private NPCCombatBehaviour  _combat;
+    [SerializeField] private NPCLyingBehaviour _lying;
+    [SerializeField] private NPCTalkBehaviour _talk;
+    [SerializeField] private NPCCombatBehaviour _combat;
 
-    // =========================================================
-    // Runtime state — exposed as properties for behaviour scripts
-    // =========================================================
     [NonSerialized] public bool isPaused = false;
 
-    // Properties accessed by behaviour plugins
-    public bool HasCommand  { get => _hasCommand;  set => _hasCommand  = value; }
+    public bool HasCommand { get => _hasCommand; set => _hasCommand = value; }
     public NPCState CommandGoal { get => _commandGoal; set => _commandGoal = value; }
-    public Vector3 SpawnPoint  => _spawnPoint;
+    public Vector3 SpawnPoint => _spawnPoint;
     public Vector3 AnimVelocitySmoothed { get => _animVelocitySmoothed; set => _animVelocitySmoothed = value; }
+    public NPCTalkBehaviour Talk => _talk;
+    public bool IsTraversingLadder => _isTraversingLadder;
 
-    // Public references for NPCTalkBehaviour.BreakConversationLockImmediate
-    public NPCTalkBehaviour    Talk   => _talk;
-
-    // =========================================================
-    // Private FSM state
-    // =========================================================
     private Vector3 _spawnPoint;
     private Vector3 _patrolDestination;
-    private bool    _hasPatrolDestination;
+    private bool _hasPatrolDestination;
 
     private float _stateTimer;
     private float _patrolChangeTimer;
@@ -170,37 +166,37 @@ public class NPCController : MonoBehaviour
     private float _seekTimer;
 
     private Vector3 _lastKnownTargetPos;
-    private bool    _hasLastKnownTargetPos;
+    private bool _hasLastKnownTargetPos;
 
-    private bool    _hasCommand    = false;
-    private NPCState _commandGoal  = NPCState.Patrolling;
+    private bool _hasCommand = false;
+    private NPCState _commandGoal = NPCState.Patrolling;
 
     private Vector3 _lastApproachDest;
-    private bool    _hasLastApproachDest;
+    private bool _hasLastApproachDest;
 
     private Action _pendingPostStandAction;
-    private bool   _executePendingActionAfterStand = false;
+    private bool _executePendingActionAfterStand = false;
 
     private Vector3 _animVelocitySmoothed = Vector3.zero;
     private Vector3 _resumeDestination;
-    private bool    _hasResumeDestination;
+    private bool _hasResumeDestination;
 
-    // Trigger coroutine state
     private Coroutine _triggerCoroutine;
-    private bool      _isPlayingTriggeredAnimation = false;
-    private bool      _triggerPrevPaused;
-    private bool      _triggerAgentWasValid;
-    private bool      _triggerHadPathBefore;
-    private bool      _triggerWasStoppedBefore;
+    private bool _isPlayingTriggeredAnimation = false;
+    private bool _triggerPrevPaused;
+    private bool _triggerAgentWasValid;
+    private bool _triggerHadPathBefore;
+    private bool _triggerWasStoppedBefore;
 
-    // Crowd avoidance
-    private float     _renegotiateT;
-    private float     _renegotiateCooldownT;
+    private float _renegotiateT;
+    private float _renegotiateCooldownT;
     private Coroutine _sidestepCoroutine;
 
-    // =========================================================
-    // Public helpers used by behaviour plugins (via NPCBehaviourBase)
-    // =========================================================
+    private Coroutine _ladderCoroutine;
+    private bool _isTraversingLadder = false;
+    private NPCState _stateBeforeLadder = NPCState.Patrolling;
+    private Action _ladderCompleteAction;
+
     public bool AgentReady()
         => agent != null && agent.isActiveAndEnabled && agent.enabled && agent.isOnNavMesh;
 
@@ -208,7 +204,10 @@ public class NPCController : MonoBehaviour
     {
         navPos = near;
         if (NavMesh.SamplePosition(near, out NavMeshHit hit, snapToNavMeshRadius, NavMesh.AllAreas))
-        { navPos = hit.position; return true; }
+        {
+            navPos = hit.position;
+            return true;
+        }
         return false;
     }
 
@@ -216,8 +215,231 @@ public class NPCController : MonoBehaviour
     {
         navPos = near;
         if (NavMesh.SamplePosition(near, out NavMeshHit hit, radius, NavMesh.AllAreas))
-        { navPos = hit.position; return true; }
+        {
+            navPos = hit.position;
+            return true;
+        }
         return false;
+    }
+
+    public bool CanReachPosition(Vector3 destination, out NavMeshPath path)
+    {
+        path = new NavMeshPath();
+
+        if (!AgentReady())
+            return false;
+
+        bool ok = agent.CalculatePath(destination, path);
+        if (!ok || path == null)
+            return false;
+
+        return path.status == NavMeshPathStatus.PathComplete;
+    }
+
+    public bool CanReachPosition(Vector3 destination)
+    {
+        return CanReachPosition(destination, out _);
+    }
+
+    public bool CanReachBetween(Vector3 start, Vector3 destination, out NavMeshPath path)
+    {
+        path = new NavMeshPath();
+
+        if (!TryGetNavmeshPointNear(start, ladderNavmeshSnapRadius, out Vector3 startNav))
+            return false;
+
+        if (!TryGetNavmeshPointNear(destination, ladderNavmeshSnapRadius, out Vector3 destNav))
+            return false;
+
+        int areaMask = (agent != null) ? agent.areaMask : NavMesh.AllAreas;
+        bool ok = NavMesh.CalculatePath(startNav, destNav, areaMask, path);
+
+        return ok && path.status == NavMeshPathStatus.PathComplete;
+    }
+
+    public bool TryFindLadderRoute(
+        Vector3 destination,
+        out Ladder ladder,
+        out bool goingUp,
+        out Vector3 approachPoint,
+        out Vector3 exitPoint,
+        out NavMeshPath approachPath)
+    {
+        ladder = null;
+        approachPoint = Vector3.zero;
+        exitPoint = Vector3.zero;
+        approachPath = null;
+
+        if (!useLadders || !AgentReady())
+        {
+            goingUp = false;
+            return false;
+        }
+
+        goingUp = destination.y > transform.position.y + ladderMinHeightDeltaForUp;
+
+        Ladder[] ladders = FindObjectsByType<Ladder>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        if (ladders == null || ladders.Length == 0)
+            return false;
+
+        float bestScore = float.PositiveInfinity;
+
+        for (int i = 0; i < ladders.Length; i++)
+        {
+            Ladder l = ladders[i];
+            if (l == null) continue;
+
+            Transform approachTf;
+            Transform mountStartTf;
+            Transform mountEndTf;
+            Transform exitTf;
+
+            if (goingUp)
+            {
+                if (l.bottomMountPoint == null || l.topMountPoint == null) continue;
+                approachTf   = l.bottomMountPoint;
+                mountStartTf = l.bottomMountPoint;
+                mountEndTf   = l.topMountPoint;
+                exitTf       = l.topExitPoint != null ? l.topExitPoint : l.topMountPoint;
+            }
+            else
+            {
+                if (!l.bidirectional) continue;
+                if (l.topMountPoint == null || l.bottomMountPoint == null) continue;
+                approachTf   = l.topMountPoint;
+                mountStartTf = l.topMountPoint;
+                mountEndTf   = l.bottomMountPoint;
+                exitTf       = l.bottomExitPoint != null ? l.bottomExitPoint : l.bottomMountPoint;
+            }
+
+            if (!CanReachPosition(approachTf.position, out NavMeshPath pathToLadder))
+                continue;
+
+            if (!CanReachBetween(exitTf.position, destination, out NavMeshPath _))
+                continue;
+
+            float score =
+                Vector3.Distance(transform.position, approachTf.position) +
+                Vector3.Distance(exitTf.position, destination);
+
+            if (score < bestScore)
+            {
+                bestScore = score;
+                ladder = l;
+                approachPoint = approachTf.position;
+                exitPoint = exitTf.position;
+                approachPath = pathToLadder;
+            }
+        }
+
+        return ladder != null;
+    }
+
+    public void StartLadderTraversal(Ladder ladder, bool goingUp, Action onComplete)
+    {
+        if (!useLadders || ladder == null || _isTraversingLadder)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        if (_ladderCoroutine != null)
+            StopCoroutine(_ladderCoroutine);
+
+        _ladderCompleteAction = onComplete;
+        _ladderCoroutine = StartCoroutine(LadderTraversalRoutine(ladder, goingUp));
+    }
+
+    private IEnumerator LadderTraversalRoutine(Ladder ladder, bool goingUp)
+    {
+        _isTraversingLadder = true;
+        _stateBeforeLadder = _state;
+        _state = NPCState.ClimbingLadder;
+
+        Transform startMount = goingUp ? ladder.bottomMountPoint : ladder.topMountPoint;
+        Transform endMount   = goingUp ? ladder.topMountPoint    : ladder.bottomMountPoint;
+        Transform endExit    = goingUp
+            ? (ladder.topExitPoint != null ? ladder.topExitPoint : ladder.topMountPoint)
+            : (ladder.bottomExitPoint != null ? ladder.bottomExitPoint : ladder.bottomMountPoint);
+
+        if (startMount == null || endMount == null || endExit == null)
+        {
+            if (ladderDebugLogs) Debug.LogWarning($"{name}: Ladder traversal aborted - missing ladder anchors.");
+            _isTraversingLadder = false;
+            _ladderCoroutine = null;
+            _state = _stateBeforeLadder;
+            _ladderCompleteAction?.Invoke();
+            _ladderCompleteAction = null;
+            yield break;
+        }
+
+        if (ladderDebugLogs)
+            Debug.Log($"{name}: StartLadderTraversal ladder={ladder.name} goingUp={goingUp}");
+
+        if (AgentReady())
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+        }
+
+        ForceIdlePose();
+        ResetAllAnimatorTriggers();
+
+        Vector3 ladderFacing = ladder.FacingForward;
+        if (ladderFacing.sqrMagnitude > 0.0001f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(ladderFacing, Vector3.up);
+            transform.rotation = targetRot;
+        }
+
+        transform.position = startMount.position;
+
+        DetachAgentForAnimation();
+
+        if (animationController != null)
+        {
+            string trigger = goingUp ? climbUpTriggerName : climbDownTriggerName;
+            if (!string.IsNullOrWhiteSpace(trigger))
+                animationController.SetTrigger(trigger);
+        }
+
+        float distance = Vector3.Distance(startMount.position, endMount.position);
+        float duration = Mathf.Max(0.1f, distance / Mathf.Max(0.01f, ladderClimbSpeed));
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float u = Mathf.Clamp01(t / duration);
+
+            transform.position = Vector3.Lerp(startMount.position, endMount.position, u);
+
+            if (ladderFacing.sqrMagnitude > 0.0001f)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(ladderFacing, Vector3.up);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * ladderFacingSlerp);
+            }
+
+            yield return null;
+        }
+
+        transform.position = endExit.position;
+        RestoreStandingBodyAt(endExit.position, ladderNavmeshSnapRadius);
+
+        if (animationController != null)
+        {
+            ResetAllAnimatorTriggers();
+            ForceReturnToLocomotion();
+            ForceIdlePose();
+        }
+
+        _isTraversingLadder = false;
+        _ladderCoroutine = null;
+        _state = _stateBeforeLadder;
+
+        Action done = _ladderCompleteAction;
+        _ladderCompleteAction = null;
+        done?.Invoke();
     }
 
     public void ForceUpright()
@@ -229,9 +451,17 @@ public class NPCController : MonoBehaviour
     public bool GroundTransformToNavmesh(Vector3 preferred, float sampleRadius = 3f)
     {
         if (TryGetNavmeshPointNear(preferred, sampleRadius, out Vector3 navPos))
-        { transform.position = navPos; ForceUpright(); return true; }
+        {
+            transform.position = navPos;
+            ForceUpright();
+            return true;
+        }
         if (TryGetNavmeshPoint(transform.position, out navPos))
-        { transform.position = navPos; ForceUpright(); return true; }
+        {
+            transform.position = navPos;
+            ForceUpright();
+            return true;
+        }
         return false;
     }
 
@@ -255,9 +485,13 @@ public class NPCController : MonoBehaviour
     public void DetachAgentForAnimation()
     {
         if (agent == null) return;
-        if (AgentReady()) { agent.isStopped = true; agent.ResetPath(); }
+        if (AgentReady())
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+        }
         agent.velocity = Vector3.zero;
-        agent.enabled  = false;
+        agent.enabled = false;
     }
 
     public void ReattachAgentToNavmeshAtCurrentXZ()
@@ -267,7 +501,7 @@ public class NPCController : MonoBehaviour
         if (TryGetNavmeshPoint(desired, out Vector3 navPos))
         {
             transform.position = navPos;
-            agent.enabled  = true;
+            agent.enabled = true;
             agent.Warp(navPos);
             agent.isStopped = false;
             agent.ResetPath();
@@ -304,7 +538,7 @@ public class NPCController : MonoBehaviour
         if (animationController == null) return;
         animationController.SetFloat(paramMovingX, 0f, animDampTime, Time.deltaTime);
         animationController.SetFloat(paramMovingY, 0f, animDampTime, Time.deltaTime);
-        animationController.SetFloat(paramBlend,   0f, animDampTime, Time.deltaTime);
+        animationController.SetFloat(paramBlend, 0f, animDampTime, Time.deltaTime);
     }
 
     public void ResetAllAnimatorTriggers()
@@ -315,22 +549,21 @@ public class NPCController : MonoBehaviour
                 animationController.ResetTrigger(p.name);
     }
 
-    /// <summary>Called by behaviour plugins when their grounding coroutine should enter a new FSM state.</summary>
     public void SetStateDirectly(NPCState next) { _state = next; }
 
-    /// <summary>Called by behaviour plugins after stand/wake coroutine completes.</summary>
     public void ExecutePendingPostStandAction()
     {
-        if (!_executePendingActionAfterStand) { EnterState(NPCState.Patrolling); return; }
+        if (!_executePendingActionAfterStand)
+        {
+            EnterState(NPCState.Patrolling);
+            return;
+        }
         _executePendingActionAfterStand = false;
         Action action = _pendingPostStandAction;
         _pendingPostStandAction = null;
         action?.Invoke();
     }
 
-    // =========================================================
-    // Unity lifecycle
-    // =========================================================
     void Reset()
     {
         animationController = GetComponentInChildren<Animator>();
@@ -347,15 +580,13 @@ public class NPCController : MonoBehaviour
     public void Start()
     {
         if (animationController == null) animationController = GetComponentInChildren<Animator>();
-        if (agent              == null) agent               = GetComponent<NavMeshAgent>();
+        if (agent == null) agent = GetComponent<NavMeshAgent>();
 
-        // Auto-find plugins if not assigned in Inspector
         if (_sitting == null) _sitting = GetComponent<NPCSittingBehaviour>();
-        if (_lying   == null) _lying   = GetComponent<NPCLyingBehaviour>();
-        if (_talk    == null) _talk    = GetComponent<NPCTalkBehaviour>();
-        if (_combat  == null) _combat  = GetComponent<NPCCombatBehaviour>();
+        if (_lying == null) _lying = GetComponent<NPCLyingBehaviour>();
+        if (_talk == null) _talk = GetComponent<NPCTalkBehaviour>();
+        if (_combat == null) _combat = GetComponent<NPCCombatBehaviour>();
 
-        // Initialise plugins
         _sitting?.Init(this);
         _lying?.Init(this);
         _talk?.Init(this);
@@ -368,12 +599,12 @@ public class NPCController : MonoBehaviour
 
         if (agent != null)
         {
-            agent.speed       = moveSpeed;
+            agent.speed = moveSpeed;
             agent.angularSpeed = angularSpeed;
             agent.acceleration = acceleration;
             agent.stoppingDistance = Mathf.Max(agent.stoppingDistance, arriveDistance);
-            agent.autoBraking  = true;
-            agent.autoRepath   = true;
+            agent.autoBraking = true;
+            agent.autoRepath = true;
             agent.obstacleAvoidanceType = ObstacleAvoidanceType.HighQualityObstacleAvoidance;
             agent.updateRotation = false;
             agent.avoidancePriority = Mathf.Clamp((Mathf.Abs(gameObject.GetInstanceID()) % 90) + 5, 0, 99);
@@ -395,7 +626,7 @@ public class NPCController : MonoBehaviour
             return;
         }
 
-        if (useStateMachine && !_isPlayingTriggeredAnimation)
+        if (useStateMachine && !_isPlayingTriggeredAnimation && !_isTraversingLadder)
         {
             if (_state == NPCState.Sitting || _state == NPCState.Lying)
                 TickFSM(Time.deltaTime);
@@ -414,9 +645,6 @@ public class NPCController : MonoBehaviour
         return true;
     }
 
-    // =========================================================
-    // FSM: public API (all methods that DebugCamHUD / external code calls)
-    // =========================================================
     public NPCState GetCurrentState() => _state;
 
     public void SetTarget(Transform t)
@@ -424,7 +652,7 @@ public class NPCController : MonoBehaviour
         currentTarget = t;
         if (currentTarget != null)
         {
-            _lastKnownTargetPos    = currentTarget.position;
+            _lastKnownTargetPos = currentTarget.position;
             _hasLastKnownTargetPos = true;
 
             if (useStateMachine && !_isPlayingTriggeredAnimation && !_hasCommand
@@ -436,11 +664,11 @@ public class NPCController : MonoBehaviour
     public void ClearTarget()
     {
         _talk?.UnregisterAsSpeaker();
-        currentTarget       = null;
-        _hasCommand         = false;
+        currentTarget = null;
+        _hasCommand = false;
         _hasResumeDestination = false;
-        _resumeDestination  = Vector3.zero;
-        _commandGoal        = NPCState.Patrolling;
+        _resumeDestination = Vector3.zero;
+        _commandGoal = NPCState.Patrolling;
     }
 
     public void ForcePatrol()
@@ -450,15 +678,15 @@ public class NPCController : MonoBehaviour
             InterruptAllTransientActions();
             if (animationController != null) animationController.speed = 1f;
             useStateMachine = true;
-            _hasCommand     = false;
-            _commandGoal    = NPCState.Patrolling;
+            _hasCommand = false;
+            _commandGoal = NPCState.Patrolling;
             if (agent != null && agent.isActiveAndEnabled)
             {
                 if (!agent.enabled) agent.enabled = true;
                 if (!agent.isOnNavMesh && TryGetNavmeshPoint(transform.position, out Vector3 np)) agent.Warp(np);
             }
             _hasResumeDestination = false;
-            _resumeDestination    = Vector3.zero;
+            _resumeDestination = Vector3.zero;
             ResetLocomotionState();
             ForceReturnToLocomotion();
             EnterState(NPCState.Patrolling);
@@ -467,21 +695,20 @@ public class NPCController : MonoBehaviour
         InterruptAllTransientActions();
         if (animationController != null) animationController.speed = 1f;
         useStateMachine = true;
-        _hasCommand     = false;
-        _commandGoal    = NPCState.Patrolling;
+        _hasCommand = false;
+        _commandGoal = NPCState.Patrolling;
         if (agent != null && agent.isActiveAndEnabled)
         {
             if (!agent.enabled) agent.enabled = true;
             if (!agent.isOnNavMesh && TryGetNavmeshPoint(transform.position, out Vector3 navPos)) agent.Warp(navPos);
         }
         _hasResumeDestination = false;
-        _resumeDestination    = Vector3.zero;
+        _resumeDestination = Vector3.zero;
         ResetLocomotionState();
         ForceReturnToLocomotion();
         EnterState(NPCState.Patrolling);
     }
 
-    // -- Sitting
     public void RequestSitDown()
     {
         if (_talk != null && _talk.IsConversationLocked) return;
@@ -489,20 +716,35 @@ public class NPCController : MonoBehaviour
 
         InterruptAllTransientActions();
         useStateMachine = true;
-        _hasCommand     = true;
-        _commandGoal    = NPCState.Sitting;
+        _hasCommand = true;
+        _commandGoal = NPCState.Sitting;
         EnterState(NPCState.Sitting);
     }
 
     public void RequestStandUp()
     {
         if (_state != NPCState.Sitting || _sitting == null) return;
+
         var p = _sitting.Phase;
-        if (p == NPCSittingBehaviour.SitPhase.SittingIdle || p == NPCSittingBehaviour.SitPhase.SitDownPlaying)
+
+        if (p == NPCSittingBehaviour.SitPhase.SearchingSeat ||
+            p == NPCSittingBehaviour.SitPhase.RoutingToLadder ||
+            p == NPCSittingBehaviour.SitPhase.ClimbingLadder ||
+            p == NPCSittingBehaviour.SitPhase.ApproachingFront ||
+            p == NPCSittingBehaviour.SitPhase.Aligning ||
+            p == NPCSittingBehaviour.SitPhase.Backstepping)
+        {
+            ForcePatrol();
+            return;
+        }
+
+        if (p == NPCSittingBehaviour.SitPhase.SittingIdle ||
+            p == NPCSittingBehaviour.SitPhase.SitDownPlaying)
+        {
             _sitting.BeginStandUp();
+        }
     }
 
-    // -- Lying
     public void RequestLieDown()
     {
         if (_talk != null && _talk.IsConversationLocked) return;
@@ -518,6 +760,12 @@ public class NPCController : MonoBehaviour
         var p = _lying.Phase;
         if (p == NPCLyingBehaviour.LiePhase.LyingIdle || p == NPCLyingBehaviour.LiePhase.LieDownPlaying)
             _lying.BeginWakeUp();
+        else if (p == NPCLyingBehaviour.LiePhase.SearchingBed ||
+                 p == NPCLyingBehaviour.LiePhase.RoutingToLadder ||
+                 p == NPCLyingBehaviour.LiePhase.ClimbingLadder ||
+                 p == NPCLyingBehaviour.LiePhase.ApproachingFront ||
+                 p == NPCLyingBehaviour.LiePhase.Aligning)
+            ForcePatrol();
     }
 
     private void StartLieCommandFresh()
@@ -527,17 +775,17 @@ public class NPCController : MonoBehaviour
         currentTarget = null;
         if (_talk != null)
         {
-            _talk.RegisteredAsSpeaker  = false;
+            _talk.RegisteredAsSpeaker = false;
             _talk.TalkTargetController = null;
         }
 
-        useStateMachine    = true;
-        _hasCommand        = true;
-        _commandGoal       = NPCState.Lying;
+        useStateMachine = true;
+        _hasCommand = true;
+        _commandGoal = NPCState.Lying;
         _hasLastApproachDest = false;
         _hasPatrolDestination = false;
         _hasResumeDestination = false;
-        _resumeDestination  = Vector3.zero;
+        _resumeDestination = Vector3.zero;
 
         if (agent != null)
         {
@@ -548,18 +796,17 @@ public class NPCController : MonoBehaviour
 
         if (AgentReady())
         {
-            agent.autoBraking     = true;
+            agent.autoBraking = true;
             agent.stoppingDistance = Mathf.Max(0.05f, arriveDistance);
-            agent.isStopped       = false;
+            agent.isStopped = false;
             agent.ResetPath();
         }
 
-        _state      = NPCState.Lying;
+        _state = NPCState.Lying;
         _stateTimer = 0f;
         _lying?.EnterLying();
     }
 
-    // -- Debug commands (all called by DebugCamHUD)
     public void SetTargetByNPC(NPC npcEnum)
     {
         var c = ResolveNPC(npcEnum);
@@ -629,16 +876,12 @@ public class NPCController : MonoBehaviour
         EnterState(d3 <= talkRange ? NPCState.Talk : NPCState.Approaching);
     }
 
-    // -- Conversation target API (called by NPCTalkBehaviour on another NPC)
     public void BeginConversationAsTarget(NPCController speaker)
         => _talk?.BeginConversationAsTarget(speaker);
 
     public void EndConversationAsTarget(NPCController speaker)
         => _talk?.EndConversationAsTarget(speaker);
 
-    // =========================================================
-    // FSM: EnterState
-    // =========================================================
     public void EnterState(NPCState next)
     {
         NPCState prev = _state;
@@ -646,7 +889,7 @@ public class NPCController : MonoBehaviour
         if (prev == NPCState.Talk && next != NPCState.Talk)
             _talk?.UnregisterAsSpeaker();
 
-        _state      = next;
+        _state = next;
         _stateTimer = 0f;
 
         if (AgentReady()) agent.isStopped = false;
@@ -656,8 +899,8 @@ public class NPCController : MonoBehaviour
             case NPCState.Patrolling:
                 if (AgentReady()) { agent.speed = moveSpeed; agent.autoBraking = true; agent.isStopped = false; }
                 _hasPatrolDestination = false;
-                _patrolChangeTimer    = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
-                _patrolArriveTimer    = 0f;
+                _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
+                _patrolArriveTimer = 0f;
                 break;
 
             case NPCState.Alerted:
@@ -671,8 +914,8 @@ public class NPCController : MonoBehaviour
                     if (disableBrakingWhileApproaching) agent.autoBraking = false;
                     agent.isStopped = false;
                 }
-                _approachRepathTimer  = 0f;
-                _hasLastApproachDest  = false;
+                _approachRepathTimer = 0f;
+                _hasLastApproachDest = false;
                 break;
 
             case NPCState.Attacking:
@@ -682,10 +925,10 @@ public class NPCController : MonoBehaviour
 
             case NPCState.Seeking:
                 if (AgentReady()) { agent.speed = moveSpeed * Mathf.Max(0.01f, seekingSpeedMultiplier); agent.isStopped = false; }
-                _seekTimer            = 0f;
+                _seekTimer = 0f;
                 _hasPatrolDestination = false;
-                _patrolChangeTimer    = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
-                _patrolArriveTimer    = 0f;
+                _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
+                _patrolArriveTimer = 0f;
                 break;
 
             case NPCState.Talk:
@@ -700,23 +943,23 @@ public class NPCController : MonoBehaviour
             case NPCState.Lying:
                 if (prev != NPCState.Lying) _lying?.EnterLying();
                 break;
+
+            case NPCState.ClimbingLadder:
+                break;
         }
     }
 
-    // =========================================================
-    // FSM: TickFSM
-    // =========================================================
     void TickFSM(float dt)
     {
         _stateTimer += dt;
 
         if (currentTarget != null)
         {
-            _lastKnownTargetPos    = currentTarget.position;
+            _lastKnownTargetPos = currentTarget.position;
             _hasLastKnownTargetPos = true;
         }
 
-        if (!_hasCommand && _state != NPCState.Talk && _state != NPCState.Sitting && _state != NPCState.Lying)
+        if (!_hasCommand && _state != NPCState.Talk && _state != NPCState.Sitting && _state != NPCState.Lying && _state != NPCState.ClimbingLadder)
         {
             if (currentTarget != null && CanSeeTarget(currentTarget))
             {
@@ -735,28 +978,27 @@ public class NPCController : MonoBehaviour
 
         switch (_state)
         {
-            case NPCState.Patrolling:  TickPatrolling(dt, 1f);     break;
-            case NPCState.Alerted:     TickAlerted(dt);             break;
-            case NPCState.Approaching: TickApproaching(dt);         break;
-            case NPCState.Attacking:   _combat?.TickAttacking(dt);  break;
-            case NPCState.Seeking:     TickSeeking(dt);             break;
-            case NPCState.Talk:        _talk?.TickTalk(dt);         break;
+            case NPCState.Patrolling: TickPatrolling(dt, 1f); break;
+            case NPCState.Alerted: TickAlerted(dt); break;
+            case NPCState.Approaching: TickApproaching(dt); break;
+            case NPCState.Attacking: _combat?.TickAttacking(dt); break;
+            case NPCState.Seeking: TickSeeking(dt); break;
+            case NPCState.Talk: _talk?.TickTalk(dt); break;
             case NPCState.Sitting:
-                _hasCommand  = true;
+                _hasCommand = true;
                 _commandGoal = NPCState.Sitting;
                 _sitting?.Tick(dt);
                 break;
             case NPCState.Lying:
-                _hasCommand  = true;
+                _hasCommand = true;
                 _commandGoal = NPCState.Lying;
                 _lying?.Tick(dt);
+                break;
+            case NPCState.ClimbingLadder:
                 break;
         }
     }
 
-    // =========================================================
-    // FSM: individual state ticks
-    // =========================================================
     void TickPatrolling(float dt, float speedMultiplier)
     {
         if (!AgentReady()) return;
@@ -766,7 +1008,7 @@ public class NPCController : MonoBehaviour
         if (_patrolChangeTimer <= 0f)
         {
             _hasPatrolDestination = false;
-            _patrolChangeTimer    = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
+            _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
         }
 
         if (_hasPatrolDestination && HasArrived(agent, arriveDistance))
@@ -777,7 +1019,11 @@ public class NPCController : MonoBehaviour
             agent.isStopped = true;
             _patrolArriveTimer -= dt;
 
-            if (_patrolArriveTimer <= 0f) { agent.isStopped = false; _hasPatrolDestination = false; }
+            if (_patrolArriveTimer <= 0f)
+            {
+                agent.isStopped = false;
+                _hasPatrolDestination = false;
+            }
             return;
         }
 
@@ -786,7 +1032,7 @@ public class NPCController : MonoBehaviour
             if (TryPickPatrolPoint(_spawnPoint, activeRadius, out _patrolDestination))
             {
                 agent.isStopped = false;
-                agent.speed     = moveSpeed * Mathf.Max(0.01f, speedMultiplier);
+                agent.speed = moveSpeed * Mathf.Max(0.01f, speedMultiplier);
                 agent.ResetPath();
                 agent.SetDestination(_patrolDestination);
                 _hasPatrolDestination = true;
@@ -802,8 +1048,10 @@ public class NPCController : MonoBehaviour
         {
             Vector3 to = currentTarget.position - transform.position; to.y = 0f;
             if (to.sqrMagnitude > 0.01f)
-                transform.rotation = Quaternion.Slerp(transform.rotation,
-                    Quaternion.LookRotation(to.normalized, Vector3.up), dt * (turnSmoothing * 1.25f));
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation,
+                    Quaternion.LookRotation(to.normalized, Vector3.up),
+                    dt * (turnSmoothing * 1.25f));
         }
 
         if (_stateTimer >= alertedDuration)
@@ -826,13 +1074,18 @@ public class NPCController : MonoBehaviour
         {
             float distToSpawn = Vector3.Distance(_spawnPoint, currentTarget.position);
             if (distToSpawn > activeRadius && !allowApproachOutsideActiveRadius)
-            { EnterState(NPCState.Seeking); return; }
+            {
+                EnterState(NPCState.Seeking);
+                return;
+            }
         }
 
         if (currentTarget == null && !(_hasCommand && _commandGoal == NPCState.Sitting))
         {
-            _hasCommand = false; _commandGoal = NPCState.Patrolling;
-            EnterState(NPCState.Patrolling); return;
+            _hasCommand = false;
+            _commandGoal = NPCState.Patrolling;
+            EnterState(NPCState.Patrolling);
+            return;
         }
 
         if (_hasCommand)
@@ -840,7 +1093,7 @@ public class NPCController : MonoBehaviour
             if (currentTarget != null)
             {
                 float dist = Vector3.Distance(transform.position, currentTarget.position);
-                if (_commandGoal == NPCState.Talk     && dist <= talkRange) { EnterState(NPCState.Talk);     return; }
+                if (_commandGoal == NPCState.Talk && dist <= talkRange) { EnterState(NPCState.Talk); return; }
                 if (_commandGoal == NPCState.Attacking && dist <= talkRange) { EnterState(NPCState.Attacking); return; }
             }
 
@@ -851,7 +1104,7 @@ public class NPCController : MonoBehaviour
                 Vector3 newDest = currentTarget.position;
                 if (!_hasLastApproachDest || (newDest - _lastApproachDest).sqrMagnitude >= approachTargetMoveThreshold * approachTargetMoveThreshold)
                 {
-                    _lastApproachDest    = newDest;
+                    _lastApproachDest = newDest;
                     _hasLastApproachDest = true;
                     agent.isStopped = false;
                     agent.SetDestination(newDest);
@@ -860,10 +1113,18 @@ public class NPCController : MonoBehaviour
             return;
         }
 
-        if (currentTarget == null) { EnterState(NPCState.Patrolling); return; }
+        if (currentTarget == null)
+        {
+            EnterState(NPCState.Patrolling);
+            return;
+        }
 
         float d2 = Vector3.Distance(transform.position, currentTarget.position);
-        if (d2 <= attackRange) { EnterState(NPCState.Attacking); return; }
+        if (d2 <= attackRange)
+        {
+            EnterState(NPCState.Attacking);
+            return;
+        }
 
         _approachRepathTimer -= dt;
         if (_approachRepathTimer <= 0f)
@@ -877,30 +1138,38 @@ public class NPCController : MonoBehaviour
     void TickSeeking(float dt)
     {
         _seekTimer += dt;
-        if (_seekTimer >= Mathf.Max(0.01f, seekGiveUpSeconds)) { EnterState(NPCState.Patrolling); return; }
+        if (_seekTimer >= Mathf.Max(0.01f, seekGiveUpSeconds))
+        {
+            EnterState(NPCState.Patrolling);
+            return;
+        }
 
         if (currentTarget != null && CanSeeTarget(currentTarget))
         {
             float dist = Vector3.Distance(_spawnPoint, currentTarget.position);
-            if (dist <= activeRadius || allowApproachOutsideActiveRadius) { EnterState(NPCState.Alerted); return; }
+            if (dist <= activeRadius || allowApproachOutsideActiveRadius)
+            {
+                EnterState(NPCState.Alerted);
+                return;
+            }
         }
 
         TickPatrolling(dt, seekingSpeedMultiplier);
     }
 
-    // =========================================================
-    // Locomotion / facing update
-    // =========================================================
     void UpdateLocomotionAndFacing()
     {
         if (animationController == null) return;
 
-        bool inSitWalkup = (_state == NPCState.Sitting && _sitting != null && _sitting.IsApproachingFront);
-        bool inLieWalkup = (_state == NPCState.Lying   && _lying   != null && _lying.IsApproachingFront);
+        bool inSitWalkup = (_state == NPCState.Sitting && _sitting != null &&
+                            (_sitting.IsRoutingToLadder || _sitting.IsApproachingFront));
+        bool inLieWalkup = (_state == NPCState.Lying && _lying != null &&
+                            (_lying.IsRoutingToLadder || _lying.IsApproachingFront));
 
         bool blockLocomotion =
+            _isTraversingLadder ||
             (_state == NPCState.Sitting && !inSitWalkup) ||
-            (_state == NPCState.Lying   && !inLieWalkup);
+            (_state == NPCState.Lying && !inLieWalkup);
 
         bool allowNavLocomotion = AgentReady() && IsNavDriven() && !blockLocomotion;
 
@@ -912,34 +1181,33 @@ public class NPCController : MonoBehaviour
             Vector3 desiredDir = (to.sqrMagnitude > 0.0001f) ? to.normalized
                 : (agent.desiredVelocity.sqrMagnitude > 0.0001f ? agent.desiredVelocity.normalized : transform.forward);
 
-            Vector3 v  = agent.velocity;   v.y  = 0f;
+            Vector3 v = agent.velocity; v.y = 0f;
             Vector3 dv = agent.desiredVelocity; dv.y = 0f;
             float speed = v.magnitude;
             if (agent.pathPending || (speed < 0.05f && dv.magnitude > 0.05f)) speed = dv.magnitude;
 
-            float speed01     = Mathf.Clamp01(speed / Mathf.Max(0.01f, moveSpeed));
+            float speed01 = Mathf.Clamp01(speed / Mathf.Max(0.01f, moveSpeed));
             float signedAngle = Vector3.SignedAngle(transform.forward, desiredDir, Vector3.up);
             if (Mathf.Abs(signedAngle) < 8f) signedAngle = 0f;
 
             float turnWeight = (speed < turnInPlaceSpeedThreshold) ? 1f : 0.35f;
             movingX = Mathf.Clamp((signedAngle / Mathf.Max(1f, turnAngleForFullX)) * turnWeight, -1f, 1f);
             movingY = speed01;
-            blend   = speed01;
+            blend = speed01;
             if (speed01 > 0.35f && Mathf.Abs(movingX) < 0.2f) movingX = 0f;
 
-            float turnRate  = (speed < turnInPlaceSpeedThreshold) ? turnInPlaceSpeed : turnWhileMovingSpeed;
-            transform.rotation = Quaternion.RotateTowards(transform.rotation,
-                Quaternion.LookRotation(desiredDir, Vector3.up), turnRate * Time.deltaTime);
+            float turnRate = (speed < turnInPlaceSpeedThreshold) ? turnInPlaceSpeed : turnWhileMovingSpeed;
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation,
+                Quaternion.LookRotation(desiredDir, Vector3.up),
+                turnRate * Time.deltaTime);
         }
 
         animationController.SetFloat(paramMovingX, movingX, animDampTime, Time.deltaTime);
         animationController.SetFloat(paramMovingY, movingY, animDampTime, Time.deltaTime);
-        animationController.SetFloat(paramBlend,   blend,   animDampTime, Time.deltaTime);
+        animationController.SetFloat(paramBlend, blend, animDampTime, Time.deltaTime);
     }
 
-    // =========================================================
-    // Triggered Animations API  (called by DebugCamHUD)
-    // =========================================================
     public void PlaySelectedTrigger()
     {
         if (triggerNames == null || triggerNames.Count == 0) { Debug.LogWarning($"{name}: No triggerNames."); return; }
@@ -985,9 +1253,9 @@ public class NPCController : MonoBehaviour
     IEnumerator TriggerRoutine(string triggerParam)
     {
         _isPlayingTriggeredAnimation = true;
-        _triggerPrevPaused       = isPaused;
-        _triggerAgentWasValid    = AgentReady();
-        _triggerHadPathBefore    = _triggerAgentWasValid && agent.hasPath;
+        _triggerPrevPaused = isPaused;
+        _triggerAgentWasValid = AgentReady();
+        _triggerHadPathBefore = _triggerAgentWasValid && agent.hasPath;
         _triggerWasStoppedBefore = _triggerAgentWasValid && agent.isStopped;
         isPaused = true;
 
@@ -1020,21 +1288,28 @@ public class NPCController : MonoBehaviour
         SetAnimatorParamOn(animationController, triggerParam, pType.Value);
 
         bool entered = false;
-        int  triggeredHash = startHash;
+        int triggeredHash = startHash;
         float enterT = 0f;
 
         while (enterT < triggerEnterTimeout)
         {
             var info = animationController.GetCurrentAnimatorStateInfo(layer);
             if (animationController.IsInTransition(layer) || info.fullPathHash != startHash)
-            { entered = true; triggeredHash = info.fullPathHash; break; }
+            {
+                entered = true;
+                triggeredHash = info.fullPathHash;
+                break;
+            }
             enterT += Time.deltaTime;
             yield return null;
         }
 
         SetAnimatorParamOff(animationController, triggerParam, pType.Value);
         if (pType.Value == AnimatorControllerParameterType.Trigger)
-        { yield return null; animationController.ResetTrigger(triggerParam); }
+        {
+            yield return null;
+            animationController.ResetTrigger(triggerParam);
+        }
 
         float t = 0f;
         while (t < triggerMaxDuration)
@@ -1063,27 +1338,23 @@ public class NPCController : MonoBehaviour
         if (useStateMachine && !isPaused) ForceReturnToLocomotion();
     }
 
-    // =========================================================
-    // StopAndFace (still used externally in some cases)
-    // =========================================================
     public void StopAndFace(Vector3 worldPos)
     {
         if (AgentReady()) { agent.isStopped = true; agent.ResetPath(); }
         ForceIdlePose();
         Vector3 to = worldPos - transform.position; to.y = 0f;
         if (to.sqrMagnitude < 0.0001f) return;
-        transform.rotation = Quaternion.Slerp(transform.rotation,
-            Quaternion.LookRotation(to.normalized, Vector3.up), Time.deltaTime * (turnSmoothing * 1.5f));
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            Quaternion.LookRotation(to.normalized, Vector3.up),
+            Time.deltaTime * (turnSmoothing * 1.5f));
     }
 
-    // =========================================================
-    // Crowd avoidance
-    // =========================================================
     void PreCollisionRenegotiate()
     {
         if (!IsNavDriven() || !AgentReady()) return;
         if (useStateMachine && (_state == NPCState.Alerted || _state == NPCState.Attacking
-            || _state == NPCState.Talk || _state == NPCState.Sitting || _state == NPCState.Lying)) return;
+            || _state == NPCState.Talk || _state == NPCState.Sitting || _state == NPCState.Lying || _state == NPCState.ClimbingLadder)) return;
         if (agent.pathPending || !agent.hasPath) return;
 
         if (_renegotiateCooldownT > 0f) { _renegotiateCooldownT -= Time.deltaTime; return; }
@@ -1117,9 +1388,9 @@ public class NPCController : MonoBehaviour
         if (!closest) return;
 
         if (_sidestepCoroutine != null) StopCoroutine(_sidestepCoroutine);
-        _resumeDestination    = agent.destination;
+        _resumeDestination = agent.destination;
         _hasResumeDestination = true;
-        _sidestepCoroutine    = StartCoroutine(SidestepAvoidanceCoroutine(closest));
+        _sidestepCoroutine = StartCoroutine(SidestepAvoidanceCoroutine(closest));
         _renegotiateCooldownT = renegotiateCooldown;
     }
 
@@ -1128,7 +1399,7 @@ public class NPCController : MonoBehaviour
         if (!AgentReady()) yield break;
 
         int sign = ((gameObject.GetInstanceID() & 1) == 0) ? 1 : -1;
-        Vector3 v   = agent.velocity; v.y = 0f;
+        Vector3 v = agent.velocity; v.y = 0f;
         Vector3 fwd = (v.sqrMagnitude > 0.001f) ? v.normalized : transform.forward;
         Vector3 right = Vector3.Cross(Vector3.up, fwd).normalized;
 
@@ -1155,24 +1426,26 @@ public class NPCController : MonoBehaviour
 
         agent.avoidancePriority = prevPriority;
         if (IsNavDriven() && _hasResumeDestination && AgentReady())
-        { agent.isStopped = false; agent.ResetPath(); agent.SetDestination(_resumeDestination); }
+        {
+            agent.isStopped = false;
+            agent.ResetPath();
+            agent.SetDestination(_resumeDestination);
+        }
         _sidestepCoroutine = null;
     }
 
-    // =========================================================
-    // Helpers
-    // =========================================================
     bool IsNavDriven()
     {
         if (isPaused) return false;
         if (_isPlayingTriggeredAnimation) return false;
+        if (_isTraversingLadder) return false;
         return useStateMachine;
     }
 
     private bool IsRecoveringBodyState()
     {
         if (_state == NPCState.Sitting && _sitting != null && _sitting.Phase != NPCSittingBehaviour.SitPhase.None) return true;
-        if (_state == NPCState.Lying   && _lying   != null && _lying.Phase   != NPCLyingBehaviour.LiePhase.None)  return true;
+        if (_state == NPCState.Lying && _lying != null && _lying.Phase != NPCLyingBehaviour.LiePhase.None) return true;
         return false;
     }
 
@@ -1183,7 +1456,7 @@ public class NPCController : MonoBehaviour
 
         if (!IsRecoveringBodyState()) return false;
 
-        _pendingPostStandAction         = action;
+        _pendingPostStandAction = action;
         _executePendingActionAfterStand = true;
 
         if (_state == NPCState.Sitting && _sitting != null)
@@ -1208,19 +1481,35 @@ public class NPCController : MonoBehaviour
         _isPlayingTriggeredAnimation = false;
         isPaused = false;
 
-        if (animationController != null) { animationController.speed = 1f; ResetAllAnimatorTriggers(); }
+        if (animationController != null)
+        {
+            animationController.speed = 1f;
+            ResetAllAnimatorTriggers();
+        }
 
         _talk?.ClearAllSpeakers();
 
         if (_sidestepCoroutine != null) { StopCoroutine(_sidestepCoroutine); _sidestepCoroutine = null; }
         _hasResumeDestination = false;
 
+        if (_ladderCoroutine != null) { StopCoroutine(_ladderCoroutine); _ladderCoroutine = null; }
+        _isTraversingLadder = false;
+        _ladderCompleteAction = null;
+
         if (agent != null)
         {
             if (!agent.enabled) agent.enabled = true;
             if (!agent.isOnNavMesh && TryGetNavmeshPoint(transform.position, out Vector3 navPos))
                 agent.Warp(navPos);
-            if (AgentReady()) { agent.isStopped = false; agent.ResetPath(); }
+
+            agent.updatePosition = true;
+            agent.updateRotation = false;
+
+            if (AgentReady())
+            {
+                agent.isStopped = false;
+                agent.ResetPath();
+            }
         }
 
         ResetLocomotionState();
@@ -1230,14 +1519,14 @@ public class NPCController : MonoBehaviour
     private void ResetLocomotionState()
     {
         _animVelocitySmoothed = Vector3.zero;
-        _hasLastApproachDest  = false;
+        _hasLastApproachDest = false;
         _hasResumeDestination = false;
 
         if (animationController != null)
         {
             animationController.SetFloat(paramMovingX, 0f);
             animationController.SetFloat(paramMovingY, 0f);
-            animationController.SetFloat(paramBlend,   0f);
+            animationController.SetFloat(paramBlend, 0f);
         }
     }
 
@@ -1249,7 +1538,7 @@ public class NPCController : MonoBehaviour
         float speed = velocity.magnitude;
         animationController.SetFloat(paramMovingX, Mathf.Clamp(localVel.x, -1f, 1f));
         animationController.SetFloat(paramMovingY, Mathf.Clamp(localVel.z, -1f, 1f));
-        animationController.SetFloat(paramBlend,   (moveSpeed <= 0.001f) ? 0f : Mathf.Clamp01(speed / moveSpeed));
+        animationController.SetFloat(paramBlend, (moveSpeed <= 0.001f) ? 0f : Mathf.Clamp01(speed / moveSpeed));
     }
 
     public NPCController ResolveNPC(NPC npcEnum)
@@ -1275,10 +1564,10 @@ public class NPCController : MonoBehaviour
 
         if (requireLineOfSight)
         {
-            Vector3 origin    = transform.position + Vector3.up * 1.6f;
+            Vector3 origin = transform.position + Vector3.up * 1.6f;
             Vector3 targetPos = t.position + Vector3.up * 1.2f;
             Vector3 dir = targetPos - origin;
-            float   d   = dir.magnitude;
+            float d = dir.magnitude;
             if (d > 0.001f && Physics.Raycast(origin, dir / d, out _, d, losBlockers, QueryTriggerInteraction.Ignore))
                 return false;
         }
@@ -1290,11 +1579,14 @@ public class NPCController : MonoBehaviour
         result = center;
         for (int i = 0; i < Mathf.Max(1, patrolPointTries); i++)
         {
-            Vector2 r   = UnityEngine.Random.insideUnitCircle * radius;
+            Vector2 r = UnityEngine.Random.insideUnitCircle * radius;
             Vector3 cand = center + new Vector3(r.x, 0f, r.y);
             if (NavMesh.SamplePosition(cand, out NavMeshHit hit, patrolSampleRadius, NavMesh.AllAreas))
                 if (Vector3.Distance(center, hit.position) <= radius + 0.25f)
-                { result = hit.position; return true; }
+                {
+                    result = hit.position;
+                    return true;
+                }
         }
         return false;
     }
@@ -1302,12 +1594,18 @@ public class NPCController : MonoBehaviour
     bool EnsureAgentOnNavMesh(string context)
     {
         if (agent == null || !agent.isActiveAndEnabled)
-        { Debug.LogWarning($"{name}: Agent missing/disabled ({context})."); return false; }
+        {
+            Debug.LogWarning($"{name}: Agent missing/disabled ({context}).");
+            return false;
+        }
 
         if (agent.isOnNavMesh) return true;
 
         if (!autoSnapToNavMeshOnGo)
-        { Debug.LogWarning($"{name}: Agent not on NavMesh ({context})."); return false; }
+        {
+            Debug.LogWarning($"{name}: Agent not on NavMesh ({context}).");
+            return false;
+        }
 
         if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, snapToNavMeshRadius, NavMesh.AllAreas))
         {
@@ -1331,7 +1629,10 @@ public class NPCController : MonoBehaviour
     {
         snapped = worldPos;
         if (NavMesh.SamplePosition(worldPos, out NavMeshHit hit, 0.75f, NavMesh.AllAreas))
-        { snapped = hit.position; return true; }
+        {
+            snapped = hit.position;
+            return true;
+        }
         return false;
     }
 
@@ -1347,10 +1648,10 @@ public class NPCController : MonoBehaviour
     {
         switch (type)
         {
-            case AnimatorControllerParameterType.Bool:    anim.SetBool(paramName, true);  break;
+            case AnimatorControllerParameterType.Bool: anim.SetBool(paramName, true); break;
             case AnimatorControllerParameterType.Trigger: anim.ResetTrigger(paramName); anim.SetTrigger(paramName); break;
-            case AnimatorControllerParameterType.Int:     anim.SetInteger(paramName, 1); break;
-            case AnimatorControllerParameterType.Float:   anim.SetFloat(paramName, 1f);  break;
+            case AnimatorControllerParameterType.Int: anim.SetInteger(paramName, 1); break;
+            case AnimatorControllerParameterType.Float: anim.SetFloat(paramName, 1f); break;
         }
     }
 
@@ -1358,17 +1659,14 @@ public class NPCController : MonoBehaviour
     {
         switch (type)
         {
-            case AnimatorControllerParameterType.Bool:    anim.SetBool(paramName, false); break;
-            case AnimatorControllerParameterType.Trigger: anim.ResetTrigger(paramName);   break;
-            case AnimatorControllerParameterType.Int:     anim.SetInteger(paramName, 0);  break;
-            case AnimatorControllerParameterType.Float:   anim.SetFloat(paramName, 0f);   break;
+            case AnimatorControllerParameterType.Bool: anim.SetBool(paramName, false); break;
+            case AnimatorControllerParameterType.Trigger: anim.ResetTrigger(paramName); break;
+            case AnimatorControllerParameterType.Int: anim.SetInteger(paramName, 0); break;
+            case AnimatorControllerParameterType.Float: anim.SetFloat(paramName, 0f); break;
         }
     }
 }
 
-// =========================================================
-// Custom Editor
-// =========================================================
 #if UNITY_EDITOR
 [CustomEditor(typeof(NPCController))]
 public class NPCControllerEditor : Editor
@@ -1391,8 +1689,8 @@ public class NPCControllerEditor : Editor
         {
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Play Trigger")) npc.PlaySelectedTrigger();
-            if (GUILayout.Button("Pause Anim"))   npc.PauseTriggeredAnimation();
-            if (GUILayout.Button("Stop Anim"))    npc.StopTriggeredAnimation();
+            if (GUILayout.Button("Pause Anim")) npc.PauseTriggeredAnimation();
+            if (GUILayout.Button("Stop Anim")) npc.StopTriggeredAnimation();
             EditorGUILayout.EndHorizontal();
         }
         if (!Application.isPlaying) EditorGUILayout.HelpBox("Buttons work in Play Mode only.", MessageType.None);
@@ -1414,8 +1712,8 @@ public class NPCControllerEditor : Editor
         {
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Approach")) npc.DebugApproachTargetNPC();
-            if (GUILayout.Button("Attack"))   npc.DebugAttackTargetNPC();
-            if (GUILayout.Button("Talk"))     npc.DebugTalkTargetNPC();
+            if (GUILayout.Button("Attack")) npc.DebugAttackTargetNPC();
+            if (GUILayout.Button("Talk")) npc.DebugTalkTargetNPC();
             EditorGUILayout.EndHorizontal();
         }
 
@@ -1435,7 +1733,7 @@ public class NPCControllerEditor : Editor
         {
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Request Lie Down")) npc.RequestLieDown();
-            if (GUILayout.Button("Request Wake Up"))  npc.RequestWakeUp();
+            if (GUILayout.Button("Request Wake Up")) npc.RequestWakeUp();
             EditorGUILayout.EndHorizontal();
         }
     }

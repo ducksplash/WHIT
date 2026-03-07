@@ -1,22 +1,15 @@
-// NPCSittingBehaviour.cs
-// Handles the full sit-down / stand-up sub-FSM.
-// Attach alongside NPCController. NPCController calls Init() then delegates
-// EnterSitting() / TickSitting() / RequestStandUp() to this component.
-
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class NPCSittingBehaviour : NPCBehaviourBase
 {
-    // =========================================================
-    // Sub-FSM
-    // =========================================================
     public enum SitPhase
     {
         None,
         SearchingSeat,
+        RoutingToLadder,
+        ClimbingLadder,
         ApproachingFront,
         Aligning,
         Backstepping,
@@ -25,63 +18,62 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         StandUpPlaying
     }
 
-    // =========================================================
-    // Inspector
-    // =========================================================
     [Header("Sitting")]
     [Tooltip("Seat objects must be on this layer (e.g. 'SEAT').")]
     [SerializeField] private LayerMask seatLayerMask;
-    [SerializeField] private bool seatDebugLogs = false;
+    [SerializeField] private bool seatDebugLogs = true;
     [SerializeField] private QueryTriggerInteraction seatQueryTriggers = QueryTriggerInteraction.Collide;
-    [SerializeField] private float seatSearchTimeout  = 4.0f;
+    [SerializeField] private float seatSearchTimeout = 4.0f;
     [SerializeField] private float seatRescanInterval = 0.35f;
-    [SerializeField] private float seatSearchRadius   = 0f;
-    [SerializeField] private float preSitForwardOffset  = 0.45f;
+    [SerializeField] private float seatSearchRadius = 0f;
+    [SerializeField] private float preSitForwardOffset = 0.45f;
     [SerializeField] private float preSitArriveDistance = 0.35f;
     [SerializeField] private float alignYawToleranceDeg = 6f;
     [SerializeField] private float backstepDistance = 0.25f;
-    [SerializeField] private float backstepSpeed    = 0.8f;
-    [SerializeField] private bool  snapToSeatWhenSeated = true;
+    [SerializeField] private float backstepSpeed = 0.8f;
+    [SerializeField] private bool snapToSeatWhenSeated = true;
 
     [Header("Sitting Placement")]
-    [SerializeField] private Vector3 seatedRootOffset   = Vector3.zero;
-    [SerializeField] private float   autoStandAfterSeconds = 0f;
+    [SerializeField] private Vector3 seatedRootOffset = Vector3.zero;
+    [SerializeField] private float autoStandAfterSeconds = 0f;
 
     [Header("Sitting Animations")]
     [SerializeField] private string sitDownStateName = "SitDown";
     [SerializeField] private string sitIdleStateName = "SitIdle";
-    [SerializeField] private int    sitAnimLayer  = 0;
-    [SerializeField] private float  sitCrossfade  = 0.10f;
-    [SerializeField] private bool   useSitTriggerParam = false;
-    [SerializeField] private string sitTriggerParam    = "SitDown";
-    [SerializeField] private float  sitTriggerFallbackDelay = 0.08f;
+    [SerializeField] private int sitAnimLayer = 0;
+    [SerializeField] private float sitCrossfade = 0.10f;
+    [SerializeField] private bool useSitTriggerParam = false;
+    [SerializeField] private string sitTriggerParam = "SitDown";
+    [SerializeField] private float sitTriggerFallbackDelay = 0.08f;
 
     [Header("Stand Up Animations")]
-    [SerializeField] private bool   useStandUpTriggerParam = true;
-    [SerializeField] private string standUpTriggerParam    = "StandUp";
-    [SerializeField] private string standUpStateName       = "StandUp";
+    [SerializeField] private bool useStandUpTriggerParam = true;
+    [SerializeField] private string standUpTriggerParam = "StandUp";
+    [SerializeField] private string standUpStateName = "StandUp";
 
-    // =========================================================
-    // Runtime
-    // =========================================================
     public SitPhase Phase => _sitPhase;
+    public bool IsApproachingFront => _sitPhase == SitPhase.ApproachingFront;
+    public bool IsRoutingToLadder => _sitPhase == SitPhase.RoutingToLadder;
+
     private SitPhase _sitPhase = SitPhase.None;
 
-    private Seat      _seat;
+    private Seat _seat;
     private Transform _seatTf;
-    private Vector3   _seatNavPos;
-    private Vector3   _preSitNavPos;
-    private Vector3   _preSitPoint;
+    private Vector3 _seatNavPos;
+    private Vector3 _preSitNavPos;
+    private Vector3 _preSitPoint;
 
     private float _seatSearchT;
     private float _seatRescanT;
     private float _seatedT;
     private float _sitTriggerT;
-    private bool  _sitTriggerSent;
+    private bool _sitTriggerSent;
 
-    // =========================================================
-    // Init
-    // =========================================================
+    private Ladder _routeLadder;
+    private bool _routeGoingUp;
+    private Vector3 _routeApproachPoint;
+    private Vector3 _routeExitPoint;
+
     public override void Init(NPCController controller)
     {
         base.Init(controller);
@@ -96,16 +88,16 @@ public class NPCSittingBehaviour : NPCBehaviourBase
             Debug.LogWarning($"{name}: Layer 'SEAT' not found.");
     }
 
-    // =========================================================
-    // Public API (called by NPCController)
-    // =========================================================
     public void EnterSitting()
     {
-        _sitPhase   = SitPhase.SearchingSeat;
+        if (seatDebugLogs) Debug.Log($"{name} Sit: EnterSitting()");
+
+        _sitPhase = SitPhase.SearchingSeat;
         _seatSearchT = 0f;
         _seatRescanT = 0f;
-        _seatedT     = 0f;
+        _seatedT = 0f;
 
+        ClearLadderRoute();
         ReleaseSeatIfAny();
 
         if (Agent != null)
@@ -124,32 +116,42 @@ public class NPCSittingBehaviour : NPCBehaviourBase
 
     public void Tick(float dt)
     {
+        if (seatDebugLogs) Debug.Log($"{name} Sit: Tick phase={_sitPhase}");
+
         switch (_sitPhase)
         {
-            case SitPhase.SearchingSeat:   TickSearchingSeat(dt);               break;
+            case SitPhase.SearchingSeat:   TickSearchingSeat(dt); break;
+            case SitPhase.RoutingToLadder: TickRoutingToLadder(); break;
+            case SitPhase.ClimbingLadder:
+                ForceIdlePose();
+                break;
             case SitPhase.ApproachingFront:
                 if (AgentReady()) TickApproachFront();
+                else if (seatDebugLogs) Debug.LogWarning($"{name} Sit: ApproachingFront but agent not ready.");
                 break;
             case SitPhase.Aligning:
-                if (!AgentReady()) return;
+                if (!AgentReady()) { if (seatDebugLogs) Debug.LogWarning($"{name} Sit: Aligning but agent not ready."); return; }
                 if (_seatTf == null) { Fail(); return; }
                 TickAlign(dt, GetSeatFacing());
                 break;
             case SitPhase.Backstepping:
-                if (!AgentReady()) return;
+                if (!AgentReady()) { if (seatDebugLogs) Debug.LogWarning($"{name} Sit: Backstepping but agent not ready."); return; }
                 if (_seatTf == null) { Fail(); return; }
                 TickBackstep(dt, _seatNavPos, GetSeatFacing());
                 break;
-            case SitPhase.SitDownPlaying:  TickSitDownPlaying(dt);             break;
+            case SitPhase.SitDownPlaying:
+                TickSitDownPlaying(dt);
+                break;
             case SitPhase.SittingIdle:
                 if (_seatTf == null) { Fail(); return; }
                 TickSittingIdle(dt, _seatTf.position, GetSeatFacing());
                 break;
-            case SitPhase.StandUpPlaying:  TickStandUpPlaying(dt);             break;
+            case SitPhase.StandUpPlaying:
+                TickStandUpPlaying(dt);
+                break;
         }
     }
 
-    /// <summary>Called externally (e.g. NPCController.RequestStandUp) to begin standing.</summary>
     public void BeginStandUp()
     {
         if (_sitPhase == SitPhase.StandUpPlaying) return;
@@ -173,15 +175,6 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         _sitPhase = SitPhase.StandUpPlaying;
     }
 
-    // =========================================================
-    // Walk-up locomotion check (used by NPCController.UpdateLocomotionAndFacing)
-    // =========================================================
-    public bool IsApproachingFront => _sitPhase == SitPhase.ApproachingFront;
-    public bool IsActive           => _sitPhase != SitPhase.None;
-
-    // =========================================================
-    // Seat facing helper
-    // =========================================================
     private Vector3 GetSeatFacing()
     {
         if (_seatTf == null) return Body.forward;
@@ -190,9 +183,6 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         return f.normalized;
     }
 
-    // =========================================================
-    // Sub-phase ticks
-    // =========================================================
     private void TickSearchingSeat(float dt)
     {
         _seatSearchT += dt;
@@ -201,10 +191,24 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         if (_seatRescanT <= 0f)
         {
             _seatRescanT = Mathf.Max(0.05f, seatRescanInterval);
-            if (TryAcquireSeat()) return;
+            if (TryAcquireSeat())
+                return;
         }
 
-        if (AgentReady()) { Agent.isStopped = true; Agent.ResetPath(); }
+        if (_seatSearchT >= Mathf.Max(0.1f, seatSearchTimeout))
+        {
+            if (seatDebugLogs)
+                Debug.LogWarning($"{name} Sit: search timed out after {_seatSearchT:F2}s");
+            Fail();
+            return;
+        }
+
+        if (AgentReady())
+        {
+            Agent.isStopped = true;
+            Agent.ResetPath();
+        }
+
         ForceIdlePose();
     }
 
@@ -228,18 +232,43 @@ public class NPCSittingBehaviour : NPCBehaviourBase
             Seat s = seats[i];
             if (!s) continue;
 
+            if (seatDebugLogs) Debug.Log($"{name} Sit: checking seat '{s.name}'");
+
             bool matchesMask =
                 (((1 << s.gameObject.layer) & seatLayerMask.value) != 0) ||
                 (s.seatTransform != null && (((1 << s.seatTransform.gameObject.layer) & seatLayerMask.value) != 0));
 
-            if (!matchesMask)                     continue;
-            if (!s.IsValid)                       continue;
-            if (s.seatTransform == null)          continue;
-            if (s.IsOccupied)                     continue;
+            if (!matchesMask)
+            {
+                if (seatDebugLogs) Debug.Log($"{name} Sit: REJECT '{s.name}' layer mismatch");
+                continue;
+            }
+
+            if (!s.IsValid)
+            {
+                if (seatDebugLogs) Debug.Log($"{name} Sit: REJECT '{s.name}' IsValid=false");
+                continue;
+            }
+
+            if (s.seatTransform == null)
+            {
+                if (seatDebugLogs) Debug.Log($"{name} Sit: REJECT '{s.name}' seatTransform=null");
+                continue;
+            }
+
+            if (s.IsOccupied)
+            {
+                if (seatDebugLogs) Debug.Log($"{name} Sit: REJECT '{s.name}' occupied");
+                continue;
+            }
 
             Vector3 seatPos = s.seatTransform.position;
             Vector3 d = seatPos - center; d.y = 0f;
-            if (d.sqrMagnitude > radius * radius) continue;
+            if (d.sqrMagnitude > radius * radius)
+            {
+                if (seatDebugLogs) Debug.Log($"{name} Sit: REJECT '{s.name}' out of radius ({Mathf.Sqrt(d.sqrMagnitude):F2} > {radius:F2})");
+                continue;
+            }
 
             if (!NavMesh.SamplePosition(seatPos, out NavMeshHit _, ActiveRadius, NavMesh.AllAreas))
             {
@@ -248,13 +277,26 @@ public class NPCSittingBehaviour : NPCBehaviourBase
             }
 
             float sqr = (Body.position - seatPos).sqrMagnitude;
-            if (sqr < bestSqr) { best = s; bestSqr = sqr; }
+            if (sqr < bestSqr)
+            {
+                best = s;
+                bestSqr = sqr;
+            }
         }
 
-        if (best == null) { Debug.LogWarning($"{name} Sit: No valid/free seat found."); return false; }
-        if (!best.TryOccupy(npc))  { Debug.LogWarning($"{name} Sit: Seat '{best.name}' refused occupancy."); return false; }
+        if (best == null)
+        {
+            if (seatDebugLogs) Debug.LogWarning($"{name} Sit: No valid/free seat found.");
+            return false;
+        }
 
-        _seat  = best;
+        if (!best.TryOccupy(npc))
+        {
+            Debug.LogWarning($"{name} Sit: Seat '{best.name}' refused occupancy.");
+            return false;
+        }
+
+        _seat = best;
         _seatTf = best.seatTransform;
 
         Vector3 seatForward = _seatTf.forward; seatForward.y = 0f;
@@ -272,28 +314,169 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         else
             _preSitNavPos = preHit.position;
 
-        if (seatDebugLogs) Debug.Log($"{name} Sit: ACQUIRED '{_seat.name}'");
-
         if (!Agent.enabled) Agent.enabled = true;
         if (!Agent.isOnNavMesh && TryGetNavmeshPoint(Body.position, out Vector3 navPos))
             Agent.Warp(navPos);
 
-        if (!AgentReady()) return false;
+        if (!AgentReady())
+        {
+            ReleaseSeatIfAny();
+            return false;
+        }
+
+        if (npc.CanReachPosition(_preSitNavPos, out NavMeshPath directPath))
+        {
+            if (seatDebugLogs)
+                Debug.Log($"{name} Sit: direct path to seat ok");
+
+            Agent.isStopped = false;
+            Agent.autoBraking = true;
+            Agent.ResetPath();
+            Agent.SetPath(directPath);
+            _sitPhase = SitPhase.ApproachingFront;
+            return true;
+        }
+
+        if (npc.TryFindLadderRoute(_preSitNavPos, out Ladder ladder, out bool goingUp, out Vector3 approachPoint, out Vector3 exitPoint, out NavMeshPath ladderPath))
+        {
+            _routeLadder = ladder;
+            _routeGoingUp = goingUp;
+            _routeApproachPoint = approachPoint;
+            _routeExitPoint = exitPoint;
+
+            if (seatDebugLogs)
+                Debug.Log($"{name} Sit: routing via ladder '{ladder.name}' goingUp={goingUp}");
+
+            Agent.isStopped = false;
+            Agent.autoBraking = true;
+            Agent.ResetPath();
+            Agent.SetPath(ladderPath);
+
+            _sitPhase = SitPhase.RoutingToLadder;
+            return true;
+        }
+
+        if (seatDebugLogs)
+            Debug.LogWarning($"{name} Sit: REJECT '{_seat.name}' no direct path and no ladder route");
+
+        ReleaseSeatIfAny();
+        ClearLadderRoute();
+        return false;
+    }
+
+    private void TickRoutingToLadder()
+    {
+        if (_routeLadder == null)
+        {
+            if (seatDebugLogs) Debug.LogWarning($"{name} Sit: RoutingToLadder but no ladder.");
+            Fail();
+            return;
+        }
+
+        if (seatDebugLogs)
+        {
+            Debug.Log(
+                $"{name} Sit: RoutingToLadder " +
+                $"hasPath={Agent.hasPath} pending={Agent.pathPending} " +
+                $"status={Agent.pathStatus} remaining={Agent.remainingDistance:F2}");
+        }
+
+        Agent.isStopped = false;
+
+        if (!Agent.pathPending && Agent.pathStatus == NavMeshPathStatus.PathInvalid)
+        {
+            if (seatDebugLogs) Debug.LogWarning($"{name} Sit: ladder approach path became invalid.");
+            Fail();
+            return;
+        }
+
+        if (!Agent.pathPending && !Agent.hasPath)
+        {
+            if (seatDebugLogs) Debug.LogWarning($"{name} Sit: lost ladder approach path.");
+            Fail();
+            return;
+        }
+
+        float dist = Vector3.Distance(
+            new Vector3(Body.position.x, 0f, Body.position.z),
+            new Vector3(_routeApproachPoint.x, 0f, _routeApproachPoint.z));
+
+        if (dist <= npc.ladderApproachArriveDistance)
+        {
+            if (seatDebugLogs) Debug.Log($"{name} Sit: reached ladder approach, starting climb.");
+
+            Agent.isStopped = true;
+            Agent.ResetPath();
+            _sitPhase = SitPhase.ClimbingLadder;
+
+            npc.StartLadderTraversal(_routeLadder, _routeGoingUp, OnFinishedLadderRoute);
+        }
+    }
+
+    private void OnFinishedLadderRoute()
+    {
+        if (seatDebugLogs) Debug.Log($"{name} Sit: ladder traversal complete");
+
+        if (_seat == null || _seatTf == null)
+        {
+            Fail();
+            return;
+        }
+
+        if (!AgentReady())
+        {
+            if (seatDebugLogs) Debug.LogWarning($"{name} Sit: agent not ready after ladder.");
+            Fail();
+            return;
+        }
+
+        if (!npc.CanReachPosition(_preSitNavPos, out NavMeshPath path))
+        {
+            if (seatDebugLogs) Debug.LogWarning($"{name} Sit: cannot reach seat after ladder.");
+            Fail();
+            return;
+        }
 
         Agent.isStopped = false;
         Agent.autoBraking = true;
         Agent.ResetPath();
-        Agent.SetDestination(_preSitNavPos);
+        Agent.SetPath(path);
 
         _sitPhase = SitPhase.ApproachingFront;
-        return true;
     }
 
     private void TickApproachFront()
     {
+        if (seatDebugLogs)
+        {
+            Debug.Log(
+                $"{name} Sit: ApproachingFront " +
+                $"hasPath={Agent.hasPath} " +
+                $"pending={Agent.pathPending} " +
+                $"status={Agent.pathStatus} " +
+                $"remaining={Agent.remainingDistance:F2} " +
+                $"dest={Agent.destination} " +
+                $"pos={Body.position}"
+            );
+        }
+
         Agent.isStopped = false;
 
-        if (!Agent.pathPending && (!Agent.hasPath || Vector3.Distance(Agent.destination, _preSitNavPos) > 0.15f))
+        if (!Agent.pathPending && Agent.pathStatus == NavMeshPathStatus.PathInvalid)
+        {
+            if (seatDebugLogs) Debug.LogWarning($"{name} Sit: path became invalid while approaching.");
+            Fail();
+            return;
+        }
+
+        if (!Agent.pathPending && !Agent.hasPath)
+        {
+            if (seatDebugLogs) Debug.LogWarning($"{name} Sit: lost path while approaching.");
+            Fail();
+            return;
+        }
+
+        if (!Agent.pathPending && Vector3.Distance(Agent.destination, _preSitNavPos) > 0.15f)
             Agent.SetDestination(_preSitNavPos);
 
         float dist = Vector3.Distance(
@@ -352,7 +535,6 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     {
         DetachAgentForAnimation();
 
-        // Do NOT snap XZ to seat — backstep already placed the NPC correctly.
         if (_seatTf != null)
             Body.rotation = Quaternion.LookRotation(GetSeatFacing(), Vector3.up);
 
@@ -362,7 +544,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
 
             Anim.SetFloat(ParamMovingX, 0f);
             Anim.SetFloat(ParamMovingY, 0f);
-            Anim.SetFloat(ParamBlend,   0f);
+            Anim.SetFloat(ParamBlend, 0f);
 
             ResetAllAnimatorTriggers();
 
@@ -375,8 +557,8 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         }
 
         _sitTriggerSent = true;
-        _sitTriggerT    = 0f;
-        _sitPhase       = SitPhase.SitDownPlaying;
+        _sitTriggerT = 0f;
+        _sitPhase = SitPhase.SitDownPlaying;
     }
 
     private void TickSitDownPlaying(float dt)
@@ -389,7 +571,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         if (!string.IsNullOrWhiteSpace(sitIdleStateName) && info.IsName(sitIdleStateName))
         {
             _sitPhase = SitPhase.SittingIdle;
-            _seatedT  = 0f;
+            _seatedT = 0f;
             if (_seatTf != null)
                 Body.rotation = Quaternion.LookRotation(GetSeatFacing(), Vector3.up);
             if (seatDebugLogs) Debug.Log($"{name} Sit: SittingIdle.");
@@ -434,9 +616,6 @@ public class NPCSittingBehaviour : NPCBehaviourBase
             FinishStandUpToPatrol();
     }
 
-    // =========================================================
-    // Finish / Fail
-    // =========================================================
     private void FinishStandUpToPatrol()
     {
         if (Anim != null)
@@ -447,10 +626,11 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         }
 
         ReleaseSeatIfAny();
+        ClearLadderRoute();
 
-        npc.HasCommand  = false;
+        npc.HasCommand = false;
         npc.CommandGoal = NPCController.NPCState.Patrolling;
-        _sitPhase       = SitPhase.None;
+        _sitPhase = SitPhase.None;
 
         StartCoroutine(FinishStandUpGroundingRoutine());
     }
@@ -467,9 +647,9 @@ public class NPCSittingBehaviour : NPCBehaviourBase
             ForceIdlePose();
         }
 
-        npc.HasCommand  = false;
+        npc.HasCommand = false;
         npc.CommandGoal = NPCController.NPCState.Patrolling;
-        _sitPhase       = SitPhase.None;
+        _sitPhase = SitPhase.None;
         npc.SetStateDirectly(NPCController.NPCState.Patrolling);
 
         npc.ExecutePendingPostStandAction();
@@ -477,20 +657,35 @@ public class NPCSittingBehaviour : NPCBehaviourBase
 
     private void Fail()
     {
-        ReleaseSeatIfAny();
-        npc.HasCommand  = false;
-        npc.CommandGoal = NPCController.NPCState.Patrolling;
-        _sitPhase       = SitPhase.None;
+        if (seatDebugLogs) Debug.LogWarning($"{name} Sit: FAIL");
 
-        if (Anim != null) ForceReturnToLocomotion();
+        ReleaseSeatIfAny();
+        ClearLadderRoute();
+
+        npc.HasCommand = false;
+        npc.CommandGoal = NPCController.NPCState.Patrolling;
+        _sitPhase = SitPhase.None;
+
+        if (Anim != null)
+            ForceReturnToLocomotion();
+
         ReattachAgentToNavmeshAtCurrentXZ();
+        npc.SetStateDirectly(NPCController.NPCState.Patrolling);
         EnterState(NPCController.NPCState.Patrolling);
     }
 
     private void ReleaseSeatIfAny()
     {
         if (_seat != null) _seat.Release(npc);
-        _seat   = null;
+        _seat = null;
         _seatTf = null;
+    }
+
+    private void ClearLadderRoute()
+    {
+        _routeLadder = null;
+        _routeGoingUp = false;
+        _routeApproachPoint = Vector3.zero;
+        _routeExitPoint = Vector3.zero;
     }
 }

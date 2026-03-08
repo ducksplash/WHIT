@@ -554,26 +554,33 @@ public class NPCController : MonoBehaviour
         {
             ResetAllAnimatorTriggers();
             animationController.SetTrigger(climbTrigger);
+        }
 
-            // Wait until the animator actually switches states
-            float timer = 0f;
-            int startHash = animationController.GetCurrentAnimatorStateInfo(0).fullPathHash;
+        // Tighten climb-down start:
+        // lock the NPC to the mount for a short "anim enter" window so it doesn't
+        // visually slide before the climb-down animation starts playing.
+        if (!goingUp && animationController != null && !string.IsNullOrWhiteSpace(climbTrigger))
+        {
+            float lockTimer = 0f;
+            float lockMax = Mathf.Max(0.02f, triggerEnterTimeout * 0.5f);
+            int baseHash = animationController.GetCurrentAnimatorStateInfo(0).fullPathHash;
 
-            while (timer < triggerEnterTimeout)
+            while (lockTimer < lockMax)
             {
-                AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(0);
-
-                if (info.fullPathHash != startHash && !animationController.IsInTransition(0))
-                    break;
-
                 transform.position = startMount.position;
                 transform.rotation = attachRot;
 
-                timer += Time.deltaTime;
+                AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(0);
+                bool entered = animationController.IsInTransition(0) || info.fullPathHash != baseHash;
+
+                if (entered)
+                    break;
+
+                lockTimer += Time.deltaTime;
                 yield return null;
             }
 
-            // One extra frame ensures animation root is settled
+            // one extra frame locked after entry gives a tighter visual start
             transform.position = startMount.position;
             transform.rotation = attachRot;
             yield return null;

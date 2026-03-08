@@ -520,7 +520,58 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         _lieTriggerSent = true;
         _liePhase = LiePhase.LieDownPlaying;
     }
+    public void ForceCancelLying()
+    {
+        StopAllCoroutines();
 
+        _bedRescanT = 0f;
+        _lyingT = 0f;
+        _lieTriggerT = 0f;
+        _wakeTriggerT = 0f;
+        _lieTriggerSent = false;
+        _wakeTriggerSent = false;
+
+        ReleaseBedIfAny();
+        ClearLadderRoute();
+        RestoreAnimationRootLocalXZ();
+
+        _liePhase = LiePhase.None;
+
+        if (Anim != null)
+        {
+            Anim.speed = 1f;
+            ResetAllAnimatorTriggers();
+            ForceReturnToLocomotion();
+            Anim.Update(0f);
+            ForceIdlePose();
+        }
+
+        if (Agent != null)
+        {
+            if (!Agent.enabled) Agent.enabled = true;
+
+            Vector3 preferred = Body.position;
+            if (_preLieNavPos != Vector3.zero) preferred = _preLieNavPos;
+            else if (_bedNavPos != Vector3.zero) preferred = _bedNavPos;
+
+            RestoreStandingBodyAt(preferred, bodyRecoverySampleRadius);
+
+            if (!Agent.isOnNavMesh && TryGetNavmeshPoint(Body.position, out Vector3 navPos))
+                Agent.Warp(navPos);
+
+            if (AgentReady())
+            {
+                Agent.isStopped = false;
+                Agent.ResetPath();
+                Agent.velocity = Vector3.zero;
+                Agent.autoBraking = true;
+                Agent.stoppingDistance = Mathf.Max(0.05f, ArriveDistance);
+            }
+        }
+
+        npc.HasCommand = false;
+        npc.CommandGoal = NPCController.NPCState.Patrolling;
+    }
     private void TickLieDownPlaying(float dt)
     {
         if (Anim == null) return;

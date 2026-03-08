@@ -352,8 +352,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
             _routeApproachPoint = approachPoint;
             _routeExitPoint = exitPoint;
 
-            if (seatDebugLogs)
-                Debug.Log($"{name} Sit: routing via ladder '{ladder.name}' goingUp={goingUp}");
+            if (seatDebugLogs) Debug.Log($"{name} Sit: routing via ladder '{ladder.name}' goingUp={goingUp}");
 
             Agent.isStopped = false;
             Agent.autoBraking = true;
@@ -528,9 +527,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         Quaternion targetRot = Quaternion.LookRotation(seatFacing, Vector3.up);
         Body.rotation = Quaternion.Slerp(Body.rotation, targetRot, dt * (TurnSmoothing * 2.0f));
 
-        float dist = Vector3.Distance(
-            new Vector3(Body.position.x, 0f, Body.position.z),
-            new Vector3(seatNavPos.x, 0f, seatNavPos.z));
+        float dist = Vector3.Distance(new Vector3(Body.position.x, 0f, Body.position.z), new Vector3(seatNavPos.x, 0f, seatNavPos.z));
 
         if (dist <= 0.12f)
         {
@@ -716,7 +713,57 @@ private void TickStandUpPlaying(float dt)
 
         npc.ExecutePendingPostStandAction();
     }
+    public void ForceCancelSitting()
+    {
+        StopAllCoroutines();
 
+        _standUpT = 0f;
+        _standUpTriggerSent = false;
+
+        _seatSearchT = 0f;
+        _seatRescanT = 0f;
+        _seatedT = 0f;
+        _sitTriggerT = 0f;
+        _sitTriggerSent = false;
+
+        ReleaseSeatIfAny();
+        ClearLadderRoute();
+
+        _seatNavPos = Vector3.zero;
+        _preSitNavPos = Vector3.zero;
+        _preSitPoint = Vector3.zero;
+
+        _sitPhase = SitPhase.None;
+
+        if (Anim != null)
+        {
+            Anim.speed = 1f;
+            ResetAllAnimatorTriggers();
+            ForceReturnToLocomotion();
+            Anim.Update(0f);
+            ForceIdlePose();
+        }
+
+        if (Agent != null)
+        {
+            if (!Agent.enabled) Agent.enabled = true;
+
+            if (!Agent.isOnNavMesh && TryGetNavmeshPoint(Body.position, out Vector3 navPos))
+                Agent.Warp(navPos);
+
+            if (AgentReady())
+            {
+                Agent.isStopped = false;
+                Agent.ResetPath();
+                Agent.velocity = Vector3.zero;
+                Agent.autoBraking = true;
+                Agent.stoppingDistance = Mathf.Max(0.05f, ArriveDistance);
+            }
+        }
+
+        npc.HasCommand = false;
+        npc.CommandGoal = NPCController.NPCState.Patrolling;
+    }
     private void Fail()
     {
         if (seatDebugLogs) Debug.LogWarning($"{name} Sit: FAIL");

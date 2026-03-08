@@ -17,7 +17,7 @@ public class DebugCamHUD : MonoBehaviour
 
     [Tooltip("Parent object that contains the controls. Hidden when no valid NPCController target.")]
     [SerializeField] private GameObject controlsRoot;
-
+    [SerializeField] private Button respawnButton;
     [Header("Camera UI")]
     [SerializeField] private Button panHorizontalButton;
     [SerializeField] private Button panVerticalButton;
@@ -82,7 +82,7 @@ public class DebugCamHUD : MonoBehaviour
     void OnEnable()
     {
         if (controlsRoot != null) controlsRoot.SetActive(false);
-
+        if (respawnButton != null) respawnButton.onClick.AddListener(OnRespawnClicked);
         // Trigger
         if (playTriggerButton != null) playTriggerButton.onClick.AddListener(OnPlayTriggerClicked);
 
@@ -122,7 +122,7 @@ public class DebugCamHUD : MonoBehaviour
         OnClearTargetClicked();
 
         if (playTriggerButton != null) playTriggerButton.onClick.RemoveListener(OnPlayTriggerClicked);
-
+        if (respawnButton != null) respawnButton.onClick.RemoveListener(OnRespawnClicked);
         if (sitButton != null) sitButton.onClick.RemoveListener(OnSitClicked);
         if (standButton != null) standButton.onClick.RemoveListener(OnStandClicked);
         if (lieButton != null) lieButton.onClick.RemoveListener(OnLieClicked);
@@ -434,7 +434,12 @@ public class DebugCamHUD : MonoBehaviour
         targetNpcDropdown.value = 0;
         targetNpcDropdown.RefreshShownValue();
     }
-
+    private void OnRespawnClicked()
+    {
+        if (_npc == null) return;
+        _npc.RespawnNPC();
+        RefreshForTarget(_lastTarget);
+    }
     private void RefreshTargetNpcDropdownSelectionFromNpc()
     {
         if (_npc == null) return;

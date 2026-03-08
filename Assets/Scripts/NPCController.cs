@@ -134,7 +134,6 @@ public class NPCController : MonoBehaviour
     public float ladderApproachArriveDistance = 0.45f;
     public float ladderClimbSpeed = 1.6f;
     public float ladderFacingSlerp = 18f;
-    public float ladderMinHeightDeltaForUp = 0.25f;
     public string climbUpTriggerName = "ClimbUpLadder";
     public string climbDownTriggerName = "ClimbDownLadder";
     public float ladderNavmeshSnapRadius = 3f;
@@ -142,7 +141,15 @@ public class NPCController : MonoBehaviour
     public string hoistUpTriggerName = "HoistUp";
     public float ladderTopStopOffset = 0.9f;
     public float hoistDuration = 0.7f;
-    public float hoistForwardOffset = 0.2f;
+    public float climbDownStartDelay = 0.12f;
+    [Tooltip("How far in front of the mount point the NPC stops before aligning and climbing.")]
+    public float preLadderApproachOffset = 1.0f;
+
+    [Tooltip("Yaw tolerance in degrees before the NPC is considered aligned with the ladder and snaps on.")]
+    public float ladderAlignToleranceDeg = 8f;
+
+    [Tooltip("If the target is within this vertical distance, treat it as the same level and do not use a ladder.")]
+    public float sameLevelHeightTolerance = 0.5f;
 
     [Header("Behaviour Plugins")]
     [SerializeField] private NPCSittingBehaviour _sitting;
@@ -201,11 +208,6 @@ public class NPCController : MonoBehaviour
     private NPCState _stateBeforeLadder = NPCState.Patrolling;
     private Action _ladderCompleteAction;
 
-    private Vector3 _cachedVisualLocalPosition;
-    private Quaternion _cachedVisualLocalRotation;
-    private Vector3 _cachedVisualLocalScale;
-    private bool _hasCachedVisualTransform = false;
-
     public bool AgentReady()
         => agent != null && agent.isActiveAndEnabled && agent.enabled && agent.isOnNavMesh;
 
@@ -235,10 +237,8 @@ public class NPCController : MonoBehaviour
     {
         path = new NavMeshPath();
         if (!AgentReady()) return false;
-
         bool ok = agent.CalculatePath(destination, path);
         if (!ok || path == null) return false;
-
         return path.status == NavMeshPathStatus.PathComplete;
     }
 
@@ -250,17 +250,35 @@ public class NPCController : MonoBehaviour
     public bool CanReachBetween(Vector3 start, Vector3 destination, out NavMeshPath path)
     {
         path = new NavMeshPath();
-
-        if (!TryGetNavmeshPointNear(start, ladderNavmeshSnapRadius, out Vector3 startNav))
-            return false;
-
-        if (!TryGetNavmeshPointNear(destination, ladderNavmeshSnapRadius, out Vector3 destNav))
-            return false;
-
+        if (!TryGetNavmeshPointNear(start, ladderNavmeshSnapRadius, out Vector3 startNav)) return false;
+        if (!TryGetNavmeshPointNear(destination, ladderNavmeshSnapRadius, out Vector3 destNav)) return false;
         int areaMask = (agent != null) ? agent.areaMask : NavMesh.AllAreas;
         bool ok = NavMesh.CalculatePath(startNav, destNav, areaMask, path);
-
         return ok && path.status == NavMeshPathStatus.PathComplete;
+    }
+
+    private bool NeedLadderForTarget(Transform target, out bool goingUp)
+    {
+        goingUp = false;
+
+        if (!useLadders || target == null)
+            return false;
+
+        float deltaY = target.position.y - transform.position.y;
+
+        if (deltaY > sameLevelHeightTolerance)
+        {
+            goingUp = true;
+            return true;
+        }
+
+        if (deltaY < -sameLevelHeightTolerance)
+        {
+            goingUp = false;
+            return true;
+        }
+
+        return false;
     }
 
     public bool TryFindLadderRoute(
@@ -272,6 +290,7 @@ public class NPCController : MonoBehaviour
         out NavMeshPath approachPath)
     {
         ladder = null;
+        goingUp = false;   // ← FIX
         approachPoint = Vector3.zero;
         exitPoint = Vector3.zero;
         approachPath = null;
@@ -282,10 +301,18 @@ public class NPCController : MonoBehaviour
             return false;
         }
 
-        goingUp = destination.y > transform.position.y + ladderMinHeightDeltaForUp;
+        float deltaY = destination.y - transform.position.y;
+
+        if (deltaY > sameLevelHeightTolerance)
+            goingUp = true;
+        else if (deltaY < -sameLevelHeightTolerance)
+            goingUp = false;
+        else
+            return false;
 
         Ladder[] ladders = FindObjectsByType<Ladder>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        if (ladders == null || ladders.Length == 0) return false;
+        if (ladders == null || ladders.Length == 0)
+            return false;
 
         float bestScore = float.PositiveInfinity;
 
@@ -294,47 +321,103 @@ public class NPCController : MonoBehaviour
             Ladder l = ladders[i];
             if (l == null) continue;
 
-            Transform approachTf;
-            Transform mountStartTf;
-            Transform mountEndTf;
-            Transform exitTf;
+            Transform rawApproachTf;
+            Transform rawExitTf;
 
             if (goingUp)
             {
-                if (l.bottomMountPoint == null || l.topMountPoint == null) continue;
-                approachTf = l.bottomMountPoint;
-                mountStartTf = l.bottomMountPoint;
-                mountEndTf = l.topMountPoint;
-                exitTf = l.topExitPoint != null ? l.topExitPoint : l.topMountPoint;
+                if (l.bottomMountPoint == null || l.topMountPoint == null)
+                {
+                    if (ladderDebugLogs)
+                        Debug.Log($"{name}: Reject ladder {l.name} (up) - missing bottom/top mount.");
+                    continue;
+                }
+
+                rawApproachTf = l.bottomMountPoint;
+                rawExitTf = l.topExitPoint != null ? l.topExitPoint : l.topMountPoint;
             }
             else
             {
-                if (!l.bidirectional) continue;
-                if (l.topMountPoint == null || l.bottomMountPoint == null) continue;
-                approachTf = l.topMountPoint;
-                mountStartTf = l.topMountPoint;
-                mountEndTf = l.bottomMountPoint;
-                exitTf = l.bottomExitPoint != null ? l.bottomExitPoint : l.bottomMountPoint;
+                if (!l.bidirectional)
+                {
+                    if (ladderDebugLogs)
+                        Debug.Log($"{name}: Reject ladder {l.name} (down) - not bidirectional.");
+                    continue;
+                }
+
+                if (l.topMountPoint == null || l.bottomMountPoint == null)
+                {
+                    if (ladderDebugLogs)
+                        Debug.Log($"{name}: Reject ladder {l.name} (down) - missing top/bottom mount.");
+                    continue;
+                }
+
+                rawApproachTf = l.topExitPoint != null ? l.topExitPoint : l.topMountPoint;
+                rawExitTf = l.bottomExitPoint != null ? l.bottomExitPoint : l.bottomMountPoint;
             }
 
-            if (!CanReachPosition(approachTf.position, out NavMeshPath pathToLadder))
+            if (rawApproachTf == null || rawExitTf == null)
+            {
+                if (ladderDebugLogs)
+                    Debug.Log($"{name}: Reject ladder {l.name} - null approach or exit transform.");
                 continue;
+            }
 
-            if (!CanReachBetween(exitTf.position, destination, out NavMeshPath _))
+            // Snap approach to navmesh
+            if (!TryGetNavmeshPointNear(rawApproachTf.position, ladderNavmeshSnapRadius, out Vector3 snappedApproach))
+            {
+                if (ladderDebugLogs)
+                    Debug.Log($"{name}: Reject ladder {l.name} - no navmesh near approach {rawApproachTf.position}.");
                 continue;
+            }
+
+            // Snap exit to navmesh
+            if (!TryGetNavmeshPointNear(rawExitTf.position, ladderNavmeshSnapRadius, out Vector3 snappedExit))
+            {
+                if (ladderDebugLogs)
+                    Debug.Log($"{name}: Reject ladder {l.name} - no navmesh near exit {rawExitTf.position}.");
+                continue;
+            }
+
+            if (!CanReachPosition(snappedApproach, out NavMeshPath pathToLadder))
+            {
+                if (ladderDebugLogs)
+                    Debug.Log($"{name}: Reject ladder {l.name} - cannot reach approach {snappedApproach}.");
+                continue;
+            }
+
+            if (!CanReachBetween(snappedExit, destination, out NavMeshPath _))
+            {
+                if (ladderDebugLogs)
+                    Debug.Log($"{name}: Reject ladder {l.name} - cannot reach target from exit {snappedExit}.");
+                continue;
+            }
 
             float score =
-                Vector3.Distance(transform.position, approachTf.position) +
-                Vector3.Distance(exitTf.position, destination);
+                Vector3.Distance(transform.position, snappedApproach) +
+                Vector3.Distance(snappedExit, destination);
+
+            if (ladderDebugLogs)
+            {
+                Debug.Log(
+                    $"{name}: Candidate ladder {l.name} accepted. " +
+                    $"goingUp={goingUp}, approach={snappedApproach}, exit={snappedExit}, score={score:F2}");
+            }
 
             if (score < bestScore)
             {
                 bestScore = score;
                 ladder = l;
-                approachPoint = approachTf.position;
-                exitPoint = exitTf.position;
+                approachPoint = snappedApproach;
+                exitPoint = snappedExit;
                 approachPath = pathToLadder;
             }
+        }
+
+        if (ladderDebugLogs && ladder == null)
+        {
+            Debug.LogWarning(
+                $"{name}: TryFindLadderRoute failed. destination={destination}, deltaY={deltaY:F2}, goingUp={goingUp}");
         }
 
         return ladder != null;
@@ -347,10 +430,7 @@ public class NPCController : MonoBehaviour
             onComplete?.Invoke();
             return;
         }
-
-        if (_ladderCoroutine != null)
-            StopCoroutine(_ladderCoroutine);
-
+        
         _ladderCompleteAction = onComplete;
         _ladderCoroutine = StartCoroutine(LadderTraversalRoutine(ladder, goingUp));
     }
@@ -384,19 +464,56 @@ public class NPCController : MonoBehaviour
             yield break;
         }
 
+        Vector3 ladderFacing = GetLadderFacingDirection(startMount, ladder);
+        Quaternion attachRot = Quaternion.LookRotation(ladderFacing, Vector3.up);
+
         if (ladderDebugLogs)
         {
-            if (goingUp)
+            Debug.Log(
+                $"{name}: LadderTraversal ladder={ladder.name} goingUp={goingUp} " +
+                $"facing={ladderFacing} start={startMount.position} " +
+                $"endMount={endMount.position} endExit={endExit.position}");
+        }
+
+        float xzDistToMount = Vector3.Distance(
+            new Vector3(transform.position.x, 0f, transform.position.z),
+            new Vector3(startMount.position.x, 0f, startMount.position.z));
+
+        bool alreadyAtLadder = xzDistToMount <= (ladderApproachArriveDistance + preLadderApproachOffset + 0.25f);
+
+        if (!alreadyAtLadder)
+        {
+            Vector3 preLadderPos = startMount.position + ladderFacing * Mathf.Max(0f, preLadderApproachOffset);
+
+            if (!NavMesh.SamplePosition(preLadderPos, out NavMeshHit preHit, ladderNavmeshSnapRadius, NavMesh.AllAreas))
+                preHit.position = preLadderPos;
+
+            if (AgentReady())
             {
-                Debug.Log(
-                    $"{name}: LadderTraversal ladder={ladder.name} goingUp=true " +
-                    $"startMount={startMount.position} hoistStart={hoistStart.position} endExit={endExit.position}");
+                agent.isStopped = false;
+                agent.autoBraking = true;
+                agent.ResetPath();
+                agent.SetDestination(preHit.position);
             }
-            else
+
+            ForceIdlePose();
+
+            while (true)
             {
-                Debug.Log(
-                    $"{name}: LadderTraversal ladder={ladder.name} goingUp=false " +
-                    $"startMount={startMount.position} endMount={endMount.position} endExit={endExit.position}");
+                if (AgentReady() && !agent.pathPending &&
+                    (!agent.hasPath || Vector3.Distance(agent.destination, preHit.position) > 0.15f))
+                {
+                    agent.SetDestination(preHit.position);
+                }
+
+                float xzDist = Vector3.Distance(
+                    new Vector3(transform.position.x, 0f, transform.position.z),
+                    new Vector3(preHit.position.x, 0f, preHit.position.z));
+
+                if (xzDist <= Mathf.Max(ladderApproachArriveDistance, 0.2f))
+                    break;
+
+                yield return null;
             }
         }
 
@@ -409,42 +526,66 @@ public class NPCController : MonoBehaviour
         ForceIdlePose();
         ResetAllAnimatorTriggers();
 
+        while (true)
+        {
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                attachRot,
+                Time.deltaTime * ladderFacingSlerp * 1.5f);
+
+            float yawDelta = Mathf.Abs(Mathf.DeltaAngle(
+                transform.eulerAngles.y,
+                attachRot.eulerAngles.y));
+
+            if (yawDelta <= Mathf.Max(0.5f, ladderAlignToleranceDeg))
+                break;
+
+            yield return null;
+        }
+
         transform.position = startMount.position;
-        transform.rotation = GetLadderAttachRotation(startMount, ladder);
+        transform.rotation = attachRot;
 
         DetachAgentForAnimation();
 
-        CacheVisualTransform();
-        FreezeVisualTransformForLadder();
+        string climbTrigger = goingUp ? climbUpTriggerName : climbDownTriggerName;
 
-        if (animationController != null)
+        if (animationController != null && !string.IsNullOrWhiteSpace(climbTrigger))
         {
-            string trigger = goingUp ? climbUpTriggerName : climbDownTriggerName;
-            if (!string.IsNullOrWhiteSpace(trigger))
-                animationController.SetTrigger(trigger);
+            ResetAllAnimatorTriggers();
+            animationController.SetTrigger(climbTrigger);
+
+            // Wait until the animator actually switches states
+            float timer = 0f;
+            int startHash = animationController.GetCurrentAnimatorStateInfo(0).fullPathHash;
+
+            while (timer < triggerEnterTimeout)
+            {
+                AnimatorStateInfo info = animationController.GetCurrentAnimatorStateInfo(0);
+
+                if (info.fullPathHash != startHash && !animationController.IsInTransition(0))
+                    break;
+
+                transform.position = startMount.position;
+                transform.rotation = attachRot;
+
+                timer += Time.deltaTime;
+                yield return null;
+            }
+
+            // One extra frame ensures animation root is settled
+            transform.position = startMount.position;
+            transform.rotation = attachRot;
+            yield return null;
         }
 
         Vector3 climbFrom = startMount.position;
         Vector3 climbTarget = goingUp ? hoistStart.position : endMount.position;
 
-        if (goingUp)
-        {
-            Vector3 ladderDir = hoistStart.position - startMount.position;
-            ladderDir.y = 0f;
-            if (ladderDir.sqrMagnitude < 0.0001f)
-                ladderDir = hoistStart.position - startMount.position;
-
-            if (ladderDir.sqrMagnitude > 0.0001f)
-            {
-                ladderDir.Normalize();
-                climbTarget = hoistStart.position - ladderDir * ladderTopStopOffset;
-            }
-        }
-
         float climbDist = Vector3.Distance(climbFrom, climbTarget);
         float climbDuration = Mathf.Max(0.1f, climbDist / Mathf.Max(0.01f, ladderClimbSpeed));
 
-        Quaternion attachRot = GetLadderAttachRotation(startMount, ladder);
+        bool hoistTriggered = !goingUp;
 
         for (float t = 0f; t < climbDuration; t += Time.deltaTime)
         {
@@ -452,20 +593,33 @@ public class NPCController : MonoBehaviour
             transform.position = Vector3.Lerp(climbFrom, climbTarget, u);
             transform.rotation = Quaternion.Slerp(transform.rotation, attachRot, Time.deltaTime * ladderFacingSlerp);
 
-            FreezeVisualTransformForLadder();
+            if (!hoistTriggered)
+            {
+                float distRemaining = Vector3.Distance(transform.position, hoistStart.position);
+                if (distRemaining <= Mathf.Max(0.05f, ladderTopStopOffset))
+                {
+                    hoistTriggered = true;
+
+                    if (animationController != null && !string.IsNullOrWhiteSpace(hoistUpTriggerName))
+                    {
+                        ResetAllAnimatorTriggers();
+                        animationController.SetTrigger(hoistUpTriggerName);
+
+                        if (ladderDebugLogs)
+                            Debug.Log($"{name}: HoistUp trigger fired at dist={distRemaining:F2} from hoistStart");
+                    }
+                }
+            }
+
             yield return null;
         }
 
         transform.position = climbTarget;
         transform.rotation = attachRot;
-        FreezeVisualTransformForLadder();
-
-        if (ladderDebugLogs && goingUp)
-            Debug.Log($"{name}: climbTarget root={transform.position} hoistStart={hoistStart.position}");
 
         if (goingUp)
         {
-            if (animationController != null && !string.IsNullOrWhiteSpace(hoistUpTriggerName))
+            if (!hoistTriggered && animationController != null && !string.IsNullOrWhiteSpace(hoistUpTriggerName))
             {
                 ResetAllAnimatorTriggers();
                 animationController.SetTrigger(hoistUpTriggerName);
@@ -474,14 +628,6 @@ public class NPCController : MonoBehaviour
             Vector3 hoistFrom = transform.position;
             Vector3 hoistTarget = endExit.position;
 
-            Vector3 forward = attachRot * Vector3.forward;
-            forward.y = 0f;
-            if (forward.sqrMagnitude > 0.0001f)
-            {
-                forward.Normalize();
-                hoistTarget += forward * hoistForwardOffset;
-            }
-
             float hoistDist = Vector3.Distance(hoistFrom, hoistTarget);
             float actualHoistDuration = hoistDist > 0.001f
                 ? Mathf.Max(hoistDuration, hoistDist / Mathf.Max(0.01f, ladderClimbSpeed * 0.6f))
@@ -489,33 +635,28 @@ public class NPCController : MonoBehaviour
 
             for (float ht = 0f; ht < actualHoistDuration; ht += Time.deltaTime)
             {
-                float u = Mathf.Clamp01(ht / actualHoistDuration);
-                transform.position = Vector3.Lerp(hoistFrom, hoistTarget, u);
+                transform.position = Vector3.Lerp(hoistFrom, hoistTarget, Mathf.Clamp01(ht / actualHoistDuration));
                 transform.rotation = Quaternion.Slerp(transform.rotation, attachRot, Time.deltaTime * ladderFacingSlerp);
-
-                FreezeVisualTransformForLadder();
                 yield return null;
             }
 
             transform.position = hoistTarget;
             transform.rotation = attachRot;
-            FreezeVisualTransformForLadder();
         }
         else
         {
             transform.position = endExit.position;
             transform.rotation = attachRot;
-            FreezeVisualTransformForLadder();
         }
 
         yield return null;
 
         ForceUpright();
 
-        if (!RestoreStandingBodyAt(transform.position, ladderNavmeshSnapRadius))
+        if (!RestoreStandingBodyAt(endExit.position, ladderNavmeshSnapRadius))
         {
             if (agent != null &&
-                TryGetNavmeshPointNear(transform.position, ladderNavmeshSnapRadius * 2f, out Vector3 fallback))
+                TryGetNavmeshPointNear(endExit.position, ladderNavmeshSnapRadius * 2f, out Vector3 fallback))
             {
                 transform.position = fallback;
                 ForceUpright();
@@ -529,7 +670,7 @@ public class NPCController : MonoBehaviour
             if (ladderDebugLogs)
             {
                 Debug.LogWarning(
-                    $"{name}: Could not snap to NavMesh at ladder exit {transform.position}. " +
+                    $"{name}: Could not snap to NavMesh at ladder exit {endExit.position}. " +
                     $"Check NavMesh bake or increase ladderNavmeshSnapRadius ({ladderNavmeshSnapRadius}).");
             }
         }
@@ -539,8 +680,6 @@ public class NPCController : MonoBehaviour
             agent.isStopped = true;
             agent.ResetPath();
         }
-
-        RestoreVisualTransform();
 
         if (animationController != null)
         {
@@ -572,70 +711,38 @@ public class NPCController : MonoBehaviour
         done?.Invoke();
     }
 
-    private void CacheVisualTransform()
+    private Vector3 GetLadderFacingDirection(Transform mountPoint, Ladder ladder)
     {
-        if (animationController == null) return;
-
-        Transform visual = animationController.transform;
-        if (visual == null) return;
-
-        _cachedVisualLocalPosition = visual.localPosition;
-        _cachedVisualLocalRotation = visual.localRotation;
-        _cachedVisualLocalScale = visual.localScale;
-        _hasCachedVisualTransform = true;
-    }
-
-    private void FreezeVisualTransformForLadder()
-    {
-        if (!_hasCachedVisualTransform || animationController == null) return;
-
-        Transform visual = animationController.transform;
-        if (visual == null) return;
-
-        visual.localPosition = _cachedVisualLocalPosition;
-        visual.localRotation = _cachedVisualLocalRotation;
-        visual.localScale = _cachedVisualLocalScale;
-    }
-
-    private void RestoreVisualTransform()
-    {
-        if (!_hasCachedVisualTransform || animationController == null) return;
-
-        Transform visual = animationController.transform;
-        if (visual == null) return;
-
-        visual.localPosition = _cachedVisualLocalPosition;
-        visual.localRotation = _cachedVisualLocalRotation;
-        visual.localScale = _cachedVisualLocalScale;
-    }
-
-    private Quaternion GetLadderAttachRotation(Transform mountPoint, Ladder ladder)
-    {
-        Vector3 fwd = Vector3.zero;
-
         if (ladder != null && ladder.ladderMeshTransform != null)
         {
-            fwd = ladder.ladderMeshTransform.forward;
-            fwd.y = 0f;
+            Vector3 toLadder = ladder.ladderMeshTransform.position - mountPoint.position;
+            toLadder.y = 0f;
+            if (toLadder.sqrMagnitude > 0.0001f)
+                return toLadder.normalized;
         }
 
-        if (fwd.sqrMagnitude < 0.0001f && ladder != null)
+        if (mountPoint != null)
         {
-            fwd = ladder.FacingForward;
+            Vector3 fwd = mountPoint.up;
             fwd.y = 0f;
-        }
+            if (fwd.sqrMagnitude > 0.0001f)
+                return fwd.normalized;
 
-        if (fwd.sqrMagnitude < 0.0001f && mountPoint != null)
-        {
             fwd = mountPoint.forward;
             fwd.y = 0f;
+            if (fwd.sqrMagnitude > 0.0001f)
+                return fwd.normalized;
         }
 
-        if (fwd.sqrMagnitude < 0.0001f)
-            fwd = transform.forward;
+        if (ladder != null)
+        {
+            Vector3 fwd = ladder.FacingForward;
+            fwd.y = 0f;
+            if (fwd.sqrMagnitude > 0.0001f)
+                return fwd.normalized;
+        }
 
-        fwd.Normalize();
-        return Quaternion.LookRotation(fwd, Vector3.up);
+        return transform.forward;
     }
 
     public void ForceUpright()
@@ -667,7 +774,6 @@ public class NPCController : MonoBehaviour
     {
         if (!GroundTransformToNavmesh(preferred, sampleRadius)) return false;
         if (agent == null) return true;
-
         if (!agent.enabled) agent.enabled = true;
 
         if (TryGetNavmeshPointNear(transform.position, sampleRadius, out Vector3 navPos))
@@ -803,10 +909,7 @@ public class NPCController : MonoBehaviour
         _combat?.Init(this);
 
         if (animationController != null)
-        {
             animationController.applyRootMotion = false;
-            CacheVisualTransform();
-        }
 
         _spawnPoint = transform.position;
 
@@ -974,7 +1077,6 @@ public class NPCController : MonoBehaviour
     public void RequestWakeUp()
     {
         if (_state != NPCState.Lying || _lying == null) return;
-
         var p = _lying.Phase;
         if (p == NPCLyingBehaviour.LiePhase.LyingIdle || p == NPCLyingBehaviour.LiePhase.LieDownPlaying)
             _lying.BeginWakeUp();
@@ -1030,7 +1132,6 @@ public class NPCController : MonoBehaviour
         var c = ResolveNPC(npcEnum);
         if (c == null) { Debug.LogWarning($"{name}: Could not find NPC '{npcEnum}'."); return; }
         if (c == this) { Debug.LogWarning($"{name}: Tried to target self."); return; }
-
         SetTarget(c.transform);
         if (_talk != null) _talk.TalkTargetController = c;
     }
@@ -1124,24 +1225,14 @@ public class NPCController : MonoBehaviour
         switch (_state)
         {
             case NPCState.Patrolling:
-                if (AgentReady())
-                {
-                    agent.speed = moveSpeed;
-                    agent.autoBraking = true;
-                    agent.isStopped = false;
-                }
+                if (AgentReady()) { agent.speed = moveSpeed; agent.autoBraking = true; agent.isStopped = false; }
                 _hasPatrolDestination = false;
                 _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
                 _patrolArriveTimer = 0f;
                 break;
 
             case NPCState.Alerted:
-                if (AgentReady())
-                {
-                    agent.speed = moveSpeed;
-                    agent.isStopped = true;
-                    agent.autoBraking = true;
-                }
+                if (AgentReady()) { agent.speed = moveSpeed; agent.isStopped = true; agent.autoBraking = true; }
                 break;
 
             case NPCState.Approaching:
@@ -1156,20 +1247,12 @@ public class NPCController : MonoBehaviour
                 break;
 
             case NPCState.Attacking:
-                if (AgentReady())
-                {
-                    agent.isStopped = true;
-                    agent.autoBraking = true;
-                }
+                if (AgentReady()) { agent.isStopped = true; agent.autoBraking = true; }
                 Debug.Log($"{name} ATTACKING: TODO hook up attack logic/animation.");
                 break;
 
             case NPCState.Seeking:
-                if (AgentReady())
-                {
-                    agent.speed = moveSpeed * Mathf.Max(0.01f, seekingSpeedMultiplier);
-                    agent.isStopped = false;
-                }
+                if (AgentReady()) { agent.speed = moveSpeed * Mathf.Max(0.01f, seekingSpeedMultiplier); agent.isStopped = false; }
                 _seekTimer = 0f;
                 _hasPatrolDestination = false;
                 _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
@@ -1177,12 +1260,7 @@ public class NPCController : MonoBehaviour
                 break;
 
             case NPCState.Talk:
-                if (AgentReady())
-                {
-                    agent.isStopped = true;
-                    agent.autoBraking = true;
-                    agent.ResetPath();
-                }
+                if (AgentReady()) { agent.isStopped = true; agent.autoBraking = true; agent.ResetPath(); }
                 Debug.Log($"{name} TALK: holding idle until new command.");
                 break;
 
@@ -1229,25 +1307,22 @@ public class NPCController : MonoBehaviour
 
         switch (_state)
         {
-            case NPCState.Patrolling: TickPatrolling(dt, 1f); break;
-            case NPCState.Alerted: TickAlerted(dt); break;
+            case NPCState.Patrolling:  TickPatrolling(dt, 1f); break;
+            case NPCState.Alerted:     TickAlerted(dt); break;
             case NPCState.Approaching: TickApproaching(dt); break;
-            case NPCState.Attacking: _combat?.TickAttacking(dt); break;
-            case NPCState.Seeking: TickSeeking(dt); break;
-            case NPCState.Talk: _talk?.TickTalk(dt); break;
-
+            case NPCState.Attacking:   _combat?.TickAttacking(dt); break;
+            case NPCState.Seeking:     TickSeeking(dt); break;
+            case NPCState.Talk:        _talk?.TickTalk(dt); break;
             case NPCState.Sitting:
                 _hasCommand = true;
                 _commandGoal = NPCState.Sitting;
                 _sitting?.Tick(dt);
                 break;
-
             case NPCState.Lying:
                 _hasCommand = true;
                 _commandGoal = NPCState.Lying;
                 _lying?.Tick(dt);
                 break;
-
             case NPCState.ClimbingLadder:
                 break;
         }
@@ -1300,16 +1375,12 @@ public class NPCController : MonoBehaviour
 
         if (currentTarget != null)
         {
-            Vector3 to = currentTarget.position - transform.position;
-            to.y = 0f;
-
+            Vector3 to = currentTarget.position - transform.position; to.y = 0f;
             if (to.sqrMagnitude > 0.01f)
-            {
                 transform.rotation = Quaternion.Slerp(
                     transform.rotation,
                     Quaternion.LookRotation(to.normalized, Vector3.up),
                     dt * (turnSmoothing * 1.25f));
-            }
         }
 
         if (_stateTimer >= alertedDuration)
@@ -1318,13 +1389,9 @@ public class NPCController : MonoBehaviour
             {
                 float dist = Vector3.Distance(_spawnPoint, currentTarget.position);
                 EnterState(dist <= activeRadius || allowApproachOutsideActiveRadius
-                    ? NPCState.Approaching
-                    : NPCState.Seeking);
+                    ? NPCState.Approaching : NPCState.Seeking);
             }
-            else
-            {
-                EnterState(NPCState.Seeking);
-            }
+            else EnterState(NPCState.Seeking);
         }
     }
 
@@ -1350,53 +1417,90 @@ public class NPCController : MonoBehaviour
             return;
         }
 
-        if (_hasCommand)
-        {
-            if (currentTarget != null)
-            {
-                float dist = Vector3.Distance(transform.position, currentTarget.position);
-                if (_commandGoal == NPCState.Talk && dist <= talkRange) { EnterState(NPCState.Talk); return; }
-                if (_commandGoal == NPCState.Attacking && dist <= talkRange) { EnterState(NPCState.Attacking); return; }
-            }
-
-            _approachRepathTimer -= dt;
-            if (_approachRepathTimer <= 0f && currentTarget != null)
-            {
-                _approachRepathTimer = Mathf.Max(0.05f, approachRepathInterval);
-                Vector3 newDest = currentTarget.position;
-
-                if (!_hasLastApproachDest ||
-                    (newDest - _lastApproachDest).sqrMagnitude >= approachTargetMoveThreshold * approachTargetMoveThreshold)
-                {
-                    _lastApproachDest = newDest;
-                    _hasLastApproachDest = true;
-                    agent.isStopped = false;
-                    agent.SetDestination(newDest);
-                }
-            }
-            return;
-        }
-
         if (currentTarget == null)
         {
             EnterState(NPCState.Patrolling);
             return;
         }
 
-        float d2 = Vector3.Distance(transform.position, currentTarget.position);
-        if (d2 <= attackRange)
+        float distToTarget = Vector3.Distance(transform.position, currentTarget.position);
+
+        // Range checks first
+        if (_hasCommand)
         {
-            EnterState(NPCState.Attacking);
-            return;
+            if (_commandGoal == NPCState.Talk && distToTarget <= talkRange)
+            {
+                EnterState(NPCState.Talk);
+                return;
+            }
+
+            if (_commandGoal == NPCState.Attacking && distToTarget <= talkRange)
+            {
+                EnterState(NPCState.Attacking);
+                return;
+            }
+        }
+        else
+        {
+            if (distToTarget <= attackRange)
+            {
+                EnterState(NPCState.Attacking);
+                return;
+            }
         }
 
         _approachRepathTimer -= dt;
-        if (_approachRepathTimer <= 0f)
+        if (_approachRepathTimer > 0f)
+            return;
+
+        _approachRepathTimer = Mathf.Max(0.05f, approachRepathInterval);
+
+        Vector3 dest = currentTarget.position;
+
+        // First decide whether a ladder is required based on height difference
+        bool needLadder = NeedLadderForTarget(currentTarget, out bool shouldGoUp);
+
+        if (useLadders && needLadder)
         {
-            _approachRepathTimer = Mathf.Max(0.05f, approachRepathInterval);
-            agent.isStopped = false;
-            agent.SetDestination(currentTarget.position);
+            if (TryFindLadderRoute(dest, out Ladder ladder, out bool routeGoingUp,
+                    out Vector3 approachPoint, out Vector3 exitPoint, out NavMeshPath _))
+            {
+                if (routeGoingUp == shouldGoUp)
+                {
+                    float distToApproach = Vector3.Distance(transform.position, approachPoint);
+
+                    if (distToApproach > ladderApproachArriveDistance + 0.1f)
+                    {
+                        if (ladderDebugLogs)
+                            Debug.Log($"{name}: Need ladder. Routing to approach point {approachPoint} on {ladder.name}, goingUp={routeGoingUp}");
+
+                        agent.isStopped = false;
+                        agent.SetDestination(approachPoint);
+                        return;
+                    }
+
+                    if (ladderDebugLogs)
+                        Debug.Log($"{name}: Need ladder. Starting traversal on {ladder.name}, goingUp={routeGoingUp}");
+
+                    StartLadderTraversal(ladder, routeGoingUp, () =>
+                    {
+                        if (AgentReady())
+                        {
+                            agent.isStopped = false;
+                            agent.ResetPath();
+                            agent.SetDestination(dest);
+                        }
+                    });
+                    return;
+                }
+            }
+
+            if (ladderDebugLogs) Debug.LogWarning($"{name}: Need ladder but no valid ladder route was found. Target={currentTarget.name}");
         }
+
+        // No ladder needed, or none found: normal direct pathing
+        agent.isStopped = false;
+        agent.SetDestination(dest);
     }
 
     void TickSeeking(float dt)
@@ -1433,7 +1537,7 @@ public class NPCController : MonoBehaviour
         bool blockLocomotion =
             _isTraversingLadder ||
             (_state == NPCState.Sitting && !inSitWalkup) ||
-            (_state == NPCState.Lying && !inLieWalkup);
+            (_state == NPCState.Lying   && !inLieWalkup);
 
         bool allowNavLocomotion = AgentReady() && IsNavDriven() && !blockLocomotion;
 
@@ -1441,19 +1545,14 @@ public class NPCController : MonoBehaviour
 
         if (allowNavLocomotion)
         {
-            Vector3 to = agent.steeringTarget - transform.position;
-            to.y = 0f;
-
-            Vector3 desiredDir = (to.sqrMagnitude > 0.0001f)
-                ? to.normalized
+            Vector3 to = agent.steeringTarget - transform.position; to.y = 0f;
+            Vector3 desiredDir = (to.sqrMagnitude > 0.0001f) ? to.normalized
                 : (agent.desiredVelocity.sqrMagnitude > 0.0001f ? agent.desiredVelocity.normalized : transform.forward);
 
-            Vector3 v = agent.velocity; v.y = 0f;
+            Vector3 v  = agent.velocity;       v.y = 0f;
             Vector3 dv = agent.desiredVelocity; dv.y = 0f;
-
             float speed = v.magnitude;
-            if (agent.pathPending || (speed < 0.05f && dv.magnitude > 0.05f))
-                speed = dv.magnitude;
+            if (agent.pathPending || (speed < 0.05f && dv.magnitude > 0.05f)) speed = dv.magnitude;
 
             float speed01 = Mathf.Clamp01(speed / Mathf.Max(0.01f, moveSpeed));
             float signedAngle = Vector3.SignedAngle(transform.forward, desiredDir, Vector3.up);
@@ -1463,9 +1562,7 @@ public class NPCController : MonoBehaviour
             movingX = Mathf.Clamp((signedAngle / Mathf.Max(1f, turnAngleForFullX)) * turnWeight, -1f, 1f);
             movingY = speed01;
             blend = speed01;
-
-            if (speed01 > 0.35f && Mathf.Abs(movingX) < 0.2f)
-                movingX = 0f;
+            if (speed01 > 0.35f && Mathf.Abs(movingX) < 0.2f) movingX = 0f;
 
             float turnRate = (speed < turnInPlaceSpeedThreshold) ? turnInPlaceSpeed : turnWhileMovingSpeed;
             transform.rotation = Quaternion.RotateTowards(
@@ -1481,29 +1578,15 @@ public class NPCController : MonoBehaviour
 
     public void PlaySelectedTrigger()
     {
-        if (triggerNames == null || triggerNames.Count == 0)
-        {
-            Debug.LogWarning($"{name}: No triggerNames.");
-            return;
-        }
-
+        if (triggerNames == null || triggerNames.Count == 0) { Debug.LogWarning($"{name}: No triggerNames."); return; }
         selectedTriggerIndex = Mathf.Clamp(selectedTriggerIndex, 0, triggerNames.Count - 1);
         PlayTrigger(triggerNames[selectedTriggerIndex]);
     }
 
     public void PlayTrigger(string triggerParam)
     {
-        if (string.IsNullOrWhiteSpace(triggerParam))
-        {
-            Debug.LogWarning($"{name}: Trigger param empty.");
-            return;
-        }
-
-        if (animationController == null)
-        {
-            Debug.LogWarning($"{name}: No Animator.");
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(triggerParam)) { Debug.LogWarning($"{name}: Trigger param empty."); return; }
+        if (animationController == null) { Debug.LogWarning($"{name}: No Animator."); return; }
 
         if (TryQueueActionAfterStand(() =>
         {
@@ -1526,18 +1609,13 @@ public class NPCController : MonoBehaviour
     public void StopTriggeredAnimation()
     {
         if (animationController == null) return;
-
         if (_triggerCoroutine != null) { StopCoroutine(_triggerCoroutine); _triggerCoroutine = null; }
         _isPlayingTriggeredAnimation = false;
         animationController.speed = 1f;
         ResetAllAnimatorTriggers();
         isPaused = _triggerPrevPaused;
-
-        if (_triggerAgentWasValid && AgentReady())
-            agent.isStopped = _triggerWasStoppedBefore;
-
-        if (useStateMachine && !isPaused)
-            ForceReturnToLocomotion();
+        if (_triggerAgentWasValid && AgentReady()) agent.isStopped = _triggerWasStoppedBefore;
+        if (useStateMachine && !isPaused) ForceReturnToLocomotion();
     }
 
     IEnumerator TriggerRoutine(string triggerParam)
@@ -1549,11 +1627,7 @@ public class NPCController : MonoBehaviour
         _triggerWasStoppedBefore = _triggerAgentWasValid && agent.isStopped;
         isPaused = true;
 
-        if (_triggerAgentWasValid)
-        {
-            agent.isStopped = true;
-            agent.ResetPath();
-        }
+        if (_triggerAgentWasValid) { agent.isStopped = true; agent.ResetPath(); }
 
         if (animationController == null)
         {
@@ -1594,7 +1668,6 @@ public class NPCController : MonoBehaviour
                 triggeredHash = info.fullPathHash;
                 break;
             }
-
             enterT += Time.deltaTime;
             yield return null;
         }
@@ -1615,43 +1688,30 @@ public class NPCController : MonoBehaviour
                 if (info.fullPathHash == triggeredHash && info.normalizedTime >= 1f) break;
                 if (info.fullPathHash == startHash) break;
             }
-
             t += Time.deltaTime;
             yield return null;
         }
 
-        if (triggerExitBuffer > 0f)
-            yield return new WaitForSeconds(triggerExitBuffer);
+        if (triggerExitBuffer > 0f) yield return new WaitForSeconds(triggerExitBuffer);
 
         SetAnimatorParamOff(animationController, triggerParam, pType.Value);
         if (pType.Value == AnimatorControllerParameterType.Trigger)
             animationController.ResetTrigger(triggerParam);
 
         isPaused = _triggerPrevPaused;
-        if (_triggerAgentWasValid && AgentReady())
-            agent.isStopped = _triggerWasStoppedBefore;
-
+        if (_triggerAgentWasValid && AgentReady()) agent.isStopped = _triggerWasStoppedBefore;
         _isPlayingTriggeredAnimation = false;
         _triggerCoroutine = null;
 
-        if (useStateMachine && !isPaused)
-            ForceReturnToLocomotion();
+        if (useStateMachine && !isPaused) ForceReturnToLocomotion();
     }
 
     public void StopAndFace(Vector3 worldPos)
     {
-        if (AgentReady())
-        {
-            agent.isStopped = true;
-            agent.ResetPath();
-        }
-
+        if (AgentReady()) { agent.isStopped = true; agent.ResetPath(); }
         ForceIdlePose();
-
-        Vector3 to = worldPos - transform.position;
-        to.y = 0f;
+        Vector3 to = worldPos - transform.position; to.y = 0f;
         if (to.sqrMagnitude < 0.0001f) return;
-
         transform.rotation = Quaternion.Slerp(
             transform.rotation,
             Quaternion.LookRotation(to.normalized, Vector3.up),
@@ -1661,26 +1721,18 @@ public class NPCController : MonoBehaviour
     void PreCollisionRenegotiate()
     {
         if (!IsNavDriven() || !AgentReady()) return;
-
         if (useStateMachine && (_state == NPCState.Alerted || _state == NPCState.Attacking ||
                                 _state == NPCState.Talk || _state == NPCState.Sitting ||
-                                _state == NPCState.Lying || _state == NPCState.ClimbingLadder))
-            return;
-
+                                _state == NPCState.Lying || _state == NPCState.ClimbingLadder)) return;
         if (agent.pathPending || !agent.hasPath) return;
 
-        if (_renegotiateCooldownT > 0f)
-        {
-            _renegotiateCooldownT -= Time.deltaTime;
-            return;
-        }
+        if (_renegotiateCooldownT > 0f) { _renegotiateCooldownT -= Time.deltaTime; return; }
 
         _renegotiateT += Time.deltaTime;
         if (_renegotiateT < renegotiateCheckInterval) return;
         _renegotiateT = 0f;
 
-        Vector3 v = agent.velocity;
-        v.y = 0f;
+        Vector3 v = agent.velocity; v.y = 0f;
         if (v.sqrMagnitude < 0.0004f) return;
 
         Vector3 fwd = v.normalized;
@@ -1695,17 +1747,11 @@ public class NPCController : MonoBehaviour
             var other = hits[i]?.GetComponentInParent<NPCController>();
             if (!other || other == this || !other.agent || !other.agent.isOnNavMesh) continue;
 
-            Vector3 toOther = other.transform.position - transform.position;
-            toOther.y = 0f;
+            Vector3 toOther = other.transform.position - transform.position; toOther.y = 0f;
             float d = toOther.magnitude;
             if (d < 0.0001f) continue;
             if (Vector3.Dot(fwd, toOther / d) < inFrontDotThreshold) continue;
-
-            if (d < bestDist)
-            {
-                bestDist = d;
-                closest = other;
-            }
+            if (d < bestDist) { bestDist = d; closest = other; }
         }
 
         if (!closest) return;
@@ -1722,8 +1768,7 @@ public class NPCController : MonoBehaviour
         if (!AgentReady()) yield break;
 
         int sign = ((gameObject.GetInstanceID() & 1) == 0) ? 1 : -1;
-        Vector3 v = agent.velocity;
-        v.y = 0f;
+        Vector3 v = agent.velocity; v.y = 0f;
         Vector3 fwd = (v.sqrMagnitude > 0.001f) ? v.normalized : transform.forward;
         Vector3 right = Vector3.Cross(Vector3.up, fwd).normalized;
 
@@ -1731,8 +1776,7 @@ public class NPCController : MonoBehaviour
         Vector3 p1 = transform.position - right * (sidestepDistance * sign);
 
         Vector3 chosen;
-        if (!TrySampleNavPoint(p0, out chosen) && !TrySampleNavPoint(p1, out chosen))
-            yield break;
+        if (!TrySampleNavPoint(p0, out chosen) && !TrySampleNavPoint(p1, out chosen)) yield break;
 
         int prevPriority = agent.avoidancePriority;
         agent.avoidancePriority = 0;
@@ -1756,7 +1800,6 @@ public class NPCController : MonoBehaviour
             agent.ResetPath();
             agent.SetDestination(_resumeDestination);
         }
-
         _sidestepCoroutine = null;
     }
 
@@ -1860,11 +1903,9 @@ public class NPCController : MonoBehaviour
     private void SnapBlendTreeParamsNow()
     {
         if (animationController == null) return;
-
         Vector3 velocity = AgentReady() ? agent.velocity : Vector3.zero;
         Vector3 localVel = transform.InverseTransformDirection(velocity);
         float speed = velocity.magnitude;
-
         animationController.SetFloat(paramMovingX, Mathf.Clamp(localVel.x, -1f, 1f));
         animationController.SetFloat(paramMovingY, Mathf.Clamp(localVel.z, -1f, 1f));
         animationController.SetFloat(paramBlend, (moveSpeed <= 0.001f) ? 0f : Mathf.Clamp01(speed / moveSpeed));
@@ -1874,24 +1915,19 @@ public class NPCController : MonoBehaviour
     {
         var list = sceneNPCManager?.NPCList;
         if (list == null) return null;
-
         for (int i = 0; i < list.Count; i++)
             if (list[i] != null && list[i].thisNPC == npcEnum) return list[i];
-
         return null;
     }
 
     bool CanSeeTarget(Transform t)
     {
         if (t == null) return false;
-
         Vector3 to = t.position - transform.position;
         if (to.magnitude > visionRange) return false;
 
-        Vector3 flatTo = to;
-        flatTo.y = 0f;
-        Vector3 fwd = transform.forward;
-        fwd.y = 0f;
+        Vector3 flatTo = to; flatTo.y = 0f;
+        Vector3 fwd = transform.forward; fwd.y = 0f;
 
         if (flatTo.sqrMagnitude > 0.0001f && fwd.sqrMagnitude > 0.0001f)
             if (Vector3.Angle(fwd.normalized, flatTo.normalized) > visionFOV * 0.5f) return false;
@@ -1902,11 +1938,9 @@ public class NPCController : MonoBehaviour
             Vector3 targetPos = t.position + Vector3.up * 1.2f;
             Vector3 dir = targetPos - origin;
             float d = dir.magnitude;
-
             if (d > 0.001f && Physics.Raycast(origin, dir / d, out _, d, losBlockers, QueryTriggerInteraction.Ignore))
                 return false;
         }
-
         return true;
     }
 
@@ -1917,17 +1951,13 @@ public class NPCController : MonoBehaviour
         {
             Vector2 r = UnityEngine.Random.insideUnitCircle * radius;
             Vector3 cand = center + new Vector3(r.x, 0f, r.y);
-
             if (NavMesh.SamplePosition(cand, out NavMeshHit hit, patrolSampleRadius, NavMesh.AllAreas))
-            {
                 if (Vector3.Distance(center, hit.position) <= radius + 0.25f)
                 {
                     result = hit.position;
                     return true;
                 }
-            }
         }
-
         return false;
     }
 
@@ -1962,7 +1992,6 @@ public class NPCController : MonoBehaviour
     {
         if (a == null || !a.isOnNavMesh || a.pathPending || !a.hasPath || float.IsInfinity(a.remainingDistance))
             return false;
-
         return a.remainingDistance <= Mathf.Max(arriveDist, a.stoppingDistance);
     }
 
@@ -1989,10 +2018,10 @@ public class NPCController : MonoBehaviour
     {
         switch (type)
         {
-            case AnimatorControllerParameterType.Bool: anim.SetBool(paramName, true); break;
+            case AnimatorControllerParameterType.Bool:    anim.SetBool(paramName, true); break;
             case AnimatorControllerParameterType.Trigger: anim.ResetTrigger(paramName); anim.SetTrigger(paramName); break;
-            case AnimatorControllerParameterType.Int: anim.SetInteger(paramName, 1); break;
-            case AnimatorControllerParameterType.Float: anim.SetFloat(paramName, 1f); break;
+            case AnimatorControllerParameterType.Int:     anim.SetInteger(paramName, 1); break;
+            case AnimatorControllerParameterType.Float:   anim.SetFloat(paramName, 1f); break;
         }
     }
 
@@ -2000,10 +2029,10 @@ public class NPCController : MonoBehaviour
     {
         switch (type)
         {
-            case AnimatorControllerParameterType.Bool: anim.SetBool(paramName, false); break;
+            case AnimatorControllerParameterType.Bool:    anim.SetBool(paramName, false); break;
             case AnimatorControllerParameterType.Trigger: anim.ResetTrigger(paramName); break;
-            case AnimatorControllerParameterType.Int: anim.SetInteger(paramName, 0); break;
-            case AnimatorControllerParameterType.Float: anim.SetFloat(paramName, 0f); break;
+            case AnimatorControllerParameterType.Int:     anim.SetInteger(paramName, 0); break;
+            case AnimatorControllerParameterType.Float:   anim.SetFloat(paramName, 0f); break;
         }
     }
 }
@@ -2030,13 +2059,11 @@ public class NPCControllerEditor : Editor
         {
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Play Trigger")) npc.PlaySelectedTrigger();
-            if (GUILayout.Button("Pause Anim")) npc.PauseTriggeredAnimation();
-            if (GUILayout.Button("Stop Anim")) npc.StopTriggeredAnimation();
+            if (GUILayout.Button("Pause Anim"))   npc.PauseTriggeredAnimation();
+            if (GUILayout.Button("Stop Anim"))    npc.StopTriggeredAnimation();
             EditorGUILayout.EndHorizontal();
         }
-
-        if (!Application.isPlaying)
-            EditorGUILayout.HelpBox("Buttons work in Play Mode only.", MessageType.None);
+        if (!Application.isPlaying) EditorGUILayout.HelpBox("Buttons work in Play Mode only.", MessageType.None);
 
         EditorGUILayout.Space(12);
         EditorGUILayout.LabelField("FSM Controls", EditorStyles.boldLabel);
@@ -2055,8 +2082,8 @@ public class NPCControllerEditor : Editor
         {
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Approach")) npc.DebugApproachTargetNPC();
-            if (GUILayout.Button("Attack")) npc.DebugAttackTargetNPC();
-            if (GUILayout.Button("Talk")) npc.DebugTalkTargetNPC();
+            if (GUILayout.Button("Attack"))   npc.DebugAttackTargetNPC();
+            if (GUILayout.Button("Talk"))     npc.DebugTalkTargetNPC();
             EditorGUILayout.EndHorizontal();
         }
 
@@ -2076,7 +2103,7 @@ public class NPCControllerEditor : Editor
         {
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Request Lie Down")) npc.RequestLieDown();
-            if (GUILayout.Button("Request Wake Up")) npc.RequestWakeUp();
+            if (GUILayout.Button("Request Wake Up"))  npc.RequestWakeUp();
             EditorGUILayout.EndHorizontal();
         }
     }

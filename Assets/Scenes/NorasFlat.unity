@@ -466,7 +466,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -474,7 +473,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -571,7 +573,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -7293,7 +7294,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -7301,7 +7301,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -7413,7 +7416,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -12759,7 +12761,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -12767,7 +12768,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -12881,7 +12885,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -17082,7 +17085,7 @@ Transform:
   m_GameObject: {fileID: 373025782}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 12.11, y: 0.15062203, z: 0.4229}
+  m_LocalPosition: {x: 12.11, y: 0.1461177, z: 0.4229}
   m_LocalScale: {x: 1.4399997, y: 0.90000004, z: 91.0499}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22523,7 +22526,7 @@ Transform:
   m_GameObject: {fileID: 485950011}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 14.085, y: 0.15062203, z: 0.42285}
+  m_LocalPosition: {x: 14.085, y: 0.1461177, z: 0.42285}
   m_LocalScale: {x: 1.4399997, y: 0.90000004, z: 91.0499}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24677,7 +24680,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -24685,7 +24687,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -24735,7 +24740,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -28376,7 +28380,7 @@ MonoBehaviour:
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
-  animationController: {fileID: 1148413897}
+  animationController: {fileID: 4282145609382663974}
   agent: {fileID: 591589183}
   arriveDistance: 0.3
   arriveSettleTime: 0.05
@@ -28432,15 +28436,17 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: -1
+  ladderTopStopOffset: 2
   hoistDuration: 2
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -28480,7 +28486,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1148413896}
+  - {fileID: 4282145609382663973}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &591589185
@@ -28552,7 +28558,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -31952,7 +31957,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -31960,7 +31964,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -32074,7 +32081,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -54976,61 +54982,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1147083392}
   m_Mesh: {fileID: 6849795856638667086, guid: e27d342a6c7563a4d8e0ba9754e5b8ea, type: 3}
---- !u!1 &1148413894
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1148413896}
-  - component: {fileID: 1148413897}
-  m_Layer: 22
-  m_Name: AnimationRoot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1148413896
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1148413894}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4282145609382663973}
-  m_Father: {fileID: 591589184}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &1148413897
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1148413894}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 59256907d6aee084fa34e963fe38ecc4, type: 3}
-  m_Controller: {fileID: 9100000, guid: 701a04640f5f5564f917a3f20a047fe7, type: 2}
-  m_CullingMode: 1
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 1
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1149624995
 GameObject:
   m_ObjectHideFlags: 0
@@ -90599,7 +90550,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -90607,7 +90557,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -90720,7 +90673,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -95065,7 +95017,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -95073,7 +95024,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -95147,7 +95101,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -97964,7 +97917,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -97972,7 +97924,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -98084,7 +98039,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -103174,7 +103128,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -103182,7 +103135,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -103254,7 +103210,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -123179,7 +123134,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -123187,7 +123141,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -125725,7 +125682,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -125733,7 +125689,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -146834,6 +146793,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4282145609382663973}
+  - component: {fileID: 4282145609382663974}
   m_Layer: 22
   m_Name: Kim
   m_TagString: Untagged
@@ -160252,7 +160212,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3469720128905596319}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -160268,8 +160228,30 @@ Transform:
   - {fileID: 5015339302865957008}
   - {fileID: 8127600201907399631}
   - {fileID: 5780693765548569263}
-  m_Father: {fileID: 1148413896}
+  m_Father: {fileID: 591589184}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &4282145609382663974
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3469720128905596319}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 59256907d6aee084fa34e963fe38ecc4, type: 3}
+  m_Controller: {fileID: 9100000, guid: 701a04640f5f5564f917a3f20a047fe7, type: 2}
+  m_CullingMode: 1
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 1
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &4287086106639201248
 GameObject:
   m_ObjectHideFlags: 0
@@ -165192,7 +165174,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -165200,7 +165181,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -166346,7 +166330,6 @@ MonoBehaviour:
   ladderApproachArriveDistance: 0.45
   ladderClimbSpeed: 1.6
   ladderFacingSlerp: 18
-  ladderMinHeightDeltaForUp: 0.25
   climbUpTriggerName: ClimbUpLadder
   climbDownTriggerName: ClimbDownLadder
   ladderNavmeshSnapRadius: 3
@@ -166354,7 +166337,10 @@ MonoBehaviour:
   hoistUpTriggerName: HoistUp
   ladderTopStopOffset: 0.9
   hoistDuration: 0.7
-  hoistForwardOffset: 0.2
+  climbDownStartDelay: 0.12
+  preLadderApproachOffset: 1
+  ladderAlignToleranceDeg: 8
+  sameLevelHeightTolerance: 0.5
   _sitting: {fileID: 0}
   _lying: {fileID: 0}
   _talk: {fileID: 0}
@@ -179268,7 +179254,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -200523,7 +200508,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -215669,7 +215653,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -216209,7 +216192,6 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  seatDebugLogs: 1
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35

@@ -21,7 +21,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     [Header("Sitting")]
     [Tooltip("Seat objects must be on this layer (e.g. 'SEAT').")]
     [SerializeField] private LayerMask seatLayerMask;
-    [SerializeField] private bool seatDebugLogs = true;
+    private bool seatDebugLogs = false;
     [SerializeField] private QueryTriggerInteraction seatQueryTriggers = QueryTriggerInteraction.Collide;
     [SerializeField] private float seatSearchTimeout = 4.0f;
     [SerializeField] private float seatRescanInterval = 0.35f;

@@ -51,6 +51,9 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     [SerializeField] private string standUpTriggerParam = "StandUp";
     [SerializeField] private string standUpStateName = "StandUp";
 
+    private float _standUpT;
+    private bool  _standUpTriggerSent;
+    
     public SitPhase Phase => _sitPhase;
     public bool IsApproachingFront => _sitPhase == SitPhase.ApproachingFront;
     public bool IsRoutingToLadder => _sitPhase == SitPhase.RoutingToLadder;
@@ -172,7 +175,12 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         else if (!string.IsNullOrWhiteSpace(standUpStateName))
             Anim.CrossFadeInFixedTime(standUpStateName, sitCrossfade, sitAnimLayer, 0f);
 
+        _standUpT = 0f;
+        _standUpTriggerSent = true;
         _sitPhase = SitPhase.StandUpPlaying;
+
+        if (seatDebugLogs)
+            Debug.Log($"{name} Sit: BeginStandUp()");
     }
 
     private Vector3 GetSeatFacing()
@@ -605,16 +613,70 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         }
     }
 
-    private void TickStandUpPlaying(float dt)
+private void TickStandUpPlaying(float dt)
+{
+    if (Anim == null)
     {
-        if (Anim == null) { FinishStandUpToPatrol(); return; }
-
-        AnimatorStateInfo info = Anim.GetCurrentAnimatorStateInfo(sitAnimLayer);
-        bool inStandUp = !string.IsNullOrWhiteSpace(standUpStateName) && info.IsName(standUpStateName);
-
-        if (inStandUp && !Anim.IsInTransition(sitAnimLayer) && info.normalizedTime >= 1f)
-            FinishStandUpToPatrol();
+        FinishStandUpToPatrol();
+        return;
     }
+
+    _standUpT += dt;
+
+    AnimatorStateInfo info = Anim.GetCurrentAnimatorStateInfo(sitAnimLayer);
+    bool inStandUp = !string.IsNullOrWhiteSpace(standUpStateName) && info.IsName(standUpStateName);
+    bool inSitIdle = !string.IsNullOrWhiteSpace(sitIdleStateName) && info.IsName(sitIdleStateName);
+
+    if (seatDebugLogs)
+    {
+        Debug.Log(
+            $"{name} Sit: StandUpPlaying " +
+            $"inStandUp={inStandUp} " +
+            $"inSitIdle={inSitIdle} " +
+            $"transition={Anim.IsInTransition(sitAnimLayer)} " +
+            $"normalized={info.normalizedTime:F2} " +
+            $"stateHash={info.fullPathHash}"
+        );
+    }
+
+    // Fallback: if trigger didn't get us into the state, force-play it shortly after.
+    if (_standUpTriggerSent && _standUpT >= sitTriggerFallbackDelay)
+    {
+        if (!inStandUp && !string.IsNullOrWhiteSpace(standUpStateName))
+        {
+            if (seatDebugLogs)
+                Debug.Log($"{name} Sit: Fallback Play('{standUpStateName}')");
+            Anim.Play(standUpStateName, sitAnimLayer, 0f);
+        }
+        _standUpTriggerSent = false;
+    }
+
+    // Normal completion.
+    if (inStandUp && !Anim.IsInTransition(sitAnimLayer) && info.normalizedTime >= 1f)
+    {
+        if (seatDebugLogs)
+            Debug.Log($"{name} Sit: StandUp complete by normalizedTime.");
+        FinishStandUpToPatrol();
+        return;
+    }
+
+    // If we've already left the stand-up state after some time, assume we're done.
+    if (_standUpT > 0.20f && !Anim.IsInTransition(sitAnimLayer) && !inStandUp && !inSitIdle)
+    {
+        if (seatDebugLogs)
+            Debug.LogWarning($"{name} Sit: StandUp exited unexpectedly, forcing finish.");
+        FinishStandUpToPatrol();
+        return;
+    }
+
+    // Hard timeout safety.
+    if (_standUpT >= Mathf.Max(0.5f, TriggerMaxDuration))
+    {
+        if (seatDebugLogs)
+            Debug.LogWarning($"{name} Sit: StandUp timeout, forcing finish.");
+        FinishStandUpToPatrol();
+    }
+}
 
     private void FinishStandUpToPatrol()
     {

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Bed : MonoBehaviour
@@ -6,6 +7,9 @@ public class Bed : MonoBehaviour
     public Transform bedFootTransform;
     public Transform bedLyingTransform;
 
+    private Renderer bedFootMarker;
+    private Renderer bedBedMarker;
+    
     [Tooltip("If true, NPCs must not lie here.")]
     public bool occupied;
 
@@ -13,6 +17,20 @@ public class Bed : MonoBehaviour
     [SerializeField] private NPCController occupiedBy;
     
     public bool IsOccupied => occupied || occupiedBy != null;
+
+
+    private void Awake()
+    {
+        bedFootMarker = bedFootTransform.gameObject.GetComponent<Renderer>();
+        bedBedMarker = bedLyingTransform.gameObject.GetComponent<Renderer>();
+    }
+
+    private void Start()
+    {
+        if (bedBedMarker != null) bedBedMarker.enabled = false;
+        if (bedFootMarker != null) bedFootMarker.enabled = false;
+    }
+
 
     public bool TryOccupy(NPCController who)
     {

@@ -1252,18 +1252,37 @@ public class NPCController : MonoBehaviour
     {
         if (animationController == null) return;
 
-        bool inSitWalkup = ((_state == NPCState.SeekingSeat || _state == NPCState.Sitting) &&
-                            _sitting != null &&
-                            (_sitting.IsRoutingToLadder || _sitting.IsApproachingFront));
+        bool sitWalkup =
+            (_sitting != null) &&
+            (_sitting.Phase == NPCSittingBehaviour.SitPhase.RoutingToLadder ||
+             _sitting.Phase == NPCSittingBehaviour.SitPhase.ApproachingFront);
 
-        bool inLieWalkup = ((_state == NPCState.SeekingBed || _state == NPCState.Lying) &&
-                            _lying != null &&
-                            (_lying.IsRoutingToLadder || _lying.IsApproachingFront));
+        bool lieWalkup =
+            (_lying != null) &&
+            (_lying.Phase == NPCLyingBehaviour.LiePhase.RoutingToLadder ||
+             _lying.Phase == NPCLyingBehaviour.LiePhase.ApproachingFront);
+
+        bool inAnySitBodyPhase =
+            (_state == NPCState.SeekingSeat || _state == NPCState.Sitting) &&
+            _sitting != null &&
+            (_sitting.Phase == NPCSittingBehaviour.SitPhase.Aligning ||
+             _sitting.Phase == NPCSittingBehaviour.SitPhase.Backstepping ||
+             _sitting.Phase == NPCSittingBehaviour.SitPhase.SitDownPlaying ||
+             _sitting.Phase == NPCSittingBehaviour.SitPhase.SittingIdle ||
+             _sitting.Phase == NPCSittingBehaviour.SitPhase.StandUpPlaying);
+
+        bool inAnyLieBodyPhase =
+            (_state == NPCState.SeekingBed || _state == NPCState.Lying) &&
+            _lying != null &&
+            (_lying.Phase == NPCLyingBehaviour.LiePhase.Aligning ||
+             _lying.Phase == NPCLyingBehaviour.LiePhase.LieDownPlaying ||
+             _lying.Phase == NPCLyingBehaviour.LiePhase.LyingIdle ||
+             _lying.Phase == NPCLyingBehaviour.LiePhase.WakeUpPlaying);
 
         bool blockLocomotion =
             IsTraversingLadder ||
-            (_state == NPCState.Sitting && !inSitWalkup) ||
-            (_state == NPCState.Lying && !inLieWalkup);
+            (inAnySitBodyPhase && !sitWalkup) ||
+            (inAnyLieBodyPhase && !lieWalkup);
 
         bool allowNavLocomotion = AgentReady() && IsNavDriven() && !blockLocomotion;
 
@@ -2351,6 +2370,7 @@ public class NPCController : MonoBehaviour
 
 #if UNITY_EDITOR
 [CustomEditor(typeof(NPCController))]
+[CanEditMultipleObjects]
 public class NPCControllerEditor : Editor
 {
     public override void OnInspectorGUI()

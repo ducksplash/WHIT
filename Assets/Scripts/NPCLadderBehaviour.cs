@@ -185,9 +185,7 @@ public class NPCLadderBehaviour : NPCBehaviourBase
 
             if (!npc.CanReachBetween(snappedExit, destination, out NavMeshPath _, ladderNavmeshSnapRadius))
             {
-                if (ladderDebugLogs)
-                    Debug.Log(
-                        $"{name}: Reject ladder {l.name} - cannot reach target from exit {snappedExit}.");
+                if (ladderDebugLogs) Debug.Log($"{name}: Reject ladder {l.name} - cannot reach target from exit {snappedExit}.");
                 continue;
             }
 
@@ -222,7 +220,7 @@ public class NPCLadderBehaviour : NPCBehaviourBase
     /// Begins traversal of <paramref name="ladder"/>. Invokes <paramref name="onComplete"/>
     /// once the NPC has landed and the NavMesh agent has been restored.
     /// </summary>
-    public void StartLadderTraversal(Ladder ladder, bool goingUp, Action onComplete)
+    public void StartLadderTraversal(Ladder ladder, bool goingUp, Action onComplete, Vector3 alreadyAtApproach = default)
     {
         if (!useLadders || ladder == null || _isTraversingLadder)
         {
@@ -231,7 +229,7 @@ public class NPCLadderBehaviour : NPCBehaviourBase
         }
 
         _ladderCompleteAction = onComplete;
-        _ladderCoroutine = StartCoroutine(LadderTraversalRoutine(ladder, goingUp));
+        _ladderCoroutine = StartCoroutine(LadderTraversalRoutine(ladder, goingUp, alreadyAtApproach));
     }
 
     /// <summary>
@@ -259,7 +257,7 @@ public class NPCLadderBehaviour : NPCBehaviourBase
     // =========================================================
     // Traversal coroutine
     // =========================================================
-    private IEnumerator LadderTraversalRoutine(Ladder ladder, bool goingUp)
+    private IEnumerator LadderTraversalRoutine(Ladder ladder, bool goingUp, Vector3 alreadyAtApproach = default)
     {
         _isTraversingLadder = true;
         _stateBeforeLadder  = npc.GetCurrentState();
@@ -297,12 +295,25 @@ public class NPCLadderBehaviour : NPCBehaviourBase
                       $"endMount={endMount.position} endExit={endExit.position}");
 
         // ── Phase 0: Walk to pre-ladder position ──────────────────────────────
-        float xzDistToMount = Vector3.Distance(
-            new Vector3(Body.position.x, 0f, Body.position.z),
-            new Vector3(startMount.position.x, 0f, startMount.position.z));
-
-        bool alreadyAtLadder = xzDistToMount <=
-            (ladderApproachArriveDistance + preLadderApproachOffset + 0.25f);
+        // If the caller already walked to a navmesh-snapped approach point,
+        // use that to decide whether Phase 0 can be skipped. This prevents
+        // a second competing agent destination from causing a turn-away.
+        bool alreadyAtLadder;
+        if (alreadyAtApproach != default)
+        {
+            float distToSnapped = Vector3.Distance(
+                new Vector3(Body.position.x, 0f, Body.position.z),
+                new Vector3(alreadyAtApproach.x, 0f, alreadyAtApproach.z));
+            alreadyAtLadder = distToSnapped <= ladderApproachArriveDistance + 0.1f;
+        }
+        else
+        {
+            float xzDistToMount = Vector3.Distance(
+                new Vector3(Body.position.x, 0f, Body.position.z),
+                new Vector3(startMount.position.x, 0f, startMount.position.z));
+            alreadyAtLadder = xzDistToMount <=
+                (ladderApproachArriveDistance + preLadderApproachOffset + 0.25f);
+        }
 
         if (!alreadyAtLadder)
         {

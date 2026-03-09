@@ -767,7 +767,8 @@ public class DebugCamera : MonoBehaviour
         yawCandidate = NormalizeAngle360(yawCandidate);
         float yaw = ClosestYawToCurrent(_orbitAngles.x, yawCandidate);
 
-        float pitch = -Mathf.Asin(Mathf.Clamp(dir.y, -1f, 1f)) * Mathf.Rad2Deg;
+        // FIX: remove the minus sign
+        float pitch = Mathf.Asin(Mathf.Clamp(dir.y, -1f, 1f)) * Mathf.Rad2Deg;
         pitch = Mathf.Clamp(pitch, pitchClampMin, pitchClampMax);
 
         _orbitAngles = new Vector2(yaw, pitch);

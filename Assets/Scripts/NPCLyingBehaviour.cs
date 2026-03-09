@@ -41,6 +41,10 @@ public class NPCLyingBehaviour : NPCBehaviourBase
     [SerializeField] private bool useLieIdleTriggerParam = true;
     [SerializeField] private string lieIdleTriggerParam = "LieIdle";
 
+    [Header("Lying Lerp")]
+    [SerializeField] private float lieDownLerpDuration = 0.5f;
+    [SerializeField] private float wakeUpLerpDuration  = 0.4f;
+
     [Header("Wake Up Animations")]
     [SerializeField] private bool useWakeUpTriggerParam = true;
     [SerializeField] private string wakeUpTriggerParam = "WakeUp";
@@ -50,6 +54,9 @@ public class NPCLyingBehaviour : NPCBehaviourBase
     public LiePhase Phase => _liePhase;
     public bool IsApproachingFront => _liePhase == LiePhase.ApproachingFront;
     public bool IsRoutingToLadder => _liePhase == LiePhase.RoutingToLadder;
+
+    private Coroutine _lieLerpCoroutine;
+    private Coroutine _wakeLerpCoroutine;
 
     private LiePhase _liePhase = LiePhase.None;
 
@@ -190,6 +197,12 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         _wakeTriggerT = 0f;
         _wakeTriggerSent = true;
         _liePhase = LiePhase.WakeUpPlaying;
+
+        // Slide XZ back to foot-of-bed simultaneously with the animation.
+        // Y is left alone — the wake-up animation owns vertical position.
+        if (_wakeLerpCoroutine != null) StopCoroutine(_wakeLerpCoroutine);
+        Vector3 wakeTarget = _preLieNavPos != Vector3.zero ? _preLieNavPos : Body.position;
+        _wakeLerpCoroutine = StartCoroutine(LerpBodyXZOnly(wakeTarget, wakeUpLerpDuration));
     }
 
     private Vector3 GetBedFacing()
@@ -493,12 +506,13 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         CacheAnimationRootLocalXZ();
         DetachAgentForAnimation();
 
+        // Snap to foot transform — its world Y is the ground truth.
+        // Do NOT call GroundTransformToNavmesh here; that would move Y to
+        // navmesh height which may differ from the foot object's world Y.
         if (_bedFootTf != null)
             Body.position = _bedFootTf.position;
 
         Body.rotation = Quaternion.LookRotation(GetBedFacing(), Vector3.up);
-
-        GroundTransformToNavmesh(Body.position, bodyRecoverySampleRadius);
 
         if (Anim != null)
         {
@@ -519,10 +533,48 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         _lieTriggerT = 0f;
         _lieTriggerSent = true;
         _liePhase = LiePhase.LieDownPlaying;
+
+        // Slide XZ into bed simultaneously with the animation.
+        // Target Y matches the foot/bed transform world Y — same floor, no drift.
+        // The animation owns any vertical movement; we never touch Y in the lerp.
+        if (_lieLerpCoroutine != null) StopCoroutine(_lieLerpCoroutine);
+        Vector3 lieTargetWorld = _bedLieTf != null ? _bedLieTf.position : _bedLieWorldPos;
+        float   authorativeY   = _bedFootTf != null ? _bedFootTf.position.y : Body.position.y;
+        Vector3 lieTarget      = new Vector3(lieTargetWorld.x, authorativeY, lieTargetWorld.z);
+        _lieLerpCoroutine = StartCoroutine(LerpBodyXZOnly(lieTarget, lieDownLerpDuration));
     }
+    private IEnumerator LerpBodyXZOnly(Vector3 target, float duration)
+    {
+        float startX  = Body.position.x;
+        float startZ  = Body.position.z;
+        float endX    = target.x;
+        float endZ    = target.z;
+        float elapsed = 0f;
+        duration = Mathf.Max(0.01f, duration);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t  = Mathf.Clamp01(elapsed / duration);
+            Vector3 p = Body.position;   // read current Y fresh every frame
+            p.x = Mathf.Lerp(startX, endX, t);
+            p.z = Mathf.Lerp(startZ, endZ, t);
+            Body.position = p;
+            yield return null;
+        }
+
+        Vector3 final = Body.position;
+        final.x = endX;
+        final.z = endZ;
+        Body.position = final;
+    }
+
     public void ForceCancelLying()
     {
         StopAllCoroutines();
+
+        _lieLerpCoroutine  = null;
+        _wakeLerpCoroutine = null;
 
         _bedRescanT = 0f;
         _lyingT = 0f;
@@ -780,9 +832,11 @@ public class NPCLyingBehaviour : NPCBehaviourBase
     private void RestoreAnimationRootLocalXZ()
     {
         if (_animationRoot == null || !_hasAnimationRootCachedXZ) return;
-        Vector3 lp = _animationRoot.localPosition;
-        lp.x = _animationRootCachedLocalXZ.x;
-        lp.z = _animationRootCachedLocalXZ.y;
-        _animationRoot.localPosition = lp;
+        // Reset XZ to cached values and Y to zero — any local Y offset accumulated
+        // during the animation is cleared so no child transform height drift persists.
+        _animationRoot.localPosition = new Vector3(
+            _animationRootCachedLocalXZ.x,
+            0f,
+            _animationRootCachedLocalXZ.y);
     }
 }

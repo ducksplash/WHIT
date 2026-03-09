@@ -34,6 +34,19 @@ public class NPCLadderBehaviour : NPCBehaviourBase
     [Tooltip("If the target is within this vertical distance, treat it as the same level and do not use a ladder.")]
     public float sameLevelHeightTolerance = 0.5f;
 
+    [Header("Climb Down Entry")]
+    public string beginClimbDownTriggerName   = "BeginClimbDown";
+    public string beginClimbDownStateName     = "BeginClimbDown";
+    public float  beginClimbDownDuration      = 0.65f;
+
+    [Header("Climb Down Loop")]
+    public string climbDownStateName          = "ClimbDownLadder";
+    public float  climbDownTriggerFallbackDelay = 0.08f;
+
+    [Header("Climb Down Path")]
+    [Range(0.1f, 0.9f)]
+    public float climbDownHorizontalPortion   = 0.55f;
+
     // =========================================================
     // Runtime state
     // =========================================================
@@ -56,23 +69,13 @@ public class NPCLadderBehaviour : NPCBehaviourBase
     {
         goingUp = false;
 
-        if (!useLadders || target == null || npc == null)
+        if (!useLadders || target == null)
             return false;
 
-        float deltaY = target.position.y - npc.transform.position.y;
+        float deltaY = target.position.y - Body.position.y;
 
-        if (deltaY > sameLevelHeightTolerance)
-        {
-            goingUp = true;
-            return true;
-        }
-
-        if (deltaY < -sameLevelHeightTolerance)
-        {
-            goingUp = false;
-            return true;
-        }
-
+        if (deltaY >  sameLevelHeightTolerance) { goingUp = true;  return true; }
+        if (deltaY < -sameLevelHeightTolerance) { goingUp = false; return true; }
         return false;
     }
 
@@ -81,31 +84,27 @@ public class NPCLadderBehaviour : NPCBehaviourBase
     /// <paramref name="destination"/>. Returns false if no valid route exists.
     /// </summary>
     public bool TryFindLadderRoute(
-        Vector3 destination,
-        out Ladder ladder,
-        out bool goingUp,
-        out Vector3 approachPoint,
-        out Vector3 exitPoint,
+        Vector3         destination,
+        out Ladder      ladder,
+        out bool        goingUp,
+        out Vector3     approachPoint,
+        out Vector3     exitPoint,
         out NavMeshPath approachPath)
     {
-        ladder = null;
-        goingUp = false;
+        ladder        = null;
+        goingUp       = false;
         approachPoint = Vector3.zero;
-        exitPoint = Vector3.zero;
-        approachPath = null;
+        exitPoint     = Vector3.zero;
+        approachPath  = null;
 
-        if (!useLadders || npc == null || !npc.AgentReady())
+        if (!useLadders || !AgentReady())
             return false;
 
-        Vector3 rootPos = npc.transform.position;
-        float deltaY = destination.y - rootPos.y;
+        float deltaY = destination.y - Body.position.y;
 
-        if (deltaY > sameLevelHeightTolerance)
-            goingUp = true;
-        else if (deltaY < -sameLevelHeightTolerance)
-            goingUp = false;
-        else
-            return false;
+        if      (deltaY >  sameLevelHeightTolerance) goingUp = true;
+        else if (deltaY < -sameLevelHeightTolerance) goingUp = false;
+        else    return false;
 
         Ladder[] ladders = UnityEngine.Object.FindObjectsByType<Ladder>(
             FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -131,9 +130,8 @@ public class NPCLadderBehaviour : NPCBehaviourBase
                         Debug.Log($"{name}: Reject ladder {l.name} (up) - missing bottom/top mount.");
                     continue;
                 }
-
                 rawApproachTf = l.bottomMountPoint;
-                rawExitTf = l.topExitPoint != null ? l.topExitPoint : l.topMountPoint;
+                rawExitTf     = l.topExitPoint != null ? l.topExitPoint : l.topMountPoint;
             }
             else
             {
@@ -143,16 +141,14 @@ public class NPCLadderBehaviour : NPCBehaviourBase
                         Debug.Log($"{name}: Reject ladder {l.name} (down) - not bidirectional.");
                     continue;
                 }
-
                 if (l.topMountPoint == null || l.bottomMountPoint == null)
                 {
                     if (ladderDebugLogs)
                         Debug.Log($"{name}: Reject ladder {l.name} (down) - missing top/bottom mount.");
                     continue;
                 }
-
-                rawApproachTf = l.topExitPoint != null ? l.topExitPoint : l.topMountPoint;
-                rawExitTf = l.bottomExitPoint != null ? l.bottomExitPoint : l.bottomMountPoint;
+                rawApproachTf = l.topExitPoint    != null ? l.topExitPoint    : l.topMountPoint;
+                rawExitTf     = l.bottomExitPoint != null ? l.bottomExitPoint : l.bottomMountPoint;
             }
 
             if (rawApproachTf == null || rawExitTf == null)
@@ -162,17 +158,21 @@ public class NPCLadderBehaviour : NPCBehaviourBase
                 continue;
             }
 
-            if (!TryGetNavmeshPointNear(rawApproachTf.position, ladderNavmeshSnapRadius, out Vector3 snappedApproach))
+            if (!TryGetNavmeshPointNear(rawApproachTf.position, ladderNavmeshSnapRadius,
+                    out Vector3 snappedApproach))
             {
                 if (ladderDebugLogs)
-                    Debug.Log($"{name}: Reject ladder {l.name} - no navmesh near approach {rawApproachTf.position}.");
+                    Debug.Log(
+                        $"{name}: Reject ladder {l.name} - no navmesh near approach {rawApproachTf.position}.");
                 continue;
             }
 
-            if (!TryGetNavmeshPointNear(rawExitTf.position, ladderNavmeshSnapRadius, out Vector3 snappedExit))
+            if (!TryGetNavmeshPointNear(rawExitTf.position, ladderNavmeshSnapRadius,
+                    out Vector3 snappedExit))
             {
                 if (ladderDebugLogs)
-                    Debug.Log($"{name}: Reject ladder {l.name} - no navmesh near exit {rawExitTf.position}.");
+                    Debug.Log(
+                        $"{name}: Reject ladder {l.name} - no navmesh near exit {rawExitTf.position}.");
                 continue;
             }
 
@@ -186,36 +186,34 @@ public class NPCLadderBehaviour : NPCBehaviourBase
             if (!npc.CanReachBetween(snappedExit, destination, out NavMeshPath _, ladderNavmeshSnapRadius))
             {
                 if (ladderDebugLogs)
-                    Debug.Log($"{name}: Reject ladder {l.name} - cannot reach target from exit {snappedExit}.");
+                    Debug.Log(
+                        $"{name}: Reject ladder {l.name} - cannot reach target from exit {snappedExit}.");
                 continue;
             }
 
             float score =
-                Vector3.Distance(rootPos, snappedApproach) +
+                Vector3.Distance(Body.position, snappedApproach) +
                 Vector3.Distance(snappedExit, destination);
 
             if (ladderDebugLogs)
-            {
-                Debug.Log(
-                    $"{name}: Candidate ladder {l.name} accepted. " +
-                    $"goingUp={goingUp}, approach={snappedApproach}, exit={snappedExit}, score={score:F2}");
-            }
+                Debug.Log($"{name}: Candidate ladder {l.name} accepted. " +
+                          $"goingUp={goingUp}, approach={snappedApproach}, " +
+                          $"exit={snappedExit}, score={score:F2}");
 
             if (score < bestScore)
             {
-                bestScore = score;
-                ladder = l;
+                bestScore     = score;
+                ladder        = l;
                 approachPoint = snappedApproach;
-                exitPoint = snappedExit;
-                approachPath = pathToLadder;
+                exitPoint     = snappedExit;
+                approachPath  = pathToLadder;
             }
         }
 
         if (ladderDebugLogs && ladder == null)
-        {
             Debug.LogWarning(
-                $"{name}: TryFindLadderRoute failed. destination={destination}, deltaY={deltaY:F2}, goingUp={goingUp}");
-        }
+                $"{name}: TryFindLadderRoute failed. " +
+                $"destination={destination}, deltaY={deltaY:F2}, goingUp={goingUp}");
 
         return ladder != null;
     }
@@ -240,7 +238,13 @@ public class NPCLadderBehaviour : NPCBehaviourBase
     /// Cancels any in-progress traversal immediately and resets all state.
     /// Called by NPCController.InterruptAllTransientActions().
     /// </summary>
-    public void InterruptTraversal()
+    public void InterruptTraversal()    => ForceResetLadderState();
+
+    /// <summary>
+    /// Alias for InterruptTraversal(). Cancels traversal and resets all state.
+    /// Kept public so any existing NPCController call sites continue to compile.
+    /// </summary>
+    public void ForceResetLadderState()
     {
         if (_ladderCoroutine != null)
         {
@@ -358,86 +362,63 @@ public class NPCLadderBehaviour : NPCBehaviourBase
             yield return null;
         }
 
-        // ── Snap to mount and fire climb trigger ───────────────────────────────
-        Body.position = startMount.position;
-        Body.rotation = attachRot;
-
-        DetachAgentForAnimation();
-
-        string climbTrigger = goingUp ? climbUpTriggerName : climbDownTriggerName;
-        if (Anim != null && !string.IsNullOrWhiteSpace(climbTrigger))
+        if (AgentReady())
         {
-            ResetAllAnimatorTriggers();
-            Anim.SetTrigger(climbTrigger);
+            Agent.isStopped = true;
+            Agent.ResetPath();
         }
 
-        // Descent only: hold mount position until the animation state actually enters
-        if (!goingUp && Anim != null && !string.IsNullOrWhiteSpace(climbTrigger))
+        if (goingUp)
         {
-            float lockTimer = 0f;
-            float lockMax   = Mathf.Max(0.02f, npc.triggerEnterTimeout * 0.5f);
-            int   baseHash  = Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
+            // ── ASCENT: snap to mount, fire trigger, lerp up ──────────────────
+            Body.position = startMount.position;
+            Body.rotation = attachRot;
 
-            while (lockTimer < lockMax)
+            DetachAgentForAnimation();
+
+            if (Anim != null && !string.IsNullOrWhiteSpace(climbUpTriggerName))
             {
-                Body.position = startMount.position;
-                Body.rotation = attachRot;
+                ResetAllAnimatorTriggers();
+                Anim.SetTrigger(climbUpTriggerName);
+            }
 
-                AnimatorStateInfo info = Anim.GetCurrentAnimatorStateInfo(0);
-                if (Anim.IsInTransition(0) || info.fullPathHash != baseHash)
-                    break;
+            // ── Phase 1 up: startMount → hoistStart ───────────────────────────
+            Vector3 climbFromUp   = startMount.position;
+            Vector3 climbTargetUp = hoistStart.position;
+            float   climbDistUp   = Vector3.Distance(climbFromUp, climbTargetUp);
+            float   climbDurUp    = Mathf.Max(0.1f, climbDistUp / Mathf.Max(0.01f, ladderClimbSpeed));
+            bool    hoistTriggered = false;
 
-                lockTimer += Time.deltaTime;
+            for (float t = 0f; t < climbDurUp; t += Time.deltaTime)
+            {
+                Body.position = Vector3.Lerp(climbFromUp, climbTargetUp, Mathf.Clamp01(t / climbDurUp));
+                Body.rotation = Quaternion.Slerp(Body.rotation, attachRot,
+                    Time.deltaTime * ladderFacingSlerp);
+
+                if (!hoistTriggered)
+                {
+                    float distRemaining = Vector3.Distance(Body.position, hoistStart.position);
+                    if (distRemaining <= Mathf.Max(0.05f, ladderTopStopOffset))
+                    {
+                        hoistTriggered = true;
+                        if (Anim != null && !string.IsNullOrWhiteSpace(hoistUpTriggerName))
+                        {
+                            ResetAllAnimatorTriggers();
+                            Anim.SetTrigger(hoistUpTriggerName);
+                            if (ladderDebugLogs)
+                                Debug.Log(
+                                    $"{name}: HoistUp trigger fired at dist={distRemaining:F2} from hoistStart");
+                        }
+                    }
+                }
+
                 yield return null;
             }
 
-            Body.position = startMount.position;
+            Body.position = climbTargetUp;
             Body.rotation = attachRot;
-            yield return null;
-        }
 
-        // ── Phase 1: Climb ────────────────────────────────────────────────────
-        // Up:   startMount → hoistStart  (HoistUp triggered early by proximity)
-        // Down: topMount   → bottomMount
-        Vector3 climbFrom    = startMount.position;
-        Vector3 climbTarget  = goingUp ? hoistStart.position : endMount.position;
-        float   climbDist    = Vector3.Distance(climbFrom, climbTarget);
-        float   climbDuration = Mathf.Max(0.1f, climbDist / Mathf.Max(0.01f, ladderClimbSpeed));
-        bool    hoistTriggered = !goingUp; // descent has no hoist phase
-
-        for (float t = 0f; t < climbDuration; t += Time.deltaTime)
-        {
-            Body.position = Vector3.Lerp(climbFrom, climbTarget, Mathf.Clamp01(t / climbDuration));
-            Body.rotation = Quaternion.Slerp(Body.rotation, attachRot,
-                Time.deltaTime * ladderFacingSlerp);
-
-            if (!hoistTriggered)
-            {
-                float distRemaining = Vector3.Distance(Body.position, hoistStart.position);
-                if (distRemaining <= Mathf.Max(0.05f, ladderTopStopOffset))
-                {
-                    hoistTriggered = true;
-                    if (Anim != null && !string.IsNullOrWhiteSpace(hoistUpTriggerName))
-                    {
-                        ResetAllAnimatorTriggers();
-                        Anim.SetTrigger(hoistUpTriggerName);
-                        if (ladderDebugLogs)
-                            Debug.Log(
-                                $"{name}: HoistUp trigger fired at dist={distRemaining:F2} from hoistStart");
-                    }
-                }
-            }
-
-            yield return null;
-        }
-
-        Body.position = climbTarget;
-        Body.rotation = attachRot;
-
-        // ── Phase 2: Hoist (ascent only) ──────────────────────────────────────
-        if (goingUp)
-        {
-            // Fallback: fire if the proximity-based trigger never tripped (short ladder)
+            // ── Phase 2: hoist ────────────────────────────────────────────────
             if (!hoistTriggered && Anim != null && !string.IsNullOrWhiteSpace(hoistUpTriggerName))
             {
                 ResetAllAnimatorTriggers();
@@ -466,6 +447,161 @@ public class NPCLadderBehaviour : NPCBehaviourBase
         }
         else
         {
+            // ── DESCENT ───────────────────────────────────────────────────────
+            // The NPC is standing at floor level near the ladder top.
+            // Phase A: fire BeginClimbDown + move in an L-shape (horizontal then
+            //          drop) from the current standing position to topMountPoint,
+            //          bridging the gap smoothly rather than snapping.
+            // Phase B: fire ClimbDownLadder + lerp from topMountPoint down to
+            //          bottomMountPoint.
+
+            Vector3    standPos = Body.position;
+            Quaternion standRot = Body.rotation;
+            // Use topHoistStartPoint as the grip position — it's where the NPC's
+            // hands land when stepping onto the ladder from above.
+            Transform hoistStartTf = ladder.topHoistStartPoint != null
+                ? ladder.topHoistStartPoint : ladder.topMountPoint;
+            Vector3    mountPos = hoistStartTf.position;
+
+            // Intermediate point: same XZ as mountPos, same Y as standPos
+            // (move horizontally first, then drop vertically)
+            Vector3 horizontalMid = new Vector3(mountPos.x, standPos.y, mountPos.z);
+
+            DetachAgentForAnimation();
+
+            // ── Phase A: L-shaped entry movement ─────────────────────────────
+            // Part 1 (u < horizontalPortion): walk horizontally over the ladder top — no animation yet.
+            // Part 2 (u >= horizontalPortion): drop vertically onto the rung — fire BeginClimbDown here.
+            int   animLayer       = 0;
+            bool  beginTriggered  = false;
+            bool  beginDone       = false;
+            float beginFallbackT  = 0f;
+            int   beginStartHash  = 0;
+
+            float entryDuration     = Mathf.Max(0.01f, beginClimbDownDuration);
+            float horizontalPortion = Mathf.Clamp(climbDownHorizontalPortion, 0.1f, 0.9f);
+
+            for (float t = 0f; t < entryDuration; t += Time.deltaTime)
+            {
+                float u = Mathf.Clamp01(t / entryDuration);
+
+                // L-shaped path: horizontal first, then vertical drop
+                Body.position = u < horizontalPortion
+                    ? Vector3.Lerp(standPos, horizontalMid, u / horizontalPortion)
+                    : Vector3.Lerp(horizontalMid, mountPos,
+                        (u - horizontalPortion) / Mathf.Max(0.0001f, 1f - horizontalPortion));
+
+                Body.rotation = Quaternion.Slerp(standRot, attachRot, u);
+
+                // Fire BeginClimbDown at the moment the vertical drop begins
+                if (!beginTriggered && u >= horizontalPortion)
+                {
+                    beginTriggered = true;
+                    beginStartHash = Anim != null ? Anim.GetCurrentAnimatorStateInfo(animLayer).fullPathHash : 0;
+
+                    if (Anim != null && !string.IsNullOrWhiteSpace(beginClimbDownTriggerName))
+                    {
+                        ResetAllAnimatorTriggers();
+                        Anim.SetTrigger(beginClimbDownTriggerName);
+                    }
+                }
+
+                // Fallback: if animation hasn't transitioned within fallback window, force-play it
+                if (Anim != null && beginTriggered && !beginDone)
+                {
+                    beginFallbackT += Time.deltaTime;
+                    AnimatorStateInfo info = Anim.GetCurrentAnimatorStateInfo(animLayer);
+                    bool entered = Anim.IsInTransition(animLayer)
+                        || (!string.IsNullOrWhiteSpace(beginClimbDownStateName) && info.IsName(beginClimbDownStateName))
+                        || info.fullPathHash != beginStartHash;
+
+                    if (entered)
+                    {
+                        beginDone = true;
+                    }
+                    else if (beginFallbackT >= Mathf.Max(0.01f, climbDownTriggerFallbackDelay))
+                    {
+                        if (!string.IsNullOrWhiteSpace(beginClimbDownStateName))
+                        {
+                            if (ladderDebugLogs)
+                                Debug.Log($"{name}: Descent fallback Play('{beginClimbDownStateName}')");
+                            Anim.Play(beginClimbDownStateName, animLayer, 0f);
+                            Anim.Update(0f);
+                        }
+                        beginDone = true;
+                    }
+                }
+
+                yield return null;
+            }
+
+            // Snap cleanly to mount point
+            Body.position = mountPos;
+            Body.rotation = attachRot;
+            yield return null;
+
+            // ── Phase B: ClimbDownLadder trigger + hold until state enters ────
+            bool  climbDone      = false;
+            float climbFallbackT = 0f;
+            int   climbStartHash = Anim != null ? Anim.GetCurrentAnimatorStateInfo(animLayer).fullPathHash : 0;
+
+            if (Anim != null && !string.IsNullOrWhiteSpace(climbDownTriggerName))
+            {
+                ResetAllAnimatorTriggers();
+                Anim.SetTrigger(climbDownTriggerName);
+            }
+
+            float holdMax = Mathf.Max(0.05f, npc.triggerEnterTimeout * 0.5f);
+            float holdT   = 0f;
+
+            while (holdT < holdMax)
+            {
+                Body.position = mountPos;
+                Body.rotation = attachRot;
+
+                if (Anim != null && !climbDone)
+                {
+                    climbFallbackT += Time.deltaTime;
+                    AnimatorStateInfo info = Anim.GetCurrentAnimatorStateInfo(animLayer);
+                    bool entered = Anim.IsInTransition(animLayer)
+                        || (!string.IsNullOrWhiteSpace(climbDownStateName) && info.IsName(climbDownStateName))
+                        || info.fullPathHash != climbStartHash;
+
+                    if (entered)
+                    {
+                        climbDone = true;
+                    }
+                    else if (climbFallbackT >= Mathf.Max(0.01f, climbDownTriggerFallbackDelay))
+                    {
+                        if (!string.IsNullOrWhiteSpace(climbDownStateName))
+                        {
+                            if (ladderDebugLogs)
+                                Debug.Log($"{name}: Descent fallback Play('{climbDownStateName}')");
+                            Anim.Play(climbDownStateName, animLayer, 0f);
+                            Anim.Update(0f);
+                        }
+                        climbDone = true;
+                    }
+                }
+
+                holdT += Time.deltaTime;
+                yield return null;
+            }
+
+            // ── Phase C: lerp down the ladder ─────────────────────────────────
+            Vector3 climbFrom   = mountPos;
+            Vector3 climbTarget = endMount.position; // bottomMountPoint
+            float   climbDist   = Vector3.Distance(climbFrom, climbTarget);
+            float   climbDur    = Mathf.Max(0.1f, climbDist / Mathf.Max(0.01f, ladderClimbSpeed));
+
+            for (float t = 0f; t < climbDur; t += Time.deltaTime)
+            {
+                Body.position = Vector3.Lerp(climbFrom, climbTarget, Mathf.Clamp01(t / climbDur));
+                Body.rotation = Quaternion.Slerp(Body.rotation, attachRot,
+                    Time.deltaTime * ladderFacingSlerp);
+                yield return null;
+            }
+
             Body.position = endExit.position;
             Body.rotation = attachRot;
         }

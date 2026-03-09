@@ -567,6 +567,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -591,7 +593,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -609,6 +611,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -646,11 +650,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!1 &5788769
 GameObject:
   m_ObjectHideFlags: 0
@@ -7419,6 +7429,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -7443,7 +7455,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -7461,6 +7473,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -7498,11 +7512,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!1 &129709592
 GameObject:
   m_ObjectHideFlags: 0
@@ -12896,6 +12916,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -12920,7 +12942,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -12938,6 +12960,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -12975,11 +12999,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!1 &260052164
 GameObject:
   m_ObjectHideFlags: 0
@@ -17368,7 +17398,7 @@ Transform:
   m_GameObject: {fileID: 373025782}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 12.11, y: 0.1461177, z: 0.4229}
+  m_LocalPosition: {x: 10.81, y: 0.1461177, z: 0.4229}
   m_LocalScale: {x: 1.4399997, y: 0.90000004, z: 91.0499}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -25017,6 +25047,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -25041,7 +25073,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -25059,6 +25091,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -25096,11 +25130,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!1 &521966045
 GameObject:
   m_ObjectHideFlags: 0
@@ -28843,6 +28883,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -28867,7 +28909,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -28885,6 +28927,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -28922,11 +28966,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.5
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!1 &592722287
 GameObject:
   m_ObjectHideFlags: 0
@@ -32374,6 +32424,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -32398,7 +32450,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -32416,6 +32468,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -32453,11 +32507,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!1 &670599363
 GameObject:
   m_ObjectHideFlags: 0
@@ -43795,7 +43855,7 @@ Transform:
   m_GameObject: {fileID: 899776746}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: 0.5, z: -0.5, w: 0.5}
-  m_LocalPosition: {x: 0, y: -0.162, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 2.9745848, y: 1.8785858, z: 0.024522638}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -50227,7 +50287,7 @@ Transform:
   m_GameObject: {fileID: 1025201221}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: -0.5, z: 0.5, w: 0.5}
-  m_LocalPosition: {x: 0.0000004814403, y: -8.3534586e-14, z: 0.0000000596047}
+  m_LocalPosition: {x: 0.0000004814403, y: 0, z: 0.0000000596047}
   m_LocalScale: {x: 0.06742413, y: 0.042581413, z: 0.0005558483}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -72251,7 +72311,7 @@ Transform:
   m_GameObject: {fileID: 1499023991}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0.118, y: 0.243, z: -0.317}
+  m_LocalPosition: {x: -0.118, y: 0.079, z: -0.317}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -90975,6 +91035,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -90999,7 +91061,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -91017,6 +91079,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -91054,11 +91118,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!1 &1868197996
 GameObject:
   m_ObjectHideFlags: 0
@@ -95411,6 +95481,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -95435,7 +95507,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -95453,6 +95525,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -95490,11 +95564,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!1 &1942407595
 GameObject:
   m_ObjectHideFlags: 0
@@ -98357,6 +98437,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -98381,7 +98463,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -98399,6 +98481,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -98436,11 +98520,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!1 &1996589513
 GameObject:
   m_ObjectHideFlags: 0
@@ -103536,6 +103626,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -103560,7 +103652,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -103578,6 +103670,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -103615,11 +103709,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!4 &2103076610 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ff08a64a2120d314c9f394fa4a72d4b3,
@@ -179531,6 +179631,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -179555,7 +179657,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -179573,6 +179675,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -179610,11 +179714,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!33 &5838811376235001963
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -200812,6 +200922,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -200836,7 +200948,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -200854,6 +200966,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -200891,11 +201005,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!1 &7600681706259130587
 GameObject:
   m_ObjectHideFlags: 0
@@ -215984,6 +216104,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -216008,7 +216130,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -216026,6 +216148,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -216063,11 +216187,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!33 &8886789400169211275
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -216550,6 +216680,8 @@ MonoBehaviour:
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
   autoStandAfterSeconds: 0
+  sitDownLerpDuration: 0.4
+  standUpLerpDuration: 0.35
   sitDownStateName: SitDown
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
@@ -216574,7 +216706,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCLyingBehaviour
   bedLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
@@ -216592,6 +216724,8 @@ MonoBehaviour:
   lieTriggerFallbackDelay: 0.08
   useLieIdleTriggerParam: 1
   lieIdleTriggerParam: LieIdle
+  lieDownLerpDuration: 2
+  wakeUpLerpDuration: 0.4
   useWakeUpTriggerParam: 1
   wakeUpTriggerParam: WakeUp
   wakeUpStateName: WakeUp
@@ -216629,11 +216763,17 @@ MonoBehaviour:
   ladderNavmeshSnapRadius: 3
   ladderDebugLogs: 1
   hoistUpTriggerName: HoistUp
-  ladderTopStopOffset: 0.9
-  hoistDuration: 0.7
+  ladderTopStopOffset: 1
+  hoistDuration: 0.5
   preLadderApproachOffset: 1
   ladderAlignToleranceDeg: 8
   sameLevelHeightTolerance: 0.5
+  beginClimbDownTriggerName: BeginClimbDown
+  beginClimbDownStateName: BeginClimbDown
+  beginClimbDownDuration: 0.5
+  climbDownStateName: ClimbDownLadder
+  climbDownTriggerFallbackDelay: 0.08
+  climbDownHorizontalPortion: 0.55
 --- !u!224 &8951847542062789305
 RectTransform:
   m_ObjectHideFlags: 0

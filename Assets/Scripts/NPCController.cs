@@ -1717,6 +1717,8 @@ public class NPCController : MonoBehaviour
         _renegotiateCooldownT = 0f;
 
         InterruptAllTransientActions(false);
+        _ladder?.ForceResetLadderState();
+        
 
         if (_talk != null)
         {

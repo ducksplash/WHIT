@@ -37,6 +37,10 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     [SerializeField] private Vector3 seatedRootOffset = Vector3.zero;
     [SerializeField] private float autoStandAfterSeconds = 0f;
 
+    [Header("Sitting Lerp")]
+    [SerializeField] private float sitDownLerpDuration  = 0.4f;
+    [SerializeField] private float standUpLerpDuration  = 0.35f;
+
     [Header("Sitting Animations")]
     [SerializeField] private string sitDownStateName = "SitDown";
     [SerializeField] private string sitIdleStateName = "SitIdle";
@@ -50,6 +54,9 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     [SerializeField] private bool useStandUpTriggerParam = true;
     [SerializeField] private string standUpTriggerParam = "StandUp";
     [SerializeField] private string standUpStateName = "StandUp";
+
+    private Coroutine _sitLerpCoroutine;
+    private Coroutine _standLerpCoroutine;
 
     private float _standUpT;
     private bool  _standUpTriggerSent;
@@ -178,6 +185,11 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         _standUpT = 0f;
         _standUpTriggerSent = true;
         _sitPhase = SitPhase.StandUpPlaying;
+
+        // Lerp body back to the pre-sit point simultaneously with the stand-up animation
+        if (_standLerpCoroutine != null) StopCoroutine(_standLerpCoroutine);
+        Vector3 standTarget = _preSitPoint != Vector3.zero ? _preSitPoint : Body.position;
+        _standLerpCoroutine = StartCoroutine(LerpBodyTo(standTarget, standUpLerpDuration));
 
         if (seatDebugLogs)
             Debug.Log($"{name} Sit: BeginStandUp()");
@@ -564,6 +576,13 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         _sitTriggerSent = true;
         _sitTriggerT = 0f;
         _sitPhase = SitPhase.SitDownPlaying;
+
+        // Lerp body to seat centre simultaneously with the sit-down animation
+        if (_sitLerpCoroutine != null) StopCoroutine(_sitLerpCoroutine);
+        Vector3 seatedTarget = _seatTf != null
+            ? _seatTf.position + seatedRootOffset
+            : Body.position;
+        _sitLerpCoroutine = StartCoroutine(LerpBodyTo(seatedTarget, sitDownLerpDuration));
     }
 
     private void TickSitDownPlaying(float dt)
@@ -675,6 +694,24 @@ private void TickStandUpPlaying(float dt)
     }
 }
 
+    private IEnumerator LerpBodyTo(Vector3 target, float duration)
+    {
+        Vector3 start = Body.position;
+        // Only lerp XZ — the NPC's root stays grounded at its own Y.
+        target = new Vector3(target.x, start.y, target.z);
+        float elapsed = 0f;
+        duration = Mathf.Max(0.01f, duration);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            Body.position = Vector3.Lerp(start, target, Mathf.Clamp01(elapsed / duration));
+            yield return null;
+        }
+
+        Body.position = target;
+    }
+
     private void FinishStandUpToPatrol()
     {
         if (Anim != null)
@@ -717,6 +754,8 @@ private void TickStandUpPlaying(float dt)
     {
         StopAllCoroutines();
 
+        _sitLerpCoroutine   = null;
+        _standLerpCoroutine = null;
         _standUpT = 0f;
         _standUpTriggerSent = false;
 

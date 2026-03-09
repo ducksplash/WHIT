@@ -463,6 +463,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 0
+  CanSleep: 1
+  CanTalk: 0
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!195 &5712059
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -555,6 +568,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -597,6 +611,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -7310,6 +7325,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 1
+  CanSleep: 1
+  CanTalk: 1
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!136 &126935130
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -7417,6 +7445,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -7459,6 +7488,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -12795,6 +12825,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 1
+  CanSleep: 1
+  CanTalk: 1
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!195 &257629029
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -12904,6 +12947,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -12946,6 +12990,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -24990,6 +25035,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 0
+  CanSleep: 1
+  CanTalk: 1
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!114 &521070081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25035,6 +25093,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -25077,6 +25136,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -28680,7 +28740,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   thisNPC: 101
-  FindSeat: 1
+  FindSeat: 0
   useStateMachine: 1
   currentTarget: {fileID: 0}
   activeRadius: 100
@@ -28764,6 +28824,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 1
+  CanSleep: 1
+  CanTalk: 0
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!195 &591589183
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -28871,6 +28944,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -28913,6 +28987,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -32303,6 +32378,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 1
+  CanSleep: 1
+  CanTalk: 1
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!136 &666046579
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -32412,6 +32500,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -32454,6 +32543,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -90915,6 +91005,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 1
+  CanSleep: 0
+  CanTalk: 1
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!195 &1867593930
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -91023,6 +91126,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -91065,6 +91169,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -95400,6 +95505,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 1
+  CanSleep: 1
+  CanTalk: 1
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!195 &1941394365
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -95469,6 +95587,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -95511,6 +95630,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -98318,6 +98438,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 0
+  CanSleep: 0
+  CanTalk: 1
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!136 &1996530527
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -98425,6 +98558,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -98467,6 +98601,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -103547,6 +103682,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 1
+  CanSleep: 1
+  CanTalk: 1
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!195 &2097689553
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -103614,6 +103762,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -103656,6 +103805,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -123570,6 +123720,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 1
+  CanSleep: 1
+  CanTalk: 0
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!1 &1415320747241418303
 GameObject:
   m_ObjectHideFlags: 0
@@ -126099,6 +126262,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 0
+  CanSleep: 0
+  CanTalk: 0
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!4 &1630648064287436865
 Transform:
   m_ObjectHideFlags: 0
@@ -165573,6 +165749,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 1
+  CanSleep: 1
+  CanTalk: 1
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!222 &4690743419784222565
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -166710,6 +166899,19 @@ MonoBehaviour:
   _lying: {fileID: 0}
   _talk: {fileID: 0}
   _combat: {fileID: 0}
+  CanSit: 1
+  CanSleep: 1
+  CanTalk: 1
+  MinSitTime: 20
+  MaxSitTime: 180
+  MinSleepTime: 25
+  MaxSleepTime: 1000
+  MinTalkTime: 20
+  MaxTalkTime: 80
+  patrolActionCheckInterval: {x: 6, y: 14}
+  patrolActionCooldownSeconds: 240
+  patrolActionFailedRetrySeconds: 20
+  autonomousTalkSearchRadius: 8
 --- !u!1 &4774676104397483914
 GameObject:
   m_ObjectHideFlags: 0
@@ -179619,6 +179821,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -179661,6 +179864,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -200910,6 +201114,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -200952,6 +201157,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -216092,6 +216298,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -216134,6 +216341,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1
@@ -216668,6 +216876,7 @@ MonoBehaviour:
   seatLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  seatDebugLogs: 0
   seatQueryTriggers: 2
   seatSearchTimeout: 4
   seatRescanInterval: 0.35
@@ -216710,6 +216919,7 @@ MonoBehaviour:
   bedDebugLogs: 0
   bedRescanInterval: 0.35
   bedSearchRadius: 0
+  bedSearchTimeout: 4
   preLieArriveDistance: 0.45
   bedAlignYawToleranceDeg: 6
   snapToBedWhenLying: 1

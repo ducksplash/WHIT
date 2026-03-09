@@ -22,6 +22,7 @@ public class NPCLyingBehaviour : NPCBehaviourBase
     [SerializeField] private bool bedDebugLogs = false;
     [SerializeField] private float bedRescanInterval = 0.35f;
     [SerializeField] private float bedSearchRadius = 0f;
+    [SerializeField] private float bedSearchTimeout = 4.0f;   // ADD THIS
     [SerializeField] private float preLieArriveDistance = 0.45f;
     [SerializeField] private float bedAlignYawToleranceDeg = 6f;
     [SerializeField] private bool snapToBedWhenLying = true;
@@ -50,7 +51,7 @@ public class NPCLyingBehaviour : NPCBehaviourBase
     [SerializeField] private string wakeUpTriggerParam = "WakeUp";
     [SerializeField] private string wakeUpStateName = "WakeUp";
     [SerializeField] private float wakeTriggerFallbackDelay = 0.08f;
-
+    private float _bedSearchT;
     public LiePhase Phase => _liePhase;
     public bool IsApproachingFront => _liePhase == LiePhase.ApproachingFront;
     public bool IsRoutingToLadder => _liePhase == LiePhase.RoutingToLadder;
@@ -109,6 +110,7 @@ public class NPCLyingBehaviour : NPCBehaviourBase
     public void EnterLying()
     {
         _liePhase = LiePhase.SearchingBed;
+        _bedSearchT = 0f;              // ADD THIS
         _bedRescanT = 0f;
         _lyingT = 0f;
         _lieTriggerT = 0f;
@@ -229,11 +231,12 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         if (_bedRescanT <= 0f)
         {
             _bedRescanT = Mathf.Max(0.05f, bedRescanInterval);
-            if (TryAcquireBed()) return;
+            if (TryAcquireBed())
+                return;
         }
 
-        if (AgentReady()) { Agent.isStopped = true; Agent.ResetPath(); }
-        ForceIdlePose();
+        // Do not stop the agent or force idle here.
+        // While searching, NPCController keeps normal patrol movement running.
     }
 
     private bool TryAcquireBed()
@@ -736,11 +739,7 @@ public class NPCLyingBehaviour : NPCBehaviourBase
 
         ReleaseBedIfAny();
         ClearLadderRoute();
-
-        npc.HasCommand = false;
-        npc.CommandGoal = NPCController.NPCState.Patrolling;
         _liePhase = LiePhase.None;
-        npc.SetStateDirectly(NPCController.NPCState.Patrolling);
 
         StartCoroutine(FinishWakeUpGroundingRoutine(preferred));
     }
@@ -782,7 +781,6 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         npc.HasCommand = false;
         npc.CommandGoal = NPCController.NPCState.Patrolling;
         _liePhase = LiePhase.None;
-        npc.SetStateDirectly(NPCController.NPCState.Patrolling);
 
         RestoreStandingBodyAt(preferred, bodyRecoverySampleRadius);
         RestoreAnimationRootLocalXZ();

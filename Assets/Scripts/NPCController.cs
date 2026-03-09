@@ -18,7 +18,9 @@ public class NPCController : MonoBehaviour
         Attacking,
         Seeking,
         Talk,
+        SeekingSeat,
         Sitting,
+        SeekingBed,
         Lying,
         ClimbingLadder
     }
@@ -116,6 +118,49 @@ public class NPCController : MonoBehaviour
 
     [NonSerialized] public bool isPaused;
 
+    
+    private enum PatrolAction
+    {
+        None,
+        Sit,
+        Sleep,
+        Talk
+    }
+
+    [Header("Autonomous Patrol Actions")]
+    public bool CanSit;
+    public bool CanSleep;
+    public bool CanTalk;
+
+    [Min(0f)] public float MinSitTime = 20f;
+    [Min(0f)] public float MaxSitTime = 180f;
+
+    [Min(0f)] public float MinSleepTime = 25f;
+    [Min(0f)] public float MaxSleepTime = 30f;
+
+    [Min(0f)] public float MinTalkTime = 20f;
+    [Min(0f)] public float MaxTalkTime = 80f;
+
+    [Tooltip("How often patrol considers doing a random autonomous action.")]
+    public Vector2 patrolActionCheckInterval = new Vector2(6f, 14f);
+
+    [Tooltip("Cooldown after finishing an action before that same action can be chosen again.")]
+    public float patrolActionCooldownSeconds = 240f;
+
+    [Tooltip("Short cooldown after a failed attempt (e.g. no free seat/bed found).")]
+    public float patrolActionFailedRetrySeconds = 20f;
+
+    [Tooltip("How far to search for another NPC to talk to.")]
+    public float autonomousTalkSearchRadius = 8f;
+
+    private float _patrolActionTimer;
+    private float _sitCooldownT;
+    private float _sleepCooldownT;
+    private float _talkCooldownT;
+
+    private Coroutine _autoActionCoroutine;
+    
+    
     public bool HasCommand { get => _hasCommand; set => _hasCommand = value; }
     public NPCState CommandGoal { get => _commandGoal; set => _commandGoal = value; }
     public Vector3 SpawnPoint => _spawnPoint;
@@ -145,9 +190,6 @@ public class NPCController : MonoBehaviour
 
     private bool _hasCommand = false;
     private NPCState _commandGoal = NPCState.Patrolling;
-
-    private Vector3 _lastApproachDest;
-    private bool _hasLastApproachDest;
 
     private Action _pendingPostStandAction;
     private bool _executePendingActionAfterStand = false;
@@ -443,10 +485,17 @@ public class NPCController : MonoBehaviour
 
         if (useStateMachine && !_isPlayingTriggeredAnimation && !IsTraversingLadder)
         {
-            if (_state == NPCState.Sitting || _state == NPCState.Lying)
+            if (_state == NPCState.Sitting ||
+                _state == NPCState.Lying ||
+                _state == NPCState.SeekingSeat ||
+                _state == NPCState.SeekingBed)
+            {
                 TickFSM(Time.deltaTime);
+            }
             else if (EnsureFSMCanRun())
+            {
                 TickFSM(Time.deltaTime);
+            }
         }
 
         UpdateLocomotionAndFacing();
@@ -471,8 +520,13 @@ public class NPCController : MonoBehaviour
             _hasLastKnownTargetPos = true;
 
             if (useStateMachine && !_isPlayingTriggeredAnimation && !_hasCommand
-                && _state != NPCState.Sitting && _state != NPCState.Lying)
+                && _state != NPCState.SeekingSeat
+                && _state != NPCState.Sitting
+                && _state != NPCState.SeekingBed
+                && _state != NPCState.Lying)
+            {
                 EnterState(NPCState.Alerted);
+            }
         }
     }
 
@@ -488,6 +542,12 @@ public class NPCController : MonoBehaviour
 
     public void ForcePatrol()
     {
+        if (_autoActionCoroutine != null)
+        {
+            StopCoroutine(_autoActionCoroutine);
+            _autoActionCoroutine = null;
+        }
+        
         if (TryQueueActionAfterStand(() =>
             {
                 InterruptAllTransientActions();
@@ -541,13 +601,14 @@ public class NPCController : MonoBehaviour
         useStateMachine = true;
         _hasCommand = true;
         _commandGoal = NPCState.Sitting;
-        EnterState(NPCState.Sitting);
+        EnterState(NPCState.SeekingSeat);
     }
 
     public void RequestStandUp()
     {
-        if (_state != NPCState.Sitting || _sitting == null) return;
-
+        if ((_state != NPCState.SeekingSeat && _state != NPCState.Sitting) || _sitting == null) return;
+        
+        
         var p = _sitting.Phase;
 
         if (p == NPCSittingBehaviour.SitPhase.SearchingSeat ||
@@ -583,7 +644,8 @@ public class NPCController : MonoBehaviour
 
     public void RequestWakeUp()
     {
-        if (_state != NPCState.Lying || _lying == null) return;
+        if ((_state != NPCState.SeekingBed && _state != NPCState.Lying) || _lying == null) return;
+        
         var p = _lying.Phase;
         if (p == NPCLyingBehaviour.LiePhase.LyingIdle || p == NPCLyingBehaviour.LiePhase.LieDownPlaying)
             _lying.BeginWakeUp();
@@ -609,7 +671,6 @@ public class NPCController : MonoBehaviour
         useStateMachine = true;
         _hasCommand = true;
         _commandGoal = NPCState.Lying;
-        _hasLastApproachDest = false;
         _hasPatrolDestination = false;
         _hasResumeDestination = false;
         _resumeDestination = Vector3.zero;
@@ -629,9 +690,7 @@ public class NPCController : MonoBehaviour
             agent.ResetPath();
         }
 
-        _state = NPCState.Lying;
-        _stateTimer = 0f;
-        _lying?.EnterLying();
+        EnterState(NPCState.SeekingBed);
     }
 
     public void SetTargetByNPC(NPC npcEnum)
@@ -752,6 +811,9 @@ public class NPCController : MonoBehaviour
                 _hasPatrolDestination = false;
                 _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
                 _patrolArriveTimer = 0f;
+                _patrolActionTimer = UnityEngine.Random.Range(
+                    patrolActionCheckInterval.x,
+                    patrolActionCheckInterval.y);
                 break;
 
             case NPCState.Alerted:
@@ -773,7 +835,6 @@ public class NPCController : MonoBehaviour
                 }
 
                 _approachRepathTimer = 0f;
-                _hasLastApproachDest = false;
                 break;
 
             case NPCState.Attacking:
@@ -810,12 +871,20 @@ public class NPCController : MonoBehaviour
                 Debug.Log($"{name} TALK: holding idle until new command.");
                 break;
 
+            case NPCState.SeekingSeat:
+                if (prev != NPCState.SeekingSeat && prev != NPCState.Sitting)
+                    _sitting?.EnterSitting();
+                break;
+
             case NPCState.Sitting:
-                if (prev != NPCState.Sitting) _sitting?.EnterSitting();
+                break;
+
+            case NPCState.SeekingBed:
+                if (prev != NPCState.SeekingBed && prev != NPCState.Lying)
+                    _lying?.EnterLying();
                 break;
 
             case NPCState.Lying:
-                if (prev != NPCState.Lying) _lying?.EnterLying();
                 break;
 
             case NPCState.ClimbingLadder:
@@ -826,15 +895,16 @@ public class NPCController : MonoBehaviour
     void TickFSM(float dt)
     {
         _stateTimer += dt;
-
+        if (_sitCooldownT > 0f) _sitCooldownT -= dt;
+        if (_sleepCooldownT > 0f) _sleepCooldownT -= dt;
+        if (_talkCooldownT > 0f) _talkCooldownT -= dt;
         if (currentTarget != null)
         {
             _lastKnownTargetPos = currentTarget.position;
             _hasLastKnownTargetPos = true;
         }
 
-        if (!_hasCommand && _state != NPCState.Talk && _state != NPCState.Sitting &&
-            _state != NPCState.Lying && _state != NPCState.ClimbingLadder)
+        if (!_hasCommand && _state != NPCState.Talk && _state != NPCState.SeekingSeat && _state != NPCState.Sitting && _state != NPCState.SeekingBed && _state != NPCState.Lying && _state != NPCState.ClimbingLadder)
         {
             if (currentTarget != null && CanSeeTarget(currentTarget))
             {
@@ -868,34 +938,124 @@ public class NPCController : MonoBehaviour
             case NPCState.Seeking:
                 TickSeeking(dt);
                 break;
+            
+            case NPCState.SeekingSeat:
+                if (_sitting != null && _sitting.Phase == NPCSittingBehaviour.SitPhase.SearchingSeat)
+                    TickPatrolMovementOnly(dt, 1f);
+
+                _sitting?.Tick(dt);
+
+                if (_sitting == null) break;
+
+                switch (_sitting.Phase)
+                {
+                    case NPCSittingBehaviour.SitPhase.SitDownPlaying:
+                    case NPCSittingBehaviour.SitPhase.SittingIdle:
+                    case NPCSittingBehaviour.SitPhase.StandUpPlaying:
+                        EnterState(NPCState.Sitting);
+                        return;
+
+                    case NPCSittingBehaviour.SitPhase.None:
+                        EnterState(NPCState.Patrolling);
+                        return;
+                }
+                break;
+            
+            case NPCState.Sitting:
+                _sitting?.Tick(dt);
+
+                if (_sitting == null) break;
+
+                switch (_sitting.Phase)
+                {
+                    case NPCSittingBehaviour.SitPhase.SearchingSeat:
+                    case NPCSittingBehaviour.SitPhase.RoutingToLadder:
+                    case NPCSittingBehaviour.SitPhase.ClimbingLadder:
+                    case NPCSittingBehaviour.SitPhase.ApproachingFront:
+                    case NPCSittingBehaviour.SitPhase.Aligning:
+                    case NPCSittingBehaviour.SitPhase.Backstepping:
+                        EnterState(NPCState.SeekingSeat);
+                        return;
+
+                    case NPCSittingBehaviour.SitPhase.None:
+                        EnterState(NPCState.Patrolling);
+                        return;
+                }
+                break;
+
+            case NPCState.SeekingBed:
+                if (_lying != null && _lying.Phase == NPCLyingBehaviour.LiePhase.SearchingBed)
+                    TickPatrolMovementOnly(dt, 1f);
+
+                _lying?.Tick(dt);
+
+                if (_lying == null) break;
+
+                switch (_lying.Phase)
+                {
+                    case NPCLyingBehaviour.LiePhase.LieDownPlaying:
+                    case NPCLyingBehaviour.LiePhase.LyingIdle:
+                    case NPCLyingBehaviour.LiePhase.WakeUpPlaying:
+                        EnterState(NPCState.Lying);
+                        return;
+
+                    case NPCLyingBehaviour.LiePhase.None:
+                        EnterState(NPCState.Patrolling);
+                        return;
+                }
+                break;
+
+            case NPCState.Lying:
+                _lying?.Tick(dt);
+
+                if (_lying == null) break;
+
+                switch (_lying.Phase)
+                {
+                    case NPCLyingBehaviour.LiePhase.SearchingBed:
+                    case NPCLyingBehaviour.LiePhase.RoutingToLadder:
+                    case NPCLyingBehaviour.LiePhase.ClimbingLadder:
+                    case NPCLyingBehaviour.LiePhase.ApproachingFront:
+                    case NPCLyingBehaviour.LiePhase.Aligning:
+                        EnterState(NPCState.SeekingBed);
+                        return;
+
+                    case NPCLyingBehaviour.LiePhase.None:
+                        EnterState(NPCState.Patrolling);
+                        return;
+                }
+                break;
             case NPCState.Talk:
                 _talk?.TickTalk(dt);
-                break;
-            case NPCState.Sitting:
-                _hasCommand = true;
-                _commandGoal = NPCState.Sitting;
-                _sitting?.Tick(dt);
-                break;
-            case NPCState.Lying:
-                _hasCommand = true;
-                _commandGoal = NPCState.Lying;
-                _lying?.Tick(dt);
                 break;
             case NPCState.ClimbingLadder:
                 break;
         }
     }
 
+ 
     void TickPatrolling(float dt, float speedMultiplier)
     {
         if (!AgentReady()) return;
         if (currentTarget != null && CanSeeTarget(currentTarget)) return;
+        if (_autoActionCoroutine != null) return;
 
         _patrolChangeTimer -= dt;
         if (_patrolChangeTimer <= 0f)
         {
             _hasPatrolDestination = false;
             _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
+        }
+
+        _patrolActionTimer -= dt;
+        if (_patrolActionTimer <= 0f)
+        {
+            _patrolActionTimer = UnityEngine.Random.Range(
+                patrolActionCheckInterval.x,
+                patrolActionCheckInterval.y);
+
+            if (TryStartRandomPatrolAction())
+                return;
         }
 
         if (_hasPatrolDestination && HasArrived(agent, arriveDistance))
@@ -1092,9 +1252,12 @@ public class NPCController : MonoBehaviour
     {
         if (animationController == null) return;
 
-        bool inSitWalkup = (_state == NPCState.Sitting && _sitting != null &&
+        bool inSitWalkup = ((_state == NPCState.SeekingSeat || _state == NPCState.Sitting) &&
+                            _sitting != null &&
                             (_sitting.IsRoutingToLadder || _sitting.IsApproachingFront));
-        bool inLieWalkup = (_state == NPCState.Lying && _lying != null &&
+
+        bool inLieWalkup = ((_state == NPCState.SeekingBed || _state == NPCState.Lying) &&
+                            _lying != null &&
                             (_lying.IsRoutingToLadder || _lying.IsApproachingFront));
 
         bool blockLocomotion =
@@ -1432,8 +1595,16 @@ public class NPCController : MonoBehaviour
 
     private bool IsRecoveringBodyState()
     {
-        if (_state == NPCState.Sitting && _sitting != null && _sitting.Phase != NPCSittingBehaviour.SitPhase.None) return true;
-        if (_state == NPCState.Lying && _lying != null && _lying.Phase != NPCLyingBehaviour.LiePhase.None) return true;
+        if ((_state == NPCState.SeekingSeat || _state == NPCState.Sitting) &&
+            _sitting != null &&
+            _sitting.Phase != NPCSittingBehaviour.SitPhase.None)
+            return true;
+
+        if ((_state == NPCState.SeekingBed || _state == NPCState.Lying) &&
+            _lying != null &&
+            _lying.Phase != NPCLyingBehaviour.LiePhase.None)
+            return true;
+
         return false;
     }
 
@@ -1443,6 +1614,11 @@ public class NPCController : MonoBehaviour
             _talk.BreakConversationLockImmediate();
 
         if (!IsRecoveringBodyState()) return false;
+
+        // If we're only seeking a seat/bed and not actually seated/lying yet,
+        // don't queue behind a stand/wake animation that will never happen.
+        if (_state == NPCState.SeekingSeat || _state == NPCState.SeekingBed)
+            return false;
 
         _pendingPostStandAction = action;
         _executePendingActionAfterStand = true;
@@ -1516,7 +1692,6 @@ public class NPCController : MonoBehaviour
     private void ResetLocomotionState()
     {
         _animVelocitySmoothed = Vector3.zero;
-        _hasLastApproachDest = false;
         _hasResumeDestination = false;
 
         if (animationController != null)
@@ -1687,7 +1862,203 @@ public class NPCController : MonoBehaviour
                 break;
         }
     }
+    private IEnumerator AutoSitRoutine()
+    {
+        float duration = RandomDuration(MinSitTime, MaxSitTime);
 
+        RequestSitDown();
+
+        float timeout = Mathf.Max(2f, seatSearchTimeoutSafe());
+        bool becameSeated = false;
+
+        while (timeout > 0f)
+        {
+            if (_state == NPCState.Patrolling)
+                break;
+
+            if (IsActuallySeated())
+            {
+                becameSeated = true;
+                break;
+            }
+
+            if (!IsSitPhaseActive())
+                break;
+
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        if (!becameSeated)
+        {
+            SetActionCooldown(PatrolAction.Sit, patrolActionFailedRetrySeconds);
+            _autoActionCoroutine = null;
+            yield break;
+        }
+
+        float t = 0f;
+        while (t < duration)
+        {
+            if (!IsActuallySeated())
+                break;
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        if (_sitting != null &&
+            _sitting.Phase == NPCSittingBehaviour.SitPhase.SittingIdle)
+        {
+            RequestStandUp();
+
+            float standTimeout = 8f;
+            while (standTimeout > 0f)
+            {
+                if (_sitting == null || _sitting.Phase == NPCSittingBehaviour.SitPhase.None)
+                    break;
+
+                standTimeout -= Time.deltaTime;
+                yield return null;
+            }
+        }
+
+        SetActionCooldown(PatrolAction.Sit, patrolActionCooldownSeconds);
+        _autoActionCoroutine = null;
+    }
+
+    private IEnumerator AutoSleepRoutine()
+    {
+        float duration = RandomDuration(MinSleepTime, MaxSleepTime);
+
+        RequestLieDown();
+
+        float timeout = Mathf.Max(2f, bedSearchTimeoutSafe());
+        bool becameLying = false;
+
+        while (timeout > 0f)
+        {
+            if (_state == NPCState.Patrolling)
+                break;
+
+            if (IsActuallyLying())
+            {
+                becameLying = true;
+                break;
+            }
+
+            if (!IsSleepPhaseActive())
+                break;
+
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        if (!becameLying)
+        {
+            SetActionCooldown(PatrolAction.Sleep, patrolActionFailedRetrySeconds);
+            _autoActionCoroutine = null;
+            yield break;
+        }
+
+        float t = 0f;
+        while (t < duration)
+        {
+            if (!IsActuallyLying())
+                break;
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        if (_lying != null &&
+            _lying.Phase == NPCLyingBehaviour.LiePhase.LyingIdle)
+        {
+            RequestWakeUp();
+
+            float wakeTimeout = 10f;
+            while (wakeTimeout > 0f)
+            {
+                if (_lying == null || _lying.Phase == NPCLyingBehaviour.LiePhase.None)
+                    break;
+
+                wakeTimeout -= Time.deltaTime;
+                yield return null;
+            }
+        }
+
+        SetActionCooldown(PatrolAction.Sleep, patrolActionCooldownSeconds);
+        _autoActionCoroutine = null;
+    }
+    private float seatSearchTimeoutSafe()
+    {
+        return 6f;
+    }
+
+    private float bedSearchTimeoutSafe()
+    {
+        return 6f;
+    }
+    private IEnumerator AutoTalkRoutine()
+    {
+        if (!TryFindTalkCandidate(out NPCController other) || other == null)
+        {
+            SetActionCooldown(PatrolAction.Talk, patrolActionFailedRetrySeconds);
+            _autoActionCoroutine = null;
+            yield break;
+        }
+
+        float duration = RandomDuration(MinTalkTime, MaxTalkTime);
+
+        InterruptAllTransientActions();
+        useStateMachine = true;
+
+        currentTarget = other.transform;
+        _hasCommand = true;
+        _commandGoal = NPCState.Talk;
+
+        if (_talk != null)
+            _talk.TalkTargetController = other;
+
+        EnterState(Vector3.Distance(transform.position, other.transform.position) <= talkRange
+            ? NPCState.Talk
+            : NPCState.Approaching);
+
+        float timeout = 10f;
+        while (timeout > 0f && _state != NPCState.Talk)
+        {
+            if (currentTarget == null)
+                break;
+
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        if (_state != NPCState.Talk)
+        {
+            ClearTarget();
+            EnterState(NPCState.Patrolling);
+            SetActionCooldown(PatrolAction.Talk, patrolActionFailedRetrySeconds);
+            _autoActionCoroutine = null;
+            yield break;
+        }
+
+        float t = 0f;
+        while (t < duration)
+        {
+            if (_state != NPCState.Talk || currentTarget == null)
+                break;
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        _talk?.UnregisterAsSpeaker();
+        ClearTarget();
+        EnterState(NPCState.Patrolling);
+
+        SetActionCooldown(PatrolAction.Talk, patrolActionCooldownSeconds);
+        _autoActionCoroutine = null;
+    }
     public void RespawnNPC()
     {
         _pendingPostStandAction = null;
@@ -1699,12 +2070,10 @@ public class NPCController : MonoBehaviour
         _commandGoal = NPCState.Patrolling;
 
         _hasPatrolDestination = false;
-        _hasLastApproachDest = false;
         _hasResumeDestination = false;
 
         _resumeDestination = Vector3.zero;
         _patrolDestination = Vector3.zero;
-        _lastApproachDest = Vector3.zero;
         _lastKnownTargetPos = Vector3.zero;
 
         _stateTimer = 0f;
@@ -1717,13 +2086,11 @@ public class NPCController : MonoBehaviour
         _renegotiateCooldownT = 0f;
 
         InterruptAllTransientActions(false);
-        _ladder?.ForceResetLadderState();
-        
 
+        // RegisteredAsSpeaker and TalkTargetController are not reset by InterruptAllTransientActions;
+        // clear them explicitly here.
         if (_talk != null)
         {
-            _talk.UnregisterAsSpeaker();
-            _talk.ClearAllSpeakers();
             _talk.RegisteredAsSpeaker = false;
             _talk.TalkTargetController = null;
         }
@@ -1746,13 +2113,6 @@ public class NPCController : MonoBehaviour
         ResetLocomotionState();
         isPaused = false;
         _state = NPCState.Patrolling;
-
-        if (agent != null)
-        {
-            if (!agent.enabled) agent.enabled = true;
-            agent.updatePosition = true;
-            agent.updateRotation = false;
-        }
 
         Vector3 respawnPos = _spawnPoint;
         if (TryGetNavmeshPointNear(_spawnPoint, snapToNavMeshRadius, out Vector3 navPos))
@@ -1779,12 +2139,213 @@ public class NPCController : MonoBehaviour
             agent.autoBraking = true;
             agent.autoRepath = true;
         }
+        
+        if (_autoActionCoroutine != null)
+        {
+            StopCoroutine(_autoActionCoroutine);
+            _autoActionCoroutine = null;
+        }
 
+        _sitCooldownT = 0f;
+        _sleepCooldownT = 0f;
+        _talkCooldownT = 0f;
+        
         useStateMachine = true;
         ForceReturnToLocomotion();
         EnterState(NPCState.Patrolling);
 
         Debug.Log($"{name}: Respawned to spawn point {respawnPos}");
+    }
+    
+        private bool TryStartRandomPatrolAction()
+    {
+        List<PatrolAction> options = new List<PatrolAction>();
+
+        if (CanSit && _sitCooldownT <= 0f && _sitting != null)
+            options.Add(PatrolAction.Sit);
+
+        if (CanSleep && _sleepCooldownT <= 0f && _lying != null)
+            options.Add(PatrolAction.Sleep);
+
+        if (CanTalk && _talkCooldownT <= 0f && _talk != null && TryFindTalkCandidate(out _))
+            options.Add(PatrolAction.Talk);
+
+        if (options.Count == 0)
+            return false;
+
+        PatrolAction choice = options[UnityEngine.Random.Range(0, options.Count)];
+
+        switch (choice)
+        {
+            case PatrolAction.Sit:
+                _autoActionCoroutine = StartCoroutine(AutoSitRoutine());
+                return true;
+
+            case PatrolAction.Sleep:
+                _autoActionCoroutine = StartCoroutine(AutoSleepRoutine());
+                return true;
+
+            case PatrolAction.Talk:
+                _autoActionCoroutine = StartCoroutine(AutoTalkRoutine());
+                return true;
+        }
+
+        return false;
+    }
+
+    private float RandomDuration(float min, float max)
+    {
+        if (max < min) max = min;
+        return UnityEngine.Random.Range(min, max);
+    }
+
+    private bool IsSitPhaseActive()
+    {
+        if (_sitting == null) return false;
+
+        switch (_sitting.Phase)
+        {
+            case NPCSittingBehaviour.SitPhase.SearchingSeat:
+            case NPCSittingBehaviour.SitPhase.RoutingToLadder:
+            case NPCSittingBehaviour.SitPhase.ClimbingLadder:
+            case NPCSittingBehaviour.SitPhase.ApproachingFront:
+            case NPCSittingBehaviour.SitPhase.Aligning:
+            case NPCSittingBehaviour.SitPhase.Backstepping:
+            case NPCSittingBehaviour.SitPhase.SitDownPlaying:
+            case NPCSittingBehaviour.SitPhase.SittingIdle:
+            case NPCSittingBehaviour.SitPhase.StandUpPlaying:
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool IsActuallySeated()
+    {
+        return _sitting != null &&
+               _sitting.Phase == NPCSittingBehaviour.SitPhase.SittingIdle;
+    }
+
+    private bool IsSleepPhaseActive()
+    {
+        if (_lying == null) return false;
+
+        switch (_lying.Phase)
+        {
+            case NPCLyingBehaviour.LiePhase.SearchingBed:
+            case NPCLyingBehaviour.LiePhase.RoutingToLadder:
+            case NPCLyingBehaviour.LiePhase.ClimbingLadder:
+            case NPCLyingBehaviour.LiePhase.ApproachingFront:
+            case NPCLyingBehaviour.LiePhase.Aligning:
+            case NPCLyingBehaviour.LiePhase.LieDownPlaying:
+            case NPCLyingBehaviour.LiePhase.LyingIdle:
+            case NPCLyingBehaviour.LiePhase.WakeUpPlaying:
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool IsActuallyLying()
+    {
+        return _lying != null &&
+               _lying.Phase == NPCLyingBehaviour.LiePhase.LyingIdle;
+    }
+    private bool TryFindTalkCandidate(out NPCController other)
+    {
+        other = null;
+        if (sceneNPCManager == null || sceneNPCManager.NPCList == null) return false;
+
+        float bestSqr = float.PositiveInfinity;
+        Vector3 p = transform.position;
+        float maxSqr = autonomousTalkSearchRadius * autonomousTalkSearchRadius;
+
+        for (int i = 0; i < sceneNPCManager.NPCList.Count; i++)
+        {
+            NPCController c = sceneNPCManager.NPCList[i];
+            if (c == null || c == this) continue;
+            if (!c.gameObject.activeInHierarchy) continue;
+            if (c.GetCurrentState() != NPCState.Patrolling) continue;
+            if (c._autoActionCoroutine != null) continue;
+            if (c.currentTarget != null) continue;
+            if (c._talk != null && c._talk.IsConversationLocked) continue;
+
+            Vector3 d = c.transform.position - p;
+            d.y = 0f;
+            float sqr = d.sqrMagnitude;
+            if (sqr > maxSqr) continue;
+
+            if (sqr < bestSqr)
+            {
+                bestSqr = sqr;
+                other = c;
+            }
+        }
+
+        return other != null;
+    }
+
+    private void SetActionCooldown(PatrolAction action, float seconds)
+    {
+        switch (action)
+        {
+            case PatrolAction.Sit:
+                _sitCooldownT = seconds;
+                break;
+            case PatrolAction.Sleep:
+                _sleepCooldownT = seconds;
+                break;
+            case PatrolAction.Talk:
+                _talkCooldownT = seconds;
+                break;
+        }
+    }
+    
+    
+    private void TickPatrolMovementOnly(float dt, float speedMultiplier)
+    {
+        if (!AgentReady()) return;
+        if (currentTarget != null && CanSeeTarget(currentTarget)) return;
+
+        _patrolChangeTimer -= dt;
+        if (_patrolChangeTimer <= 0f)
+        {
+            _hasPatrolDestination = false;
+            _patrolChangeTimer = UnityEngine.Random.Range(
+                patrolChangeDirInterval.x,
+                patrolChangeDirInterval.y);
+        }
+
+        if (_hasPatrolDestination && HasArrived(agent, arriveDistance))
+        {
+            if (_patrolArriveTimer <= 0f)
+                _patrolArriveTimer = UnityEngine.Random.Range(
+                    patrolArrivePause.x,
+                    patrolArrivePause.y);
+
+            agent.isStopped = true;
+            _patrolArriveTimer -= dt;
+
+            if (_patrolArriveTimer <= 0f)
+            {
+                agent.isStopped = false;
+                _hasPatrolDestination = false;
+            }
+
+            return;
+        }
+
+        if (!_hasPatrolDestination)
+        {
+            if (TryPickPatrolPoint(_spawnPoint, activeRadius, out _patrolDestination))
+            {
+                agent.isStopped = false;
+                agent.speed = moveSpeed * Mathf.Max(0.01f, speedMultiplier);
+                agent.ResetPath();
+                agent.SetDestination(_patrolDestination);
+                _hasPatrolDestination = true;
+            }
+        }
     }
 }
 

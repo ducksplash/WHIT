@@ -21,7 +21,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     [Header("Sitting")]
     [Tooltip("Seat objects must be on this layer (e.g. 'SEAT').")]
     [SerializeField] private LayerMask seatLayerMask;
-    private bool seatDebugLogs = false;
+    [SerializeField] private bool seatDebugLogs = false;
     [SerializeField] private QueryTriggerInteraction seatQueryTriggers = QueryTriggerInteraction.Collide;
     [SerializeField] private float seatSearchTimeout = 4.0f;
     [SerializeField] private float seatRescanInterval = 0.35f;
@@ -154,7 +154,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
                 break;
             case SitPhase.SittingIdle:
                 if (_seatTf == null) { Fail(); return; }
-                TickSittingIdle(dt, _seatTf.position, GetSeatFacing());
+                TickSittingIdle(dt, GetSeatFacing());
                 break;
             case SitPhase.StandUpPlaying:
                 TickStandUpPlaying(dt);
@@ -223,13 +223,8 @@ public class NPCSittingBehaviour : NPCBehaviourBase
             return;
         }
 
-        if (AgentReady())
-        {
-            Agent.isStopped = true;
-            Agent.ResetPath();
-        }
-
-        ForceIdlePose();
+        // Do not stop the agent or force idle here.
+        // While searching, NPCController keeps normal patrol movement running.
     }
 
     private bool TryAcquireSeat()
@@ -557,8 +552,6 @@ public class NPCSittingBehaviour : NPCBehaviourBase
 
         if (Anim != null)
         {
-            npc.AnimVelocitySmoothed = Vector3.zero;
-
             Anim.SetFloat(ParamMovingX, 0f);
             Anim.SetFloat(ParamMovingY, 0f);
             Anim.SetFloat(ParamBlend, 0f);
@@ -616,10 +609,16 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         }
     }
 
-    private void TickSittingIdle(float dt, Vector3 seatPos, Vector3 seatForward)
+    private void TickSittingIdle(float dt, Vector3 seatForward)
     {
         ForceIdlePose();
         Body.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
+
+        if (snapToSeatWhenSeated && _seatTf != null)
+            Body.position = new Vector3(
+                (_seatTf.position + seatedRootOffset).x,
+                Body.position.y,
+                (_seatTf.position + seatedRootOffset).z);
 
         if (autoStandAfterSeconds > 0f)
         {
@@ -723,9 +722,6 @@ private void TickStandUpPlaying(float dt)
 
         ReleaseSeatIfAny();
         ClearLadderRoute();
-
-        npc.HasCommand = false;
-        npc.CommandGoal = NPCController.NPCState.Patrolling;
         _sitPhase = SitPhase.None;
 
         StartCoroutine(FinishStandUpGroundingRoutine());
@@ -818,7 +814,6 @@ private void TickStandUpPlaying(float dt)
             ForceReturnToLocomotion();
 
         ReattachAgentToNavmeshAtCurrentXZ();
-        npc.SetStateDirectly(NPCController.NPCState.Patrolling);
         EnterState(NPCController.NPCState.Patrolling);
     }
 

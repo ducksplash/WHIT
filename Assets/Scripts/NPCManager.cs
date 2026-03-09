@@ -5,6 +5,7 @@ using UnityEngine;
 public class NPCManager : MonoBehaviour
 {
     public List<NPCController> NPCList = new List<NPCController>();
+    public List<GameObject> NPCPrefabs = new List<GameObject>();
 
     private void Awake()
     {
@@ -20,17 +21,65 @@ public class NPCManager : MonoBehaviour
     {
         if (thisNPC == null) return;
 
-        Debug.Log("attempting to register: " + thisNPC);
-
         if (!NPCList.Contains(thisNPC))
         {
             thisNPC.sceneNPCManager = this;
             NPCList.Add(thisNPC);
-            Debug.Log(thisNPC + " added");
+            Debug.Log($"{thisNPC} added");
         }
     }
-}
 
+    public void UnregisterNPC(NPCController thisNPC)
+    {
+        if (thisNPC == null) return;
+        NPCList.Remove(thisNPC);
+    }
+
+    public GameObject GetPrefabForNPC(NPC npcType)
+    {
+        for (int i = 0; i < NPCPrefabs.Count; i++)
+        {
+            GameObject prefab = NPCPrefabs[i];
+            if (prefab == null) continue;
+
+            NPCController controller = prefab.GetComponent<NPCController>();
+            if (controller == null)
+                controller = prefab.GetComponentInChildren<NPCController>();
+
+            if (controller == null) continue;
+
+            if (controller.thisNPC == npcType)
+                return prefab;
+        }
+
+        Debug.LogWarning($"{nameof(NPCManager)}: No prefab found for NPC enum '{npcType}'.");
+        return null;
+    }
+
+    public List<NPC> GetSpawnableNPCs()
+    {
+        List<NPC> result = new List<NPC>();
+        HashSet<NPC> seen = new HashSet<NPC>();
+
+        for (int i = 0; i < NPCPrefabs.Count; i++)
+        {
+            GameObject prefab = NPCPrefabs[i];
+            if (prefab == null) continue;
+
+            NPCController controller = prefab.GetComponent<NPCController>();
+            if (controller == null)
+                controller = prefab.GetComponentInChildren<NPCController>();
+
+            if (controller == null) continue;
+
+            NPC npcType = controller.thisNPC;
+            if (seen.Add(npcType))
+                result.Add(npcType);
+        }
+
+        return result;
+    }
+}
 public enum NPC
 {
     
@@ -52,8 +101,17 @@ public enum NPC
     Saoirse = 505,
     Diane = 506,
     Mairead = 507,
-    AlternativeNora = 999,
-    
+    Dale = 508,
+    Nora = 999,
+    ZTESTNora = 998,
+    ZTESTEimear = 997,
+    ZTESTKim_Shae = 996,
+    ZTESTShauna = 995,
+    ZTESTPresha = 994,
+    ZTESTJasmine = 993,
+    ZTESTSaoirse = 992,
+    ZTESTDiane = 991,
+    ZTESTMairead = 990,
 } 
 
 public enum NPCAllegiance

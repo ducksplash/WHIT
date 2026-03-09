@@ -23,6 +23,9 @@ public class DebugCamera : MonoBehaviour
 
     [Tooltip("Press this to abandon target and re-enter free cam.")]
     [SerializeField] private InputActionReference escapeButton;
+    
+    [Tooltip("Spawn NPC button")]
+    [SerializeField] private InputActionReference interactClick;
 
     [Header("Fly Cam Inputs")]
     [Tooltip("WASD / Left Stick (Vector2): X = strafe, Y = forward/back.")]
@@ -128,6 +131,21 @@ public class DebugCamera : MonoBehaviour
     private enum CamMode { Fly, Orbit, PanHorizontal, PanVertical, Follow }
     [SerializeField] private CamMode _mode = CamMode.Fly;
 
+    [Header("NPC Spawning")]
+    [SerializeField] private NPCManager npcManager;
+    [SerializeField] private NPC selectedSpawnNPC = NPC.Eimear_Scott;
+
+    [Tooltip("Layers that count as valid click surfaces for spawning.")]
+    [SerializeField] private LayerMask spawnSurfaceMask = ~0;
+
+    [Tooltip("How far from the clicked point we search for NavMesh.")]
+    [SerializeField] private float spawnNavMeshSampleRadius = 2.0f;
+
+    [Tooltip("Spawned NPC will face this direction projected on the ground.")]
+    [SerializeField] private bool spawnedNpcFacesCameraForward = true;
+    
+    
+    
     private bool _isHoldingRotate;
     private Vector2 _orbitAngles;
     private Vector2 _appliedDelta;
@@ -175,6 +193,9 @@ public class DebugCamera : MonoBehaviour
         _cam = GetComponent<Camera>();
         if (_cam == null) _cam = Camera.main;
 
+        if (npcManager == null)
+            npcManager = FindFirstObjectByType<NPCManager>();
+
         _targetLayer = LayerMask.NameToLayer(targetLayerName);
         if (_targetLayer < 0)
         {
@@ -214,35 +235,33 @@ public class DebugCamera : MonoBehaviour
 
     void OnEnable()
     {
-
         if (holdClick != null)
         {
-            holdClick.action.Enable();
             holdClick.action.performed += OnHoldStart;
             holdClick.action.canceled += OnHoldEnd;
         }
 
         if (flyFastHold != null)
         {
-            flyFastHold.action.Enable();
             flyFastHold.action.performed += OnFlyFastStart;
             flyFastHold.action.canceled += OnFlyFastEnd;
         }
 
         if (pickClick != null)
         {
-            pickClick.action.Enable();
             pickClick.action.performed += OnPick;
+        }
+
+        if (interactClick != null)
+        {
+            interactClick.action.performed += OnInteract;
         }
 
         if (escapeButton != null)
         {
-            escapeButton.action.Enable();
             escapeButton.action.performed += OnEscape;
         }
 
-        if (zoomAction != null)
-            zoomAction.action.Enable();
     }
 
     void OnDisable()
@@ -264,11 +283,16 @@ public class DebugCamera : MonoBehaviour
             pickClick.action.performed -= OnPick;
         }
 
+        if (interactClick != null)
+        {
+            interactClick.action.performed -= OnInteract;
+        }
+
         if (escapeButton != null)
         {
             escapeButton.action.performed -= OnEscape;
         }
-        
+
         StopPanInternal();
         SetCaptured(false);
     }
@@ -524,7 +548,108 @@ public class DebugCamera : MonoBehaviour
         if (_mode != CamMode.Fly) return;
         TryPickTargetOnce();
     }
+    
+    private void OnInteract(InputAction.CallbackContext _)
+    {
+        if (_mode != CamMode.Fly) return;
+        TrySpawnNpcAtClick();
+    }
+    
+    private void TrySpawnNpcAtClick()
+{
+    if (_cam == null) return;
+    if (npcManager == null)
+    {
+        Debug.LogWarning($"{nameof(DebugCamera)}: No NPCManager assigned/found.");
+        return;
+    }
 
+    GameObject prefab = npcManager.GetPrefabForNPC(selectedSpawnNPC);
+    if (prefab == null) return;
+
+    Ray ray = BuildPickRay();
+
+    if (debugRay)
+        Debug.DrawRay(ray.origin, ray.direction * pickDistance, Color.green, debugRaySeconds);
+
+    RaycastHit[] hits = Physics.RaycastAll(ray, pickDistance, spawnSurfaceMask, QueryTriggerInteraction.Ignore);
+    if (hits == null || hits.Length == 0)
+    {
+        if (debugLogs) Debug.Log($"{nameof(DebugCamera)}: Spawn MISS (no surfaces hit).");
+        return;
+    }
+
+    Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+    for (int i = 0; i < hits.Length; i++)
+    {
+        RaycastHit h = hits[i];
+        if (h.collider == null) continue;
+
+        // Ignore clicks on existing camera targets / NPCs while in spawn mode.
+        Transform maybeNpc = ResolvePickedTransform(h);
+        if (maybeNpc != null)
+            continue;
+
+        if (!NavMesh.SamplePosition(h.point, out NavMeshHit navHit, spawnNavMeshSampleRadius, NavMesh.AllAreas))
+            continue;
+
+        SpawnNpcAt(navHit.position);
+        return;
+    }
+
+    if (debugLogs)
+        Debug.Log($"{nameof(DebugCamera)}: Spawn failed - no valid NavMesh point under click.");
+}
+
+private void SpawnNpcAt(Vector3 worldPos)
+{
+    if (npcManager == null) return;
+
+    GameObject prefab = npcManager.GetPrefabForNPC(selectedSpawnNPC);
+    if (prefab == null) return;
+
+    Vector3 spawnForward = Vector3.forward;
+
+    if (spawnedNpcFacesCameraForward)
+    {
+        spawnForward = transform.forward;
+        spawnForward.y = 0f;
+        if (spawnForward.sqrMagnitude < 0.0001f)
+            spawnForward = Vector3.forward;
+        spawnForward.Normalize();
+    }
+
+    Quaternion rot = Quaternion.LookRotation(spawnForward, Vector3.up);
+
+    GameObject go = Instantiate(prefab, worldPos, rot);
+
+    NPCController npc = go.GetComponent<NPCController>();
+    if (npc == null)
+        npc = go.GetComponentInChildren<NPCController>();
+
+    if (npc != null)
+    {
+        npc.sceneNPCManager = npcManager;
+        npcManager.RegisterNPC(npc);
+
+        if (npc.agent != null && npc.agent.enabled)
+        {
+            if (NavMesh.SamplePosition(worldPos, out NavMeshHit hit, spawnNavMeshSampleRadius, NavMesh.AllAreas))
+                npc.agent.Warp(hit.position);
+        }
+
+        SetTarget(npc.transform);
+    }
+    else
+    {
+        Debug.LogWarning($"{nameof(DebugCamera)}: Spawned prefab '{go.name}' has no NPCController.");
+    }
+
+    if (debugLogs)
+        Debug.Log($"{nameof(DebugCamera)}: Spawned '{selectedSpawnNPC}' at {worldPos}.");
+}
+    
     public void ClearTargetAndEnterFlyMode()
     {
         EnterFlyMode();
@@ -1066,6 +1191,26 @@ public class DebugCamera : MonoBehaviour
     public float UI_GetFollowDistanceNormalized()
     {
         return DistanceToSlider(followDistance, followDistanceSliderExponent);
+    }
+    
+    public void UI_SetSpawnNpc(NPC npcType)
+    {
+        selectedSpawnNPC = npcType;
+    }
+    
+
+    public void UI_DeleteSelectedNpc()
+    {
+        if (character == null) return;
+
+        NPCController npc = character.GetComponentInParent<NPCController>();
+        if (npc == null) return;
+
+        if (npc.sceneNPCManager != null)
+            npc.sceneNPCManager.UnregisterNPC(npc);
+
+        ClearTargetAndEnterFlyMode();
+        Destroy(npc.gameObject);
     }
 
     public Transform GetTarget() => character;

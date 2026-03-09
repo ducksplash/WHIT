@@ -26,7 +26,9 @@ public class DebugCamHUD : MonoBehaviour
     [SerializeField] private Button resetZoomButton;
     [SerializeField] private Slider orbitDistanceSlider;
     [SerializeField] private Slider followDistanceSlider;
-
+    [Header("Spawn UI")]
+    [SerializeField] private TMP_Dropdown spawnNpcDropdown;
+    [SerializeField] private Button deleteNpcButton;
     // ---------------------------------------------------------
     // Trigger UI
     // ---------------------------------------------------------
@@ -44,6 +46,8 @@ public class DebugCamHUD : MonoBehaviour
     [SerializeField] private Button forcePatrolButton;
     [SerializeField] private Button clearTargetButton;
 
+    [SerializeField] private NPCManager npcManager;
+    
     // ---------------------------------------------------------
     // Target Testing (NPC Enum) UI
     // Mirrors NPCController Inspector panel:
@@ -73,12 +77,21 @@ public class DebugCamHUD : MonoBehaviour
     private readonly List<NPC> _npcEnumOptions = new();
     private readonly List<string> _npcEnumLabels = new();
     private bool _npcEnumBuilt = false;
-
+    
+    private readonly List<NPC> _spawnNpcEnumOptions = new();
+    private readonly List<string> _spawnNpcEnumLabels = new();
+    private bool _spawnNpcEnumBuilt = false;
+    
     private void Awake()
     {
-        BuildNpcEnumDropdownIfNeeded();
-    }
+        if (npcManager == null)
+            npcManager = FindFirstObjectByType<NPCManager>();
 
+        BuildNpcEnumDropdownIfNeeded();
+        BuildSpawnNpcDropdownIfNeeded();
+    }
+    
+    
     void OnEnable()
     {
         if (controlsRoot != null) controlsRoot.SetActive(false);
@@ -86,6 +99,8 @@ public class DebugCamHUD : MonoBehaviour
         // Trigger
         if (playTriggerButton != null) playTriggerButton.onClick.AddListener(OnPlayTriggerClicked);
 
+        if (spawnNpcDropdown != null) spawnNpcDropdown.onValueChanged.AddListener(OnSpawnNpcDropdownChanged);
+        if (deleteNpcButton != null) deleteNpcButton.onClick.AddListener(OnDeleteNpcClicked);
         // FSM
         if (forcePatrolButton != null) forcePatrolButton.onClick.AddListener(OnForcePatrolClicked);
         if (clearTargetButton != null) clearTargetButton.onClick.AddListener(OnClearTargetClicked);
@@ -115,6 +130,8 @@ public class DebugCamHUD : MonoBehaviour
         if (followToggle != null) followToggle.onValueChanged.AddListener(OnFollowToggleChanged);
         if (orbitDistanceSlider != null) orbitDistanceSlider.onValueChanged.AddListener(OnOrbitDistanceSliderChanged);
         if (followDistanceSlider != null) followDistanceSlider.onValueChanged.AddListener(OnFollowDistanceSliderChanged);
+        
+        RefreshSpawnUI();
     }
 
     void OnDisable()
@@ -141,6 +158,9 @@ public class DebugCamHUD : MonoBehaviour
 
         if (targetNpcDropdown != null) targetNpcDropdown.onValueChanged.RemoveListener(OnTargetNpcDropdownChanged);
 
+        if (spawnNpcDropdown != null) spawnNpcDropdown.onValueChanged.RemoveListener(OnSpawnNpcDropdownChanged);
+        if (deleteNpcButton != null) deleteNpcButton.onClick.RemoveListener(OnDeleteNpcClicked);
+        
         if (panHorizontalButton != null) panHorizontalButton.onClick.RemoveListener(OnPanHorizontalClicked);
         if (panVerticalButton != null) panVerticalButton.onClick.RemoveListener(OnPanVerticalClicked);
         if (stopPanButton != null) stopPanButton.onClick.RemoveListener(OnStopPanClicked);
@@ -165,7 +185,74 @@ public class DebugCamHUD : MonoBehaviour
         if (_npc != null && currentStateText != null)
             currentStateText.text = $"State: {_npc.GetCurrentState()}";
     }
+    private void BuildSpawnNpcDropdownIfNeeded()
+    {
+        if (_spawnNpcEnumBuilt) return;
+        _spawnNpcEnumBuilt = true;
 
+        _spawnNpcEnumOptions.Clear();
+        _spawnNpcEnumLabels.Clear();
+
+        if (npcManager != null)
+        {
+            List<NPC> spawnable = npcManager.GetSpawnableNPCs();
+            for (int i = 0; i < spawnable.Count; i++)
+            {
+                NPC v = spawnable[i];
+                _spawnNpcEnumOptions.Add(v);
+                _spawnNpcEnumLabels.Add(v.ToString());
+            }
+        }
+
+        if (spawnNpcDropdown == null) return;
+
+        spawnNpcDropdown.ClearOptions();
+
+        if (_spawnNpcEnumLabels.Count == 0)
+        {
+            spawnNpcDropdown.AddOptions(new List<string> { "(No spawnable NPC prefabs)" });
+            spawnNpcDropdown.interactable = false;
+            return;
+        }
+
+        spawnNpcDropdown.AddOptions(_spawnNpcEnumLabels);
+        spawnNpcDropdown.interactable = true;
+        spawnNpcDropdown.value = 0;
+        spawnNpcDropdown.RefreshShownValue();
+
+        if (orbitCam != null && _spawnNpcEnumOptions.Count > 0)
+            orbitCam.UI_SetSpawnNpc(_spawnNpcEnumOptions[0]);
+    }
+    
+    private void OnSpawnNpcDropdownChanged(int idx)
+    {
+        if (orbitCam == null) return;
+        if (_spawnNpcEnumOptions.Count == 0) return;
+
+        idx = Mathf.Clamp(idx, 0, _spawnNpcEnumOptions.Count - 1);
+        orbitCam.UI_SetSpawnNpc(_spawnNpcEnumOptions[idx]);
+    }
+    
+
+    private void OnDeleteNpcClicked()
+    {
+        if (orbitCam == null) return;
+
+        orbitCam.UI_DeleteSelectedNpc();
+
+        _lastTarget = null;
+        RefreshForTarget(null);
+        RefreshSpawnUI();
+    }
+    
+    private void RefreshSpawnUI()
+    {
+        if (orbitCam == null) return;
+        
+        if (deleteNpcButton != null)
+            deleteNpcButton.interactable = (_npc != null);
+    }
+    
     private void RefreshForTarget(Transform target)
     {
         _npc = null;
@@ -198,6 +285,7 @@ public class DebugCamHUD : MonoBehaviour
 
         RefreshTriggerDropdown();
         RefreshTargetNpcDropdownSelectionFromNpc();
+        RefreshSpawnUI();
     }
 
     private void SetAllControlsInteractable(bool on)

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Seat : MonoBehaviour
@@ -10,10 +11,24 @@ public class Seat : MonoBehaviour
 
     [Tooltip("Optional: tracks who is occupying to avoid races.")]
     [SerializeField] private NPCController occupiedBy;
-
+    
+    private Renderer SeatMarker;
+    
     public bool IsValid => seatTransform != null;
 
     public bool IsOccupied => occupied || occupiedBy != null;
+
+
+    private void Awake()
+    {
+        
+        SeatMarker = seatTransform.gameObject.GetComponent<Renderer>();
+    }
+
+    private void Start()
+    {
+        if (SeatMarker != null) SeatMarker.enabled = false;
+    }
 
     public bool TryOccupy(NPCController who)
     {
@@ -34,7 +49,6 @@ public class Seat : MonoBehaviour
         }
 
         // Keep bool as source-of-truth for designers, but clear it if we were the owner.
-        if (occupiedBy == null)
-            occupied = false;
+        if (occupiedBy == null) occupied = false;
     }
 }

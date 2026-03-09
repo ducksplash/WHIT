@@ -193,7 +193,7 @@ public class Player : Singleton<Player>
         thisCharController = GetComponentInParent<CharacterController>();
         if (thisCharController == null) thisCharController = GetComponent<CharacterController>();
 
-        if (thisCharController == null) Debug.LogError("[Player] No CharacterController found on this object or its parents.");
+        //if (thisCharController == null) Debug.LogError("[Player] No CharacterController found on this object or its parents.");
 
         SpawnPoint = transform.position;
         speed = sprintspeed;

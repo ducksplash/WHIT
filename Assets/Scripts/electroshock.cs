@@ -20,8 +20,12 @@ public class electroshock : MonoBehaviour
 
     void Start()
     {
-        cameraTransform = Player.Instance.MainCam.transform;
+        if (Player.Instance.MainCam != null)
+        {
+            cameraTransform = Player.Instance.MainCam.transform;
+        }
 
+        
         orignalCameraPos = cameraTransform.localPosition;
 
         shockParticles = transform.GetChild(0).gameObject;

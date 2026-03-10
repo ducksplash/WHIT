@@ -16287,12 +16287,12 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
+  m_RayTracingMode: 0
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
@@ -23443,7 +23443,7 @@ GameObject:
   - component: {fileID: 559233773}
   - component: {fileID: 559233772}
   - component: {fileID: 559233771}
-  m_Layer: 16
+  m_Layer: 30
   m_Name: Plane_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27406,7 +27406,7 @@ GameObject:
   - component: {fileID: 643577300}
   - component: {fileID: 643577299}
   - component: {fileID: 643577298}
-  m_Layer: 16
+  m_Layer: 30
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42082,7 +42082,7 @@ GameObject:
   - component: {fileID: 969089033}
   - component: {fileID: 969089032}
   - component: {fileID: 969089031}
-  m_Layer: 16
+  m_Layer: 30
   m_Name: Plane_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -66244,6 +66244,7 @@ Transform:
   - {fileID: 670599364}
   - {fileID: 1097157901}
   - {fileID: 2114331502}
+  - {fileID: 5095724636489023976}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1525618388
@@ -94730,6 +94731,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   deviceFollowSharpness: 60
+  deviceCheckOverride: 0
+  deviceTypeSupplemental: {fileID: 0}
 --- !u!1 &114724716120848177
 GameObject:
   m_ObjectHideFlags: 0
@@ -136293,17 +136296,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 934896164245904051}
-  m_LocalRotation: {x: 0, y: -0.79937017, z: -0, w: 0.6008389}
-  m_LocalPosition: {x: 0, y: 0, z: 901.1805}
+  m_LocalRotation: {x: -0, y: 0.39474386, z: -0, w: 0.91879123}
+  m_LocalPosition: {x: 0, y: 0, z: -1.2504578}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5846092888268850372}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -106.14, z: 0}
+  m_Father: {fileID: 1525618386}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 60.295303, y: 2.9199393}
+  m_AnchoredPosition: {x: -0.21146393, y: -0.28193927}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5097575653597353937
@@ -168250,7 +168253,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 1525618386}
   - {fileID: 355137462}
-  - {fileID: 5095724636489023976}
   - {fileID: 1548117205}
   - {fileID: 1805535393}
   - {fileID: 370596362}

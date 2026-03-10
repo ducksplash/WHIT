@@ -50,6 +50,7 @@ public class Player : Singleton<Player>
     private AnimatorOverrideController _locomotionOverride;
     private RuntimeAnimatorController _baseController;
     private bool _hasTorch;
+
     
     // ✅ NEW: crouch phone out trigger (matches your new trigger name)
     private static readonly int AnimPhoneOutCrouch = Animator.StringToHash("PHONEOUTCROUCH");

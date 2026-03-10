@@ -94,6 +94,8 @@ public class clickable : Singleton<clickable>
 
     void FixedUpdate()
     {
+        if (GameMaster.Instance == null) return;
+        
         if (GameMaster.Instance.PLAYERBUSY) return;
         
         Camera cam = Camera.main;

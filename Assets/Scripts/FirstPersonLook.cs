@@ -78,14 +78,24 @@ public class FirstPersonLook : MonoBehaviour
     private Quaternion _deviceBaseLocalRot;
     private bool _deviceBaseCaptured;
 
+    public bool deviceCheckOverride;
+    public DeviceHelperOutside deviceTypeSupplemental;
 
-
+    
     private void Start()
     {
         if (cameraPivot == null) cameraPivot = transform;
         _pivotStartLocalPos = cameraPivot.localPosition;
 
-        sensitivity = GameMaster.Instance.MouseSensitivity;
+
+        if (deviceCheckOverride)
+        {
+            sensitivity = deviceTypeSupplemental.returnableSensitivity;
+        }
+        else
+        {
+            sensitivity = GameMaster.Instance.MouseSensitivity;
+        }
 
         // “Device opened / started”
         EventManager.OnStartComputer += LookAtDevice;
@@ -118,6 +128,8 @@ public class FirstPersonLook : MonoBehaviour
 
     private void LateUpdate()
     {
+        
+        
         if (!bypassGM)
         {
             if (GameMaster.Instance.PauseManager.IsPaused) return;
@@ -139,8 +151,7 @@ public class FirstPersonLook : MonoBehaviour
         currentMouseLook += appliedMouseDelta;
         currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, pitchClampMin, pitchClampMax);
 
-        if (_keepDeviceCentered && _currentDevice != null)
-            FollowDeviceToPivotPose();
+        if (_keepDeviceCentered && _currentDevice != null) FollowDeviceToPivotPose();
     }
 
     public void SetPlayerRotation(Vector2 rotation)

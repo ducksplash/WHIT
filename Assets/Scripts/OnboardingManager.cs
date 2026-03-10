@@ -136,6 +136,7 @@ public class OnboardingManager : MonoBehaviour
 
     public void UpdateChalkboard()
     {
+        if (GameMaster.Instance.THISLEVEL != GAMELEVEL.NorasFlat) return;
         //Debug.Log("[Onboarding] UpdateChalkboard");
 
         EvidenceName evidenceName = FirstOnboardingEvidence;

@@ -91,8 +91,9 @@ public enum NPC
     Tom_Oneill = 104,
     Ellsworth_Ohanlon = 105,
     Michael_Devlin = 106,
+    NoraKennedy = 999,
     
-    
+    // Extras
     Klaus = 500,
     Mike = 501,
     Shauna = 502,
@@ -102,7 +103,8 @@ public enum NPC
     Diane = 506,
     Mairead = 507,
     Dale = 508,
-    Nora = 999,
+    Nicola = 509,
+    Loretta = 510,
     ZTESTNora = 998,
     ZTESTEimear = 997,
     ZTESTKim_Shae = 996,
@@ -112,6 +114,7 @@ public enum NPC
     ZTESTSaoirse = 992,
     ZTESTDiane = 991,
     ZTESTMairead = 990,
+    ZTESTNicola = 989
 } 
 
 public enum NPCAllegiance

@@ -3198,6 +3198,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   thisNPC: 504
   FindSeat: 0
+  FindBed: 0
   useStateMachine: 1
   currentTarget: {fileID: 0}
   activeRadius: 100
@@ -3227,6 +3228,8 @@ MonoBehaviour:
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
+  navFacingSmoothTime: 0.12
+  navFacingMinSpeed: 0.08
   animationController: {fileID: 4834644594798010273}
   agent: {fileID: 4448037757680532664}
   arriveDistance: 0.3
@@ -3313,10 +3316,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.4087906
-  m_Height: 3.5832262
+  m_Radius: 0.3383019
+  m_Height: 2.6729927
   m_Direction: 1
-  m_Center: {x: -0.01763153, y: 2.3252325, z: -0.006225586}
+  m_Center: {x: -0.06487894, y: 2.965413, z: 0.059611022}
 --- !u!114 &8889488142305570109
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -106,6 +106,7 @@ public enum NPC
     Nicola = 509,
     Loretta = 510,
     Linda = 511,
+    Michelle = 512,
     ZTESTNora = 998,
     ZTESTEimear = 997,
     ZTESTKim_Shae = 996,
@@ -117,7 +118,8 @@ public enum NPC
     ZTESTMairead = 990,
     ZTESTNicola = 989,
     ZTESTLoretta = 988,
-    ZTESTLinda = 987
+    ZTESTLinda = 987,
+    ZTESTMichelle = 986
 } 
 
 public enum NPCAllegiance

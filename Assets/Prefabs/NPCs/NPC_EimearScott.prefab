@@ -1165,6 +1165,8 @@ MonoBehaviour:
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
+  navFacingSmoothTime: 0.12
+  navFacingMinSpeed: 0.08
   animationController: {fileID: 1386707520620856233}
   agent: {fileID: 2771584710222281493}
   arriveDistance: 0.3
@@ -1269,14 +1271,14 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.3383019
-  m_Height: 3.5286007
+  m_Height: 2.334302
   m_Direction: 1
-  m_Center: {x: -0.064878926, y: 1.9918747, z: 0.059611008}
+  m_Center: {x: -0.064878926, y: 2.7960677, z: 0.059611008}
 --- !u!114 &3311372251588552316
 MonoBehaviour:
   m_ObjectHideFlags: 0

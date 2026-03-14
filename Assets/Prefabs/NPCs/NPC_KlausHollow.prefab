@@ -380,7 +380,6 @@ GameObject:
   - component: {fileID: 8389318680090044619}
   - component: {fileID: 5229372392389459352}
   - component: {fileID: 1487012884568955576}
-  - component: {fileID: 5932345132337589464}
   - component: {fileID: 769125865372195985}
   - component: {fileID: 355346287958283513}
   - component: {fileID: 1953421032354054770}
@@ -443,6 +442,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   thisNPC: 102
   FindSeat: 0
+  FindBed: 0
   useStateMachine: 1
   currentTarget: {fileID: 0}
   activeRadius: 100
@@ -472,6 +472,8 @@ MonoBehaviour:
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
+  navFacingSmoothTime: 0.12
+  navFacingMinSpeed: 0.08
   animationController: {fileID: 2863275041236968451}
   agent: {fileID: 8389318680090044619}
   arriveDistance: 0.3
@@ -576,14 +578,14 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5652771
-  m_Height: 4.8860455
+  m_Radius: 0.3383019
+  m_Height: 2.2528696
   m_Direction: 1
-  m_Center: {x: 0.008266449, y: 2.1108618, z: -0.03036499}
+  m_Center: {x: -0.06487894, y: 3.1544738, z: 0.059611022}
 --- !u!54 &1487012884568955576
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -611,29 +613,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
---- !u!136 &5932345132337589464
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1078093377346952255}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.4087906
-  m_Height: 3.5832262
-  m_Direction: 1
-  m_Center: {x: -0.01763153, y: 2.3252325, z: -0.006225586}
 --- !u!114 &769125865372195985
 MonoBehaviour:
   m_ObjectHideFlags: 0

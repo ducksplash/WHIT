@@ -43,6 +43,22 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     [SerializeField] private string sitIdleFloorTriggerParam    = "SitIdleFloor";
     [SerializeField] private string sitIdleFloorStateName       = "SitIdleFloor";
 
+    [SerializeField] private bool   useTypingTriggerParam = true;
+    [SerializeField] private string typingTriggerParam    = "Typing";
+    [SerializeField] private string typingStateName       = "Typing";
+    [SerializeField] private bool   useTalkingTriggerParam = true;
+    [SerializeField] private string talkingTriggerParam    = "IdleTalking";
+    [SerializeField] private string talkingStateName       = "IdleTalking";
+
+    [SerializeField] private bool   useGabbingTriggerParam = true;
+    [SerializeField] private string gabbingTriggerParam    = "IdleGabbing";
+    [SerializeField] private string gabbingStateName       = "IdleGabbing";
+
+    [SerializeField] private bool   useDawdlingTriggerParam = true;
+    [SerializeField] private string dawdlingTriggerParam    = "IdleDawdling";
+    [SerializeField] private string dawdlingStateName       = "IdleDawdling";
+    
+    
     [Header("Stand Up Animations")]
     [SerializeField] private bool   useStandUpTriggerParam = true;
     [SerializeField] private string standUpTriggerParam    = "StandUp";
@@ -52,6 +68,12 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     [Tooltip("If seat height above the sampled navmesh/ground is <= this, use floor-sit idle.")]
     [SerializeField] private float floorSitHeightThreshold = 0.2f;
 
+    [Header("Desk Behaviour")]
+    public bool isTyping;
+    public bool isTalking;
+    public bool isGabbing;
+    public bool isDawdling;
+    
     private Coroutine _sitLerpCoroutine;
     private Coroutine _standLerpCoroutine;
     private float _standUpT;
@@ -158,13 +180,54 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     {
         bool useFloor = IsFloorSeat();
         ResetAllAnimatorTriggers();
+
         if (useFloor)
         {
             if (useSitIdleFloorTriggerParam && !string.IsNullOrWhiteSpace(sitIdleFloorTriggerParam))
                 Anim.SetTrigger(sitIdleFloorTriggerParam);
             else if (!string.IsNullOrWhiteSpace(sitIdleFloorStateName))
                 Anim.CrossFadeInFixedTime(sitIdleFloorStateName, sitCrossfade, sitAnimLayer, 0f);
+
             if (seatDebugLogs) Debug.Log($"{name} Sit: Triggered floor idle.");
+            return;
+        }
+
+        // Priority order: Typing > Talking > Gabbing > Dawdling > normal SitIdle
+        if (isTyping)
+        {
+            if (useTypingTriggerParam && !string.IsNullOrWhiteSpace(typingTriggerParam))
+                Anim.SetTrigger(typingTriggerParam);
+            else if (!string.IsNullOrWhiteSpace(typingStateName))
+                Anim.CrossFadeInFixedTime(typingStateName, sitCrossfade, sitAnimLayer, 0f);
+
+            if (seatDebugLogs) Debug.Log($"{name} Sit: Triggered typing idle.");
+        }
+        else if (isTalking)
+        {
+            if (useTalkingTriggerParam && !string.IsNullOrWhiteSpace(talkingTriggerParam))
+                Anim.SetTrigger(talkingTriggerParam);
+            else if (!string.IsNullOrWhiteSpace(talkingStateName))
+                Anim.CrossFadeInFixedTime(talkingStateName, sitCrossfade, sitAnimLayer, 0f);
+
+            if (seatDebugLogs) Debug.Log($"{name} Sit: Triggered talking idle.");
+        }
+        else if (isGabbing)
+        {
+            if (useGabbingTriggerParam && !string.IsNullOrWhiteSpace(gabbingTriggerParam))
+                Anim.SetTrigger(gabbingTriggerParam);
+            else if (!string.IsNullOrWhiteSpace(gabbingStateName))
+                Anim.CrossFadeInFixedTime(gabbingStateName, sitCrossfade, sitAnimLayer, 0f);
+
+            if (seatDebugLogs) Debug.Log($"{name} Sit: Triggered gabbing idle.");
+        }
+        else if (isDawdling)
+        {
+            if (useDawdlingTriggerParam && !string.IsNullOrWhiteSpace(dawdlingTriggerParam))
+                Anim.SetTrigger(dawdlingTriggerParam);
+            else if (!string.IsNullOrWhiteSpace(dawdlingStateName))
+                Anim.CrossFadeInFixedTime(dawdlingStateName, sitCrossfade, sitAnimLayer, 0f);
+
+            if (seatDebugLogs) Debug.Log($"{name} Sit: Triggered dawdling idle.");
         }
         else
         {
@@ -172,9 +235,11 @@ public class NPCSittingBehaviour : NPCBehaviourBase
                 Anim.SetTrigger(sitIdleTriggerParam);
             else if (!string.IsNullOrWhiteSpace(sitIdleStateName))
                 Anim.CrossFadeInFixedTime(sitIdleStateName, sitCrossfade, sitAnimLayer, 0f);
+
             if (seatDebugLogs) Debug.Log($"{name} Sit: Triggered normal sit idle.");
         }
     }
+
 
     private void TickSearchingSeat(float dt)
     {
@@ -382,12 +447,21 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         bool inSitDown      = !string.IsNullOrWhiteSpace(sitDownStateName)      && info.IsName(sitDownStateName);
         bool inSitIdle      = !string.IsNullOrWhiteSpace(sitIdleStateName)      && info.IsName(sitIdleStateName);
         bool inSitIdleFloor = !string.IsNullOrWhiteSpace(sitIdleFloorStateName) && info.IsName(sitIdleFloorStateName);
+        bool inTyping       = !string.IsNullOrWhiteSpace(typingStateName)       && info.IsName(typingStateName);
+        bool inTalking      = !string.IsNullOrWhiteSpace(talkingStateName)      && info.IsName(talkingStateName);
+        bool inGabbing      = !string.IsNullOrWhiteSpace(gabbingStateName)      && info.IsName(gabbingStateName);
+        bool inDawdling     = !string.IsNullOrWhiteSpace(dawdlingStateName)     && info.IsName(dawdlingStateName);
 
-        if (inSitIdle || inSitIdleFloor)
+        if (inSitIdle || inSitIdleFloor || inTyping || inTalking || inGabbing || inDawdling)
         {
-            _sitPhase = SitPhase.SittingIdle; _seatedT = 0f;
-            if (_seatTf != null) Body.rotation = Quaternion.LookRotation(GetSeatFacing(), Vector3.up);
-            if (seatDebugLogs) Debug.Log($"{name} Sit: SittingIdle. floor={inSitIdleFloor}");
+            _sitPhase = SitPhase.SittingIdle;
+            _seatedT = 0f;
+
+            if (_seatTf != null)
+                Body.rotation = Quaternion.LookRotation(GetSeatFacing(), Vector3.up);
+
+            if (seatDebugLogs)
+                Debug.Log($"{name} Sit: SittingIdle. floor={inSitIdleFloor} typing={inTyping} talking={inTalking} gabbing={inGabbing} dawdling={inDawdling}");
             return;
         }
         if (_sitTriggerSent && _sitTriggerT >= sitTriggerFallbackDelay)

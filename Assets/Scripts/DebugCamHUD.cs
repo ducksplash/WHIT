@@ -29,31 +29,19 @@ public class DebugCamHUD : MonoBehaviour
     [Header("Spawn UI")]
     [SerializeField] private TMP_Dropdown spawnNpcDropdown;
     [SerializeField] private Button deleteNpcButton;
-    // ---------------------------------------------------------
-    // Trigger UI
-    // ---------------------------------------------------------
+    
     [Header("Trigger UI")]
     [SerializeField] private TMP_Dropdown triggerDropdown;
     [SerializeField] private Button playTriggerButton;
 
-    // ---------------------------------------------------------
-    // FSM UI
-    // Mirrors NPCController Inspector panel:
-    // - Force Patrol
-    // - Clear Target
-    // ---------------------------------------------------------
+    
     [Header("FSM UI")]
     [SerializeField] private Button forcePatrolButton;
     [SerializeField] private Button clearTargetButton;
 
     [SerializeField] private NPCManager npcManager;
     
-    // ---------------------------------------------------------
-    // Target Testing (NPC Enum) UI
-    // Mirrors NPCController Inspector panel:
-    // - Pick NPC enum
-    // - Approach / Attack / Talk
-    // ---------------------------------------------------------
+    
     [Header("Target Testing UI (NPC Enum)")]
     [SerializeField] private TMP_Dropdown targetNpcDropdown;
     [SerializeField] private Button approachButton;

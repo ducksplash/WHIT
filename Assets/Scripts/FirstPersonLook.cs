@@ -174,9 +174,6 @@ public class FirstPersonLook : MonoBehaviour
         appliedMouseDelta = Vector2.zero;
     }
 
-    // -----------------------------
-    // Focus camera on device only
-    // -----------------------------
     public void LookAtDevice(Transform deviceTransform)
     {
         if (deviceTransform == null) return;

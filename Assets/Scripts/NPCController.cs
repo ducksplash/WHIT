@@ -17,7 +17,8 @@ public class NPCController : MonoBehaviour
     [Header("Startup Behaviour")]
     public bool FindSeat;
     public bool FindBed;
-
+    
+    
     [Header("AI State Machine")]
     public bool useStateMachine = true;
     public Transform currentTarget;

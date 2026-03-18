@@ -439,10 +439,26 @@ MonoBehaviour:
   useSitIdleFloorTriggerParam: 1
   sitIdleFloorTriggerParam: SitIdleFloor
   sitIdleFloorStateName: SitIdleFloor
+  useTypingTriggerParam: 1
+  typingTriggerParam: Typing
+  typingStateName: Typing
+  useTalkingTriggerParam: 1
+  talkingTriggerParam: IdleTalking
+  talkingStateName: IdleTalking
+  useGabbingTriggerParam: 1
+  gabbingTriggerParam: IdleGabbing
+  gabbingStateName: IdleGabbing
+  useDawdlingTriggerParam: 1
+  dawdlingTriggerParam: IdleDawdling
+  dawdlingStateName: IdleDawdling
   useStandUpTriggerParam: 1
   standUpTriggerParam: StandUp
   standUpStateName: StandUp
   floorSitHeightThreshold: 0.2
+  isTyping: 0
+  isTalking: 0
+  isGabbing: 0
+  isDawdling: 0
 --- !u!114 &6393137284389042211
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -559,7 +575,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1193728540384164882}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -896,7 +912,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2209744157707633293}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -1275,7 +1291,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3086142485476229346}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -1484,7 +1500,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3266531342038939412}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -1851,7 +1867,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4199388423386176713}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -2123,7 +2139,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4569983508578604841}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -2363,7 +2379,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5125122075453330279}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -3192,7 +3208,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7075685427548984479}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -3967,7 +3983,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8467595138791373229}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0

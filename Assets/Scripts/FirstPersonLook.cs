@@ -27,6 +27,11 @@ public class FirstPersonLook : MonoBehaviour
     [SerializeField] private float pitchClampMin = -60f;
     [SerializeField] private float pitchClampMax = 60f;
 
+    [Header("Initial Look")]
+    [SerializeField] private bool useSceneStartingRotation = true;
+    [SerializeField] private float startingYaw = 0f;
+    [SerializeField] private float startingPitch = 0f;
+    
     public bool bypassGM;
 
     private Vector3 _pivotStartLocalPos;
@@ -64,6 +69,22 @@ public class FirstPersonLook : MonoBehaviour
     {
         if (cameraPivot == null) cameraPivot = transform;
         _pivotStartLocalPos = cameraPivot.localPosition;
+
+        if (useSceneStartingRotation)
+        {
+            float yaw = character != null ? character.localEulerAngles.y : transform.localEulerAngles.y;
+
+            float pitchSource = cameraPivot != null ? cameraPivot.localEulerAngles.x : transform.localEulerAngles.x;
+            float pitch = NormalizeAngle180(pitchSource);
+
+            currentMouseLook.x = yaw;
+            currentMouseLook.y = Mathf.Clamp(-pitch, pitchClampMin, pitchClampMax);
+        }
+        else
+        {
+            currentMouseLook.x = startingYaw;
+            currentMouseLook.y = Mathf.Clamp(startingPitch, pitchClampMin, pitchClampMax);
+        }
 
         if (deviceCheckOverride)
             sensitivity = deviceTypeSupplemental.returnableSensitivity;
@@ -351,5 +372,12 @@ public class FirstPersonLook : MonoBehaviour
 
         cameraPivot.localPosition = targetLocalPos;
         _heightCo = null;
+    }
+    
+    private static float NormalizeAngle180(float angle)
+    {
+        angle %= 360f;
+        if (angle > 180f) angle -= 360f;
+        return angle;
     }
 }

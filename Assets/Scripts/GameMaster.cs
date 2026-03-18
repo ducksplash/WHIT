@@ -190,8 +190,11 @@ public class GameMaster : MonoBehaviour
         switch (THISLEVEL)
         {
             
+            case GAMELEVEL.ETV:
+                StartLevelETV();
+                break;
             case GAMELEVEL.MainMenu:
-
+                
                 StartLevelNorasFlat();
                 break;
             case GAMELEVEL.NorasFlat:
@@ -200,10 +203,12 @@ public class GameMaster : MonoBehaviour
 
             case GAMELEVEL.RoarkOutside:
 
+                THISLEVEL = GAMELEVEL.RoarkOutside;
                 break;
 
             case GAMELEVEL.RoarkInside:
 
+                THISLEVEL = GAMELEVEL.RoarkInside;
                 break;
 
         }
@@ -211,14 +216,26 @@ public class GameMaster : MonoBehaviour
     }
     
 
+    public void StartLevelETV()
+    {
+        THISLEVEL = GAMELEVEL.ETV;
+        LoadingManager.SceneFadeIn();
+        //StartAudio(AudioProfile.NorasFlat);
+        EventManager.GameStartedEvent();
+        EventManager.LevelLoaded();
+        
+    }
+
+
     public void StartLevelNorasFlat()
     {
-        
+        THISLEVEL = GAMELEVEL.NorasFlat;
         LoadingManager.SceneFadeIn();
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
+        EventManager.LevelLoaded();
     }
-    
+
     
     public void StartAudio(AudioProfile selectedAudioProfile)
     {
@@ -260,6 +277,7 @@ public class GameMaster : MonoBehaviour
 
 public enum GAMELEVEL
 {
+    ETV,
     MainMenu,
     NorasFlat,
     TawleyMeats,
@@ -271,6 +289,7 @@ public enum GAMELEVEL
 
 public enum DevModeScene
 {
+    ETV,
     MainMenu,
     NorasFlat,
     TawleyMeats,

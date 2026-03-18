@@ -81,7 +81,8 @@ public class Player : Singleton<Player>
     // ------------------------------------------------------------
     // ✅ Melee
     // ------------------------------------------------------------
-    [Header("Melee")]
+    [Header("Melee")] 
+    public bool CombatEnabled;
     public InputActionReference meleeAction;
     public float meleeCooldown = 0.55f;     // gameplay cooldown (NOT clip length)
     public bool lockMovementDuringMelee = false;
@@ -664,6 +665,7 @@ public class Player : Singleton<Player>
     // ------------------------------------------------------------
     public void TryMelee()
     {
+        if (!CombatEnabled) return;
         if (debugAnim) Debug.Log("TryMelee fired");
         if (Noranimator == null) return;
 
@@ -686,11 +688,6 @@ public class Player : Singleton<Player>
 
     private void OnMelee(InputAction.CallbackContext ctx) => TryMelee();
 
-    public void OnMeleeAnimFinished()
-    {
-        _upperBodyHeldByMelee = false;
-        RefreshUpperBodyWeight();
-    }
 
     // ------------------------------------------------------------
     // ✅ PHONE

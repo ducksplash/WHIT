@@ -74,9 +74,7 @@ public class LoadingManager : MonoBehaviour
         StartCoroutine(LoadLevelSequence(toGoTo));
     }
 
-    // ---------------------------------------------------------------------
-    // Master sequence
-    // ---------------------------------------------------------------------
+
     private IEnumerator LoadLevelSequence(GAMELEVEL levelName, Action onFinished = null)
     {
         _isLoading = true;
@@ -183,11 +181,11 @@ public class LoadingManager : MonoBehaviour
         _fadeCo = null;
     }
 
-    // ---------------------------------------------------------------------
-    // Scene loading (controlled activation)
-    // ---------------------------------------------------------------------
+    
     private IEnumerator ChangeSceneAsync(GAMELEVEL levelName)
     {
+        GameMaster.Instance.THISLEVEL = levelName;
+        
         _sceneLoadedFlag = false;
 
         Time.timeScale = 0f;
@@ -217,7 +215,6 @@ public class LoadingManager : MonoBehaviour
         while (!_sceneLoadedFlag)
             yield return null;
 
-        GameMaster.Instance.THISLEVEL = levelName;
 
         Time.timeScale = 1f;
     }

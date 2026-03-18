@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TMPro;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 #if UNITY_EDITOR
@@ -24,17 +25,13 @@ public class OnboardingManager : MonoBehaviour
     public bool TESTEVIDENCECOLLECTED;
     public bool ONBOARDINGCOMPLETE;
 
+    
     [Header("Physical Objects in Noras Flat")]
     public GameObject phonePickup;
     public GameObject notepadPickup;
     public GameObject torchPickup;
 
-    [Header("UI Elements")]
-    public CanvasGroup phoneTick;
-    public CanvasGroup notepadTick;
-    public CanvasGroup torchTick;
-    public CanvasGroup evidenceTick;
-
+    
     [Header("Onboarding Dialogues")]
     public DialogueName needMyThings = DialogueName.NoraNeedsHerThings;
     public DialogueName pickupPhoneDialogue = DialogueName.NoraCollectedPhone;
@@ -57,8 +54,38 @@ public class OnboardingManager : MonoBehaviour
     {
         EventManager.OnEvidenceLoaded += RunOnboardingChecks;
         EventManager.OnEvidenceCollected += RunOnboardingChecks;
+        EventManager.OnLevelLoaded += OnboardingCheckEvent;
     }
 
+
+    private void Start()
+    {
+        EventManager.OnRegisterNotepad += RegisterNotepad;
+        EventManager.OnRegisterTorch += RegisterTorch;
+        EventManager.OnRegisterPhone += RegisterPhone;
+    }
+
+    // when player enters the scene we'll add it to the obm
+    public void RegisterNotepad(GameObject notepadObject)
+    {
+        notepadPickup = notepadObject;
+        RunOnboardingChecks();
+    }
+
+    public void RegisterTorch(GameObject torchObject)
+    {
+        torchPickup = torchObject;
+        RunOnboardingChecks();
+    }
+
+    public void RegisterPhone(GameObject phoneObject)
+    {
+        phonePickup = phoneObject;
+        RunOnboardingChecks();
+        
+    }
+
+    
     private void OnEnable()
     {
         EventManager.OnEvidenceLoaded += RunOnboardingChecks;
@@ -74,6 +101,19 @@ public class OnboardingManager : MonoBehaviour
         EventManager.OnEvidenceLoaded -= RunOnboardingChecks;
         EventManager.OnEvidenceCollected -= RunOnboardingChecks;
         // EventManager.OnPlayerDataLoaded -= RunOnboardingChecks;
+    }
+
+
+    private void OnboardingCheckEvent()
+    {
+        Debug.Log("Run OB: "+GameMaster.Instance.THISLEVEL);
+        
+        if (GameMaster.Instance.THISLEVEL != GAMELEVEL.NorasFlat) return;
+
+        Debug.Log("Run OB");
+        
+
+        StartCoroutine(DeferredInit());
     }
 
     private System.Collections.IEnumerator DeferredInit()
@@ -105,7 +145,6 @@ public class OnboardingManager : MonoBehaviour
 
         if (GameMaster.Instance.THISLEVEL != GAMELEVEL.NorasFlat) return;
 
-        // --- IMPORTANT: restore side-effects ONCE per scene load ---
         if (!_restoredThisScene)
         {
             _restoredThisScene = true;
@@ -113,98 +152,21 @@ public class OnboardingManager : MonoBehaviour
             if (PHONECOLLECTED) RestorePhoneCollected();
             if (TORCHCOLLECTED) RestoreTorchCollected();
             if (NOTEPADCOLLECTED) RestoreNotepadCollected();
-
-            // If you also need evidence tick restored:
-            if (evidenceTick) evidenceTick.alpha = TESTEVIDENCECOLLECTED ? 1 : 0;
         }
 
-        // Keep visuals consistent (safe even after restore)
-        if (phonePickup) phonePickup.SetActive(!PHONECOLLECTED);
-        if (phoneTick) phoneTick.alpha = PHONECOLLECTED ? 1 : 0;
+        
+        
+        
+        if (phonePickup != null) phonePickup.SetActive(!PHONECOLLECTED);
 
-        if (torchPickup) torchPickup.SetActive(!TORCHCOLLECTED);
-        if (torchTick) torchTick.alpha = TORCHCOLLECTED ? 1 : 0;
+        if (torchPickup != null) torchPickup.SetActive(!TORCHCOLLECTED);
 
-        if (notepadPickup) notepadPickup.SetActive(!NOTEPADCOLLECTED);
-        if (notepadTick) notepadTick.alpha = NOTEPADCOLLECTED ? 1 : 0;
+        if (notepadPickup != null) notepadPickup.SetActive(!NOTEPADCOLLECTED);
 
-        if (evidenceTick) evidenceTick.alpha = TESTEVIDENCECOLLECTED ? 1 : 0;
-
-        UpdateChalkboard();
+        EventManager.UpdateCorkboard();
+        
     }
 
-
-    public void UpdateChalkboard()
-    {
-        if (GameMaster.Instance.THISLEVEL != GAMELEVEL.NorasFlat) return;
-        //Debug.Log("[Onboarding] UpdateChalkboard");
-
-        EvidenceName evidenceName = FirstOnboardingEvidence;
-
-        if (!GameMaster.Instance.EvidenceManager.EvidenceFound.TryGetValue(evidenceName, out string quackPath))
-        {
-            //Debug.Log($"[Onboarding] Evidence not collected yet: {evidenceName}");
-            return;
-        }
-
-        if (!File.Exists(quackPath))
-        {
-            Debug.LogError($"[Onboarding] Evidence file missing: {quackPath}");
-            return;
-        }
-
-        string[] lines = File.ReadAllLines(quackPath);
-
-        if (lines.Length < 6)
-        {
-            Debug.LogError($"[Onboarding] Malformed .quack file: {quackPath}");
-            return;
-        }
-
-        EvidenceRecord record = new EvidenceRecord
-        {
-            Name = lines[0],
-            Photo = lines[1],
-            DateFound = lines[2],
-            IsFake = bool.TryParse(lines[3], out var fake) && fake,
-            Quality = int.TryParse(lines[4], out var q) ? q : 0,
-            Details = lines[5]
-        };
-
-        string photoPath = Path.Combine(
-            Application.persistentDataPath,
-            "Phone/0/DCIM",
-            record.Photo
-        );
-
-        //Debug.Log($"[Onboarding] Loading image: {photoPath}");
-
-        if (!File.Exists(photoPath))
-        {
-            Debug.LogError($"[Onboarding] Evidence image missing: {photoPath}");
-            return;
-        }
-
-        byte[] bytes = File.ReadAllBytes(photoPath);
-        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-        tex.LoadImage(bytes);
-
-        Sprite sprite = Sprite.Create(
-            tex,
-            new Rect(0, 0, tex.width, tex.height),
-            new Vector2(0.5f, 0.5f),
-            100f
-        );
-
-        MyFirstEvidence.sprite = sprite;
-        MyFirstEvidence.color = Color.white;
-        MyFirstEvidence.enabled = true;
-
-        EvidenceDesc.text = record.Details;
-        evidenceTick.alpha = 1;
-
-        //Debug.Log("[Onboarding] Chalkboard updated successfully");
-    }
 
     IEnumerator NoraReady()
     {
@@ -230,12 +192,12 @@ public class OnboardingManager : MonoBehaviour
 
         torchPickup.SetActive(false);
         
-        if (torchTick) torchTick.alpha = 1;
         StoredPrefs.Instance.SetInt("TORCHCOLLECTED", TORCHCOLLECTED ? 1 : 0);
         StoredPrefs.Instance.Save();
 
         EventManager.TorchCollectedEvent();
         CheckOnboardingStatus();
+        
     }
 
     public async void CollectNotepad()
@@ -257,7 +219,6 @@ public class OnboardingManager : MonoBehaviour
         notepadPickup.SetActive(false);
 
         
-        if (notepadTick) notepadTick.alpha = 1;
         StoredPrefs.Instance.SetInt("NOTEPADCOLLECTED", NOTEPADCOLLECTED ? 1 : 0);
         StoredPrefs.Instance.Save();
 
@@ -283,7 +244,6 @@ public class OnboardingManager : MonoBehaviour
         
         phonePickup.SetActive(false);
 
-        if (phoneTick) phoneTick.alpha = 1;
         StoredPrefs.Instance.SetInt("PHONECOLLECTED", PHONECOLLECTED ? 1 : 0);
         StoredPrefs.Instance.Save();
 
@@ -350,7 +310,7 @@ public class OnboardingManager : MonoBehaviour
             }
         }
 
-        UpdateChalkboard();
+        EventManager.UpdateCorkboard();
     }
 
     public void GarbageRun()
@@ -415,23 +375,20 @@ public class OnboardingManager : MonoBehaviour
 
     private void ResetSceneObjects()
     {
-        if (phonePickup) phonePickup.SetActive(true);
-        if (notepadPickup) notepadPickup.SetActive(true);
-        if (torchPickup) torchPickup.SetActive(true);
-
-        if (phoneTick) phoneTick.alpha = 0;
-        if (notepadTick) notepadTick.alpha = 0;
-        if (torchTick) torchTick.alpha = 0;
-        if (evidenceTick) evidenceTick.alpha = 0;
+        if (phonePickup != null) phonePickup.SetActive(true);
+        if (notepadPickup != null) notepadPickup.SetActive(true);
+        if (torchPickup != null) torchPickup.SetActive(true);
+        
+        
+        EventManager.UpdateCorkboard();
     }
     
 
     private void RestorePhoneCollected()
     {
         PHONECOLLECTED = true;
-
-        if (phonePickup) phonePickup.SetActive(false);
-        if (phoneTick) phoneTick.alpha = 1;
+        Player.Instance.CombatEnabled = true;
+        if (phonePickup != null) phonePickup.SetActive(false);
         
         //GameMaster.Instance.EventManager.PhoneCollectedEvent();
     }
@@ -440,8 +397,7 @@ public class OnboardingManager : MonoBehaviour
     {
         TORCHCOLLECTED = true;
 
-        if (torchPickup) torchPickup.SetActive(false);
-        if (torchTick) torchTick.alpha = 1;
+        if (torchPickup != null) torchPickup.SetActive(false);
 
         EventManager.TorchCollectedEvent();
     }
@@ -450,8 +406,7 @@ public class OnboardingManager : MonoBehaviour
     {
         NOTEPADCOLLECTED = true;
 
-        if (notepadPickup) notepadPickup.SetActive(false);
-        if (notepadTick) notepadTick.alpha = 1;
+        if (notepadPickup != null) notepadPickup.SetActive(false);
 
         EventManager.NotepadCollectedEvent();
     }
@@ -573,14 +528,12 @@ public class OnboardingManagerEditor : Editor
 
     private void ResetSceneObjects(OnboardingManager mgr)
     {
-        if (mgr.phonePickup) mgr.phonePickup.SetActive(true);
-        if (mgr.notepadPickup) mgr.notepadPickup.SetActive(true);
-        if (mgr.torchPickup) mgr.torchPickup.SetActive(true);
+        if (mgr.phonePickup != null) mgr.phonePickup.SetActive(true);
+        if (mgr.notepadPickup != null) mgr.notepadPickup.SetActive(true);
+        if (mgr.torchPickup != null) mgr.torchPickup.SetActive(true);
 
-        if (mgr.phoneTick) mgr.phoneTick.alpha = 0;
-        if (mgr.notepadTick) mgr.notepadTick.alpha = 0;
-        if (mgr.torchTick) mgr.torchTick.alpha = 0;
-        if (mgr.evidenceTick) mgr.evidenceTick.alpha = 0;
+        
+        EventManager.UpdateCorkboard();
     }
 }
 #endif

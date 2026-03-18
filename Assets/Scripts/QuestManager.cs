@@ -467,8 +467,9 @@ public enum TextColour
 
 public enum QuestName
 {
-    GetReadyForWork,
-    FindSomeEvidence
+    Work = 0,
+    GetReadyForWork = 1,
+    FindSomeEvidence = 2
 }
 
 public static class TextColours

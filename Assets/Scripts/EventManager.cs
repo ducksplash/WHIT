@@ -5,6 +5,7 @@ public static class EventManager
 {    
     
     public static event Action OnGameStarted = () => { };
+    public static event Action OnLevelLoaded = () => { };
     public static event Action OnTorchCollected = () => { };
     public static event Action OnPhoneCollected = () => { };
     public static event Action OnNotepadCollected = () => { };
@@ -27,6 +28,12 @@ public static class EventManager
     
     public static event Action<NPCController> OnRegisterNPC = (NPCCont) => { };
     
+    
+    public static event Action<GameObject> OnRegisterNotepad = (NotepadObj) => { };
+    public static event Action<GameObject> OnRegisterTorch = (TorchObj) => { };
+    public static event Action<GameObject> OnRegisterPhone = (PhoneObj) => { };
+    public static event Action OnUpdateCorkboard = () => { };
+    
     //public static event Action OnLightSwitchClick = () => { };
     //public static event Action<bool> OnBoolToggled = (bool) => { };
     
@@ -35,6 +42,11 @@ public static class EventManager
     public static void GameStartedEvent()
     {
         OnGameStarted.Invoke();
+    }
+    
+    public static void LevelLoaded()
+    {
+        OnLevelLoaded.Invoke();
     }
     
     public static void TorchCollectedEvent()
@@ -125,6 +137,32 @@ public static class EventManager
     {
         Debug.Log("Register "+thisNPC.thisNPC);
         OnRegisterNPC.Invoke(thisNPC);
+    }
+
+
+    public static void RegisterNotepad(GameObject thisNotepad)
+    {
+        Debug.Log("Register "+thisNotepad.transform.name);
+        OnRegisterNotepad.Invoke(thisNotepad);
+    }
+
+
+    public static void RegisterTorch(GameObject thisTorch)
+    {
+        Debug.Log("Register "+thisTorch.transform.name);
+        OnRegisterTorch.Invoke(thisTorch);
+    }
+
+
+    public static void RegisterPhone(GameObject thisPhone)
+    {
+        Debug.Log("Register "+thisPhone.transform.name);
+        OnRegisterPhone.Invoke(thisPhone);
+    }
+
+    public static void UpdateCorkboard()
+    {
+        OnUpdateCorkboard.Invoke();
     }
 
     

@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 
 public class TravelCompanion : MonoBehaviour
 {
+    public bool BYPASS;
+    
     public CanvasGroup TravelCanvas;
 
     public bool CompanionOpen;
@@ -70,13 +72,17 @@ public class TravelCompanion : MonoBehaviour
     {
         if (GameMaster.Instance.PLAYERBUSY && !CompanionOpen) return;
 
-        if (!GameMaster.Instance.OnboardingManager.TESTEVIDENCECOLLECTED)
+        
+        
+        if (!GameMaster.Instance.OnboardingManager.TESTEVIDENCECOLLECTED && !BYPASS)
         {
             GameMaster.Instance.OnboardingManager.EvidenceNotCollected();
             return;
         }
+        
+        
 
-        if (!GameMaster.Instance.OnboardingManager.ONBOARDINGCOMPLETE)
+        if (!GameMaster.Instance.OnboardingManager.ONBOARDINGCOMPLETE && !BYPASS)
         {
             GameMaster.Instance.OnboardingManager.NotReadyYet();
             return;
@@ -201,15 +207,8 @@ public class TravelCompanion : MonoBehaviour
             newButton.buttonTextElement.text = availableLocation.Value;
             newButton.targetScene = availableLocation.Key;
 
-            // IMPORTANT: NotepadButton should call TravelCompanion.ChangeScene(...) already.
-            // If it doesn't, you can add a UnityEvent hookup in the prefab,
-            // or have NotepadButton call FindObjectOfType<TravelCompanion>().ChangeScene(targetScene).
         }
     }
-
-    // ===========================
-    // Scene transition request (delegated)
-    // ===========================
 
     public void ChangeScene(GAMELEVEL sceneName)
     {
@@ -229,6 +228,5 @@ public class TravelCompanion : MonoBehaviour
         }
     }
 
-    // Kept for compatibility with your existing calls
     public void ChangeSceneOffTheBooks(GAMELEVEL sceneName) => ChangeScene(sceneName);
 }

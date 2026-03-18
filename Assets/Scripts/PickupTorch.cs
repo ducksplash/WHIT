@@ -5,6 +5,6 @@ public class PickupTorch : MonoBehaviour
 {
     private void Awake()
     {
-        EventManager.RegisterTorch(gameObject);
+        if (gameObject.activeSelf) EventManager.RegisterTorch(gameObject);
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,12 +17,17 @@ public class CorkBoardManager : MonoBehaviour
     public Image MyFirstEvidence;
     public TextMeshProUGUI EvidenceDesc;
     
-    
-    
-    void Awake()
+
+    private void OnDisable()
+    {
+        EventManager.OnUpdateCorkboard -= UpdateCorkboard;
+    }
+
+    private void OnEnable()
     {
         EventManager.OnUpdateCorkboard += UpdateCorkboard;
     }
+
 
     public void UpdateCorkboard()
     {

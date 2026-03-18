@@ -5,6 +5,6 @@ public class PickupPhone : MonoBehaviour
 {
     private void Awake()
     {
-        EventManager.RegisterPhone(gameObject);
+        if (gameObject.activeSelf) EventManager.RegisterPhone(gameObject);
     }
 }

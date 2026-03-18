@@ -5,6 +5,6 @@ public class PickupNotepad : MonoBehaviour
 {
     private void Awake()
     {
-        EventManager.RegisterNotepad(gameObject);
+        if (gameObject.activeSelf) EventManager.RegisterNotepad(gameObject);
     }
 }

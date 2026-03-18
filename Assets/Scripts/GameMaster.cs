@@ -60,6 +60,7 @@ public class GameMaster : MonoBehaviour
     public CanvasGroup DevModeIcon;
 
     // spawn points
+    public Vector3 SPAWNPOINTETV;
     public Vector3 SPAWNPOINTNORASFLAT;
     public Vector3 SPAWNPOINTTAWLEYMEATS;
     public Vector3 SPAWNPOINTROARKOUTSIDE;
@@ -78,9 +79,15 @@ public class GameMaster : MonoBehaviour
 
     void Awake()
     {
-        Application.targetFrameRate = 60;
-        
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        _instance = this;
         DontDestroyOnLoad(gameObject);
+        Application.targetFrameRate = 60;
         
         m_bInitialized = SteamAPI.Init();
         
@@ -100,6 +107,7 @@ public class GameMaster : MonoBehaviour
         
         //Debug.Log($"This script is active in scene: {SceneManager.GetActiveScene().name}");
 
+        SPAWNPOINTETV = new Vector3(36, -8, 473);
         SPAWNPOINTNORASFLAT = new Vector3(65, 2, 486);
         SPAWNPOINTTAWLEYMEATS = new Vector3(71.50f, 12, 282);
         SPAWNPOINTROARKOUTSIDE = new Vector3(90, 5, 252);

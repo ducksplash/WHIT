@@ -6,6 +6,11 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
 
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 public class LoadingManager : MonoBehaviour
 {
     [Header("Loading UI")]
@@ -258,7 +263,12 @@ public class LoadingManager : MonoBehaviour
         if (playerTransform == null || GameMaster.Instance == null || Player.Instance == null)
             return;
 
-        if (levelName == GAMELEVEL.NorasFlat)
+        if (levelName == GAMELEVEL.ETV)
+        {
+            playerTransform.position = GameMaster.Instance.SPAWNPOINTETV;
+            Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTETV;
+        }
+        else if (levelName == GAMELEVEL.NorasFlat)
         {
             playerTransform.position = GameMaster.Instance.SPAWNPOINTNORASFLAT;
             Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;
@@ -299,3 +309,71 @@ public class LoadingManager : MonoBehaviour
         return nuNum;
     }
 }
+
+#if UNITY_EDITOR
+
+[CustomEditor(typeof(LoadingManager))]
+public class LoadingManagerEditor : Editor
+{
+    private GAMELEVEL selectedLevel = GAMELEVEL.NorasFlat;
+
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+
+        LoadingManager manager = (LoadingManager)target;
+
+        EditorGUILayout.Space(12);
+        EditorGUILayout.LabelField("Scene Controls", EditorStyles.boldLabel);
+
+        selectedLevel = (GAMELEVEL)EditorGUILayout.EnumPopup("Target Level", selectedLevel);
+
+        using (new EditorGUI.DisabledScope(!Application.isPlaying))
+        {
+            EditorGUILayout.BeginHorizontal();
+
+            if (GUILayout.Button("Load Selected Level"))
+            {
+                manager.LoadLevel(selectedLevel);
+            }
+
+            if (GUILayout.Button("Fade In"))
+            {
+                manager.SceneFadeIn();
+            }
+
+            if (GUILayout.Button("Fade Out"))
+            {
+                manager.SceneFadeOut();
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(8);
+            EditorGUILayout.LabelField("Quick Load", EditorStyles.boldLabel);
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("MainMenu"))     manager.LoadLevel(GAMELEVEL.MainMenu);
+            if (GUILayout.Button("NorasFlat"))    manager.LoadLevel(GAMELEVEL.NorasFlat);
+            if (GUILayout.Button("TawleyMeats"))  manager.LoadLevel(GAMELEVEL.TawleyMeats);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("RoarkOutside")) manager.LoadLevel(GAMELEVEL.RoarkOutside);
+            if (GUILayout.Button("RoarkInside"))  manager.LoadLevel(GAMELEVEL.RoarkInside);
+            if (GUILayout.Button("ETV"))          manager.LoadLevel(GAMELEVEL.ETV);
+            EditorGUILayout.EndHorizontal();
+
+            // EditorGUILayout.BeginHorizontal();
+            // if (GUILayout.Button("SecretLevel"))  manager.LoadLevel(GAMELEVEL.SecretLevel);
+            // EditorGUILayout.EndHorizontal();
+        }
+
+        if (!Application.isPlaying)
+        {
+            EditorGUILayout.HelpBox("Scene change and fade buttons work in Play Mode only.", MessageType.Info);
+        }
+    }
+}
+
+#endif

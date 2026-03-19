@@ -108,6 +108,7 @@ public enum NPC
     Loretta = 510,
     Linda = 511,
     Michelle = 512,
+    Tim = 513,
     ZTESTNora = 998,
     ZTESTEimear = 997,
     ZTESTKim_Shae = 996,

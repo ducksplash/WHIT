@@ -84,6 +84,7 @@ public enum NPC
 {
     
     // Storyline Characters
+    Nora_Kennedy = 001,
     Eimear_Scott = 100,
     Kim_Shae = 101,
     Hollow = 102,

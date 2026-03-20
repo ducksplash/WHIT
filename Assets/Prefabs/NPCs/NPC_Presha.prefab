@@ -1293,6 +1293,7 @@ MonoBehaviour:
   - WALKING
   - DANCEBELLY
   - CROUCHIDLETWO
+  - DoWave
   selectedTriggerIndex: 7
   triggerEnterTimeout: 1
   triggerMaxDuration: 8
@@ -1444,10 +1445,26 @@ MonoBehaviour:
   useSitIdleFloorTriggerParam: 1
   sitIdleFloorTriggerParam: SitIdleFloor
   sitIdleFloorStateName: SitIdleFloor
+  useTypingTriggerParam: 1
+  typingTriggerParam: Typing
+  typingStateName: Typing
+  useTalkingTriggerParam: 1
+  talkingTriggerParam: IdleTalking
+  talkingStateName: IdleTalking
+  useGabbingTriggerParam: 1
+  gabbingTriggerParam: IdleGabbing
+  gabbingStateName: IdleGabbing
+  useDawdlingTriggerParam: 1
+  dawdlingTriggerParam: IdleDawdling
+  dawdlingStateName: IdleDawdling
   useStandUpTriggerParam: 1
   standUpTriggerParam: StandUp
   standUpStateName: StandUp
   floorSitHeightThreshold: 0.2
+  isTyping: 0
+  isTalking: 0
+  isGabbing: 0
+  isDawdling: 0
 --- !u!114 &3865411318792250491
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3447,7 +3464,7 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7672816849322127949}
   m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 4f424e82a4f1a0d4cb48b0357098cfe9, type: 3}
+  m_Avatar: {fileID: 9000000, guid: e568bc9563c036f4d87b6e40c1067855, type: 2}
   m_Controller: {fileID: 9100000, guid: 701a04640f5f5564f917a3f20a047fe7, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0

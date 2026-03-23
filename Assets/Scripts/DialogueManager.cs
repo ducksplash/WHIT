@@ -19,6 +19,11 @@ public class DialogueManager : MonoBehaviour
     public TextMeshProUGUI NoraMessage;
     public TextMeshProUGUI SystemMessage;
 
+    [Header("Typewriter Animators")]
+    public TMPTypewriter SystemMessageWriter;
+    public TMPTypewriter NoraMessageWriter;
+    public TMPTypewriter ReceivedMessageWriter;
+
     public Image timebar;
     public float messagetimer = 0f;
 
@@ -54,28 +59,24 @@ public class DialogueManager : MonoBehaviour
     private bool cutsceneAdvanceRequested;
     private Contacts _currentCutsceneContact = Contacts.System;
 
-    // stop the rotation loop immediately when we’re done
     private bool _stopCutsceneRotation;
 
     public bool SeenLoaded;
 
-    // keep track of fade coroutine so we can stop it reliably
     private Coroutine _fadeCo;
 
-    // ✅ NEW: track currently-active timed dialogue so it can be cancelled + finalized if interrupted
     private CancellationTokenSource _activeTimedCts;
     private bool _hasActiveTimed;
     private DialogueName _activeTimedDialogueName;
     private bool _activeTimedIsRepeatable;
-    private bool _activeTimedWasShown; // only mark seen if it actually displayed something
+    private bool _activeTimedWasShown;
 
     private void Start()
     {
         DialogManagerCanvas = DialogManager.GetComponent<CanvasGroup>();
 
         DialogInProgress = false;
-        NoraMessage.text = "";
-        SystemMessage.text = "";
+        ClearAllText();
 
         PopulateDialogues();
         PopulateOSDTexts();
@@ -87,20 +88,15 @@ public class DialogueManager : MonoBehaviour
         if (UInstance.Instance != null)
             UInstance.Instance.cutsceneBarsCanvas.alpha = 0;
 
-        // ✅ Robust: SeenLoaded becomes true when StoredPrefs is done loading,
-        // regardless of whether any data exists.
         _ = InitSeenAsync();
     }
 
-    // ✅ This is the key change.
     private async Task InitSeenAsync()
     {
         try
         {
             await StoredPrefs.WhenLoadedAsync();
 
-            // If StoredPrefs is ready but Instance is still null (shouldn't happen with auto-create),
-            // guard anyway so SeenLoaded still flips true.
             if (StoredPrefs.Instance != null)
                 LoadWhatYouSee();
             else
@@ -113,14 +109,12 @@ public class DialogueManager : MonoBehaviour
         finally
         {
             SeenLoaded = true;
-            
             EventManager.PlayerDataLoaded();
         }
     }
 
     private void OnDisable()
     {
-        // clean up any pending timed dialogue
         CancelActiveTimedDialogue(markSeen: true);
     }
 
@@ -140,10 +134,8 @@ public class DialogueManager : MonoBehaviour
             return Task.CompletedTask;
         }
 
-        // only do cutscene if target not null
-        
         float useDuration = cutsceneDuration > 0 ? cutsceneDuration : duration;
-        float usePanTime = cutscenePanTime > 0 ? cutscenePanTime : panTime;
+        float usePanTime  = cutscenePanTime  > 0 ? cutscenePanTime  : panTime;
 
         return CutsceneWithDialogue(dialogueName, displayTimer, cutsceneTarget, useDuration, usePanTime, isZoomable);
     }
@@ -172,19 +164,18 @@ public class DialogueManager : MonoBehaviour
 
     public async Task CreateDialogue(DialogueName dialogueName, float displaytimer, bool holdUntilAdvance)
     {
-        // If dialogue is already seen and not repeatable:
         if (DialogueSeen.Contains(dialogueName) && !RepeatableDialogues.Contains(dialogueName))
         {
             if (holdUntilAdvance)
             {
                 _currentCutsceneContact = Contacts.System;
-                ClearHeldCutsceneDialogue(); // safe + idempotent
+                ClearHeldCutsceneDialogue();
             }
             return;
         }
 
         Contacts contact = Contacts.System;
-        string message = "...";
+        string   message = "...";
 
         if (DialogueDict.TryGetValue(dialogueName, out var selectedDialogue))
         {
@@ -197,109 +188,107 @@ public class DialogueManager : MonoBehaviour
 
         _currentCutsceneContact = contact;
 
-        // Held cutscene dialogue (press-to-advance style)
+        // ── Held cutscene dialogue (press-to-advance) ─────────────────────
         if (holdUntilAdvance)
         {
-            // ✅ if a timed dialogue was active, it’s being interrupted; finalize it as seen
             CancelActiveTimedDialogue(markSeen: true);
 
-            messagetimer = 0f;
+            messagetimer   = 0f;
             DialogInProgress = true;
 
             if (contact == Contacts.System)
             {
-                SystemMessage.text = message;
+                PlayWriterOrFallback(SystemMessageWriter, SystemMessage, message);
             }
             else if (contact == Contacts.Unknown)
             {
-                SystemMessage.text = message;
+                PlayWriterOrFallback(SystemMessageWriter, SystemMessage, message);
             }
-            
             else if (contact == Contacts.Nora)
             {
-                NoraMessage.text = message;
+                PlayWriterOrFallback(NoraMessageWriter, NoraMessage, message);
             }
             else if (contact == Contacts.Ellsworth)
             {
-                SystemMessage.text = contact + ": " +message;
+                PlayWriterOrFallbackWithPrefix(SystemMessageWriter, SystemMessage, contact + ": ", message);
             }
             else if (contact == Contacts.Presha)
             {
-                SystemMessage.text = contact + ": " +message;
+                PlayWriterOrFallbackWithPrefix(SystemMessageWriter, SystemMessage, contact + ": ", message);
             }
             else if (contact == Contacts.Kim)
             {
-                SystemMessage.text = contact + ": " +message;
+                PlayWriterOrFallbackWithPrefix(SystemMessageWriter, SystemMessage, contact + ": ", message);
             }
             else
             {
                 timebar.fillAmount = 1.0f;
                 StartFade(DialogManagerCanvas, 1);
                 ContactName.text = contact.ToString();
-                ReceivedMessage.text = message;
+                PlayWriterOrFallback(ReceivedMessageWriter, ReceivedMessage, message);
             }
 
             MarkDialogueSeen(dialogueName);
             return;
         }
 
-        // ✅ Normal timed dialogue:
+        // ── Normal timed dialogue ─────────────────────────────────────────
         CancelActiveTimedDialogue(markSeen: true);
 
-        _activeTimedCts = new CancellationTokenSource();
-        _hasActiveTimed = true;
+        _activeTimedCts          = new CancellationTokenSource();
+        _hasActiveTimed          = true;
         _activeTimedDialogueName = dialogueName;
         _activeTimedIsRepeatable = RepeatableDialogues.Contains(dialogueName);
-        _activeTimedWasShown = false;
+        _activeTimedWasShown     = false;
 
         var token = _activeTimedCts.Token;
 
-        messagetimer = displaytimer;
+        messagetimer     = displaytimer;
         DialogInProgress = true;
 
         try
         {
             if (contact == Contacts.System)
             {
-                SystemMessage.text = message;
                 _activeTimedWasShown = true;
+                await PlayWriterOrFallbackAsync(SystemMessageWriter, SystemMessage, message, token);
                 await SystemTimer(displaytimer, token);
             }
             else if (contact == Contacts.Unknown)
             {
-                SystemMessage.text = contact + ": "+ message;
                 _activeTimedWasShown = true;
+                await PlayWriterOrFallbackAsync(SystemMessageWriter, SystemMessage, contact + ": " + message, token);
                 await SystemTimer(displaytimer, token);
             }
             else if (contact == Contacts.Nora)
             {
-                NoraMessage.text = message;
                 _activeTimedWasShown = true;
+                await PlayWriterOrFallbackAsync(NoraMessageWriter, NoraMessage, message, token);
                 await NoraTimer(displaytimer, token);
             }
             else if (contact == Contacts.Ellsworth)
             {
-                SystemMessage.text = contact + ": "+ message;
                 _activeTimedWasShown = true;
+                await PlayWriterOrFallbackWithPrefixAsync(SystemMessageWriter, SystemMessage, contact + ": ", message, token);
                 await SystemTimer(displaytimer, token);
             }
             else if (contact == Contacts.Presha)
             {
-                SystemMessage.text = contact + ": "+ message;
                 _activeTimedWasShown = true;
+                await PlayWriterOrFallbackWithPrefixAsync(SystemMessageWriter, SystemMessage, contact + ": ", message, token);
                 await SystemTimer(displaytimer, token);
             }
             else if (contact == Contacts.Kim)
             {
-                SystemMessage.text = contact + ": "+ message;
                 _activeTimedWasShown = true;
+                await PlayWriterOrFallbackWithPrefixAsync(SystemMessageWriter, SystemMessage, contact + ": ", message, token);
                 await SystemTimer(displaytimer, token);
             }
             else
             {
-                ContactName.text = contact.ToString();
-                ReceivedMessage.text = message;
+                ContactName.text     = contact.ToString();
                 _activeTimedWasShown = true;
+                await PlayWriterOrFallbackAsync(ReceivedMessageWriter, ReceivedMessage, message, token);
                 await MessageTimer(displaytimer, token);
             }
         }
@@ -319,6 +308,57 @@ public class DialogueManager : MonoBehaviour
 
         MarkDialogueSeen(dialogueName);
     }
+
+    // ── Typewriter helpers ────────────────────────────────────────────────
+
+    /// <summary>
+    /// Fire-and-forget version for held (cutscene) dialogues where we don't await the animation.
+    /// </summary>
+    private void PlayWriterOrFallback(TMPTypewriter writer, TextMeshProUGUI fallback, string message)
+    {
+        if (writer != null)
+            _ = writer.PlayText(message);
+        else
+            fallback.text = message;
+    }
+
+    /// <summary>
+    /// Fire-and-forget with an instant prefix (e.g. "Ellsworth: ").
+    /// </summary>
+    private void PlayWriterOrFallbackWithPrefix(TMPTypewriter writer, TextMeshProUGUI fallback, string prefix, string body)
+    {
+        if (writer != null)
+            _ = writer.PlayTextWithPrefix(prefix, body);
+        else
+            fallback.text = prefix + body;
+    }
+
+    /// <summary>
+    /// Awaitable version for timed dialogues. Passes the cancellation token so the
+    /// animation stops cleanly if the dialogue is interrupted.
+    /// </summary>
+    private Task PlayWriterOrFallbackAsync(TMPTypewriter writer, TextMeshProUGUI fallback, string message, CancellationToken token)
+    {
+        if (writer != null)
+            return writer.PlayText(message, token);
+
+        fallback.text = message;
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Awaitable version with an instant prefix (e.g. "Ellsworth: ").
+    /// </summary>
+    private Task PlayWriterOrFallbackWithPrefixAsync(TMPTypewriter writer, TextMeshProUGUI fallback, string prefix, string body, CancellationToken token)
+    {
+        if (writer != null)
+            return writer.PlayTextWithPrefix(prefix, body, token);
+
+        fallback.text = prefix + body;
+        return Task.CompletedTask;
+    }
+
+    // ── Seen / save ───────────────────────────────────────────────────────
 
     private void MarkDialogueSeen(DialogueName dialogueName)
     {
@@ -347,6 +387,8 @@ public class DialogueManager : MonoBehaviour
         _activeTimedCts = null;
     }
 
+    // ── Cutscene ──────────────────────────────────────────────────────────
+
     private Task CutsceneWithDialogue(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject, float cutsceneDuration, float cutscenePanTime, bool isZoomable = true)
     {
         var tcs = new TaskCompletionSource<bool>();
@@ -363,8 +405,8 @@ public class DialogueManager : MonoBehaviour
         }
 
         GameMaster.Instance.PLAYERBUSY = true;
-        CutsceneInProgress = true;
-        elapsedCutsceneTime = 0f;
+        CutsceneInProgress    = true;
+        elapsedCutsceneTime   = 0f;
         _stopCutsceneRotation = false;
 
         if (UInstance.Instance != null) StartCoroutine(UInstance.Instance.FadeInCutsceneBars(cutscenePanTime));
@@ -373,48 +415,40 @@ public class DialogueManager : MonoBehaviour
 
         _ = CreateDialogue(dialogueName, dialogueDisplayTimer, holdUntilAdvance: true);
 
-        float zoomTime = cutsceneDuration * 0.33f;
+        float zoomTime   = cutsceneDuration * 0.33f;
         float unzoomTime = cutsceneDuration * 0.33f;
-        float holdTime = cutsceneDuration - zoomTime - unzoomTime;
+        float holdTime   = cutsceneDuration - zoomTime - unzoomTime;
 
         if (cameraZoom != null) cameraZoom.enabled = false;
 
         Coroutine zoomCo = null;
 
         if (isZoomable)
-        {
             zoomCo = StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime));
-        }
 
         while (elapsedCutsceneTime < cutsceneDuration && !_stopCutsceneRotation)
         {
-            Vector3 targetDirection = targetObject.transform.position - mainCamera.transform.position;
-            Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+            Vector3    targetDirection = targetObject.transform.position - mainCamera.transform.position;
+            Quaternion targetRotation  = Quaternion.LookRotation(targetDirection);
 
             mainCamera.transform.rotation = Quaternion.Lerp(
                 mainCamera.transform.rotation,
                 targetRotation,
-                cutscenePanTime * Time.smoothDeltaTime
-            );
+                cutscenePanTime * Time.smoothDeltaTime);
 
             elapsedCutsceneTime += Time.smoothDeltaTime;
             yield return null;
         }
 
         if (isZoomable)
-        {
             yield return zoomCo;
-        }
-            
-        
-        
 
-        Vector3 dir = (targetObject.transform.position - mainCamera.transform.position).normalized;
-        float yaw = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-        float pitch = Mathf.Asin(dir.y) * Mathf.Rad2Deg;
+        Vector3 dir   = (targetObject.transform.position - mainCamera.transform.position).normalized;
+        float   yaw   = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+        float   pitch = Mathf.Asin(dir.y) * Mathf.Rad2Deg;
         Player.Instance.FirstPersonLook.SetPlayerRotation(new Vector2(yaw, pitch));
 
-        CutsceneInProgress = false;
+        CutsceneInProgress            = false;
         GameMaster.Instance.PLAYERBUSY = false;
 
         SaveWhatYouSee();
@@ -461,7 +495,7 @@ public class DialogueManager : MonoBehaviour
 
     private void ClearHeldCutsceneDialogue()
     {
-        messagetimer = 0f;
+        messagetimer     = 0f;
         DialogInProgress = false;
 
         if (_fadeCo != null)
@@ -470,13 +504,25 @@ public class DialogueManager : MonoBehaviour
             _fadeCo = null;
         }
 
-        if (ContactName != null) ContactName.text = "";
-        if (ReceivedMessage != null) ReceivedMessage.text = "";
-        if (NoraMessage != null) NoraMessage.text = "";
-        if (SystemMessage != null) SystemMessage.text = "";
+        ClearAllText();
 
         if (DialogManagerCanvas != null)
             DialogManagerCanvas.alpha = 0f;
+    }
+
+    /// <summary>Stops all typewriter animations and blanks every text field.</summary>
+    private void ClearAllText()
+    {
+        if (SystemMessageWriter   != null) SystemMessageWriter.Clear();
+        else if (SystemMessage    != null) SystemMessage.text = "";
+
+        if (NoraMessageWriter     != null) NoraMessageWriter.Clear();
+        else if (NoraMessage      != null) NoraMessage.text = "";
+
+        if (ReceivedMessageWriter != null) ReceivedMessageWriter.Clear();
+        else if (ReceivedMessage  != null) ReceivedMessage.text = "";
+
+        if (ContactName           != null) ContactName.text = "";
     }
 
     private void RequestCutsceneAdvance(InputAction.CallbackContext ctx)
@@ -504,6 +550,8 @@ public class DialogueManager : MonoBehaviour
             advanceDialogue.action.performed -= RequestCutsceneAdvance;
     }
 
+    // ── Populate ──────────────────────────────────────────────────────────
+
     private void PopulateDialogues()
     {
         DialogueDict.Clear();
@@ -511,9 +559,7 @@ public class DialogueManager : MonoBehaviour
         {
             DialogueDict.TryAdd(d.DialogueName, d);
             if (d.repeatable)
-            {
                 RepeatableDialogues.Add(d.DialogueName);
-            }
         }
     }
 
@@ -530,30 +576,31 @@ public class DialogueManager : MonoBehaviour
 
         if (GameMaster.Instance.DeviceType.selectedDeviceType == PlayerDeviceType.SteamOS)
         {
-            EregiDict.TryAdd("+phonekey+", "X");
-            EregiDict.TryAdd("+torchkey+", "Right Stick Button");
-            EregiDict.TryAdd("+camerakey+", "A");
-            EregiDict.TryAdd("+melee+", "R2");
+            EregiDict.TryAdd("+phonekey+",    "X");
+            EregiDict.TryAdd("+torchkey+",    "Right Stick Button");
+            EregiDict.TryAdd("+camerakey+",   "A");
+            EregiDict.TryAdd("+melee+",       "R2");
         }
         else
         {
-            EregiDict.TryAdd("+phonekey+", "P");
-            EregiDict.TryAdd("+torchkey+", "H");
-            EregiDict.TryAdd("+camerakey+", "Enter");
-            EregiDict.TryAdd("+melee+", "Left Click");
+            EregiDict.TryAdd("+phonekey+",    "P");
+            EregiDict.TryAdd("+torchkey+",    "H");
+            EregiDict.TryAdd("+camerakey+",   "Enter");
+            EregiDict.TryAdd("+melee+",       "Left Click");
         }
     }
 
     public string GetReplacedString(string message)
     {
-        if (string.IsNullOrEmpty(message))
-            return message;
+        if (string.IsNullOrEmpty(message)) return message;
 
         foreach (var kvp in EregiDict)
             message = message.Replace(kvp.Key, kvp.Value);
 
         return message;
     }
+
+    // ── Fade ─────────────────────────────────────────────────────────────
 
     private void StartFade(CanvasGroup canvas, int direction)
     {
@@ -585,6 +632,8 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
+    // ── Timers ────────────────────────────────────────────────────────────
+
     public async Task MessageTimer(float timevalue, CancellationToken token)
     {
         timebar.fillAmount = 1.0f;
@@ -593,8 +642,12 @@ public class DialogueManager : MonoBehaviour
         await Task.Delay((int)(timevalue * 1000), token);
 
         StartFade(DialogManagerCanvas, 0);
+
+        if (ReceivedMessageWriter != null) ReceivedMessageWriter.Clear();
+        else                               ReceivedMessage.text = "";
+
         ContactName.text = "";
-        ReceivedMessage.text = "";
+
         await Task.Delay(500, token);
         DialogInProgress = false;
     }
@@ -602,7 +655,10 @@ public class DialogueManager : MonoBehaviour
     public async Task NoraTimer(float timevalue, CancellationToken token)
     {
         await Task.Delay((int)(timevalue * 1000), token);
-        NoraMessage.text = "";
+
+        if (NoraMessageWriter != null) NoraMessageWriter.Clear();
+        else                           NoraMessage.text = "";
+
         await Task.Delay(500, token);
         DialogInProgress = false;
     }
@@ -610,10 +666,15 @@ public class DialogueManager : MonoBehaviour
     public async Task SystemTimer(float timevalue, CancellationToken token)
     {
         await Task.Delay((int)(timevalue * 1000), token);
-        SystemMessage.text = "";
+
+        if (SystemMessageWriter != null) SystemMessageWriter.Clear();
+        else                             SystemMessage.text = "";
+
         await Task.Delay(500, token);
         DialogInProgress = false;
     }
+
+    // ── OSD ──────────────────────────────────────────────────────────────
 
     public string RetrieveOSDText(OSDTextName requestedOSDText)
     {
@@ -634,18 +695,20 @@ public class DialogueManager : MonoBehaviour
         return ".";
     }
 
+    // ── Persistence ───────────────────────────────────────────────────────
+
     public void SaveWhatYouSee()
     {
         if (StoredPrefs.Instance == null) return;
-        StoredPrefs.Instance.SetCollection("DialogueSeen", DialogueSeen, CollectionType.list);
-        StoredPrefs.Instance.SetCollection("CutSceneSeen", CutSceneSeen, CollectionType.dictionary);
+        StoredPrefs.Instance.SetCollection("DialogueSeen",  DialogueSeen,  CollectionType.list);
+        StoredPrefs.Instance.SetCollection("CutSceneSeen",  CutSceneSeen,  CollectionType.dictionary);
         StoredPrefs.Instance.Save();
     }
 
     public void LoadWhatYouSee()
     {
         if (StoredPrefs.Instance == null) return;
-        DialogueSeen = StoredPrefs.Instance.GetCollection<List<DialogueName>>("DialogueSeen") ?? new List<DialogueName>();
+        DialogueSeen = StoredPrefs.Instance.GetCollection<List<DialogueName>>("DialogueSeen")              ?? new List<DialogueName>();
         CutSceneSeen = StoredPrefs.Instance.GetCollection<Dictionary<string, string>>("CutSceneSeen") ?? new Dictionary<string, string>();
     }
 }

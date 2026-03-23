@@ -130,11 +130,9 @@ public class DialogueManager : MonoBehaviour
         if (messagetimer > 0) timebar.fillAmount -= 1.0f / messagetimer * Time.deltaTime;
     }
 
-    public Task PlayDialogue(DialogueName dialogueName, float displayTimer, DialogueType type,
-        float cutsceneDuration = -1f, float cutscenePanTime = -1f, GameObject cutsceneTarget = null)
+    public Task PlayDialogue(DialogueName dialogueName, float displayTimer, DialogueType type, float cutsceneDuration = -1f, float cutscenePanTime = -1f, GameObject cutsceneTarget = null, bool isZoomable = true)
     {
-        if (type == DialogueType.normal)
-            return NewDialogue(dialogueName, displayTimer);
+        if (type == DialogueType.normal) return NewDialogue(dialogueName, displayTimer);
 
         if (cutsceneTarget == null)
         {
@@ -142,10 +140,12 @@ public class DialogueManager : MonoBehaviour
             return Task.CompletedTask;
         }
 
+        // only do cutscene if target not null
+        
         float useDuration = cutsceneDuration > 0 ? cutsceneDuration : duration;
         float usePanTime = cutscenePanTime > 0 ? cutscenePanTime : panTime;
 
-        return CutsceneWithDialogue(dialogueName, displayTimer, cutsceneTarget, useDuration, usePanTime);
+        return CutsceneWithDialogue(dialogueName, displayTimer, cutsceneTarget, useDuration, usePanTime, isZoomable);
     }
 
     public async Task NewDialogue(DialogueName dialogueName, float displaytimer)
@@ -316,16 +316,14 @@ public class DialogueManager : MonoBehaviour
         _activeTimedCts = null;
     }
 
-    private Task CutsceneWithDialogue(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject,
-        float cutsceneDuration, float cutscenePanTime)
+    private Task CutsceneWithDialogue(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject, float cutsceneDuration, float cutscenePanTime, bool isZoomable = true)
     {
         var tcs = new TaskCompletionSource<bool>();
-        StartCoroutine(CutsceneCoroutine(dialogueName, dialogueDisplayTimer, targetObject, cutsceneDuration, cutscenePanTime, tcs));
+        StartCoroutine(CutsceneCoroutine(dialogueName, dialogueDisplayTimer, targetObject, cutsceneDuration, cutscenePanTime, tcs, isZoomable));
         return tcs.Task;
     }
 
-    private IEnumerator CutsceneCoroutine(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject,
-        float cutsceneDuration, float cutscenePanTime, TaskCompletionSource<bool> tcs)
+    private IEnumerator CutsceneCoroutine(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject, float cutsceneDuration, float cutscenePanTime, TaskCompletionSource<bool> tcs, bool isZoomable = true)
     {
         if (CutsceneInProgress)
         {
@@ -348,10 +346,14 @@ public class DialogueManager : MonoBehaviour
         float unzoomTime = cutsceneDuration * 0.33f;
         float holdTime = cutsceneDuration - zoomTime - unzoomTime;
 
-        if (cameraZoom != null)
-            cameraZoom.enabled = false;
+        if (cameraZoom != null) cameraZoom.enabled = false;
 
-        Coroutine zoomCo = StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime));
+        Coroutine zoomCo = null;
+
+        if (isZoomable)
+        {
+            zoomCo = StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime));
+        }
 
         while (elapsedCutsceneTime < cutsceneDuration && !_stopCutsceneRotation)
         {
@@ -368,7 +370,13 @@ public class DialogueManager : MonoBehaviour
             yield return null;
         }
 
-        yield return zoomCo;
+        if (isZoomable)
+        {
+            yield return zoomCo;
+        }
+            
+        
+        
 
         Vector3 dir = (targetObject.transform.position - mainCamera.transform.position).normalized;
         float yaw = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
@@ -469,7 +477,13 @@ public class DialogueManager : MonoBehaviour
     {
         DialogueDict.Clear();
         foreach (var d in Dialogues)
+        {
             DialogueDict.TryAdd(d.DialogueName, d);
+            if (d.repeatable)
+            {
+                RepeatableDialogues.Add(d.DialogueName);
+            }
+        }
     }
 
     private void PopulateOSDTexts()
@@ -603,56 +617,4 @@ public class DialogueManager : MonoBehaviour
         DialogueSeen = StoredPrefs.Instance.GetCollection<List<DialogueName>>("DialogueSeen") ?? new List<DialogueName>();
         CutSceneSeen = StoredPrefs.Instance.GetCollection<Dictionary<string, string>>("CutSceneSeen") ?? new Dictionary<string, string>();
     }
-}
-
-public enum DialogueType
-{
-    cutscene,
-    normal
-}
-
-public enum OSDTextName
-{
-    TakePhoto = 101,
-    SavedPhoto = 102
-}
-
-public enum DialogueName
-{
-    // Level 0; Start
-    None,
-    KieronToNoraBathroom = 100,
-    NoraAboutKieronBathroom = 101,
-    NoraLookingAtCorkboard = 102,
-    NoraNeedsHerThings = 103,
-    NoraNeedsTestEvidence = 104,
-    NoraReadyToGo = 105,
-    NoraCollectedNotepad = 106,
-    NoraCollectedPhone = 107,
-    NoraCollectedTorch = 108,
-    KieronToNoraGotPhone = 109,
-    KieronToNoraFirstEvidence = 110,
-    phoneTutorialFirstPhoto = 111,
-    phoneTutorialSomething = 112,
-    
-    // Level 1
-    NoraBathroomLockedFromInside = 200,
-    NoraDiesInAFreezer = 201,
-    NoraLookingAtIncinerator = 202,
-    NoraLookingAtBloodstains = 203,
-    NoraLookingAtSkull = 204,
-    NoraReadingManagersEmails = 205,
-    
-    // Level 2
-    NoraOutsideRoark = 300,
-    
-    // Level 4
-    ScientistHowDidYouGetHere = 400,
-    ScientistWarningOne = 401,
-    ScientistGettingAgitated = 402,
-    
-    // Generics
-    NoraCantCrawlAndPhone = 900
-    
-    
 }

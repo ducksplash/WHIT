@@ -41,7 +41,7 @@ public class NPCLadderBehaviour : NPCBehaviourBase
 
     private Coroutine              _ladderCoroutine;
     private bool                   _isTraversingLadder;
-    private NPCController.NPCState _stateBeforeLadder = NPCController.NPCState.Patrolling;
+    private NPCState _stateBeforeLadder = NPCState.Patrolling;
     private Action                 _ladderCompleteAction;
 
     public bool NeedLadderForTarget(Transform target, out bool goingUp)
@@ -143,7 +143,7 @@ public class NPCLadderBehaviour : NPCBehaviourBase
     {
         _isTraversingLadder = true;
         _stateBeforeLadder  = npc.GetCurrentState();
-        npc.SetStateDirectly(NPCController.NPCState.ClimbingLadder);
+        npc.SetStateDirectly(NPCState.ClimbingLadder);
 
         Transform startMount = goingUp ? ladder.bottomMountPoint : ladder.topMountPoint;
         Transform endMount   = goingUp ? ladder.topMountPoint    : ladder.bottomMountPoint;

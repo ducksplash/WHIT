@@ -22,7 +22,7 @@ public abstract class NPCBehaviourBase : MonoBehaviour
     protected void       ForceReturnToLocomotion()                                         => npc.ForceReturnToLocomotion();
     protected void       ForceIdlePose()                                                   => npc.ForceIdlePose();
     protected void       ResetAllAnimatorTriggers()                                        => npc.ResetAllAnimatorTriggers();
-    protected void       EnterState(NPCController.NPCState state)                          => npc.EnterState(state);
+    protected void       EnterState(NPCState state)                                        => npc.EnterState(state);
     protected Quaternion GetPlanarLookRotation(Vector3 fwd)                                => npc.GetPlanarLookRotation(fwd);
 
     protected string  ParamBlend         => npc.paramBlend;

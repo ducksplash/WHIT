@@ -65,6 +65,8 @@ public class UpperBodyPitch : MonoBehaviour
         if (!animator || !animator.isHuman) return;
         if (!look) return;
 
+        if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY) return;
+        
         // You rotate camera with -currentMouseLook.y, so:
         // look pitch down = positive mouseLook.y, camera rotates negative X.
         // We'll treat "look up" as positive torso pitch.

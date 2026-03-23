@@ -366,7 +366,7 @@ public class NPCLyingBehaviour : NPCBehaviourBase
             if (!Agent.isOnNavMesh && TryGetNavmeshPoint(Body.position, out Vector3 navPos)) Agent.Warp(navPos);
             if (AgentReady()) { Agent.isStopped = false; Agent.ResetPath(); Agent.velocity = Vector3.zero; Agent.autoBraking = true; Agent.stoppingDistance = Mathf.Max(0.05f, ArriveDistance); }
         }
-        npc.HasCommand = false; npc.CommandGoal = NPCController.NPCState.Patrolling;
+        npc.HasCommand = false; npc.CommandGoal = NPCState.Patrolling;
     }
 
     private void TickLieDownPlaying(float dt)
@@ -447,9 +447,9 @@ public class NPCLyingBehaviour : NPCBehaviourBase
         RestoreStandingBodyAt(Body.position, bodyRecoverySampleRadius);
         RestoreAnimationRootLocalXZ();
         if (Anim != null) { Anim.speed = 1f; ForceReturnToLocomotion(); Anim.Update(0f); ForceIdlePose(); }
-        npc.HasCommand = false; npc.CommandGoal = NPCController.NPCState.Patrolling;
+        npc.HasCommand = false; npc.CommandGoal = NPCState.Patrolling;
         _liePhase = LiePhase.None;
-        npc.SetStateDirectly(NPCController.NPCState.Patrolling);
+        npc.SetStateDirectly(NPCState.Patrolling);
         npc.ExecutePendingPostStandAction();
     }
 
@@ -457,13 +457,13 @@ public class NPCLyingBehaviour : NPCBehaviourBase
     {
         Vector3 preferred = _preLieNavPos != Vector3.zero ? _preLieNavPos : (_bedNavPos != Vector3.zero ? _bedNavPos : Body.position);
         ReleaseBedIfAny(); ClearLadderRoute();
-        npc.HasCommand = false; npc.CommandGoal = NPCController.NPCState.Patrolling;
+        npc.HasCommand = false; npc.CommandGoal = NPCState.Patrolling;
         _liePhase = LiePhase.None;
         RestoreStandingBodyAt(preferred, bodyRecoverySampleRadius);
         RestoreAnimationRootLocalXZ();
         if (Anim != null) ForceReturnToLocomotion();
         ReattachAgentToNavmeshAtCurrentXZ();
-        EnterState(NPCController.NPCState.Patrolling);
+        EnterState(NPCState.Patrolling);
     }
 
     private void ReleaseBedIfAny()

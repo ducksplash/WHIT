@@ -65,6 +65,8 @@ public class FirstPersonLook : MonoBehaviour
     public bool deviceCheckOverride;
     public DeviceHelperOutside deviceTypeSupplemental;
 
+    public float CurrentYaw => currentMouseLook.x;
+    
     private void Start()
     {
         if (cameraPivot == null) cameraPivot = transform;

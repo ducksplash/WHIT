@@ -18,8 +18,8 @@ public class NPCTalkBehaviour : NPCBehaviourBase
         if (npc.currentTarget == null)
         {
             UnregisterAsSpeaker();
-            npc.HasCommand = false; npc.CommandGoal = NPCController.NPCState.Patrolling;
-            EnterState(NPCController.NPCState.Patrolling);
+            npc.HasCommand = false; npc.CommandGoal = NPCState.Patrolling;
+            EnterState(NPCState.Patrolling);
             return;
         }
         FaceTowards(npc.currentTarget.position, dt, TurnSmoothing * 1.5f);
@@ -56,7 +56,7 @@ public class NPCTalkBehaviour : NPCBehaviourBase
             npc.useStateMachine = true;
             if (AgentReady()) { Agent.isStopped = false; Agent.ResetPath(); }
             ForceReturnToLocomotion();
-            if (npc.GetCurrentState() == NPCController.NPCState.Talk) EnterState(NPCController.NPCState.Patrolling);
+            if (npc.GetCurrentState() == NPCState.Talk) EnterState(NPCState.Patrolling);
         }
     }
 
@@ -83,13 +83,13 @@ public class NPCTalkBehaviour : NPCBehaviourBase
             if (speaker == null) continue;
             speaker.Talk.RegisteredAsSpeaker = false;
             speaker.Talk.TalkTargetController = null;
-            if (speaker.GetCurrentState() == NPCController.NPCState.Talk)
+            if (speaker.GetCurrentState() == NPCState.Talk)
             {
-                speaker.HasCommand = false; speaker.CommandGoal = NPCController.NPCState.Patrolling;
+                speaker.HasCommand = false; speaker.CommandGoal = NPCState.Patrolling;
                 speaker.currentTarget = null; speaker.useStateMachine = true;
                 if (speaker.AgentReady()) { speaker.agent.isStopped = false; speaker.agent.ResetPath(); }
                 if (speaker.animationController != null) speaker.ForceReturnToLocomotion();
-                speaker.EnterState(NPCController.NPCState.Patrolling);
+                speaker.EnterState(NPCState.Patrolling);
             }
         }
         _conversationSpeakers.Clear();

@@ -33,6 +33,9 @@ public static class EventManager
     public static event Action<GameObject> OnRegisterTorch = (TorchObj) => { };
     public static event Action<GameObject> OnRegisterPhone = (PhoneObj) => { };
     public static event Action OnUpdateCorkboard = () => { };
+    public static event Action<Seat> OnNoraSit = (thisSeat) => { };
+    
+    
     
     //public static event Action OnLightSwitchClick = () => { };
     //public static event Action<bool> OnBoolToggled = (bool) => { };
@@ -163,6 +166,11 @@ public static class EventManager
     public static void UpdateCorkboard()
     {
         OnUpdateCorkboard.Invoke();
+    }
+
+    public static void NoraSit(Seat selectedSeat)
+    {
+        OnNoraSit.Invoke(selectedSeat);
     }
 
     

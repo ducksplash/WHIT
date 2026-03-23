@@ -10,7 +10,8 @@ public class Dialogue : ScriptableObject
     public DialogueName DialogueName = DialogueName.None;
     public Contacts Contact = Contacts.System;
     public DialogueType DialogueType;
-
+    public bool repeatable;
+    
     [Header("Dialogue contains replaceable strings i.e. for key binds.")]
     public bool EregiReplace = false;
     

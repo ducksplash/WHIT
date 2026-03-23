@@ -20,26 +20,31 @@ public class Player : Singleton<Player>
     public Camera MainCam;
     public Camera DebugCam;
     public Camera CurrentCamera;
-    
+    public UpperBodyPitch UpperBodyPitch;
     public float RayCastDistance = 4f;
 
     [Header("Animation")]
     public Animator Noranimator;
 
-    private static readonly int AnimMoveX = Animator.StringToHash("MoveX");
-    private static readonly int AnimMoveY = Animator.StringToHash("MoveY");
-    private static readonly int AnimSpeed = Animator.StringToHash("Speed");
-    private static readonly int AnimCrouching = Animator.StringToHash("Crouching");
-    private static readonly int AnimJump = Animator.StringToHash("JUMP");
-    private static readonly int AnimGrounded = Animator.StringToHash("Grounded");
+    private static readonly int AnimMoveX      = Animator.StringToHash("MoveX");
+    private static readonly int AnimMoveY      = Animator.StringToHash("MoveY");
+    private static readonly int AnimSpeed      = Animator.StringToHash("Speed");
+    private static readonly int AnimCrouching  = Animator.StringToHash("Crouching");
+    private static readonly int AnimJump       = Animator.StringToHash("JUMP");
+    private static readonly int AnimGrounded   = Animator.StringToHash("Grounded");
 
-    // ✅ Triggers
-    private static readonly int AnimMelee = Animator.StringToHash("MELEE");
+    // Triggers
+    private static readonly int AnimMelee      = Animator.StringToHash("MELEE");
 
-    // Existing phone/notepad params in your controller (you currently SetBool on PHONEOUT)
-    private static readonly int AnimPhoneOut = Animator.StringToHash("PHONEOUT");
-    private static readonly int AnimNotepadOut = Animator.StringToHash("NOTEPADOUT");
+    private static readonly int AnimPhoneOut      = Animator.StringToHash("PHONEOUT");
+    private static readonly int AnimNotepadOut    = Animator.StringToHash("NOTEPADOUT");
+    private static readonly int AnimPhoneOutCrouch = Animator.StringToHash("PHONEOUTCROUCH");
 
+    // ── Sitting ────────────────────────────────────────────────────────────
+    private static readonly int AnimSitDown = Animator.StringToHash("SitDown");
+    private static readonly int AnimSitIdle = Animator.StringToHash("SitIdle");
+    private static readonly int AnimStandUp = Animator.StringToHash("StandUp");
+    // ───────────────────────────────────────────────────────────────────────
 
     [Header("Locomotion Torch Clip Overrides")]
     public AnimationClip idleWithTorch;
@@ -50,10 +55,6 @@ public class Player : Singleton<Player>
     private AnimatorOverrideController _locomotionOverride;
     private RuntimeAnimatorController _baseController;
     private bool _hasTorch;
-
-    
-    // ✅ NEW: crouch phone out trigger (matches your new trigger name)
-    private static readonly int AnimPhoneOutCrouch = Animator.StringToHash("PHONEOUTCROUCH");
 
     [Header("Crawl Animation Detection (BlendTree Clip-Based)")]
     public string crawlClipName = "NoraCrawl";
@@ -78,70 +79,108 @@ public class Player : Singleton<Player>
     public float groundedFalseAfterJumpSeconds = 0.12f;
     private float _forceUngroundedUntil;
 
-    // ------------------------------------------------------------
-    // ✅ Melee
-    // ------------------------------------------------------------
+    // ── Melee ───────────────────────────────────────────────────────────────
     [Header("Melee")] 
     public bool CombatEnabled;
     public InputActionReference meleeAction;
-    public float meleeCooldown = 0.55f;     // gameplay cooldown (NOT clip length)
+    public float meleeCooldown = 0.55f;
     public bool lockMovementDuringMelee = false;
     public float lockMoveSeconds = 0.25f;
 
     private float _nextMeleeTime;
     private float _moveLockedUntil;
 
-    // ------------------------------------------------------------
-    // ✅ UpperBody Layer gating (shared by MELEE + PHONE)
-    // ------------------------------------------------------------
+    // ── UpperBody Layer gating ──────────────────────────────────────────────
     [Header("UpperBody Layer Gating")]
     public string upperBodyLayerName = "UpperBody";
-    public float upperBodyBlendIn = 0.03f;
+    public float upperBodyBlendIn  = 0.03f;
     public float upperBodyBlendOut = 0.06f;
 
-    private int _upperBodyLayerIndex = -1;
+    private int      _upperBodyLayerIndex = -1;
     private Coroutine _upperBodyBlendCo;
 
     private bool _upperBodyHeldByMelee;
     private bool _upperBodyHeldByPhone;
 
-    // ------------------------------------------------------------
-    // ✅ Phone (UpperBody)
-    // ------------------------------------------------------------
+    // ── Phone (UpperBody) ───────────────────────────────────────────────────
     [Header("Phone (UpperBody)")]
-    public string upperBodyPhoneOutStateName = "PHONE OUT";
+    public string upperBodyPhoneOutStateName  = "PHONE OUT";
     public string upperBodyPhoneAwayStateName = "PHONE AWAY";
 
     private int _phoneOutStateHash;
     private int _phoneAwayStateHash;
 
-    // ------------------------------------------------------------
-    // Crouch (Controller Collider)
-    // ------------------------------------------------------------
+    // ── Crouch (Controller Collider) ────────────────────────────────────────
     [Header("Crouch (Controller Collider)")]
     public bool crouching;
 
-    public float standheight = 0f;
-    public float croucheight = 1.0f;
+    public float standheight       = 0f;
+    public float croucheight       = 1.0f;
     public float crouchBlendSeconds = 0.12f;
 
-    public LayerMask standCheckMask = ~0;
-    public float standCheckShrink = 0.02f;
+    public LayerMask standCheckMask  = ~0;
+    public float standCheckShrink    = 0.02f;
 
-    public Image stanceimg;
+    public Image  stanceimg;
     public Sprite crouchsprite;
     public Sprite standsprite;
 
-    private float _standHeight;
+    private float   _standHeight;
     private Vector3 _standCenter;
-    private float _bottomLocalOffset;
-    private bool _controllerBaselineCaptured;
+    private float   _bottomLocalOffset;
+    private bool    _controllerBaselineCaptured;
 
     private Coroutine _crouchCo;
-
+    private Coroutine _cameraSnapCo;
+    
     public GameObject TravelNotepad;
     public bool climbing;
     public GameObject LadderAttachedTo;
+
+    
+    
+    // ── Sitting ─────────────────────────────────────────────────────────────
+    // NOTE: EventManager.OnNoraSit must be declared as Action<Seat> to match
+    // the updated NoraSit(Seat) signature below.
+
+    [Header("Sitting")]
+    [Tooltip("Walk speed used when approaching a seat.")]
+    public float sitMoveSpeed = 3.5f;
+
+    [Tooltip("Planar distance at which the approach phase is considered complete.")]
+    public float sitArriveDistance = 0.3f;
+
+    [Tooltip("How fast Nora rotates to face the seat direction.")]
+    public float sitRotateSpeed = 7f;
+
+    [Tooltip("Yaw tolerance (degrees) for the alignment phase.")]
+    public float sitAlignToleranceDeg = 5f;
+
+    [Tooltip("How far in front of the seat Nora stops before backstepping.")]
+    public float sitPreSitForwardOffset = 0.45f;
+
+    [Tooltip("How far back from the pre-sit point Nora steps before sitting.")]
+    public float sitBackstepDistance = 0.25f;
+
+    [Tooltip("Speed of the backstep movement.")]
+    public float sitBackstepSpeed = 0.8f;
+
+    [Tooltip("Extra offset applied to root position when snapped to a seated position.")]
+    public Vector3 sitSeatedRootOffset = Vector3.zero;
+
+    [Tooltip("Animator layer index that contains SitDown / SitIdle / StandUp states.")]
+    public int sitAnimLayer = 0;
+
+    [Tooltip("Duration of the SitDown clip – coroutine waits this long before entering SitIdle.")]
+    public float sitDownDuration = 1.2f;
+
+    [Tooltip("Duration of the StandUp clip – coroutine waits this long before returning to locomotion.")]
+    public float standUpDuration = 1.0f;
+
+    private Coroutine  _sitCoroutine;
+    private Transform  _activeSeatTransform;
+    private bool       _isSeated;
+    // ───────────────────────────────────────────────────────────────────────
 
     [Header("UI References")]
     public TextMeshProUGUI PaperDeathText;
@@ -159,8 +198,8 @@ public class Player : Singleton<Player>
     public CanvasGroup EvidenceCompanion;
 
     [Header("Spawn & Hands")]
-    public Vector3 SpawnPoint;
-    public Transform playerHand;
+    public Vector3    SpawnPoint;
+    public Transform  playerHand;
 
     [Header("Input Actions")]
     public InputActionReference moveAction;
@@ -171,35 +210,37 @@ public class Player : Singleton<Player>
     public InputActionReference climbDownAction;
     public InputActionReference exitLadderAction;
     public InputActionReference CameraToggleAction;
+    
+    
+    public InputActionReference StandUpAction;
 
     [Header("Scripts")]
     public FirstPersonLook FirstPersonLook;
     public Phone PlayerPhone;
-
     private Vector3 moveDirection = Vector3.zero;
-    private bool jumpRequested = false;
+    private bool jumpRequested    = false;
+    private bool walking          = false;
 
-    private bool walking = false;
-
-    
-    
     public bool MoveOverride;
     public bool ZoomOverride;
 
+    // ────────────────────────────────────────────────────────────────────────
+    // Start
+    // ────────────────────────────────────────────────────────────────────────
     void Start()
     {
         CurrentCamera = MainCam;
-        
+
         EventManager.OnTorchCollected += TorchCollected;
+        EventManager.OnNoraSit        += NoraSit;
+        StandUpAction.action.performed += StandUp;
+        
         
         thisCharController = GetComponentInParent<CharacterController>();
         if (thisCharController == null) thisCharController = GetComponent<CharacterController>();
 
-        //if (thisCharController == null) Debug.LogError("[Player] No CharacterController found on this object or its parents.");
-
         SpawnPoint = transform.position;
-        speed = sprintspeed;
-        
+        speed      = sprintspeed;
 
         if (Noranimator == null)
             Noranimator = GetComponentInChildren<Animator>(true);
@@ -208,13 +249,13 @@ public class Player : Singleton<Player>
         {
             _animT = Noranimator.transform;
             Noranimator.applyRootMotion = false;
-            Noranimator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            Noranimator.cullingMode     = AnimatorCullingMode.AlwaysAnimate;
 
-            Noranimator.SetBool(AnimCrouching, crouching);
-            Noranimator.SetBool(AnimGrounded, true);
-            Noranimator.SetFloat(AnimSpeed, 0f);
-            Noranimator.SetFloat(AnimMoveX, 0f);
-            Noranimator.SetFloat(AnimMoveY, 0f);
+            Noranimator.SetBool(AnimCrouching,  crouching);
+            Noranimator.SetBool(AnimGrounded,   true);
+            Noranimator.SetFloat(AnimSpeed,     0f);
+            Noranimator.SetFloat(AnimMoveX,     0f);
+            Noranimator.SetFloat(AnimMoveY,     0f);
 
             _upperBodyLayerIndex = Noranimator.GetLayerIndex(upperBodyLayerName);
             if (_upperBodyLayerIndex < 0 && debugAnim)
@@ -222,7 +263,7 @@ public class Player : Singleton<Player>
             else
                 Noranimator.SetLayerWeight(_upperBodyLayerIndex, 0f);
 
-            _phoneOutStateHash = Animator.StringToHash(upperBodyPhoneOutStateName);
+            _phoneOutStateHash  = Animator.StringToHash(upperBodyPhoneOutStateName);
             _phoneAwayStateHash = Animator.StringToHash(upperBodyPhoneAwayStateName);
 
             Noranimator.ResetTrigger(AnimMelee);
@@ -232,9 +273,8 @@ public class Player : Singleton<Player>
 
         CaptureControllerBaseline();
         _lastWorldPos = GetWorldPositionForVelocity();
-        
-        
-        _baseController = Noranimator.runtimeAnimatorController;
+
+        _baseController    = Noranimator.runtimeAnimatorController;
         _locomotionOverride = new AnimatorOverrideController(_baseController);
         Noranimator.runtimeAnimatorController = _locomotionOverride;
 
@@ -243,36 +283,31 @@ public class Player : Singleton<Player>
         CameraToggleAction.action.performed += ToggleDebugCamera;
     }
 
-
-    private void TorchCollected()
-    {
-        SetTorchLocomotion(true);
-    }
-
+    // ────────────────────────────────────────────────────────────────────────
+    // Torch
+    // ────────────────────────────────────────────────────────────────────────
+    private void TorchCollected() => SetTorchLocomotion(true);
 
     public void ToggleDebugCamera(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
         DebugCam.enabled = false;
         DebugCam.gameObject.SetActive(false);
-        MainCam.enabled = false;
+        MainCam.enabled  = false;
 
-        
         CurrentCamera = (CurrentCamera == MainCam) ? DebugCam : MainCam;
 
         if (CurrentCamera == DebugCam) DebugCam.gameObject.SetActive(true);
-        
+
         if (CurrentCamera == MainCam)
         {
             Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            Cursor.visible   = false;
         }
-        
-        
+
         EventManager.DebugCamEnabled(CurrentCamera == DebugCam);
-        
         CurrentCamera.enabled = true;
     }
-    
+
     public void SetTorchLocomotion(bool hasTorch)
     {
         _hasTorch = hasTorch;
@@ -283,38 +318,31 @@ public class Player : Singleton<Player>
             return;
         }
 
-        // Validate keys (these MUST be the clips used by the BlendTree)
         if (idleWithTorch == null || walkingWithTorch == null)
         {
-            Debug.LogWarning("[Player] Missing WithTorch clips. These must be the exact clips referenced by the BlendTree.");
+            Debug.LogWarning("[Player] Missing WithTorch clips.");
             return;
         }
 
-        // Validate targets
         if (!hasTorch && (idleWithoutTorch == null || walkingWithoutTorch == null))
         {
             Debug.LogWarning("[Player] Missing WithoutTorch clips.");
             return;
         }
 
-        // Override the BlendTree clips:
-        // - when hasTorch = false => play WithoutTorch
-        // - when hasTorch = true  => play the WithTorch clips (back to default)
-        _locomotionOverride[idleWithTorch] = hasTorch ? idleWithTorch : idleWithoutTorch;
+        _locomotionOverride[idleWithTorch]    = hasTorch ? idleWithTorch    : idleWithoutTorch;
         _locomotionOverride[walkingWithTorch] = hasTorch ? walkingWithTorch : walkingWithoutTorch;
-
-        // Optional: force animator to notice immediately (usually not required, but harmless)
-        // Noranimator.Rebind();
-        // Noranimator.Update(0f);
     }
-    
-    
+
+    // ────────────────────────────────────────────────────────────────────────
+    // Controller baseline
+    // ────────────────────────────────────────────────────────────────────────
     private void CaptureControllerBaseline()
     {
         if (thisCharController == null || _controllerBaselineCaptured) return;
 
-        _standHeight = thisCharController.height;
-        _standCenter = thisCharController.center;
+        _standHeight  = thisCharController.height;
+        _standCenter  = thisCharController.center;
 
         if (standheight <= 0f) standheight = _standHeight;
 
@@ -324,10 +352,12 @@ public class Player : Singleton<Player>
         int playerLayer = thisCharController.gameObject.layer;
         standCheckMask &= ~(1 << playerLayer);
 
-        if (crouching)
-            ApplyControllerHeightKeepBottom(croucheight);
+        if (crouching) ApplyControllerHeightKeepBottom(croucheight);
     }
 
+    // ────────────────────────────────────────────────────────────────────────
+    // Enable / Disable
+    // ────────────────────────────────────────────────────────────────────────
     void OnEnable()
     {
         moveAction?.action.Enable();
@@ -337,16 +367,15 @@ public class Player : Singleton<Player>
         climbUpAction?.action.Enable();
         climbDownAction?.action.Enable();
         exitLadderAction?.action.Enable();
-
         meleeAction?.action.Enable();
 
-        if (jumpAction != null) jumpAction.action.performed += OnJump;
+        if (jumpAction   != null) jumpAction.action.performed   += OnJump;
         if (crouchAction != null) crouchAction.action.performed += OnCrouchToggle;
 
         if (walkAction != null)
         {
             walkAction.action.performed += OnWalkPressed;
-            walkAction.action.canceled += OnWalkReleased;
+            walkAction.action.canceled  += OnWalkReleased;
         }
 
         if (meleeAction != null)
@@ -355,13 +384,13 @@ public class Player : Singleton<Player>
 
     void OnDisable()
     {
-        if (jumpAction != null) jumpAction.action.performed -= OnJump;
+        if (jumpAction   != null) jumpAction.action.performed   -= OnJump;
         if (crouchAction != null) crouchAction.action.performed -= OnCrouchToggle;
 
         if (walkAction != null)
         {
             walkAction.action.performed -= OnWalkPressed;
-            walkAction.action.canceled -= OnWalkReleased;
+            walkAction.action.canceled  -= OnWalkReleased;
         }
 
         if (meleeAction != null)
@@ -371,19 +400,358 @@ public class Player : Singleton<Player>
     private void OnWalkPressed(InputAction.CallbackContext ctx) => walking = true;
     private void OnWalkReleased(InputAction.CallbackContext ctx) => walking = false;
 
+    // ────────────────────────────────────────────────────────────────────────
+    // Update
+    // ────────────────────────────────────────────────────────────────────────
     void Update()
     {
         if (CurrentCamera == DebugCam) return;
-        
-        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused) return;
 
-        if (MoveOverride && moveAction != null && !moveAction.action.enabled) moveAction.action.Enable();
+        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null &&
+            GameMaster.Instance.PauseManager.IsPaused) return;
+
+        if (MoveOverride && moveAction != null && !moveAction.action.enabled)
+            moveAction.action.Enable();
 
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
 
         HandleMovement();
     }
 
+    // ────────────────────────────────────────────────────────────────────────
+    // ── SITTING ─────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Called when the player clicks a seat. Begins the full sit-down sequence.
+    /// EventManager.OnNoraSit must be declared as Action&lt;Seat&gt;.
+    /// PLAYERBUSY is set true immediately and held until StandUp() completes.
+    /// </summary>
+    public void NoraSit(Seat seat)
+    {
+        if (seat == null || seat.seatTransform == null)
+        {
+            Debug.LogWarning("[Player] NoraSit called with null seat or null seatTransform.");
+            return;
+        }
+
+        if (_isSeated)
+        {
+            Debug.LogWarning("[Player] NoraSit called while already seated – ignoring.");
+            return;
+        }
+
+        GameMaster.Instance.PLAYERBUSY = true;
+
+        // Disable immediately so FirstPersonLook cannot fight the rotation
+        // during approach/align/backstep phases, and so no CC forces interfere.
+        if (FirstPersonLook    != null) FirstPersonLook.enabled    = false;
+        if (thisCharController != null) thisCharController.enabled = false;
+
+        if (_sitCoroutine != null)
+        {
+            StopCoroutine(_sitCoroutine);
+            _sitCoroutine = null;
+        }
+
+        _activeSeatTransform = seat.seatTransform;
+        _sitCoroutine = StartCoroutine(SitSequence(seat.seatTransform));
+    }
+
+    // ── Phase runner ────────────────────────────────────────────────────────
+    private IEnumerator SitSequence(Transform seatTf)
+    {
+        // ── Shared geometry ─────────────────────────────────────────────────
+        Vector3 seatForward = seatTf.forward;
+        seatForward.y = 0f;
+
+        if (seatForward.sqrMagnitude < 0.0001f)
+            seatForward = transform.forward;
+
+        seatForward.Normalize();
+
+        Vector3 seatPos = seatTf.position;
+
+        Vector3 preSitPoint = new Vector3(
+            seatPos.x + seatForward.x * sitPreSitForwardOffset,
+            transform.position.y,
+            seatPos.z + seatForward.z * sitPreSitForwardOffset);
+
+        Vector3 backstepPoint = new Vector3(
+            seatPos.x + seatForward.x * sitBackstepDistance,
+            transform.position.y,
+            seatPos.z + seatForward.z * sitBackstepDistance);
+
+        // ── Phase 1: Approach ────────────────────────────────────────────────
+        yield return SitPhaseApproach(preSitPoint);
+        if (!seatTf)
+        {
+            AbortSit();
+            yield break;
+        }
+
+        // ── Phase 2: Align ───────────────────────────────────────────────────
+        yield return SitPhaseAlign(seatForward);
+        if (!seatTf)
+        {
+            AbortSit();
+            yield break;
+        }
+
+        // ── Phase 3: Backstep ────────────────────────────────────────────────
+        yield return SitPhaseBackstep(backstepPoint, seatForward);
+        if (!seatTf)
+        {
+            AbortSit();
+            yield break;
+        }
+
+        // ── Phase 4: SitDown trigger ─────────────────────────────────────────
+        transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
+
+        if (Noranimator != null)
+        {
+            Noranimator.ResetTrigger(AnimSitDown);
+            Noranimator.SetTrigger(AnimSitDown);
+        }
+
+        yield return new WaitForSeconds(sitDownDuration);
+
+        // ── Phase 5: Snap + CAMERA FIX (critical order) ───────────────────────
+        if (seatTf)
+        {
+            transform.position = seatTf.position + sitSeatedRootOffset;
+            transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
+        }
+
+
+        if (Noranimator != null)
+        {
+            Noranimator.ResetTrigger(AnimSitIdle);
+            Noranimator.SetTrigger(AnimSitIdle);
+        }
+        
+        
+        ApplyCameraSmooth(); 
+
+        _isSeated = true;
+        _sitCoroutine = null;
+    }
+    
+    
+
+    private void ApplyCameraSmooth()
+    {
+        if (_cameraSnapCo != null)
+            StopCoroutine(_cameraSnapCo);
+
+        _cameraSnapCo = StartCoroutine(SmoothCameraToSeat());
+    }
+    
+    private IEnumerator SmoothCameraToSeat()
+    {
+        if (FirstPersonLook == null) yield break;
+
+        Transform camPivot = FirstPersonLook.transform;
+        if (camPivot == null) yield break;
+
+        float duration = 0.25f;
+        float t = 0f;
+
+        Quaternion startRot = camPivot.localRotation;
+        Quaternion targetRot = Quaternion.identity;
+
+        float startYaw = FirstPersonLook.CurrentYaw; // you may need to expose this
+        float targetYaw = transform.eulerAngles.y;
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float a = t / duration;
+
+            // Smooth camera local rotation
+            camPivot.localRotation = Quaternion.Slerp(startRot, targetRot, a);
+
+            // Smooth player yaw inside your look script
+            float yaw = Mathf.LerpAngle(startYaw, targetYaw, a);
+            FirstPersonLook.SetPlayerRotation(new Vector2(yaw, 0f));
+
+            yield return null;
+        }
+
+        // Final snap (safe)
+        camPivot.localRotation = targetRot;
+        FirstPersonLook.SetPlayerRotation(new Vector2(targetYaw, 0f));
+
+        _cameraSnapCo = null;
+    }
+
+    
+    
+    
+    // ── Approach phase ───────────────────────────────────────────────────────
+    // CC is disabled. Move the transform directly so nothing fights the motion.
+    private IEnumerator SitPhaseApproach(Vector3 target)
+    {
+        // Keep Nora on the floor throughout (Y is fixed to where she started)
+        float floorY = transform.position.y;
+
+        while (true)
+        {
+            // Planar distance check only
+            float dist = new Vector2(
+                target.x - transform.position.x,
+                target.z - transform.position.z).magnitude;
+
+            if (dist <= sitArriveDistance) yield break;
+
+            // Direction of travel (horizontal only)
+            Vector3 dir = new Vector3(
+                target.x - transform.position.x, 0f,
+                target.z - transform.position.z).normalized;
+
+            // Face the direction of travel
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                Quaternion.LookRotation(dir, Vector3.up),
+                Time.deltaTime * sitRotateSpeed);
+
+            // Move directly – no physics, no CC
+            Vector3 next = transform.position + dir * sitMoveSpeed * Time.deltaTime;
+            next.y = floorY;
+            transform.position = next;
+
+            yield return null;
+        }
+    }
+
+    // ── Align phase ──────────────────────────────────────────────────────────
+    private IEnumerator SitPhaseAlign(Vector3 targetFacing)
+    {
+        Quaternion targetRot = Quaternion.LookRotation(targetFacing, Vector3.up);
+
+        while (Mathf.Abs(Mathf.DeltaAngle(transform.eulerAngles.y, targetRot.eulerAngles.y)) > sitAlignToleranceDeg)
+        {
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation, targetRot,
+                Time.deltaTime * sitRotateSpeed * 1.5f);
+            yield return null;
+        }
+
+        transform.rotation = targetRot;
+    }
+
+    // ── Backstep phase ───────────────────────────────────────────────────────
+    private IEnumerator SitPhaseBackstep(Vector3 backstepTarget, Vector3 seatFacing)
+    {
+        float      floorY   = transform.position.y;
+        Quaternion faceRot  = Quaternion.LookRotation(seatFacing, Vector3.up);
+
+        while (true)
+        {
+            float dist = new Vector2(
+                backstepTarget.x - transform.position.x,
+                backstepTarget.z - transform.position.z).magnitude;
+
+            if (dist <= 0.06f) yield break;
+
+            // Hold the facing rotation (Nora is stepping backward into the seat)
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation, faceRot,
+                Time.deltaTime * sitRotateSpeed * 2f);
+
+            Vector3 dir = new Vector3(
+                backstepTarget.x - transform.position.x, 0f,
+                backstepTarget.z - transform.position.z).normalized;
+
+            Vector3 next = transform.position + dir * sitBackstepSpeed * Time.deltaTime;
+            next.y = floorY;
+            transform.position = next;
+
+            yield return null;
+        }
+    }
+
+    // ── Abort helper ────────────────────────────────────────────────────────
+    private void AbortSit()
+    {
+        Debug.LogWarning("[Player] SitSequence aborted (seat transform was destroyed).");
+        ReturnToLocomotion();
+        GameMaster.Instance.PLAYERBUSY = false;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // ── STAND UP ─────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Call this to stand Nora up from a seated position.
+    /// Intentionally left uncalled – bind to player input as required.
+    /// </summary>
+    public void StandUp(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
+    {
+        if (!_isSeated && _sitCoroutine == null)
+        {
+            Debug.LogWarning("[Player] StandUp called but player is not seated.");
+            return;
+        }
+
+        // Cancel any lingering sit coroutine (e.g. still in approach phase)
+        if (_sitCoroutine != null)
+        {
+            StopCoroutine(_sitCoroutine);
+            _sitCoroutine = null;
+        }
+
+        _sitCoroutine = StartCoroutine(StandUpSequence());
+    }
+
+    private IEnumerator StandUpSequence()
+    {
+        if (Noranimator != null)
+        {
+            Noranimator.ResetTrigger(AnimSitIdle);
+            Noranimator.SetTrigger(AnimStandUp);
+        }
+
+        yield return new WaitForSeconds(standUpDuration);
+
+        ReturnToLocomotion();
+
+        _sitCoroutine = null;
+    }
+
+    // ── Shared locomotion-restore helper ────────────────────────────────────
+    private void ReturnToLocomotion()
+    {
+        _isSeated            = false;
+        _activeSeatTransform = null;
+
+        if (thisCharController != null) thisCharController.enabled = true;
+        if (FirstPersonLook    != null) FirstPersonLook.enabled    = true;
+
+        moveDirection.y = 0f;
+
+        if (Noranimator != null)
+        {
+            Noranimator.SetBool (AnimCrouching, crouching);
+            Noranimator.SetBool (AnimGrounded,  true);
+            Noranimator.SetFloat(AnimSpeed,     0f);
+            Noranimator.SetFloat(AnimMoveX,     0f);
+            Noranimator.SetFloat(AnimMoveY,     0f);
+
+            // Clear sitting triggers so they don't fire again
+            Noranimator.ResetTrigger(AnimSitDown);
+            Noranimator.ResetTrigger(AnimSitIdle);
+            Noranimator.ResetTrigger(AnimStandUp);
+        }
+        
+        GameMaster.Instance.PLAYERBUSY = false;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // Movement
+    // ────────────────────────────────────────────────────────────────────────
     private void HandleMovement()
     {
         if (lockMovementDuringMelee && Time.time < _moveLockedUntil)
@@ -395,10 +763,10 @@ public class Player : Singleton<Player>
         moveInput = moveAction != null ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
 
         Vector3 camForward = CurrentCamera != null ? CurrentCamera.transform.forward : transform.forward;
-        Vector3 camRight = CurrentCamera != null ? CurrentCamera.transform.right : transform.right;
+        Vector3 camRight   = CurrentCamera != null ? CurrentCamera.transform.right   : transform.right;
 
         camForward.y = 0f;
-        camRight.y = 0f;
+        camRight.y   = 0f;
         camForward.Normalize();
         camRight.Normalize();
 
@@ -410,11 +778,8 @@ public class Player : Singleton<Player>
         {
             Vector3 climbMove = Vector3.zero;
 
-            if (climbUpAction != null && climbUpAction.action.ReadValue<float>() > 0f)
-                climbMove += Vector3.up * speed;
-
-            if (climbDownAction != null && climbDownAction.action.ReadValue<float>() > 0f)
-                climbMove -= Vector3.up * speed;
+            if (climbUpAction   != null && climbUpAction.action.ReadValue<float>()   > 0f) climbMove += Vector3.up * speed;
+            if (climbDownAction != null && climbDownAction.action.ReadValue<float>() > 0f) climbMove -= Vector3.up * speed;
 
             if (thisCharController != null)
                 thisCharController.Move(climbMove * Time.deltaTime);
@@ -433,13 +798,12 @@ public class Player : Singleton<Player>
 
         if (groundedBefore)
         {
-            if (moveDirection.y < 0f)
-                moveDirection.y = -2f;
+            if (moveDirection.y < 0f) moveDirection.y = -2f;
 
             if (jumpRequested)
             {
-                moveDirection.y = jumpForce;
-                jumpRequested = false;
+                moveDirection.y     = jumpForce;
+                jumpRequested       = false;
                 _forceUngroundedUntil = Time.time + groundedFalseAfterJumpSeconds;
             }
         }
@@ -450,14 +814,10 @@ public class Player : Singleton<Player>
         thisCharController.Move(moveDirection * Time.deltaTime);
 
         bool groundedAfter = thisCharController.isGrounded;
-
-        bool animGrounded = groundedAfter;
-        if (Time.time < _forceUngroundedUntil)
-            animGrounded = false;
+        bool animGrounded  = groundedAfter;
+        if (Time.time < _forceUngroundedUntil) animGrounded = false;
 
         UpdateAnimator(isGrounded: animGrounded);
-
-        // ✅ Torch only suppressed while the "NoraCrawl" clip has meaningful weight in the crouch blend tree
         UpdatePeripheryFromAnimator();
     }
 
@@ -470,7 +830,7 @@ public class Player : Singleton<Player>
         if (thisCharController != null)
         {
             Vector3 v = thisCharController.velocity;
-            v.y = 0f;
+            v.y   = 0f;
             velXZ = v;
         }
 
@@ -488,7 +848,7 @@ public class Player : Singleton<Player>
         float targetY = isMoving ? Mathf.Clamp(localDir.z, -1f, 1f) : 0f;
 
         Noranimator.SetBool(AnimCrouching, crouching);
-        Noranimator.SetBool(AnimGrounded, isGrounded);
+        Noranimator.SetBool(AnimGrounded,  isGrounded);
 
         float dt = Time.deltaTime;
         Noranimator.SetFloat(AnimMoveX, targetX, animDampTime, dt);
@@ -498,39 +858,37 @@ public class Player : Singleton<Player>
         if (isMoving)
         {
             if (crouching) targetSpeed01 = 0.5f;
-            else targetSpeed01 = walking ? 0.5f : 1f;
+            else           targetSpeed01 = walking ? 0.5f : 1f;
         }
 
         Noranimator.SetFloat(AnimSpeed, targetSpeed01, animDampTime, dt);
     }
 
     private Vector3 GetWorldPositionForVelocity()
-    {
-        return thisCharController != null ? thisCharController.transform.position : transform.position;
-    }
+        => thisCharController != null ? thisCharController.transform.position : transform.position;
 
     private void ComputeManualVelocityXZ()
     {
         Vector3 now = GetWorldPositionForVelocity();
-        float dt = Time.deltaTime;
+        float   dt  = Time.deltaTime;
 
         if (dt <= 0.000001f)
         {
             _manualVelocityXZ = Vector3.zero;
-            _lastWorldPos = now;
+            _lastWorldPos     = now;
             return;
         }
 
-        Vector3 delta = (now - _lastWorldPos);
+        Vector3 delta = now - _lastWorldPos;
         delta.y = 0f;
 
         _manualVelocityXZ = delta / dt;
-        _lastWorldPos = now;
+        _lastWorldPos     = now;
     }
 
-    // ------------------------------------------------------------
-    // ✅ UpperBody layer helpers (shared gating)
-    // ------------------------------------------------------------
+    // ────────────────────────────────────────────────────────────────────────
+    // UpperBody layer helpers
+    // ────────────────────────────────────────────────────────────────────────
     private void StopUpperBodyBlend()
     {
         if (_upperBodyBlendCo != null)
@@ -542,8 +900,7 @@ public class Player : Singleton<Player>
 
     private void SetUpperBodyWeight(float w)
     {
-        if (Noranimator == null) return;
-        if (_upperBodyLayerIndex < 0) return;
+        if (Noranimator == null || _upperBodyLayerIndex < 0) return;
         Noranimator.SetLayerWeight(_upperBodyLayerIndex, Mathf.Clamp01(w));
     }
 
@@ -551,22 +908,15 @@ public class Player : Singleton<Player>
     {
         if (Noranimator == null || _upperBodyLayerIndex < 0) yield break;
 
-        if (seconds <= 0f)
-        {
-            SetUpperBodyWeight(to);
-            yield break;
-        }
+        if (seconds <= 0f) { SetUpperBodyWeight(to); yield break; }
 
         float t = 0f;
         while (t < seconds)
         {
             t += Time.deltaTime;
-            float a = Mathf.Clamp01(t / seconds);
-            float w = Mathf.Lerp(from, to, a);
-            Noranimator.SetLayerWeight(_upperBodyLayerIndex, w);
+            Noranimator.SetLayerWeight(_upperBodyLayerIndex, Mathf.Lerp(from, to, Mathf.Clamp01(t / seconds)));
             yield return null;
         }
-
         Noranimator.SetLayerWeight(_upperBodyLayerIndex, to);
     }
 
@@ -579,31 +929,28 @@ public class Player : Singleton<Player>
 
         if (_upperBodyLayerIndex < 0) return;
 
-        bool shouldBeOn = _upperBodyHeldByMelee || _upperBodyHeldByPhone;
+        bool  shouldBeOn = _upperBodyHeldByMelee || _upperBodyHeldByPhone;
+        float current    = Noranimator.GetLayerWeight(_upperBodyLayerIndex);
+        float target     = shouldBeOn ? 1f : 0f;
 
         StopUpperBodyBlend();
 
-        float current = Noranimator.GetLayerWeight(_upperBodyLayerIndex);
-        float target = shouldBeOn ? 1f : 0f;
-
-        if (Mathf.Approximately(current, target))
-            return;
+        if (Mathf.Approximately(current, target)) return;
 
         _upperBodyBlendCo = StartCoroutine(
             BlendUpperBodyWeight(current, target, shouldBeOn ? upperBodyBlendIn : upperBodyBlendOut)
         );
     }
 
-    // ------------------------------------------------------------
-    // ✅ Torch suppression based on BlendTree clip weight
-    // ------------------------------------------------------------
+    // ────────────────────────────────────────────────────────────────────────
+    // Torch suppression (crawl)
+    // ────────────────────────────────────────────────────────────────────────
     private void UpdatePeripheryFromAnimator()
     {
         if (PlayerTorch == null || Noranimator == null) return;
 
         bool isCrawling = IsClipActiveOnLayer(Noranimator, crawlLayerIndex, crawlClipName, crawlWeightThreshold);
 
-        // ✅ Only notify FirstPersonLook when crawl state CHANGES
         if (isCrawling != _lastIsCrawling)
         {
             FirstPersonLook?.SetCrawl(isCrawling);
@@ -642,8 +989,7 @@ public class Player : Singleton<Player>
         for (int i = 0; i < current.Length; i++)
         {
             var c = current[i].clip;
-            if (c != null && c.name == clipName && current[i].weight >= weightThreshold)
-                return true;
+            if (c != null && c.name == clipName && current[i].weight >= weightThreshold) return true;
         }
 
         if (anim.IsInTransition(layer))
@@ -652,28 +998,26 @@ public class Player : Singleton<Player>
             for (int i = 0; i < next.Length; i++)
             {
                 var c = next[i].clip;
-                if (c != null && c.name == clipName && next[i].weight >= weightThreshold)
-                    return true;
+                if (c != null && c.name == clipName && next[i].weight >= weightThreshold) return true;
             }
         }
 
         return false;
     }
 
-    // ------------------------------------------------------------
-    // ✅ MELEE
-    // ------------------------------------------------------------
+    // ────────────────────────────────────────────────────────────────────────
+    // Melee
+    // ────────────────────────────────────────────────────────────────────────
     public void TryMelee()
     {
         if (!CombatEnabled) return;
-        if (debugAnim) Debug.Log("TryMelee fired");
         if (Noranimator == null) return;
-
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
-        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused) return;
+        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null &&
+            GameMaster.Instance.PauseManager.IsPaused) return;
         if (climbing) return;
-
         if (Time.time < _nextMeleeTime) return;
+
         _nextMeleeTime = Time.time + meleeCooldown;
 
         _upperBodyHeldByMelee = true;
@@ -688,29 +1032,25 @@ public class Player : Singleton<Player>
 
     private void OnMelee(InputAction.CallbackContext ctx) => TryMelee();
 
-
-    // ------------------------------------------------------------
-    // ✅ PHONE
-    // ------------------------------------------------------------
+    // ────────────────────────────────────────────────────────────────────────
+    // Phone
+    // ────────────────────────────────────────────────────────────────────────
     public void TogglePhone(bool putaway)
     {
         if (Noranimator == null) return;
-        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused) return;
+        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null &&
+            GameMaster.Instance.PauseManager.IsPaused) return;
 
         _upperBodyHeldByPhone = true;
         RefreshUpperBodyWeight();
 
         if (putaway)
         {
-            // If your put-away is driven by the PHONEOUT bool, keep it.
             Noranimator.SetBool(AnimPhoneOut, false);
-
-            // Safety: clear triggers so you don't accidentally re-enter take-out on next frame.
             Noranimator.ResetTrigger(AnimPhoneOut);
             Noranimator.ResetTrigger(AnimPhoneOutCrouch);
             return;
         }
-
 
         if (crouching)
         {
@@ -721,30 +1061,27 @@ public class Player : Singleton<Player>
         {
             Noranimator.SetTrigger(AnimPhoneOut);
         }
-
-        // If your animator ALSO relies on this bool for "phone is out" idles / away state gating,
-        // keep setting it to true.
-        //Noranimator.SetBool(AnimPhoneOut, true);
     }
 
-    // ------------------------------------------------------------
-    // ✅ Notepad
-    // ------------------------------------------------------------
+    // ────────────────────────────────────────────────────────────────────────
+    // Notepad
+    // ────────────────────────────────────────────────────────────────────────
     public void ToggleNotepad(bool putaway)
     {
         if (Noranimator == null) return;
-        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused) return;
+        if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null &&
+            GameMaster.Instance.PauseManager.IsPaused) return;
 
         _upperBodyHeldByPhone = true;
         RefreshUpperBodyWeight();
 
         if (putaway) Noranimator.SetBool(AnimNotepadOut, false);
-        else Noranimator.SetBool(AnimNotepadOut, true);
+        else         Noranimator.SetBool(AnimNotepadOut, true);
     }
 
-    // ------------------------------------------------------------
+    // ────────────────────────────────────────────────────────────────────────
     // Jump / Crouch
-    // ------------------------------------------------------------
+    // ────────────────────────────────────────────────────────────────────────
     private void OnJump(InputAction.CallbackContext ctx)
     {
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride)
@@ -768,11 +1105,7 @@ public class Player : Singleton<Player>
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
         if (thisCharController == null) return;
 
-        if (!crouching)
-        {
-            Crouch();
-            return;
-        }
+        if (!crouching) { Crouch(); return; }
 
         if (!CanStandUp())
         {
@@ -786,7 +1119,7 @@ public class Player : Singleton<Player>
     public void Crouch()
     {
         crouching = true;
-        speed = walkspeed;
+        speed     = walkspeed;
 
         if (stanceimg != null) stanceimg.sprite = crouchsprite;
 
@@ -794,7 +1127,6 @@ public class Player : Singleton<Player>
             StartCrouchControllerBlend(toCrouch: true);
 
         FirstPersonLook?.SetCrouch(true);
-        
         Noranimator?.SetBool(AnimCrouching, true);
     }
 
@@ -811,25 +1143,13 @@ public class Player : Singleton<Player>
         Noranimator?.SetBool(AnimCrouching, false);
     }
 
-    // ------------------------------------------------------------
-    // CharacterController crouch implementation (no sinking)
-    // ------------------------------------------------------------
     private void StartCrouchControllerBlend(bool toCrouch)
     {
-        if (_crouchCo != null)
-        {
-            StopCoroutine(_crouchCo);
-            _crouchCo = null;
-        }
+        if (_crouchCo != null) { StopCoroutine(_crouchCo); _crouchCo = null; }
 
-        float targetHeight = toCrouch ? croucheight : standheight;
-        targetHeight = Mathf.Max(0.2f, targetHeight);
+        float targetHeight = Mathf.Max(0.2f, toCrouch ? croucheight : standheight);
 
-        if (crouchBlendSeconds <= 0f)
-        {
-            ApplyControllerHeightKeepBottom(targetHeight);
-            return;
-        }
+        if (crouchBlendSeconds <= 0f) { ApplyControllerHeightKeepBottom(targetHeight); return; }
 
         _crouchCo = StartCoroutine(BlendControllerHeight(targetHeight, crouchBlendSeconds));
     }
@@ -838,19 +1158,16 @@ public class Player : Singleton<Player>
     {
         if (thisCharController == null) yield break;
 
-        float startHeight = thisCharController.height;
+        float   startHeight = thisCharController.height;
         Vector3 startCenter = thisCharController.center;
-
-        float bottom = _bottomLocalOffset;
-
-        float t = 0f;
+        float   bottom      = _bottomLocalOffset;
+        float   t           = 0f;
 
         while (t < duration)
         {
             t += Time.deltaTime;
-            float a = Mathf.Clamp01(t / duration);
-
-            float h = Mathf.Lerp(startHeight, targetHeight, a);
+            float a  = Mathf.Clamp01(t / duration);
+            float h  = Mathf.Lerp(startHeight, targetHeight, a);
             float cy = bottom + (h * 0.5f);
 
             Vector3 c = startCenter;
@@ -863,13 +1180,11 @@ public class Player : Singleton<Player>
         }
 
         thisCharController.height = targetHeight;
-
         Vector3 finalC = thisCharController.center;
         finalC.y = bottom + (targetHeight * 0.5f);
         thisCharController.center = finalC;
 
         thisCharController.Move(Vector3.zero);
-
         _crouchCo = null;
     }
 
@@ -891,33 +1206,26 @@ public class Player : Singleton<Player>
         if (thisCharController == null || !_controllerBaselineCaptured) return true;
 
         int playerLayer = thisCharController.gameObject.layer;
-        int mask = standCheckMask & ~(1 << playerLayer);
+        int mask        = standCheckMask & ~(1 << playerLayer);
 
         float h = Mathf.Max(0.2f, standheight);
-        float r = Mathf.Max(0.01f, thisCharController.radius);
+        float r = Mathf.Max(0.01f, thisCharController.radius - standCheckShrink);
 
-        r = Mathf.Max(0.01f, r - standCheckShrink);
-
-        float centerY = _bottomLocalOffset + (h * 0.5f);
-
-        Transform t = thisCharController.transform;
-
+        float   centerY     = _bottomLocalOffset + (h * 0.5f);
         Vector3 localCenter = thisCharController.center;
-        localCenter.y = centerY;
+        localCenter.y       = centerY;
 
-        Vector3 centerWorld = t.TransformPoint(localCenter);
+        Vector3 centerWorld = thisCharController.transform.TransformPoint(localCenter);
+        float   segment     = Mathf.Max(0f, h - (2f * r));
+        Vector3 p1          = centerWorld + Vector3.up * (segment * 0.5f);
+        Vector3 p2          = centerWorld - Vector3.up * (segment * 0.5f);
 
-        Vector3 up = Vector3.up;
-
-        float segment = Mathf.Max(0f, h - (2f * r));
-        Vector3 p1 = centerWorld + up * (segment * 0.5f);
-        Vector3 p2 = centerWorld - up * (segment * 0.5f);
-
-        bool blocked = Physics.CheckCapsule(p2, p1, r, mask, QueryTriggerInteraction.Ignore);
-        return !blocked;
+        return !Physics.CheckCapsule(p2, p1, r, mask, QueryTriggerInteraction.Ignore);
     }
 
-    // --- your existing UI/death code unchanged below ---
+    // ────────────────────────────────────────────────────────────────────────
+    // UI / Death
+    // ────────────────────────────────────────────────────────────────────────
     public void DisableAllScreens()
     {
         CrossHair.alpha = 0f;
@@ -946,47 +1254,31 @@ public class Player : Singleton<Player>
         DisableAllScreens();
 
         string buildDate = System.DateTime.Now.ToString("dddd") + ", " +
-                           System.DateTime.Now.ToString("MMMM d") + MonthDay(System.DateTime.Now.ToString("dd")) + ", " +
+                           System.DateTime.Now.ToString("MMMM d") +
+                           MonthDay(System.DateTime.Now.ToString("dd")) + ", " +
                            System.DateTime.Now.ToString("yyyy");
 
         PaperDeathText.text = CauseString + ".";
-        PaperDateText.text = buildDate;
+        PaperDateText.text  = buildDate;
 
         DeathScreenMain.alpha = 1f;
         DeathScreenMain.blocksRaycasts = true;
 
         Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        Cursor.visible   = true;
 
         int duration = 100, diedDuration = 50, paperDuration = 50, buttonDuration = 50;
 
-        while (duration > 0)
-        {
-            DeathScreenFader.alpha += 0.01f;
-            yield return new WaitForSeconds(0.01f);
-            duration--;
-        }
-
-        while (diedDuration > 0)
-        {
-            DiedTextFader.alpha += 0.02f;
-            yield return new WaitForSeconds(0.02f);
-            diedDuration--;
-        }
-
-        while (paperDuration > 0)
-        {
-            PaperScreenFader.alpha += 0.02f;
-            yield return new WaitForSeconds(0.02f);
-            paperDuration--;
-        }
+        while (duration     > 0) { DeathScreenFader.alpha += 0.01f; yield return new WaitForSeconds(0.01f); duration--; }
+        while (diedDuration > 0) { DiedTextFader.alpha    += 0.02f; yield return new WaitForSeconds(0.02f); diedDuration--; }
+        while (paperDuration > 0){ PaperScreenFader.alpha += 0.02f; yield return new WaitForSeconds(0.02f); paperDuration--; }
 
         while (buttonDuration > 0)
         {
             ButtonFaderContinue.blocksRaycasts = true;
-            ButtonFaderLeave.blocksRaycasts = true;
+            ButtonFaderLeave.blocksRaycasts    = true;
             ButtonFaderContinue.alpha += 0.02f;
-            ButtonFaderLeave.alpha += 0.02f;
+            ButtonFaderLeave.alpha    += 0.02f;
             yield return new WaitForSeconds(0.02f);
             buttonDuration--;
         }

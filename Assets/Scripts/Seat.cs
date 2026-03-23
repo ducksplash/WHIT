@@ -19,6 +19,8 @@ public class Seat : MonoBehaviour
     public bool IsOccupied => occupied || occupiedBy != null;
 
 
+    
+    
     private void Awake()
     {
         
@@ -41,6 +43,13 @@ public class Seat : MonoBehaviour
         return true;
     }
 
+
+    public void NoraSit()
+    {
+        EventManager.NoraSit(this);
+    }
+    
+    
     public void Release(NPCController who)
     {
         if (who != null && occupiedBy == who)

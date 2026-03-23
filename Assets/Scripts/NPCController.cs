@@ -10,20 +10,6 @@ using UnityEditor;
 
 public class NPCController : MonoBehaviour
 {
-    public enum NPCState
-    {
-        Patrolling,
-        Alerted,
-        Approaching,
-        Attacking,
-        Seeking,
-        Talk,
-        SeekingSeat,
-        Sitting,
-        SeekingBed,
-        Lying,
-        ClimbingLadder
-    }
 
     [Header("Identity")] public NPC thisNPC = NPC.Eimear_Scott;
 
@@ -443,6 +429,10 @@ public class NPCController : MonoBehaviour
 
     public void Start()
     {
+
+        DirectorEvents.OnNPCCommand += ExecuteNPCCommand;
+        
+        
         if (animationController == null) animationController = GetComponentInChildren<Animator>();
         if (agent == null) agent = GetComponent<NavMeshAgent>();
 
@@ -485,6 +475,15 @@ public class NPCController : MonoBehaviour
         if (FindSeat) RequestSitDown();
     }
 
+    private void ExecuteNPCCommand(NPC npc, NPCState npcState)
+    {
+        if (thisNPC == npc)
+        {
+            EnterState(npcState);
+        }
+    }
+    
+    
     void Update()
     {
         if (_talk != null && _talk.IsConversationLocked)
@@ -2627,3 +2626,18 @@ public class NPCControllerEditor : Editor
     }
 }
 #endif
+
+public enum NPCState
+{
+    Patrolling,
+    Alerted,
+    Approaching,
+    Attacking,
+    Seeking,
+    Talk,
+    SeekingSeat,
+    Sitting,
+    SeekingBed,
+    Lying,
+    ClimbingLadder
+}

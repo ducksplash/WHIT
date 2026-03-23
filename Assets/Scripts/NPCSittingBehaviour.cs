@@ -537,9 +537,9 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         ReattachAgentToNavmeshAtCurrentXZ(); yield return null;
         ReattachAgentToNavmeshAtCurrentXZ();
         if (Anim != null) { Anim.Update(0f); ForceIdlePose(); }
-        npc.HasCommand = false; npc.CommandGoal = NPCController.NPCState.Patrolling;
+        npc.HasCommand = false; npc.CommandGoal = NPCState.Patrolling;
         _sitPhase = SitPhase.None;
-        npc.SetStateDirectly(NPCController.NPCState.Patrolling);
+        npc.SetStateDirectly(NPCState.Patrolling);
         npc.ExecutePendingPostStandAction();
     }
 
@@ -559,18 +559,18 @@ public class NPCSittingBehaviour : NPCBehaviourBase
             if (!Agent.isOnNavMesh && TryGetNavmeshPoint(Body.position, out Vector3 navPos)) Agent.Warp(navPos);
             if (AgentReady()) { Agent.isStopped = false; Agent.ResetPath(); Agent.velocity = Vector3.zero; Agent.autoBraking = true; Agent.stoppingDistance = Mathf.Max(0.05f, ArriveDistance); }
         }
-        npc.HasCommand = false; npc.CommandGoal = NPCController.NPCState.Patrolling;
+        npc.HasCommand = false; npc.CommandGoal = NPCState.Patrolling;
     }
 
     private void Fail()
     {
         if (seatDebugLogs) Debug.LogWarning($"{name} Sit: FAIL");
         ReleaseSeatIfAny(); ClearLadderRoute();
-        npc.HasCommand = false; npc.CommandGoal = NPCController.NPCState.Patrolling;
+        npc.HasCommand = false; npc.CommandGoal = NPCState.Patrolling;
         _sitPhase = SitPhase.None;
         if (Anim != null) ForceReturnToLocomotion();
         ReattachAgentToNavmeshAtCurrentXZ();
-        EnterState(NPCController.NPCState.Patrolling);
+        EnterState(NPCState.Patrolling);
     }
 
     private void ReleaseSeatIfAny() { if (_seat != null) _seat.Release(npc); _seat = null; _seatTf = null; }

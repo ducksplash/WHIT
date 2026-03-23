@@ -4,18 +4,18 @@ public class NPCCombatBehaviour : NPCBehaviourBase
 {
     public void TickAttacking(float dt)
     {
-        if (npc.HasCommand && npc.CommandGoal == NPCController.NPCState.Attacking)
+        if (npc.HasCommand && npc.CommandGoal == NPCState.Attacking)
         {
             if (AgentReady()) { Agent.isStopped = true; Agent.ResetPath(); }
             ForceIdlePose();
             if (npc.currentTarget != null) FaceTowards(npc.currentTarget.position, dt, TurnSmoothing * 1.25f);
             return;
         }
-        if (npc.currentTarget == null) { EnterState(NPCController.NPCState.Seeking); return; }
+        if (npc.currentTarget == null) { EnterState(NPCState.Seeking); return; }
         if (Vector3.Distance(SpawnPoint, npc.currentTarget.position) > ActiveRadius && !npc.allowApproachOutsideActiveRadius)
-        { EnterState(NPCController.NPCState.Seeking); return; }
+        { EnterState(NPCState.Seeking); return; }
         if (Vector3.Distance(Body.position, npc.currentTarget.position) > npc.attackRange * 1.15f)
-        { EnterState(NPCController.NPCState.Approaching); return; }
+        { EnterState(NPCState.Approaching); return; }
         FaceTowards(npc.currentTarget.position, dt, TurnSmoothing * 1.25f);
     }
 

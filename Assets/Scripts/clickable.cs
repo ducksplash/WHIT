@@ -13,6 +13,7 @@ public class clickable : Singleton<clickable>
     public Sprite doorsprite, doorspritegreen;
     public Sprite drawersprite, drawerspritegreen, lockeddrawersprite;
     public Sprite lockeddoorsprite;
+    public Sprite seatsprite;
     public Sprite pickupsprite, pickupcloseenoughsprite, evidencesprite;
 
     [Header("Info Text")]
@@ -49,7 +50,7 @@ public class clickable : Singleton<clickable>
     public float cameraAngularSlowThreshold = 45f;
 
     int doorlayer, drawerlayer, clickablelayer, enemylayer;
-    int pickuplayer, evidencelayer, staticevidencelayer, slidingdoorlayer;
+    int pickuplayer, evidencelayer, staticevidencelayer, slidingdoorlayer, seatlayer;
     int terminallayer;
 
     private RaycastHit currentHit;
@@ -79,6 +80,7 @@ public class clickable : Singleton<clickable>
         staticevidencelayer = LayerMask.NameToLayer("staticevidence");
         slidingdoorlayer = LayerMask.NameToLayer("slidingdoor");
         terminallayer = LayerMask.NameToLayer("terminal");
+        seatlayer = LayerMask.NameToLayer("SEAT");
 
         SetCursor(idlesprite, "");
 
@@ -201,7 +203,7 @@ public class clickable : Singleton<clickable>
 
             bool isInteractableLayer =
                 layer == pickuplayer || layer == drawerlayer || layer == doorlayer || layer == slidingdoorlayer ||
-                layer == clickablelayer || layer == enemylayer || layer == evidencelayer || layer == staticevidencelayer || layer == terminallayer;
+                layer == clickablelayer || layer == enemylayer || layer == evidencelayer || layer == staticevidencelayer || layer == terminallayer || layer == seatlayer;
 
             if (isInteractableLayer) return p;
             if (p.CompareTag("COLLECTABLE")) return p;
@@ -279,6 +281,13 @@ public class clickable : Singleton<clickable>
         if (layer == terminallayer)
         {
             SetCursor(terminalspritegreen, "", "green");
+            return;
+        }
+
+
+        if (layer == seatlayer)
+        {
+            SetCursor(seatsprite, "", "green");
             return;
         }
 
@@ -366,6 +375,11 @@ public class clickable : Singleton<clickable>
         {
             pc.OnStartComputer();
             Debug.Log("this is pooter");
+        }
+
+        if (currentHit.transform.GetComponentInParent<Seat>() is Seat thisSeat)
+        {
+            thisSeat.NoraSit();
         }
     }
 

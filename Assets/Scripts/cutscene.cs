@@ -14,12 +14,14 @@ public class Cutscene : MonoBehaviour
     [Header("Time to linger looking at object")]
     public float duration = 10.0f; // How long the cutscene lasts in total
 
-    [Header("duration is deprecated, player now presses Submit (A, Enter)")] [Header("Optional Dialogue")] [SerializeField]
-    public Contacts ContactName;
+    [Header("duration is deprecated, player now presses Submit (A, Enter)")] 
+    [Header("Optional Dialogue")] 
+    [SerializeField] public Contacts ContactName;
 
     public DialogueName selectedMessage;
 
-    [Header("Object to zoom to")] public GameObject targetObject;
+    [Header("Object to zoom to")] 
+    public GameObject targetObject;
 
     [Header("Collider that triggers the cutscene")]
     public GameObject ColliderCube;

@@ -67,9 +67,9 @@ public class NPCManager : MonoBehaviour
             if (prefab == null) continue;
 
             NPCController controller = prefab.GetComponent<NPCController>();
-            if (controller == null)
-                controller = prefab.GetComponentInChildren<NPCController>();
-
+            
+            if (controller == null) controller = prefab.GetComponentInChildren<NPCController>();
+            
             if (controller == null) continue;
 
             NPC npcType = controller.thisNPC;

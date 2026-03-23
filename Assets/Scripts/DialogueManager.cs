@@ -214,9 +214,22 @@ public class DialogueManager : MonoBehaviour
             {
                 SystemMessage.text = message;
             }
+            
             else if (contact == Contacts.Nora)
             {
                 NoraMessage.text = message;
+            }
+            else if (contact == Contacts.Ellsworth)
+            {
+                SystemMessage.text = contact + ": " +message;
+            }
+            else if (contact == Contacts.Presha)
+            {
+                SystemMessage.text = contact + ": " +message;
+            }
+            else if (contact == Contacts.Kim)
+            {
+                SystemMessage.text = contact + ": " +message;
             }
             else
             {
@@ -263,6 +276,24 @@ public class DialogueManager : MonoBehaviour
                 NoraMessage.text = message;
                 _activeTimedWasShown = true;
                 await NoraTimer(displaytimer, token);
+            }
+            else if (contact == Contacts.Ellsworth)
+            {
+                SystemMessage.text = contact + ": "+ message;
+                _activeTimedWasShown = true;
+                await SystemTimer(displaytimer, token);
+            }
+            else if (contact == Contacts.Presha)
+            {
+                SystemMessage.text = contact + ": "+ message;
+                _activeTimedWasShown = true;
+                await SystemTimer(displaytimer, token);
+            }
+            else if (contact == Contacts.Kim)
+            {
+                SystemMessage.text = contact + ": "+ message;
+                _activeTimedWasShown = true;
+                await SystemTimer(displaytimer, token);
             }
             else
             {

@@ -92,6 +92,8 @@ public class clickable : Singleton<clickable>
 
         Camera cam = Camera.main;
         if (cam != null) _lastCamForward = cam.transform.forward;
+
+        EventManager.OnNoraSit += ClearHit;
     }
 
     void FixedUpdate()
@@ -214,7 +216,7 @@ public class clickable : Singleton<clickable>
         return null;
     }
 
-    private void ClearHit()
+    private void ClearHit(Seat seat = null)
     {
         if (!hasHit) return;
 

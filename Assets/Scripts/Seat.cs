@@ -46,7 +46,10 @@ public class Seat : MonoBehaviour
 
     public void NoraSit()
     {
-        EventManager.NoraSit(this);
+        if (!occupied)
+        {
+            EventManager.NoraSit(this);
+        }
     }
     
     

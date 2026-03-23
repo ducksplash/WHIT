@@ -422,6 +422,10 @@ public class NPCController : MonoBehaviour
 
     private void Awake()
     {
+        DirectorEvents.OnNPCCommand += ExecuteNPCCommand;
+        DirectorEvents.OnNPCUpperBodyAnimation += PlayUpperBodyTrigger;
+        
+        
         var mgr = FindFirstObjectByType<NPCManager>();
         if (mgr != null) mgr.RegisterNPC(this);
         else Debug.LogWarning($"{name}: No NPCManager found during Awake.");
@@ -430,7 +434,6 @@ public class NPCController : MonoBehaviour
     public void Start()
     {
 
-        DirectorEvents.OnNPCCommand += ExecuteNPCCommand;
         
         
         if (animationController == null) animationController = GetComponentInChildren<Animator>();
@@ -1415,15 +1418,24 @@ public class NPCController : MonoBehaviour
         if (upperBodyTriggerNames == null || upperBodyTriggerNames.Count == 0)
             { Debug.LogWarning($"{name}: No upperBodyTriggerNames."); return; }
         selectedUpperBodyTriggerIndex = Mathf.Clamp(selectedUpperBodyTriggerIndex, 0, upperBodyTriggerNames.Count - 1);
-        PlayUpperBodyTrigger(upperBodyTriggerNames[selectedUpperBodyTriggerIndex]);
+        PlayUpperBodyTrigger(thisNPC, upperBodyTriggerNames[selectedUpperBodyTriggerIndex]);
     }
 
-    public void PlayUpperBodyTrigger(string triggerParam)
+    public void PlayUpperBodyTrigger(NPC suppliedNPC, string triggerParam)
     {
+        if (suppliedNPC != thisNPC) return;
+
+        Debug.Log("play trigger "+ triggerParam + " for " +suppliedNPC);
+        
         if (string.IsNullOrWhiteSpace(triggerParam))
-            { Debug.LogWarning($"{name}: Upper body trigger param empty."); return; }
+        {
+            Debug.LogWarning($"{name}: Upper body trigger param empty."); return;
+        }
+
         if (animationController == null)
-            { Debug.LogWarning($"{name}: No Animator for upper body trigger."); return; }
+        {
+            Debug.LogWarning($"{name}: No Animator for upper body trigger."); return;
+        }
 
         // StopUpperBodyAnimation zeros the weight and clears flags — raw StopCoroutine
         // does not, leaving weight=1 and _isPlayingUpperBodyAnimation=true on restart.

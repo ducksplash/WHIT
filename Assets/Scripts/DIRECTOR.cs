@@ -18,8 +18,22 @@ public class DIRECTOR : MonoBehaviour
     public List<DialogueName> dialogueList = new List<DialogueName>();
 
     public Coroutine RoutinePlayerCo;
-    
-    
+
+    public DirectedRoutines selectedRoutine = DirectedRoutines.PrefaceNoraFired;
+
+
+    private void Start()
+    {
+        DirectorEvents.OnStartDirector += EventStartDirector;
+    }
+
+
+    public void EventStartDirector(DirectedRoutines directedRoutine)
+    {
+        selectedRoutine = directedRoutine;
+        PlaySelectedRoutine();
+    }
+
     public void PlaySelectedRoutine()
     {
         if (RoutinePlayerCo != null)
@@ -28,8 +42,17 @@ public class DIRECTOR : MonoBehaviour
             RoutinePlayerCo = null;
         }
         
+        switch (selectedRoutine)
+        {
+            case DirectedRoutines.PrefaceNoraFired:
+                RoutinePlayerCo = StartCoroutine(RoutinePreface());
+                break;
+
+            case DirectedRoutines.MainNoraFired:
+                RoutinePlayerCo = StartCoroutine(PlayMainRoutine());
+                break;
+        }
         
-        RoutinePlayerCo = StartCoroutine(PlayRoutine());
     }
 
     public void StopSelectedRoutine()
@@ -41,9 +64,33 @@ public class DIRECTOR : MonoBehaviour
         }
     }
 
+
+    private IEnumerator RoutinePreface()
+    {
+        // Ellsworth "Just wanted to have a quick catch-up, take a wee seat there"
+
+        GameMaster.Instance.DialogueManager.PlayDialogue(
+            dialogueList[0],
+            5,
+            DialogueType.normal,
+            cutsceneDuration: 4f,
+            cutscenePanTime: 1f,
+            cutsceneTarget: NPCTransforms[0],
+            false);
+        Debug.Log("start");
+
+        yield return new WaitForSeconds(2f);
+        
+        DirectorEvents.UpperBodyAnimation(NPC.Ellsworth_Ohanlon, "DoPoint");
+        
+        yield return null;
+    }
+
+
     
 
-    private IEnumerator PlayRoutine()
+
+    private IEnumerator PlayMainRoutine()
     {
         GameMaster.Instance.DialogueManager.PlayDialogue(
             dialogueList[0],
@@ -85,3 +132,10 @@ public class DIRECTOREDITOR : Editor
     }
 }
 #endif
+
+
+public enum DirectedRoutines
+{
+    PrefaceNoraFired = 0,
+    MainNoraFired = 1,
+}

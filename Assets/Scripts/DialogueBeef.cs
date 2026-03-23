@@ -8,9 +8,7 @@ using UnityEditor;
 
 public class DialogueBeef : MonoBehaviour
 {
-
-
-
+    
     [Header("Dev Placeholder Cube")]
     public GameObject ColliderCube;
 

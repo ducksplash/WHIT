@@ -7,5 +7,8 @@ public enum Contacts
     Nora,
     Kieron,
     System,
-    Unknown
+    Unknown,
+    Ellsworth,
+    Presha,
+    Kim
 }

@@ -20,7 +20,7 @@ public class Player : Singleton<Player>
     public Camera MainCam;
     public Camera DebugCam;
     public Camera CurrentCamera;
-    public UpperBodyPitch UpperBodyPitch;
+    
     public float RayCastDistance = 4f;
 
     [Header("Animation")]
@@ -131,14 +131,11 @@ public class Player : Singleton<Player>
     private bool    _controllerBaselineCaptured;
 
     private Coroutine _crouchCo;
-    private Coroutine _cameraSnapCo;
-    
+
     public GameObject TravelNotepad;
     public bool climbing;
     public GameObject LadderAttachedTo;
 
-    
-    
     // ── Sitting ─────────────────────────────────────────────────────────────
     // NOTE: EventManager.OnNoraSit must be declared as Action<Seat> to match
     // the updated NoraSit(Seat) signature below.
@@ -210,13 +207,12 @@ public class Player : Singleton<Player>
     public InputActionReference climbDownAction;
     public InputActionReference exitLadderAction;
     public InputActionReference CameraToggleAction;
-    
-    
     public InputActionReference StandUpAction;
 
     [Header("Scripts")]
     public FirstPersonLook FirstPersonLook;
     public Phone PlayerPhone;
+
     private Vector3 moveDirection = Vector3.zero;
     private bool jumpRequested    = false;
     private bool walking          = false;
@@ -233,9 +229,9 @@ public class Player : Singleton<Player>
 
         EventManager.OnTorchCollected += TorchCollected;
         EventManager.OnNoraSit        += NoraSit;
-        StandUpAction.action.performed += StandUp;
-        
-        
+
+        if (StandUpAction != null) StandUpAction.action.performed += StandUp;
+
         thisCharController = GetComponentInParent<CharacterController>();
         if (thisCharController == null) thisCharController = GetComponent<CharacterController>();
 
@@ -443,9 +439,10 @@ public class Player : Singleton<Player>
 
         GameMaster.Instance.PLAYERBUSY = true;
 
-        // Disable immediately so FirstPersonLook cannot fight the rotation
-        // during approach/align/backstep phases, and so no CC forces interfere.
-        if (FirstPersonLook    != null) FirstPersonLook.enabled    = false;
+        // Freeze look input during the scripted approach/align/backstep phases.
+        // The component stays enabled so it can resume immediately when seated.
+        // CC is disabled so direct transform movement works cleanly.
+        if (FirstPersonLook    != null) FirstPersonLook.LockLook(true);
         if (thisCharController != null) thisCharController.enabled = false;
 
         if (_sitCoroutine != null)
@@ -464,49 +461,39 @@ public class Player : Singleton<Player>
         // ── Shared geometry ─────────────────────────────────────────────────
         Vector3 seatForward = seatTf.forward;
         seatForward.y = 0f;
-
-        if (seatForward.sqrMagnitude < 0.0001f)
-            seatForward = transform.forward;
-
+        if (seatForward.sqrMagnitude < 0.0001f) seatForward = transform.forward;
         seatForward.Normalize();
 
         Vector3 seatPos = seatTf.position;
 
-        Vector3 preSitPoint = new Vector3(
+        // Point Nora walks TO (in front of where the seat faces)
+        Vector3 preSitPoint   = new Vector3(
             seatPos.x + seatForward.x * sitPreSitForwardOffset,
-            transform.position.y,
+            transform.position.y,       // keep Nora's current floor height
             seatPos.z + seatForward.z * sitPreSitForwardOffset);
 
+        // Point Nora steps BACK to (between preSitPoint and seat pivot)
         Vector3 backstepPoint = new Vector3(
             seatPos.x + seatForward.x * sitBackstepDistance,
             transform.position.y,
             seatPos.z + seatForward.z * sitBackstepDistance);
 
         // ── Phase 1: Approach ────────────────────────────────────────────────
-        yield return SitPhaseApproach(preSitPoint);
-        if (!seatTf)
-        {
-            AbortSit();
-            yield break;
-        }
+        yield return StartCoroutine(SitPhaseApproach(preSitPoint));
 
-        // ── Phase 2: Align ───────────────────────────────────────────────────
-        yield return SitPhaseAlign(seatForward);
-        if (!seatTf)
-        {
-            AbortSit();
-            yield break;
-        }
+        if (seatTf == null) { AbortSit(); yield break; }
+
+        // ── Phase 2: Align rotation ──────────────────────────────────────────
+        yield return StartCoroutine(SitPhaseAlign(seatForward));
+
+        if (seatTf == null) { AbortSit(); yield break; }
 
         // ── Phase 3: Backstep ────────────────────────────────────────────────
-        yield return SitPhaseBackstep(backstepPoint, seatForward);
-        if (!seatTf)
-        {
-            AbortSit();
-            yield break;
-        }
+        yield return StartCoroutine(SitPhaseBackstep(backstepPoint, seatForward));
 
-        // ── Phase 4: SitDown trigger ─────────────────────────────────────────
+        if (seatTf == null) { AbortSit(); yield break; }
+
+        // ── Phase 4: Face seat precisely, fire SitDown trigger ───────────────
         transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
 
         if (Noranimator != null)
@@ -517,78 +504,30 @@ public class Player : Singleton<Player>
 
         yield return new WaitForSeconds(sitDownDuration);
 
-        // ── Phase 5: Snap + CAMERA FIX (critical order) ───────────────────────
-        if (seatTf)
+        // ── Phase 5: Snap root to seat, fire SitIdle trigger ────────────────
+        if (seatTf != null)
         {
             transform.position = seatTf.position + sitSeatedRootOffset;
             transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
         }
-
 
         if (Noranimator != null)
         {
             Noranimator.ResetTrigger(AnimSitIdle);
             Noranimator.SetTrigger(AnimSitIdle);
         }
-        
-        
-        ApplyCameraSmooth(); 
 
-        _isSeated = true;
+        // Unlock look with tighter seated pitch + yaw clamps.
+        // Pass the seat's world-space yaw so left/right is clamped relative to it.
+        float seatFacingYaw = Quaternion.LookRotation(seatForward, Vector3.up).eulerAngles.y;
+        FirstPersonLook?.SetSeated(true, seatFacingYaw);
+
+        _isSeated     = true;
         _sitCoroutine = null;
-    }
-    
-    
 
-    private void ApplyCameraSmooth()
-    {
-        if (_cameraSnapCo != null)
-            StopCoroutine(_cameraSnapCo);
-
-        _cameraSnapCo = StartCoroutine(SmoothCameraToSeat());
-    }
-    
-    private IEnumerator SmoothCameraToSeat()
-    {
-        if (FirstPersonLook == null) yield break;
-
-        Transform camPivot = FirstPersonLook.transform;
-        if (camPivot == null) yield break;
-
-        float duration = 0.25f;
-        float t = 0f;
-
-        Quaternion startRot = camPivot.localRotation;
-        Quaternion targetRot = Quaternion.identity;
-
-        float startYaw = FirstPersonLook.CurrentYaw; // you may need to expose this
-        float targetYaw = transform.eulerAngles.y;
-
-        while (t < duration)
-        {
-            t += Time.deltaTime;
-            float a = t / duration;
-
-            // Smooth camera local rotation
-            camPivot.localRotation = Quaternion.Slerp(startRot, targetRot, a);
-
-            // Smooth player yaw inside your look script
-            float yaw = Mathf.LerpAngle(startYaw, targetYaw, a);
-            FirstPersonLook.SetPlayerRotation(new Vector2(yaw, 0f));
-
-            yield return null;
-        }
-
-        // Final snap (safe)
-        camPivot.localRotation = targetRot;
-        FirstPersonLook.SetPlayerRotation(new Vector2(targetYaw, 0f));
-
-        _cameraSnapCo = null;
+        // PLAYERBUSY remains true. StandUp() is called externally via input.
     }
 
-    
-    
-    
     // ── Approach phase ───────────────────────────────────────────────────────
     // CC is disabled. Move the transform directly so nothing fights the motion.
     private IEnumerator SitPhaseApproach(Vector3 target)
@@ -688,7 +627,7 @@ public class Player : Singleton<Player>
     /// Call this to stand Nora up from a seated position.
     /// Intentionally left uncalled – bind to player input as required.
     /// </summary>
-    public void StandUp(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
+    public void StandUp(InputAction.CallbackContext ctx = default)
     {
         if (!_isSeated && _sitCoroutine == null)
         {
@@ -710,7 +649,7 @@ public class Player : Singleton<Player>
     {
         if (Noranimator != null)
         {
-            Noranimator.ResetTrigger(AnimSitIdle);
+            Noranimator.ResetTrigger(AnimStandUp);
             Noranimator.SetTrigger(AnimStandUp);
         }
 
@@ -718,6 +657,7 @@ public class Player : Singleton<Player>
 
         ReturnToLocomotion();
 
+        GameMaster.Instance.PLAYERBUSY = false;
         _sitCoroutine = null;
     }
 
@@ -728,7 +668,9 @@ public class Player : Singleton<Player>
         _activeSeatTransform = null;
 
         if (thisCharController != null) thisCharController.enabled = true;
-        if (FirstPersonLook    != null) FirstPersonLook.enabled    = true;
+
+        // Restore normal pitch + yaw clamps
+        FirstPersonLook?.SetSeated(false);
 
         moveDirection.y = 0f;
 
@@ -745,8 +687,6 @@ public class Player : Singleton<Player>
             Noranimator.ResetTrigger(AnimSitIdle);
             Noranimator.ResetTrigger(AnimStandUp);
         }
-        
-        GameMaster.Instance.PLAYERBUSY = false;
     }
 
     // ────────────────────────────────────────────────────────────────────────

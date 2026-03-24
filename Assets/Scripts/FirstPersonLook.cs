@@ -27,6 +27,22 @@ public class FirstPersonLook : MonoBehaviour
     [SerializeField] private float pitchClampMin = -60f;
     [SerializeField] private float pitchClampMax = 60f;
 
+    [Header("Seated Pitch Limits")]
+    [Tooltip("How far down the player can look while seated.")]
+    [SerializeField] private float seatedPitchClampMin = -25f;
+    [Tooltip("How far up the player can look while seated.")]
+    [SerializeField] private float seatedPitchClampMax = 25f;
+    [Tooltip("How many degrees left or right the player can look from the seat's facing direction.")]
+    [SerializeField] private float seatedYawRange = 60f;
+
+    // Active pitch limits – swapped by SetSeated()
+    private float _activePitchMin;
+    private float _activePitchMax;
+
+    // Seated state
+    private bool  _isSeated;
+    private float _seatedFacingYaw;
+
     [Header("Initial Look")]
     [SerializeField] private bool useSceneStartingRotation = true;
     [SerializeField] private float startingYaw = 0f;
@@ -72,6 +88,10 @@ public class FirstPersonLook : MonoBehaviour
         if (cameraPivot == null) cameraPivot = transform;
         _pivotStartLocalPos = cameraPivot.localPosition;
 
+        // Initialise active clamps to the normal standing values
+        _activePitchMin = pitchClampMin;
+        _activePitchMax = pitchClampMax;
+
         if (useSceneStartingRotation)
         {
             float yaw = character != null ? character.localEulerAngles.y : transform.localEulerAngles.y;
@@ -80,12 +100,12 @@ public class FirstPersonLook : MonoBehaviour
             float pitch = NormalizeAngle180(pitchSource);
 
             currentMouseLook.x = yaw;
-            currentMouseLook.y = Mathf.Clamp(-pitch, pitchClampMin, pitchClampMax);
+            currentMouseLook.y = Mathf.Clamp(-pitch, _activePitchMin, _activePitchMax);
         }
         else
         {
             currentMouseLook.x = startingYaw;
-            currentMouseLook.y = Mathf.Clamp(startingPitch, pitchClampMin, pitchClampMax);
+            currentMouseLook.y = Mathf.Clamp(startingPitch, _activePitchMin, _activePitchMax);
         }
 
         if (deviceCheckOverride)
@@ -116,7 +136,7 @@ public class FirstPersonLook : MonoBehaviour
         if (!bypassGM)
         {
             if (GameMaster.Instance.PauseManager.IsPaused) return;
-            if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
+            if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride && !_isSeated) return;
         }
 
         if (cameraPivot != null)
@@ -133,7 +153,7 @@ public class FirstPersonLook : MonoBehaviour
         if (!bypassGM)
         {
             if (GameMaster.Instance.PauseManager.IsPaused) return;
-            if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
+            if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride && !_isSeated) return;
         }
 
         if (_lookLocked)
@@ -148,13 +168,62 @@ public class FirstPersonLook : MonoBehaviour
         appliedMouseDelta = Vector2.Lerp(appliedMouseDelta, smoothMouseDelta, 1f / smoothing);
 
         currentMouseLook += appliedMouseDelta;
-        currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, pitchClampMin, pitchClampMax);
+        currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, _activePitchMin, _activePitchMax);
+
+        // Clamp yaw relative to the seat's facing direction while seated
+        if (_isSeated)
+        {
+            float yawDelta = Mathf.DeltaAngle(_seatedFacingYaw, currentMouseLook.x);
+            yawDelta = Mathf.Clamp(yawDelta, -seatedYawRange, seatedYawRange);
+            currentMouseLook.x = _seatedFacingYaw + yawDelta;
+        }
 
         if (_cameraModeActive && _currentDevice != null)
-        {
             FollowDeviceToView();
+    }
+
+    // ── Seated look control ───────────────────────────────────────────────
+
+    /// <summary>
+    /// Locks or unlocks raw look input without disabling the component.
+    /// Used by Player to freeze rotation during the approach/align/backstep phases.
+    /// </summary>
+    public void LockLook(bool locked)
+    {
+        _lookLocked = locked;
+        if (locked) appliedMouseDelta = Vector2.zero;
+    }
+
+    /// <summary>
+    /// Call with seated=true (passing the seat's world-space yaw) when Nora sits,
+    /// and seated=false when she stands. Swaps pitch + yaw clamps and bypasses
+    /// the PLAYERBUSY guard so the player can look around while seated.
+    /// </summary>
+    public void SetSeated(bool seated, float facingYaw = 0f)
+    {
+        _isSeated = seated;
+
+        if (seated)
+        {
+            _seatedFacingYaw = facingYaw;
+            _activePitchMin  = seatedPitchClampMin;
+            _activePitchMax  = seatedPitchClampMax;
+
+            // Snap yaw to facing direction and clamp pitch immediately – no pop
+            currentMouseLook.x = facingYaw;
+            currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, _activePitchMin, _activePitchMax);
+
+            // Release the approach-phase lock so the player can look freely
+            LockLook(false);
+        }
+        else
+        {
+            _activePitchMin = pitchClampMin;
+            _activePitchMax = pitchClampMax;
         }
     }
+
+    // ─────────────────────────────────────────────────────────────────────
 
     public void SetPlayerRotation(Vector2 rotation)
     {
@@ -279,9 +348,7 @@ public class FirstPersonLook : MonoBehaviour
 
     public void PhoneCameraClosed()
     {
-        // Ignore spurious CameraClosed events when we were never in camera mode.
-        if (!_cameraModeActive)
-            return;
+        if (!_cameraModeActive) return;
 
         _cameraModeActive = false;
         appliedMouseDelta = Vector2.zero;

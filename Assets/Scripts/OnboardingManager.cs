@@ -178,7 +178,7 @@ public class OnboardingManager : MonoBehaviour
     {
         //Debug.Log("CollectTorch");
         TORCHCOLLECTED = true;
-
+        Player.Instance.CombatEnabled = true;
         // dialogueName, displayTimer, type, cutsceneDuration, cutscenePanTime, cutsceneTarget
         await GameMaster.Instance.DialogueManager.PlayDialogue(
             pickupTorchDialogue,
@@ -230,7 +230,6 @@ public class OnboardingManager : MonoBehaviour
     {
         //Debug.Log("CollectPhone");
         PHONECOLLECTED = true;
-
         await GameMaster.Instance.DialogueManager.PlayDialogue(
             pickupPhoneDialogue,
             6f,
@@ -387,7 +386,6 @@ public class OnboardingManager : MonoBehaviour
     private void RestorePhoneCollected()
     {
         PHONECOLLECTED = true;
-        Player.Instance.CombatEnabled = true;
         if (phonePickup != null) phonePickup.SetActive(false);
         
         //GameMaster.Instance.EventManager.PhoneCollectedEvent();
@@ -396,7 +394,7 @@ public class OnboardingManager : MonoBehaviour
     private void RestoreTorchCollected()
     {
         TORCHCOLLECTED = true;
-
+        Player.Instance.CombatEnabled = true;
         if (torchPickup != null) torchPickup.SetActive(false);
 
         EventManager.TorchCollectedEvent();

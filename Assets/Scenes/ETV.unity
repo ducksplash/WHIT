@@ -56061,7 +56061,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: 0.0031242503}
+  m_AnchoredPosition: {x: -0.0012638667, y: 0.013846504}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &860819260
@@ -76151,7 +76151,6 @@ GameObject:
   - component: {fileID: 1190943551}
   - component: {fileID: 1190943553}
   - component: {fileID: 1190943552}
-  - component: {fileID: 1190943554}
   m_Layer: 5
   m_Name: messagebody
   m_TagString: Untagged
@@ -76279,23 +76278,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1190943550}
   m_CullTransparentMesh: 1
---- !u!114 &1190943554
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1190943550}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38549e87fd9eb04458bdd1baf5fa572d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TMPTypewriter
-  charDelay: 0.04
-  charSlideDuration: 0.12
-  slideOffsetX: 18
-  slideOffsetY: 0
-  smoothStep: 1
 --- !u!1 &1194891010
 GameObject:
   m_ObjectHideFlags: 0
@@ -89602,8 +89584,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38549e87fd9eb04458bdd1baf5fa572d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TMPTypewriter
-  charDelay: 0.01
-  charSlideDuration: 0.06
+  charDelay: 0.005
+  charSlideDuration: 0.02
   slideOffsetX: 18
   slideOffsetY: 0
   smoothStep: 1
@@ -100815,8 +100797,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38549e87fd9eb04458bdd1baf5fa572d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TMPTypewriter
-  charDelay: 0.01
-  charSlideDuration: 0.06
+  charDelay: 0.005
+  charSlideDuration: 0.02
   slideOffsetX: 18
   slideOffsetY: 0
   smoothStep: 1
@@ -105528,7 +105510,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: 0.0031242503}
+  m_AnchoredPosition: {x: -0.0012638667, y: 0.013846504}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1854544909
@@ -106108,7 +106090,7 @@ MonoBehaviour:
   SystemMessage: {fileID: 1754890843}
   SystemMessageWriter: {fileID: 1754890846}
   NoraMessageWriter: {fileID: 1493881033}
-  ReceivedMessageWriter: {fileID: 1190943554}
+  ReceivedMessageWriter: {fileID: 0}
   timebar: {fileID: 1736882779}
   messagetimer: 0
   DialogInProgress: 0
@@ -125163,6 +125145,9 @@ MonoBehaviour:
   crawlBlendSeconds: 0.12
   pitchClampMin: -50
   pitchClampMax: 50
+  seatedPitchClampMin: -25
+  seatedPitchClampMax: 25
+  seatedYawRange: 60
   useSceneStartingRotation: 1
   startingYaw: 0
   startingPitch: 0
@@ -125213,7 +125198,6 @@ MonoBehaviour:
   MainCam: {fileID: 20437472684584574}
   DebugCam: {fileID: 2478020906886564079}
   CurrentCamera: {fileID: 20437472684584574}
-  UpperBodyPitch: {fileID: 114963311883893499}
   RayCastDistance: 4.5
   Noranimator: {fileID: 8461823537193823545}
   idleWithTorch: {fileID: 7400000, guid: 22b6014c00e3ff24b8a3be8226176210, type: 2}

@@ -95,11 +95,13 @@ public class DIRECTOR : MonoBehaviour
         GameMaster.Instance.PLAYERBUSY = true;
         GameMaster.Instance.INAMEETING = true;
         
-        yield return new WaitForSeconds(2);
         
         Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[0].transform);
-        
-        yield return new WaitForSeconds(1);
+
+        while (GameMaster.Instance.DialogueManager.DialogInProgress)
+        {
+            yield return null;
+        }
         
         GameMaster.Instance.DialogueManager.PlayDialogue(
             dialogueList[1],
@@ -113,8 +115,13 @@ public class DIRECTOR : MonoBehaviour
         
         Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[1].transform);
         
+        while (GameMaster.Instance.DialogueManager.DialogInProgress)
+        {
+            yield return null;
+        }
         
-        yield return new WaitForSeconds(5);
+        
+        Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[0].transform);
         
         
         yield return null;

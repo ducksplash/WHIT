@@ -29,11 +29,11 @@ public enum DialogueName
     phoneTutorialSomething = 112,
     
     // Level 0
-    NoraEllsworth = 113,
-    EllsworthNora = 114,
-    PreshaNora = 115,
-    NoraEllsworthQuickCatchup = 116,
-    EllsworthNoraNoEasyWay = 117,
+    NoraEllsworth = 113, // see me?
+    EllsworthNora = 114, // sit down
+    EllsworthPreshaNora = 115, // you know presha
+    NoraPresha = 116, // quick catch up? hr?
+    EllsworthNoraNoEasyWay = 117, // 
     PreshaNoraTheOffer = 118,
     NoraPreshaNeverLikedYou = 119,
     NoraEllsworthMachineKim = 120,

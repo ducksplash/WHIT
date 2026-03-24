@@ -136,7 +136,7 @@ public class FirstPersonLook : MonoBehaviour
         if (!bypassGM)
         {
             if (GameMaster.Instance.PauseManager.IsPaused) return;
-            if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride && !_isSeated) return;
+            if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
         }
 
         if (cameraPivot != null)
@@ -153,7 +153,7 @@ public class FirstPersonLook : MonoBehaviour
         if (!bypassGM)
         {
             if (GameMaster.Instance.PauseManager.IsPaused) return;
-            if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride && !_isSeated) return;
+            if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
         }
 
         if (_lookLocked)

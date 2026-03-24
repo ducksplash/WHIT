@@ -220,6 +220,8 @@ public class Player : Singleton<Player>
     public bool MoveOverride;
     public bool ZoomOverride;
 
+    private bool sitting;
+    
     // ────────────────────────────────────────────────────────────────────────
     // Start
     // ────────────────────────────────────────────────────────────────────────
@@ -230,7 +232,7 @@ public class Player : Singleton<Player>
         EventManager.OnTorchCollected += TorchCollected;
         EventManager.OnNoraSit        += NoraSit;
 
-        if (StandUpAction != null) StandUpAction.action.performed += StandUp;
+        StandUpAction.action.performed += StandUp;
 
         thisCharController = GetComponentInParent<CharacterController>();
         if (thisCharController == null) thisCharController = GetComponent<CharacterController>();
@@ -406,12 +408,11 @@ public class Player : Singleton<Player>
         if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null &&
             GameMaster.Instance.PauseManager.IsPaused) return;
 
-        if (MoveOverride && moveAction != null && !moveAction.action.enabled)
-            moveAction.action.Enable();
+        if (MoveOverride && moveAction != null && !moveAction.action.enabled) moveAction.action.Enable();
 
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
 
-        HandleMovement();
+        if (!sitting) HandleMovement();
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -436,8 +437,9 @@ public class Player : Singleton<Player>
             Debug.LogWarning("[Player] NoraSit called while already seated – ignoring.");
             return;
         }
-
+        
         GameMaster.Instance.PLAYERBUSY = true;
+        sitting = true;
 
         // Freeze look input during the scripted approach/align/backstep phases.
         // The component stays enabled so it can resume immediately when seated.
@@ -452,11 +454,11 @@ public class Player : Singleton<Player>
         }
 
         _activeSeatTransform = seat.seatTransform;
-        _sitCoroutine = StartCoroutine(SitSequence(seat.seatTransform));
+        _sitCoroutine = StartCoroutine(SitSequence(seat.seatTransform, seat));
     }
 
     // ── Phase runner ────────────────────────────────────────────────────────
-    private IEnumerator SitSequence(Transform seatTf)
+    private IEnumerator SitSequence(Transform seatTf, Seat seat)
     {
         // ── Shared geometry ─────────────────────────────────────────────────
         Vector3 seatForward = seatTf.forward;
@@ -526,6 +528,17 @@ public class Player : Singleton<Player>
         _sitCoroutine = null;
 
         // PLAYERBUSY remains true. StandUp() is called externally via input.
+        
+        
+        // We can start now
+        yield return new WaitForSeconds(1);
+        Debug.Log(seat.gameObject.tag);
+
+        if (seat.gameObject.CompareTag("EllsworthOfficeChair"))
+        {
+            DirectorEvents.StartDirector(DirectedRoutines.MainNoraFired);
+        }
+        
     }
 
     // ── Approach phase ───────────────────────────────────────────────────────
@@ -629,6 +642,8 @@ public class Player : Singleton<Player>
     /// </summary>
     public void StandUp(InputAction.CallbackContext ctx = default)
     {
+        if (GameMaster.Instance.INAMEETING) return;
+        
         if (!_isSeated && _sitCoroutine == null)
         {
             Debug.LogWarning("[Player] StandUp called but player is not seated.");
@@ -658,6 +673,7 @@ public class Player : Singleton<Player>
         ReturnToLocomotion();
 
         GameMaster.Instance.PLAYERBUSY = false;
+        sitting = false;
         _sitCoroutine = null;
     }
 

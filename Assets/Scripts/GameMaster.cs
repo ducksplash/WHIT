@@ -49,7 +49,7 @@ public class GameMaster : MonoBehaviour
     // Game Globals
 
     public bool PLAYERBUSY;
-    
+    public bool INAMEETING;
     public bool POWER_SUPPLY_ENABLED;
     public bool INCINERATOR_ENABLED;
     public bool ONLADDER;

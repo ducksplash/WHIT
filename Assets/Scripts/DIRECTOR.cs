@@ -92,15 +92,31 @@ public class DIRECTOR : MonoBehaviour
 
     private IEnumerator PlayMainRoutine()
     {
+        GameMaster.Instance.PLAYERBUSY = true;
+        GameMaster.Instance.INAMEETING = true;
+        
+        yield return new WaitForSeconds(2);
+        
+        Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[0].transform);
+        
+        yield return new WaitForSeconds(1);
+        
         GameMaster.Instance.DialogueManager.PlayDialogue(
-            dialogueList[0],
-            0,
-            DialogueType.cutscene,
-            cutsceneDuration: 7f,
+            dialogueList[1],
+            5,
+            DialogueType.normal,
+            cutsceneDuration: 4f,
             cutscenePanTime: 1f,
             cutsceneTarget: NPCTransforms[0],
             false);
 
+        
+        Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[1].transform);
+        
+        
+        yield return new WaitForSeconds(5);
+        
+        
         yield return null;
     }
     

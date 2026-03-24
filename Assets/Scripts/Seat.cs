@@ -17,13 +17,10 @@ public class Seat : MonoBehaviour
     public bool IsValid => seatTransform != null;
 
     public bool IsOccupied => occupied || occupiedBy != null;
-
-
     
     
     private void Awake()
     {
-        
         SeatMarker = seatTransform.gameObject.GetComponent<Renderer>();
     }
 

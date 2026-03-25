@@ -27,30 +27,29 @@ public class FirstPersonLook : MonoBehaviour
     [SerializeField] private float pitchClampMin = -60f;
     [SerializeField] private float pitchClampMax = 60f;
 
-    [Header("Seated Pitch Limits")]
+    [Header("Seated Look Limits")]
     [Tooltip("How far down the player can look while seated.")]
     [SerializeField] private float seatedPitchClampMin = -25f;
     [Tooltip("How far up the player can look while seated.")]
     [SerializeField] private float seatedPitchClampMax = 25f;
-    [Tooltip("How many degrees left or right the player can look from the seat's facing direction.")]
+    [Tooltip("How many degrees left or right the player can look from the seat facing direction.")]
     [SerializeField] private float seatedYawRange = 60f;
 
-    // Active pitch limits – swapped by SetSeated()
     private float _activePitchMin;
     private float _activePitchMax;
 
-    // Seated state
     private bool  _isSeated;
+    private bool  _seatedLookAllowed;
     private float _seatedFacingYaw;
 
     [Header("Initial Look")]
     [SerializeField] private bool useSceneStartingRotation = true;
-    [SerializeField] private float startingYaw = 0f;
+    [SerializeField] private float startingYaw   = 0f;
     [SerializeField] private float startingPitch = 0f;
-    
+
     public bool bypassGM;
 
-    private Vector3 _pivotStartLocalPos;
+    private Vector3   _pivotStartLocalPos;
     private Coroutine _heightCo;
 
     private enum HeightMode { Stand, Crouch, Crawl }
@@ -68,36 +67,34 @@ public class FirstPersonLook : MonoBehaviour
     [Header("Camera Mode Device Follow")]
     [SerializeField] private float deviceFollowSharpness = 60f;
 
-    private Transform _currentDevice;
-    private bool _cameraModeActive;
+    private Transform  _currentDevice;
+    private bool       _cameraModeActive;
 
-    private Vector3 _deviceLocalPosInPivot;
+    private Vector3    _deviceLocalPosInPivot;
     private Quaternion _deviceLocalRotInPivot;
 
-    private Vector3 _deviceBaseLocalPos;
+    private Vector3    _deviceBaseLocalPos;
     private Quaternion _deviceBaseLocalRot;
-    private bool _deviceBaseCaptured;
+    private bool       _deviceBaseCaptured;
 
     public bool deviceCheckOverride;
     public DeviceHelperOutside deviceTypeSupplemental;
 
     public float CurrentYaw => currentMouseLook.x;
-    
+
     private void Start()
     {
         if (cameraPivot == null) cameraPivot = transform;
         _pivotStartLocalPos = cameraPivot.localPosition;
 
-        // Initialise active clamps to the normal standing values
         _activePitchMin = pitchClampMin;
         _activePitchMax = pitchClampMax;
 
         if (useSceneStartingRotation)
         {
-            float yaw = character != null ? character.localEulerAngles.y : transform.localEulerAngles.y;
-
+            float yaw         = character != null ? character.localEulerAngles.y : transform.localEulerAngles.y;
             float pitchSource = cameraPivot != null ? cameraPivot.localEulerAngles.x : transform.localEulerAngles.x;
-            float pitch = NormalizeAngle180(pitchSource);
+            float pitch       = NormalizeAngle180(pitchSource);
 
             currentMouseLook.x = yaw;
             currentMouseLook.y = Mathf.Clamp(-pitch, _activePitchMin, _activePitchMax);
@@ -114,30 +111,38 @@ public class FirstPersonLook : MonoBehaviour
             sensitivity = GameMaster.Instance.MouseSensitivity;
 
         EventManager.OnStartComputer += LookAtDevice;
-        EventManager.OnStartPhone += LookAtDevice;
-        EventManager.OnStartNotepad += LookAtDevice;
-
-        EventManager.OnCameraOpen += PhoneCameraOpen;
-        EventManager.OnCameraClosed += PhoneCameraClosed;
+        EventManager.OnStartPhone    += LookAtDevice;
+        EventManager.OnStartNotepad  += LookAtDevice;
+        EventManager.OnCameraOpen    += PhoneCameraOpen;
+        EventManager.OnCameraClosed  += PhoneCameraClosed;
     }
 
     private void OnDestroy()
     {
         EventManager.OnStartComputer -= LookAtDevice;
-        EventManager.OnStartPhone -= LookAtDevice;
-        EventManager.OnStartNotepad -= LookAtDevice;
+        EventManager.OnStartPhone    -= LookAtDevice;
+        EventManager.OnStartNotepad  -= LookAtDevice;
+        EventManager.OnCameraOpen    -= PhoneCameraOpen;
+        EventManager.OnCameraClosed  -= PhoneCameraClosed;
+    }
 
-        EventManager.OnCameraOpen -= PhoneCameraOpen;
-        EventManager.OnCameraClosed -= PhoneCameraClosed;
+    // ── Central gate ─────────────────────────────────────────────────────
+    // Returns true when look input should be read and rotation applied.
+    private bool LookAllowedThisFrame()
+    {
+        if (bypassGM) return true;
+        if (GameMaster.Instance.PauseManager.IsPaused) return false;
+
+        // Seated with free look: bypass PLAYERBUSY entirely.
+        if (_isSeated) return _seatedLookAllowed;
+
+        // Normal: respect PLAYERBUSY unless MoveOverride is set.
+        return !GameMaster.Instance.PLAYERBUSY || Player.Instance.MoveOverride;
     }
 
     void FixedUpdate()
     {
-        if (!bypassGM)
-        {
-            if (GameMaster.Instance.PauseManager.IsPaused) return;
-            if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
-        }
+        if (!LookAllowedThisFrame()) return;
 
         if (cameraPivot != null)
             cameraPivot.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
@@ -150,11 +155,7 @@ public class FirstPersonLook : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!bypassGM)
-        {
-            if (GameMaster.Instance.PauseManager.IsPaused) return;
-            if (GameMaster.Instance.PLAYERBUSY && !Player.Instance.MoveOverride) return;
-        }
+        if (!LookAllowedThisFrame()) return;
 
         if (_lookLocked)
         {
@@ -162,19 +163,17 @@ public class FirstPersonLook : MonoBehaviour
             return;
         }
 
-        Vector2 rawMouse = lookAction.action.ReadValue<Vector2>();
-
+        Vector2 rawMouse         = lookAction.action.ReadValue<Vector2>();
         Vector2 smoothMouseDelta = Vector2.Scale(rawMouse, Vector2.one * sensitivity * smoothing);
-        appliedMouseDelta = Vector2.Lerp(appliedMouseDelta, smoothMouseDelta, 1f / smoothing);
+        appliedMouseDelta        = Vector2.Lerp(appliedMouseDelta, smoothMouseDelta, 1f / smoothing);
 
-        currentMouseLook += appliedMouseDelta;
+        currentMouseLook  += appliedMouseDelta;
         currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, _activePitchMin, _activePitchMax);
 
-        // Clamp yaw relative to the seat's facing direction while seated
-        if (_isSeated)
+        if (_isSeated && _seatedLookAllowed)
         {
-            float yawDelta = Mathf.DeltaAngle(_seatedFacingYaw, currentMouseLook.x);
-            yawDelta = Mathf.Clamp(yawDelta, -seatedYawRange, seatedYawRange);
+            float yawDelta     = Mathf.DeltaAngle(_seatedFacingYaw, currentMouseLook.x);
+            yawDelta           = Mathf.Clamp(yawDelta, -seatedYawRange, seatedYawRange);
             currentMouseLook.x = _seatedFacingYaw + yawDelta;
         }
 
@@ -185,8 +184,8 @@ public class FirstPersonLook : MonoBehaviour
     // ── Seated look control ───────────────────────────────────────────────
 
     /// <summary>
-    /// Locks or unlocks raw look input without disabling the component.
-    /// Used by Player to freeze rotation during the approach/align/backstep phases.
+    /// Freeze or release raw look input without disabling the component.
+    /// Called by Player during scripted approach / align / backstep phases.
     /// </summary>
     public void LockLook(bool locked)
     {
@@ -195,13 +194,14 @@ public class FirstPersonLook : MonoBehaviour
     }
 
     /// <summary>
-    /// Call with seated=true (passing the seat's world-space yaw) when Nora sits,
-    /// and seated=false when she stands. Swaps pitch + yaw clamps and bypasses
-    /// the PLAYERBUSY guard so the player can look around while seated.
+    /// Call when Nora sits (seated=true) or stands (seated=false).
+    /// facingYaw  – seat's world-space Y rotation; yaw is clamped relative to this.
+    /// allowLook  – false for scripted / director chairs where look must stay locked.
     /// </summary>
-    public void SetSeated(bool seated, float facingYaw = 0f)
+    public void SetSeated(bool seated, float facingYaw = 0f, bool allowLook = true)
     {
-        _isSeated = seated;
+        _isSeated          = seated;
+        _seatedLookAllowed = seated && allowLook;
 
         if (seated)
         {
@@ -209,17 +209,34 @@ public class FirstPersonLook : MonoBehaviour
             _activePitchMin  = seatedPitchClampMin;
             _activePitchMax  = seatedPitchClampMax;
 
-            // Snap yaw to facing direction and clamp pitch immediately – no pop
-            currentMouseLook.x = facingYaw;
-            currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, _activePitchMin, _activePitchMax);
+            // Re-derive pitch from the camera pivot's ACTUAL current local rotation
+            // rather than the accumulated currentMouseLook.y value. FixedUpdate was
+            // blocked during the approach/sit animation, so the pivot's rotation may
+            // not match what currentMouseLook.y thinks it is. Reading it back
+            // guarantees they are in sync when FixedUpdate resumes, preventing a jerk.
+            if (cameraPivot != null)
+            {
+                float rawPitch     = NormalizeAngle180(cameraPivot.localEulerAngles.x);
+                currentMouseLook.y = Mathf.Clamp(-rawPitch, _activePitchMin, _activePitchMax);
+            }
+            else
+            {
+                currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, _activePitchMin, _activePitchMax);
+            }
 
-            // Release the approach-phase lock so the player can look freely
-            LockLook(false);
+            currentMouseLook.x = facingYaw;
+
+            // Zero delta so no leftover mouse movement fires on the first live frame
+            appliedMouseDelta = Vector2.zero;
+
+            if (allowLook) LockLook(false);
         }
         else
         {
-            _activePitchMin = pitchClampMin;
-            _activePitchMax = pitchClampMax;
+            _activePitchMin   = pitchClampMin;
+            _activePitchMax   = pitchClampMax;
+            appliedMouseDelta = Vector2.zero;
+            LockLook(false);
         }
     }
 
@@ -233,37 +250,31 @@ public class FirstPersonLook : MonoBehaviour
     public void AimAssistLock(float seconds)
     {
         seconds = Mathf.Max(0f, seconds);
-
-        if (_lockRoutine != null)
-            StopCoroutine(_lockRoutine);
-
+        if (_lockRoutine != null) StopCoroutine(_lockRoutine);
         _lockRoutine = StartCoroutine(AimAssistLockRoutine(seconds));
     }
 
     private IEnumerator AimAssistLockRoutine(float seconds)
     {
-        _lookLocked = true;
+        _lookLocked       = true;
         appliedMouseDelta = Vector2.zero;
 
         yield return new WaitForSecondsRealtime(seconds);
 
-        _lookLocked = false;
+        _lookLocked       = false;
         appliedMouseDelta = Vector2.zero;
-        _lockRoutine = null;
+        _lockRoutine      = null;
     }
 
     public void SnapYawTowardWorldPoint(Vector3 worldPoint)
     {
         Vector3 from = character != null ? character.position : transform.position;
-
-        Vector3 to = worldPoint - from;
+        Vector3 to   = worldPoint - from;
         to.y = 0f;
         if (to.sqrMagnitude < 0.000001f) return;
 
-        float targetYaw = Mathf.Atan2(to.x, to.z) * Mathf.Rad2Deg;
-        currentMouseLook.x = targetYaw;
-
-        appliedMouseDelta = Vector2.zero;
+        currentMouseLook.x = Mathf.Atan2(to.x, to.z) * Mathf.Rad2Deg;
+        appliedMouseDelta  = Vector2.zero;
     }
 
     public void LookAtDevice(Transform deviceTransform)
@@ -274,31 +285,28 @@ public class FirstPersonLook : MonoBehaviour
         CaptureDeviceBaselinePose();
 
         if (_lookAtCo != null) StopCoroutine(_lookAtCo);
-
         _lookAtCo = StartCoroutine(SmoothLookAtCoroutine(deviceTransform, lookAtBlendSeconds));
     }
 
     private IEnumerator SmoothLookAtCoroutine(Transform target, float seconds)
     {
-        _lookLocked = true;
+        _lookLocked       = true;
         appliedMouseDelta = Vector2.zero;
 
-        Quaternion startRot = (cameraPivot != null) ? cameraPivot.rotation : transform.rotation;
+        Quaternion startRot = cameraPivot != null ? cameraPivot.rotation : transform.rotation;
+        Vector3    origin   = cameraPivot != null ? cameraPivot.position : transform.position;
+        Vector3    dir0     = target.position - origin;
 
-        Vector3 origin = (cameraPivot != null) ? cameraPivot.position : transform.position;
-        Vector3 dir0 = target.position - origin;
-
-        Quaternion endRot = (dir0.sqrMagnitude > 0.000001f)
+        Quaternion endRot = dir0.sqrMagnitude > 0.000001f
             ? Quaternion.LookRotation(dir0.normalized, Vector3.up)
             : startRot;
 
         if (seconds <= 0f)
         {
             if (cameraPivot != null) cameraPivot.rotation = endRot;
-            else transform.rotation = endRot;
-
+            else                     transform.rotation   = endRot;
             _lookLocked = false;
-            _lookAtCo = null;
+            _lookAtCo   = null;
             yield break;
         }
 
@@ -310,24 +318,21 @@ public class FirstPersonLook : MonoBehaviour
             if (lookAtCurve != null) a = lookAtCurve.Evaluate(a);
 
             Quaternion r = Quaternion.Slerp(startRot, endRot, a);
-
             if (cameraPivot != null) cameraPivot.rotation = r;
-            else transform.rotation = r;
-
+            else                     transform.rotation   = r;
             yield return null;
         }
 
         if (cameraPivot != null) cameraPivot.rotation = endRot;
-        else transform.rotation = endRot;
+        else                     transform.rotation   = endRot;
 
         _lookLocked = false;
-        _lookAtCo = null;
+        _lookAtCo   = null;
     }
 
     private void CaptureDeviceBaselinePose()
     {
         if (_currentDevice == null) return;
-
         _deviceBaseLocalPos = _currentDevice.localPosition;
         _deviceBaseLocalRot = _currentDevice.localRotation;
         _deviceBaseCaptured = true;
@@ -337,13 +342,11 @@ public class FirstPersonLook : MonoBehaviour
     {
         if (_currentDevice == null) return;
 
-        Transform pivot = (cameraPivot != null) ? cameraPivot : transform;
-
+        Transform pivot        = cameraPivot != null ? cameraPivot : transform;
         _deviceLocalPosInPivot = pivot.InverseTransformPoint(_currentDevice.position);
         _deviceLocalRotInPivot = Quaternion.Inverse(pivot.rotation) * _currentDevice.rotation;
-
-        _cameraModeActive = true;
-        appliedMouseDelta = Vector2.zero;
+        _cameraModeActive      = true;
+        appliedMouseDelta      = Vector2.zero;
     }
 
     public void PhoneCameraClosed()
@@ -362,20 +365,16 @@ public class FirstPersonLook : MonoBehaviour
 
     private void FollowDeviceToView()
     {
-        Transform pivot = (cameraPivot != null) ? cameraPivot : transform;
-
-        Vector3 desiredPos = pivot.TransformPoint(_deviceLocalPosInPivot);
+        Transform  pivot      = cameraPivot != null ? cameraPivot : transform;
+        Vector3    desiredPos = pivot.TransformPoint(_deviceLocalPosInPivot);
         Quaternion desiredRot = pivot.rotation * _deviceLocalRotInPivot;
-
-        float k = 1f - Mathf.Exp(-deviceFollowSharpness * Time.deltaTime);
+        float      k          = 1f - Mathf.Exp(-deviceFollowSharpness * Time.deltaTime);
 
         _currentDevice.position = Vector3.Lerp(_currentDevice.position, desiredPos, k);
         _currentDevice.rotation = Quaternion.Slerp(_currentDevice.rotation, desiredRot, k);
     }
 
-    // -----------------------------
-    // Crouch / Crawl camera height
-    // -----------------------------
+    // ── Crouch / Crawl camera height ──────────────────────────────────────
     public void SetCrouch(bool crouched)
     {
         _isCrouched = crouched;
@@ -396,13 +395,13 @@ public class FirstPersonLook : MonoBehaviour
 
         HeightMode previous = _heightMode;
 
-        if (_isCrawling) _heightMode = HeightMode.Crawl;
+        if      (_isCrawling) _heightMode = HeightMode.Crawl;
         else if (_isCrouched) _heightMode = HeightMode.Crouch;
-        else _heightMode = HeightMode.Stand;
+        else                  _heightMode = HeightMode.Stand;
 
         float yOffset = 0f;
-        if (_heightMode == HeightMode.Crouch) yOffset = crouchLocalYOffset;
-        else if (_heightMode == HeightMode.Crawl) yOffset = crawlLocalYOffset;
+        if      (_heightMode == HeightMode.Crouch) yOffset = crouchLocalYOffset;
+        else if (_heightMode == HeightMode.Crawl)  yOffset = crawlLocalYOffset;
 
         float duration =
             (previous == HeightMode.Crawl || _heightMode == HeightMode.Crawl)
@@ -411,9 +410,7 @@ public class FirstPersonLook : MonoBehaviour
 
         Vector3 target = _pivotStartLocalPos + new Vector3(0f, yOffset, 0f);
 
-        if (_heightCo != null)
-            StopCoroutine(_heightCo);
-
+        if (_heightCo != null) StopCoroutine(_heightCo);
         _heightCo = StartCoroutine(BlendPivotHeight(target, duration));
     }
 
@@ -434,15 +431,14 @@ public class FirstPersonLook : MonoBehaviour
         while (t < seconds)
         {
             t += Time.deltaTime;
-            float a = Mathf.Clamp01(t / seconds);
-            cameraPivot.localPosition = Vector3.Lerp(start, targetLocalPos, a);
+            cameraPivot.localPosition = Vector3.Lerp(start, targetLocalPos, Mathf.Clamp01(t / seconds));
             yield return null;
         }
 
         cameraPivot.localPosition = targetLocalPos;
         _heightCo = null;
     }
-    
+
     private static float NormalizeAngle180(float angle)
     {
         angle %= 360f;

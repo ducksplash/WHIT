@@ -176,7 +176,7 @@ public class Player : Singleton<Player>
 
     private Coroutine  _sitCoroutine;
     private Transform  _activeSeatTransform;
-    private bool       _isSeated;
+    public bool       IsSeated;
     // ───────────────────────────────────────────────────────────────────────
 
     [Header("UI References")]
@@ -220,8 +220,6 @@ public class Player : Singleton<Player>
     public bool MoveOverride;
     public bool ZoomOverride;
 
-    private bool sitting;
-    
     // ────────────────────────────────────────────────────────────────────────
     // Start
     // ────────────────────────────────────────────────────────────────────────
@@ -232,7 +230,7 @@ public class Player : Singleton<Player>
         EventManager.OnTorchCollected += TorchCollected;
         EventManager.OnNoraSit        += NoraSit;
 
-        StandUpAction.action.performed += StandUp;
+        if (StandUpAction != null) StandUpAction.action.performed += StandUp;
 
         thisCharController = GetComponentInParent<CharacterController>();
         if (thisCharController == null) thisCharController = GetComponent<CharacterController>();
@@ -408,11 +406,12 @@ public class Player : Singleton<Player>
         if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null &&
             GameMaster.Instance.PauseManager.IsPaused) return;
 
-        if (MoveOverride && moveAction != null && !moveAction.action.enabled) moveAction.action.Enable();
+        if (MoveOverride && moveAction != null && !moveAction.action.enabled)
+            moveAction.action.Enable();
 
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
 
-        if (!sitting) HandleMovement();
+        HandleMovement();
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -432,14 +431,13 @@ public class Player : Singleton<Player>
             return;
         }
 
-        if (_isSeated)
+        if (IsSeated)
         {
             Debug.LogWarning("[Player] NoraSit called while already seated – ignoring.");
             return;
         }
-        
+
         GameMaster.Instance.PLAYERBUSY = true;
-        sitting = true;
 
         // Freeze look input during the scripted approach/align/backstep phases.
         // The component stays enabled so it can resume immediately when seated.
@@ -471,7 +469,7 @@ public class Player : Singleton<Player>
         // Point Nora walks TO (in front of where the seat faces)
         Vector3 preSitPoint   = new Vector3(
             seatPos.x + seatForward.x * sitPreSitForwardOffset,
-            transform.position.y,       // keep Nora's current floor height
+            transform.position.y,
             seatPos.z + seatForward.z * sitPreSitForwardOffset);
 
         // Point Nora steps BACK to (between preSitPoint and seat pivot)
@@ -480,6 +478,12 @@ public class Player : Singleton<Player>
             transform.position.y,
             seatPos.z + seatForward.z * sitBackstepDistance);
 
+        // Determine whether free look is allowed for this seat.
+        // Tagged chairs are reserved for scripted sequences and keep look locked.
+        bool allowLook = !seat.gameObject.CompareTag("EllsworthOfficeChair");
+
+        GameMaster.Instance.INAMEETING = seat.gameObject.CompareTag("EllsworthOfficeChair");
+        
         // ── Phase 1: Approach ────────────────────────────────────────────────
         yield return StartCoroutine(SitPhaseApproach(preSitPoint));
 
@@ -519,27 +523,22 @@ public class Player : Singleton<Player>
             Noranimator.SetTrigger(AnimSitIdle);
         }
 
-        // Unlock look with tighter seated pitch + yaw clamps.
-        // Pass the seat's world-space yaw so left/right is clamped relative to it.
+        // Apply seated look clamps. allowLook=false keeps look locked for
+        // scripted chairs; allowLook=true enables free look within the clamps.
         float seatFacingYaw = Quaternion.LookRotation(seatForward, Vector3.up).eulerAngles.y;
-        FirstPersonLook?.SetSeated(true, seatFacingYaw);
+        FirstPersonLook?.SetSeated(true, seatFacingYaw, allowLook);
 
-        _isSeated     = true;
+        // Kick off any director routine tied to this chair
+        if (!allowLook) DirectorEvents.StartDirector(DirectedRoutines.MainNoraFired);
+
+        yield return new WaitForSeconds(1);
+        
+        IsSeated = true;
         _sitCoroutine = null;
 
         // PLAYERBUSY remains true. StandUp() is called externally via input.
-        
-        
-        // We can start now
-        yield return new WaitForSeconds(1);
-        Debug.Log(seat.gameObject.tag);
-
-        if (seat.gameObject.CompareTag("EllsworthOfficeChair"))
-        {
-            DirectorEvents.StartDirector(DirectedRoutines.MainNoraFired);
-        }
-        
     }
+    
 
     // ── Approach phase ───────────────────────────────────────────────────────
     // CC is disabled. Move the transform directly so nothing fights the motion.
@@ -644,7 +643,7 @@ public class Player : Singleton<Player>
     {
         if (GameMaster.Instance.INAMEETING) return;
         
-        if (!_isSeated && _sitCoroutine == null)
+        if (!IsSeated && _sitCoroutine == null)
         {
             Debug.LogWarning("[Player] StandUp called but player is not seated.");
             return;
@@ -673,14 +672,12 @@ public class Player : Singleton<Player>
         ReturnToLocomotion();
 
         GameMaster.Instance.PLAYERBUSY = false;
-        sitting = false;
         _sitCoroutine = null;
     }
 
     // ── Shared locomotion-restore helper ────────────────────────────────────
     private void ReturnToLocomotion()
     {
-        _isSeated            = false;
         _activeSeatTransform = null;
 
         if (thisCharController != null) thisCharController.enabled = true;
@@ -703,6 +700,8 @@ public class Player : Singleton<Player>
             Noranimator.ResetTrigger(AnimSitIdle);
             Noranimator.ResetTrigger(AnimStandUp);
         }
+        
+        IsSeated = false;
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -781,35 +780,33 @@ public class Player : Singleton<Player>
     {
         if (Noranimator == null) return;
 
-        Vector3 velXZ = Vector3.zero;
+        float dt = Time.deltaTime;
 
-        if (thisCharController != null)
-        {
-            Vector3 v = thisCharController.velocity;
-            v.y   = 0f;
-            velXZ = v;
-        }
-
+        // Calculate manual velocity (already smoothed externally if you applied that tip)
         ComputeManualVelocityXZ();
-        if (velXZ.sqrMagnitude < 0.000001f && _manualVelocityXZ.sqrMagnitude > 0.000001f)
-            velXZ = _manualVelocityXZ;
 
-        bool isMoving = velXZ.sqrMagnitude > 0.0001f;
+        Vector3 vel = _manualVelocityXZ;
+        float speed = vel.magnitude;
 
+        // Movement threshold to prevent idle jitter
+        float moveThreshold = 1.5f;
+        bool isMoving = speed > moveThreshold;
+
+        // Convert velocity to local space for blend tree
         Vector3 localDir = Vector3.zero;
-        if (isMoving && _animT != null)
-            localDir = _animT.InverseTransformDirection(velXZ.normalized);
+        if (isMoving && _animT != null) localDir = _animT.InverseTransformDirection(vel.normalized);
 
         float targetX = isMoving ? Mathf.Clamp(localDir.x, -1f, 1f) : 0f;
         float targetY = isMoving ? Mathf.Clamp(localDir.z, -1f, 1f) : 0f;
 
+        // Set animator states
         Noranimator.SetBool(AnimCrouching, crouching);
-        Noranimator.SetBool(AnimGrounded,  isGrounded);
+        Noranimator.SetBool(AnimGrounded, isGrounded);
 
-        float dt = Time.deltaTime;
         Noranimator.SetFloat(AnimMoveX, targetX, animDampTime, dt);
         Noranimator.SetFloat(AnimMoveY, targetY, animDampTime, dt);
 
+        // Speed blending (idle / walk / run)
         float targetSpeed01 = 0f;
         if (isMoving)
         {

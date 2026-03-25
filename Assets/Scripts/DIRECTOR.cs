@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -21,12 +22,37 @@ public class DIRECTOR : MonoBehaviour
 
     public DirectedRoutines selectedRoutine = DirectedRoutines.PrefaceNoraFired;
 
+    [Header("Input")]
+    public InputActionReference advanceAction;
 
+    private bool _advancePressed;
+    
     private void Start()
     {
         DirectorEvents.OnStartDirector += EventStartDirector;
     }
 
+    private void OnEnable()
+    {
+        if (advanceAction != null)
+        {
+            advanceAction.action.performed += OnAdvance;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (advanceAction != null)
+        {
+            advanceAction.action.performed -= OnAdvance;
+        }
+    }
+
+    private void OnAdvance(InputAction.CallbackContext ctx)
+    {
+        _advancePressed = true;
+    }
+    
 
     public void EventStartDirector(DirectedRoutines directedRoutine)
     {
@@ -94,9 +120,15 @@ public class DIRECTOR : MonoBehaviour
     {
         GameMaster.Instance.PLAYERBUSY = true;
         GameMaster.Instance.INAMEETING = true;
+
+        while (!thePlayer.IsSeated)
+        {
+            yield return null;
+        }
         
         
         Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[0].transform);
+        
 
         while (GameMaster.Instance.DialogueManager.DialogInProgress)
         {
@@ -115,16 +147,27 @@ public class DIRECTOR : MonoBehaviour
         
         Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[1].transform);
         
-        while (GameMaster.Instance.DialogueManager.DialogInProgress)
-        {
-            yield return null;
-        }
+        yield return WaitForPlayerInput();
         
         
         Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[0].transform);
+
         
+        yield return new WaitForSeconds(1);
+        
+        GameMaster.Instance.INAMEETING = false;
         
         yield return null;
+    }
+    
+    private IEnumerator WaitForPlayerInput()
+    {
+        _advancePressed = false;
+
+        while (!_advancePressed)
+        {
+            yield return null;
+        }
     }
     
 }

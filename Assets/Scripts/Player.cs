@@ -466,40 +466,27 @@ public class Player : Singleton<Player>
 
         Vector3 seatPos = seatTf.position;
 
-        // Point Nora walks TO (in front of where the seat faces)
-        Vector3 preSitPoint   = new Vector3(
-            seatPos.x + seatForward.x * sitPreSitForwardOffset,
-            transform.position.y,
-            seatPos.z + seatForward.z * sitPreSitForwardOffset);
+        Vector3 preSitPoint   = new Vector3(seatPos.x + seatForward.x * sitPreSitForwardOffset, transform.position.y, seatPos.z + seatForward.z * sitPreSitForwardOffset);
 
-        // Point Nora steps BACK to (between preSitPoint and seat pivot)
-        Vector3 backstepPoint = new Vector3(
-            seatPos.x + seatForward.x * sitBackstepDistance,
-            transform.position.y,
-            seatPos.z + seatForward.z * sitBackstepDistance);
+        Vector3 backstepPoint = new Vector3(seatPos.x + seatForward.x * sitBackstepDistance, transform.position.y, seatPos.z + seatForward.z * sitBackstepDistance);
 
-        // Determine whether free look is allowed for this seat.
-        // Tagged chairs are reserved for scripted sequences and keep look locked.
+
         bool allowLook = !seat.gameObject.CompareTag("EllsworthOfficeChair");
 
         GameMaster.Instance.INAMEETING = seat.gameObject.CompareTag("EllsworthOfficeChair");
         
-        // ── Phase 1: Approach ────────────────────────────────────────────────
         yield return StartCoroutine(SitPhaseApproach(preSitPoint));
 
         if (seatTf == null) { AbortSit(); yield break; }
 
-        // ── Phase 2: Align rotation ──────────────────────────────────────────
         yield return StartCoroutine(SitPhaseAlign(seatForward));
 
         if (seatTf == null) { AbortSit(); yield break; }
 
-        // ── Phase 3: Backstep ────────────────────────────────────────────────
         yield return StartCoroutine(SitPhaseBackstep(backstepPoint, seatForward));
 
         if (seatTf == null) { AbortSit(); yield break; }
 
-        // ── Phase 4: Face seat precisely, fire SitDown trigger ───────────────
         transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
 
         if (Noranimator != null)
@@ -510,7 +497,6 @@ public class Player : Singleton<Player>
 
         yield return new WaitForSeconds(sitDownDuration);
 
-        // ── Phase 5: Snap root to seat, fire SitIdle trigger ────────────────
         if (seatTf != null)
         {
             transform.position = seatTf.position + sitSeatedRootOffset;
@@ -523,12 +509,10 @@ public class Player : Singleton<Player>
             Noranimator.SetTrigger(AnimSitIdle);
         }
 
-        // Apply seated look clamps. allowLook=false keeps look locked for
-        // scripted chairs; allowLook=true enables free look within the clamps.
+        
         float seatFacingYaw = Quaternion.LookRotation(seatForward, Vector3.up).eulerAngles.y;
         FirstPersonLook?.SetSeated(true, seatFacingYaw, allowLook);
-
-        // Kick off any director routine tied to this chair
+        
         if (!allowLook) DirectorEvents.StartDirector(DirectedRoutines.MainNoraFired);
 
         yield return new WaitForSeconds(1);
@@ -539,35 +523,22 @@ public class Player : Singleton<Player>
         // PLAYERBUSY remains true. StandUp() is called externally via input.
     }
     
-
-    // ── Approach phase ───────────────────────────────────────────────────────
-    // CC is disabled. Move the transform directly so nothing fights the motion.
+    
     private IEnumerator SitPhaseApproach(Vector3 target)
     {
-        // Keep Nora on the floor throughout (Y is fixed to where she started)
         float floorY = transform.position.y;
 
         while (true)
         {
-            // Planar distance check only
-            float dist = new Vector2(
-                target.x - transform.position.x,
-                target.z - transform.position.z).magnitude;
+            
+            float dist = new Vector2(target.x - transform.position.x, target.z - transform.position.z).magnitude;
 
             if (dist <= sitArriveDistance) yield break;
 
-            // Direction of travel (horizontal only)
-            Vector3 dir = new Vector3(
-                target.x - transform.position.x, 0f,
-                target.z - transform.position.z).normalized;
+            Vector3 dir = new Vector3(target.x - transform.position.x, 0f, target.z - transform.position.z).normalized;
 
-            // Face the direction of travel
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                Quaternion.LookRotation(dir, Vector3.up),
-                Time.deltaTime * sitRotateSpeed);
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir, Vector3.up), Time.deltaTime * sitRotateSpeed);
 
-            // Move directly – no physics, no CC
             Vector3 next = transform.position + dir * sitMoveSpeed * Time.deltaTime;
             next.y = floorY;
             transform.position = next;
@@ -576,7 +547,6 @@ public class Player : Singleton<Player>
         }
     }
 
-    // ── Align phase ──────────────────────────────────────────────────────────
     private IEnumerator SitPhaseAlign(Vector3 targetFacing)
     {
         Quaternion targetRot = Quaternion.LookRotation(targetFacing, Vector3.up);
@@ -592,28 +562,21 @@ public class Player : Singleton<Player>
         transform.rotation = targetRot;
     }
 
-    // ── Backstep phase ───────────────────────────────────────────────────────
     private IEnumerator SitPhaseBackstep(Vector3 backstepTarget, Vector3 seatFacing)
     {
-        float      floorY   = transform.position.y;
+        float floorY   = transform.position.y;
         Quaternion faceRot  = Quaternion.LookRotation(seatFacing, Vector3.up);
 
         while (true)
         {
-            float dist = new Vector2(
-                backstepTarget.x - transform.position.x,
-                backstepTarget.z - transform.position.z).magnitude;
+            float dist = new Vector2(backstepTarget.x - transform.position.x, backstepTarget.z - transform.position.z).magnitude;
 
             if (dist <= 0.06f) yield break;
 
-            // Hold the facing rotation (Nora is stepping backward into the seat)
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation, faceRot,
+            transform.rotation = Quaternion.Slerp(transform.rotation, faceRot,
                 Time.deltaTime * sitRotateSpeed * 2f);
 
-            Vector3 dir = new Vector3(
-                backstepTarget.x - transform.position.x, 0f,
-                backstepTarget.z - transform.position.z).normalized;
+            Vector3 dir = new Vector3(backstepTarget.x - transform.position.x, 0f, backstepTarget.z - transform.position.z).normalized;
 
             Vector3 next = transform.position + dir * sitBackstepSpeed * Time.deltaTime;
             next.y = floorY;
@@ -623,7 +586,6 @@ public class Player : Singleton<Player>
         }
     }
 
-    // ── Abort helper ────────────────────────────────────────────────────────
     private void AbortSit()
     {
         Debug.LogWarning("[Player] SitSequence aborted (seat transform was destroyed).");
@@ -631,14 +593,6 @@ public class Player : Singleton<Player>
         GameMaster.Instance.PLAYERBUSY = false;
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // ── STAND UP ─────────────────────────────────────────────────────────────
-    // ────────────────────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Call this to stand Nora up from a seated position.
-    /// Intentionally left uncalled – bind to player input as required.
-    /// </summary>
     public void StandUp(InputAction.CallbackContext ctx = default)
     {
         if (GameMaster.Instance.INAMEETING) return;

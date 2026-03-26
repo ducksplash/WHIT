@@ -142,10 +142,8 @@ public class DialogueManager : MonoBehaviour
 
     public async Task NewDialogue(DialogueName dialogueName, float displaytimer)
     {
-        if (!DialogInProgress)
-            await CreateDialogue(dialogueName, displaytimer, holdUntilAdvance: false);
-        else
-            await Queuer(dialogueName, displaytimer);
+        if (!DialogInProgress) await CreateDialogue(dialogueName, displaytimer, holdUntilAdvance: false);
+        else await Queuer(dialogueName, displaytimer);
     }
 
     public Task Queuer(DialogueName dialogueName, float displaytimer)

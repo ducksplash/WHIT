@@ -6,7 +6,8 @@ public class UInstance : Singleton<UInstance>
 {
     public CanvasGroup cutsceneBarsCanvas;
     public CanvasGroup HudCanvas;
-
+    public CanvasGroup ProceedCanvas;
+    
 
     public void Start()
     {    
@@ -15,9 +16,18 @@ public class UInstance : Singleton<UInstance>
         cutsceneBarsCanvas.alpha = 0;
 
         EventManager.OnDebugCameraToggle += DebugDisableHUD;
+        EventManager.OnDialogueCanProceed += ToggleDialogueCanProceed;
 
+        
+        
     }
 
+
+
+    private void ToggleDialogueCanProceed(bool toggleval)
+    {
+        ProceedCanvas.alpha = toggleval ? 1 : 0;
+    }
 
 
     void DebugDisableHUD(bool b)

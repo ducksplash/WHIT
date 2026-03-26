@@ -24,6 +24,7 @@ public static class EventManager
     public static event Action<bool> OnPaused = (GamePaused) => { };
     public static event Action<QuestText> OnQuestLoaded = (QuestText) => { };
     public static event Action<bool> OnDebugCameraToggle = (DebugCamEnabled) => { };
+    public static event Action<bool> OnDialogueCanProceed = (toggle) => { };
     
     
     public static event Action<NPCController> OnRegisterNPC = (NPCCont) => { };
@@ -171,6 +172,10 @@ public static class EventManager
     public static void NoraSit(Seat selectedSeat)
     {
         OnNoraSit.Invoke(selectedSeat);
+    }
+    public static void DialogueCanProceed(bool toggle)
+    {
+        OnDialogueCanProceed.Invoke(toggle);
     }
 
     

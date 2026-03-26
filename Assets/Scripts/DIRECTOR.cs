@@ -147,11 +147,16 @@ public class DIRECTOR : MonoBehaviour
         
         Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[1].transform);
         
+        
+        DirectorEvents.UpperBodyAnimation(NPC.Presha, "DoWave");
+        
         yield return WaitForPlayerInput();
         
         
         Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[0].transform);
 
+        
+        
         
         yield return new WaitForSeconds(1);
         
@@ -162,12 +167,15 @@ public class DIRECTOR : MonoBehaviour
     
     private IEnumerator WaitForPlayerInput()
     {
+        EventManager.DialogueCanProceed(true);
         _advancePressed = false;
 
         while (!_advancePressed)
         {
             yield return null;
         }
+        
+        EventManager.DialogueCanProceed(false);
     }
     
 }

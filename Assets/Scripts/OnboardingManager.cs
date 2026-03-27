@@ -186,7 +186,9 @@ public class OnboardingManager : MonoBehaviour
             DialogueType.cutscene,
             cutsceneTarget: torchPickup,
             cutsceneDuration: 7f,
-            cutscenePanTime: 1f);
+            cutscenePanTime: 1f,
+            isZoomable: true,
+            holdUntilAdvance: true);
         
         GameMaster.Instance.QuestManager.UpdateQuestObjectives(QuestName.GetReadyForWork, 3);
 
@@ -211,7 +213,9 @@ public class OnboardingManager : MonoBehaviour
             DialogueType.cutscene,
             cutsceneTarget: notepadPickup,
             cutsceneDuration: 7f,
-            cutscenePanTime: 1f
+            cutscenePanTime: 1f,
+            isZoomable: true,
+            holdUntilAdvance: true
         );
 
         GameMaster.Instance.QuestManager.UpdateQuestObjectives(QuestName.GetReadyForWork, 2);
@@ -236,7 +240,9 @@ public class OnboardingManager : MonoBehaviour
             DialogueType.cutscene,
             cutsceneTarget: phonePickup,
             cutsceneDuration: 7f,
-            cutscenePanTime: 1f
+            cutscenePanTime: 1f,
+            isZoomable: true,
+            holdUntilAdvance: true
         );
 
         GameMaster.Instance.QuestManager.UpdateQuestObjectives(QuestName.GetReadyForWork, 1);

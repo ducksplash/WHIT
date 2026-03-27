@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class UInstance : Singleton<UInstance>
@@ -7,26 +8,31 @@ public class UInstance : Singleton<UInstance>
     public CanvasGroup cutsceneBarsCanvas;
     public CanvasGroup HudCanvas;
     public CanvasGroup ProceedCanvas;
+    public TextMeshProUGUI advanceInputText;
     
 
     public void Start()
-    {    
-        //Debug.Log("UInstance Start");
-        
+    {
         cutsceneBarsCanvas.alpha = 0;
-
+        ProceedCanvas.alpha = 0;
+        
         EventManager.OnDebugCameraToggle += DebugDisableHUD;
         EventManager.OnDialogueCanProceed += ToggleDialogueCanProceed;
 
-        
-        
+
     }
 
 
 
     private void ToggleDialogueCanProceed(bool toggleval)
-    {
+    {       
+        
+        Debug.Log("UInstance ProceedCanvas "+toggleval);
+
         ProceedCanvas.alpha = toggleval ? 1 : 0;
+        advanceInputText.text = toggleval ? GameMaster.Instance.InputManager.ReturnInputName(InputName.Submit) : "";
+        Debug.Log("ProceedCanvas.alpha "+ProceedCanvas.alpha);
+        Debug.Log("advanceInputText.text "+advanceInputText.text);
     }
 
 

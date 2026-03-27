@@ -30,24 +30,24 @@ public class DIRECTOR : MonoBehaviour
     private void Start()
     {
         DirectorEvents.OnStartDirector += EventStartDirector;
+        EventManager.OnDialogueCanProceed += OnReadyToAdvance;
     }
 
-    private void OnEnable()
+
+
+    private void OnReadyToAdvance(bool canadvance)
     {
-        if (advanceAction != null)
+        if (canadvance)
         {
             advanceAction.action.performed += OnAdvance;
         }
-    }
-
-    private void OnDisable()
-    {
-        if (advanceAction != null)
+        else
         {
             advanceAction.action.performed -= OnAdvance;
         }
     }
-
+    
+    
     private void OnAdvance(InputAction.CallbackContext ctx)
     {
         _advancePressed = true;
@@ -118,45 +118,74 @@ public class DIRECTOR : MonoBehaviour
 
     private IEnumerator PlayMainRoutine()
     {
+        // SET BUSY
         GameMaster.Instance.PLAYERBUSY = true;
         GameMaster.Instance.INAMEETING = true;
 
+        // WAIT TIL SEATED
         while (!thePlayer.IsSeated)
         {
             yield return null;
         }
         
-        
+        // LOOK AT ELLSWORTH
         Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[0].transform);
         
 
-        while (GameMaster.Instance.DialogueManager.DialogInProgress)
-        {
-            yield return null;
-        }
+        // WAIT FOR HIS DIALOGUE TO END
+        yield return WaitForDialogueToEnd();
         
+        
+        
+        // HAVE YOU MET PRESHA? SHE'S HERE TO PUT YOU ON THE DOLE
         GameMaster.Instance.DialogueManager.PlayDialogue(
             dialogueList[1],
-            5,
+            0,
             DialogueType.normal,
             cutsceneDuration: 4f,
             cutscenePanTime: 1f,
             cutsceneTarget: NPCTransforms[0],
-            false);
+            false,
+            true);
 
         
+        // LOOK AT PRESHA
         Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[1].transform);
         
         
+        // PRESHA GREETS YOU
         DirectorEvents.UpperBodyAnimation(NPC.Presha, "DoWave");
         
+        
+        // WAITING FOR YOU TO ADVANCE
         yield return WaitForPlayerInput();
         
         
+        // LOOK BACK AT ELLSWORTH
         Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[0].transform);
 
         
+        // NORA: SOMEONE FROM HR FOR A CATCH UP...
+        GameMaster.Instance.DialogueManager.PlayDialogue(
+            dialogueList[2],
+            0,
+            DialogueType.normal,
+            cutsceneDuration: 4f,
+            cutscenePanTime: 1f,
+            cutsceneTarget: NPCTransforms[0],
+            false,
+            true);
         
+        
+        
+        // WAITING FOR YOU TO ADVANCE
+        yield return WaitForPlayerInput();
+        
+        // Ellsworth Does Whatever
+        DirectorEvents.UpperBodyAnimation(NPC.Ellsworth_Ohanlon, "DoWhatever");
+        
+        
+        // END THE MEETING.
         
         yield return new WaitForSeconds(1);
         
@@ -167,7 +196,6 @@ public class DIRECTOR : MonoBehaviour
     
     private IEnumerator WaitForPlayerInput()
     {
-        EventManager.DialogueCanProceed(true);
         _advancePressed = false;
 
         while (!_advancePressed)
@@ -175,8 +203,18 @@ public class DIRECTOR : MonoBehaviour
             yield return null;
         }
         
-        EventManager.DialogueCanProceed(false);
     }
+
+
+    private IEnumerator WaitForDialogueToEnd()
+    {
+        while (GameMaster.Instance.DialogueManager.DialogInProgress)
+        {
+            yield return null;
+        }
+    }
+
+
     
 }
 

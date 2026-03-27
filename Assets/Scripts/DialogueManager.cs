@@ -56,8 +56,8 @@ public class DialogueManager : MonoBehaviour
 
     public InputActionReference advanceDialogue;
 
-    private bool cutsceneAdvanceRequested;
-    private Contacts _currentCutsceneContact = Contacts.System;
+    private bool cutsceneAdvanceRequested;  // kept for any existing references
+    private bool advanceRequested;
 
     private bool _stopCutsceneRotation;
 
@@ -70,7 +70,8 @@ public class DialogueManager : MonoBehaviour
     private DialogueName _activeTimedDialogueName;
     private bool _activeTimedIsRepeatable;
     private bool _activeTimedWasShown;
-
+    private bool _currentDialogueIsHeld;
+    
     private void Start()
     {
         DialogManagerCanvas = DialogManager.GetComponent<CanvasGroup>();
@@ -124,9 +125,9 @@ public class DialogueManager : MonoBehaviour
         if (messagetimer > 0) timebar.fillAmount -= 1.0f / messagetimer * Time.deltaTime;
     }
 
-    public Task PlayDialogue(DialogueName dialogueName, float displayTimer, DialogueType type, float cutsceneDuration = -1f, float cutscenePanTime = -1f, GameObject cutsceneTarget = null, bool isZoomable = true)
+    public Task PlayDialogue(DialogueName dialogueName, float displayTimer, DialogueType type, float cutsceneDuration = -1f, float cutscenePanTime = -1f, GameObject cutsceneTarget = null, bool isZoomable = true, bool holdUntilAdvance = false)
     {
-        if (type == DialogueType.normal) return NewDialogue(dialogueName, displayTimer);
+        if (type == DialogueType.normal) return NewDialogue(dialogueName, displayTimer, holdUntilAdvance);
 
         if (cutsceneTarget == null)
         {
@@ -137,26 +138,28 @@ public class DialogueManager : MonoBehaviour
         float useDuration = cutsceneDuration > 0 ? cutsceneDuration : duration;
         float usePanTime  = cutscenePanTime  > 0 ? cutscenePanTime  : panTime;
 
-        return CutsceneWithDialogue(dialogueName, displayTimer, cutsceneTarget, useDuration, usePanTime, isZoomable);
+        return CutsceneWithDialogue(dialogueName, displayTimer, cutsceneTarget, useDuration, usePanTime, isZoomable, holdUntilAdvance);
     }
 
-    public async Task NewDialogue(DialogueName dialogueName, float displaytimer)
+    public async Task NewDialogue(DialogueName dialogueName, float displaytimer, bool holdUntilAdvance = false)
     {
-        if (!DialogInProgress) await CreateDialogue(dialogueName, displaytimer, holdUntilAdvance: false);
-        else await Queuer(dialogueName, displaytimer);
+        if (!DialogInProgress)
+            await CreateDialogue(dialogueName, displaytimer, holdUntilAdvance);
+        else
+            await Queuer(dialogueName, displaytimer, holdUntilAdvance);
     }
 
-    public Task Queuer(DialogueName dialogueName, float displaytimer)
+    public Task Queuer(DialogueName dialogueName, float displaytimer, bool holdUntilAdvance = false)
     {
         var tcs = new TaskCompletionSource<bool>();
-        StartCoroutine(QueuerCoroutine(dialogueName, displaytimer, tcs));
+        StartCoroutine(QueuerCoroutine(dialogueName, displaytimer, tcs, holdUntilAdvance));
         return tcs.Task;
     }
 
-    private IEnumerator QueuerCoroutine(DialogueName dialogueName, float displaytimer, TaskCompletionSource<bool> tcs)
+    private IEnumerator QueuerCoroutine(DialogueName dialogueName, float displaytimer, TaskCompletionSource<bool> tcs, bool holdUntilAdvance = false)
     {
         yield return new WaitWhile(() => DialogInProgress);
-        _ = NewDialogue(dialogueName, displaytimer);
+        _ = NewDialogue(dialogueName, displaytimer, holdUntilAdvance);
         tcs.SetResult(true);
     }
 
@@ -166,14 +169,14 @@ public class DialogueManager : MonoBehaviour
         {
             if (holdUntilAdvance)
             {
-                _currentCutsceneContact = Contacts.System;
+                _currentDialogueIsHeld = holdUntilAdvance;
                 ClearHeldCutsceneDialogue();
             }
             return;
         }
 
         Contacts contact = Contacts.System;
-        string   message = "...";
+        string message = "...";
 
         if (DialogueDict.TryGetValue(dialogueName, out var selectedDialogue))
         {
@@ -184,53 +187,46 @@ public class DialogueManager : MonoBehaviour
                 message = GetReplacedString(message);
         }
 
-        _currentCutsceneContact = contact;
-
-        // ── Held cutscene dialogue (press-to-advance) ─────────────────────
         if (holdUntilAdvance)
         {
             CancelActiveTimedDialogue(markSeen: true);
 
-            messagetimer   = 0f;
+            messagetimer = 0f;
             DialogInProgress = true;
 
-            if (contact == Contacts.System)
+            // ✅ TYPEWRITER FIRST (fully awaited)
+            if (contact == Contacts.System || contact == Contacts.Unknown)
             {
-                PlayWriterOrFallback(SystemMessageWriter, SystemMessage, message);
-            }
-            else if (contact == Contacts.Unknown)
-            {
-                PlayWriterOrFallback(SystemMessageWriter, SystemMessage, message);
+                await PlayWriterOrFallbackAsync(SystemMessageWriter, SystemMessage, message, CancellationToken.None);
             }
             else if (contact == Contacts.Nora)
             {
-                PlayWriterOrFallback(NoraMessageWriter, NoraMessage, message);
+                await PlayWriterOrFallbackAsync(NoraMessageWriter, NoraMessage, message, CancellationToken.None);
             }
-            else if (contact == Contacts.Ellsworth)
+            else if (contact == Contacts.Ellsworth || contact == Contacts.Presha || contact == Contacts.Kim)
             {
-                PlayWriterOrFallbackWithPrefix(SystemMessageWriter, SystemMessage, contact + ": ", message);
-            }
-            else if (contact == Contacts.Presha)
-            {
-                PlayWriterOrFallbackWithPrefix(SystemMessageWriter, SystemMessage, contact + ": ", message);
-            }
-            else if (contact == Contacts.Kim)
-            {
-                PlayWriterOrFallbackWithPrefix(SystemMessageWriter, SystemMessage, contact + ": ", message);
+                await PlayWriterOrFallbackWithPrefixAsync(SystemMessageWriter, SystemMessage, contact + ": ", message, CancellationToken.None);
             }
             else
             {
                 timebar.fillAmount = 1.0f;
                 StartFade(DialogManagerCanvas, 1);
                 ContactName.text = contact.ToString();
-                PlayWriterOrFallback(ReceivedMessageWriter, ReceivedMessage, message);
+                await PlayWriterOrFallbackAsync(ReceivedMessageWriter, ReceivedMessage, message, CancellationToken.None);
             }
 
             MarkDialogueSeen(dialogueName);
+
+            // 🚨 ONLY NOW allow external systems to proceed
+            EventManager.DialogueCanProceed(true);
+
+            await WaitForPlayerAdvanceAsync();
+
+            ClearHeldCutsceneDialogue();
             return;
         }
 
-        // ── Normal timed dialogue ─────────────────────────────────────────
+    // ── Normal timed dialogue ─────────────────────────────────────────
         CancelActiveTimedDialogue(markSeen: true);
 
         _activeTimedCts          = new CancellationTokenSource();
@@ -307,18 +303,7 @@ public class DialogueManager : MonoBehaviour
         MarkDialogueSeen(dialogueName);
     }
 
-    // ── Typewriter helpers ────────────────────────────────────────────────
 
-    /// <summary>
-    /// Fire-and-forget version for held (cutscene) dialogues where we don't await the animation.
-    /// </summary>
-    private void PlayWriterOrFallback(TMPTypewriter writer, TextMeshProUGUI fallback, string message)
-    {
-        if (writer != null)
-            _ = writer.PlayText(message);
-        else
-            fallback.text = message;
-    }
 
     /// <summary>
     /// Fire-and-forget with an instant prefix (e.g. "Ellsworth: ").
@@ -337,8 +322,7 @@ public class DialogueManager : MonoBehaviour
     /// </summary>
     private Task PlayWriterOrFallbackAsync(TMPTypewriter writer, TextMeshProUGUI fallback, string message, CancellationToken token)
     {
-        if (writer != null)
-            return writer.PlayText(message, token);
+        if (writer != null) return writer.PlayText(message, token);
 
         fallback.text = message;
         return Task.CompletedTask;
@@ -349,8 +333,7 @@ public class DialogueManager : MonoBehaviour
     /// </summary>
     private Task PlayWriterOrFallbackWithPrefixAsync(TMPTypewriter writer, TextMeshProUGUI fallback, string prefix, string body, CancellationToken token)
     {
-        if (writer != null)
-            return writer.PlayTextWithPrefix(prefix, body, token);
+        if (writer != null) return writer.PlayTextWithPrefix(prefix, body, token);
 
         fallback.text = prefix + body;
         return Task.CompletedTask;
@@ -360,8 +343,8 @@ public class DialogueManager : MonoBehaviour
 
     private void MarkDialogueSeen(DialogueName dialogueName)
     {
-        if (!DialogueSeen.Contains(dialogueName))
-            DialogueSeen.Add(dialogueName);
+        if (!DialogueSeen.Contains(dialogueName)) DialogueSeen.Add(dialogueName);
+        
         SaveWhatYouSee();
     }
 
@@ -376,7 +359,7 @@ public class DialogueManager : MonoBehaviour
             if (!DialogueSeen.Contains(_activeTimedDialogueName))
                 DialogueSeen.Add(_activeTimedDialogueName);
 
-            SaveWhatYouSee();
+            SaveWhatYouSee(); // save what you see, if you see it, save it. 
         }
 
         _hasActiveTimed = false;
@@ -385,16 +368,23 @@ public class DialogueManager : MonoBehaviour
         _activeTimedCts = null;
     }
 
-    // ── Cutscene ──────────────────────────────────────────────────────────
 
-    private Task CutsceneWithDialogue(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject, float cutsceneDuration, float cutscenePanTime, bool isZoomable = true)
+    private Task CutsceneWithDialogue(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject, float cutsceneDuration, float cutscenePanTime, bool isZoomable = true, bool holdUntilAdvance = false)
     {
         var tcs = new TaskCompletionSource<bool>();
-        StartCoroutine(CutsceneCoroutine(dialogueName, dialogueDisplayTimer, targetObject, cutsceneDuration, cutscenePanTime, tcs, isZoomable));
+        StartCoroutine(CutsceneCoroutine(dialogueName, dialogueDisplayTimer, targetObject, cutsceneDuration, cutscenePanTime, tcs, isZoomable, holdUntilAdvance));
         return tcs.Task;
     }
 
-    private IEnumerator CutsceneCoroutine(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject, float cutsceneDuration, float cutscenePanTime, TaskCompletionSource<bool> tcs, bool isZoomable = true)
+    private IEnumerator CutsceneCoroutine(
+        DialogueName dialogueName,
+        float dialogueDisplayTimer,
+        GameObject targetObject,
+        float cutsceneDuration,
+        float cutscenePanTime,
+        TaskCompletionSource<bool> tcs,
+        bool isZoomable = true,
+        bool holdUntilAdvance = false)
     {
         if (CutsceneInProgress)
         {
@@ -403,36 +393,37 @@ public class DialogueManager : MonoBehaviour
         }
 
         GameMaster.Instance.PLAYERBUSY = true;
-        CutsceneInProgress    = true;
-        elapsedCutsceneTime   = 0f;
+        CutsceneInProgress = true;
+        elapsedCutsceneTime = 0f;
         _stopCutsceneRotation = false;
 
-        if (UInstance.Instance != null) StartCoroutine(UInstance.Instance.FadeInCutsceneBars(cutscenePanTime));
+        StartCoroutine(UInstance.Instance.FadeInCutsceneBars(cutscenePanTime));
 
         yield return new WaitForSeconds(1f);
 
-        _ = CreateDialogue(dialogueName, dialogueDisplayTimer, holdUntilAdvance: true);
+        // ✅ CRITICAL FIX: WAIT for dialogue to fully finish typing BEFORE continuing cutscene flow
+        var dialogueTask = CreateDialogue(dialogueName, dialogueDisplayTimer, holdUntilAdvance);
+        yield return new WaitUntil(() => dialogueTask.IsCompleted);
 
-        float zoomTime   = cutsceneDuration * 0.33f;
+        float zoomTime = cutsceneDuration * 0.33f;
         float unzoomTime = cutsceneDuration * 0.33f;
-        float holdTime   = cutsceneDuration - zoomTime - unzoomTime;
+        float holdTime = cutsceneDuration - zoomTime - unzoomTime;
 
-        if (cameraZoom != null) cameraZoom.enabled = false;
+        if (cameraZoom != null)
+            cameraZoom.enabled = false;
 
         Coroutine zoomCo = null;
 
         if (isZoomable)
-            zoomCo = StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime));
+            zoomCo = StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime, holdUntilAdvance));
 
         while (elapsedCutsceneTime < cutsceneDuration && !_stopCutsceneRotation)
         {
-            Vector3    targetDirection = targetObject.transform.position - mainCamera.transform.position;
-            Quaternion targetRotation  = Quaternion.LookRotation(targetDirection);
+            Vector3 targetDirection = targetObject.transform.position - mainCamera.transform.position;
+            Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
 
-            mainCamera.transform.rotation = Quaternion.Lerp(
-                mainCamera.transform.rotation,
-                targetRotation,
-                cutscenePanTime * Time.smoothDeltaTime);
+            mainCamera.transform.rotation =
+                Quaternion.Lerp(mainCamera.transform.rotation, targetRotation, cutscenePanTime * Time.smoothDeltaTime);
 
             elapsedCutsceneTime += Time.smoothDeltaTime;
             yield return null;
@@ -441,19 +432,20 @@ public class DialogueManager : MonoBehaviour
         if (isZoomable)
             yield return zoomCo;
 
-        Vector3 dir   = (targetObject.transform.position - mainCamera.transform.position).normalized;
-        float   yaw   = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-        float   pitch = Mathf.Asin(dir.y) * Mathf.Rad2Deg;
+        Vector3 dir = (targetObject.transform.position - mainCamera.transform.position).normalized;
+        float yaw = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+        float pitch = Mathf.Asin(dir.y) * Mathf.Rad2Deg;
+
         Player.Instance.FirstPersonLook.SetPlayerRotation(new Vector2(yaw, pitch));
 
-        CutsceneInProgress            = false;
+        CutsceneInProgress = false;
         GameMaster.Instance.PLAYERBUSY = false;
 
         SaveWhatYouSee();
         tcs.SetResult(true);
     }
 
-    private IEnumerator CutsceneZoomSequence(float zoomTime, float holdTime, float unzoomTime)
+    private IEnumerator CutsceneZoomSequence(float zoomTime, float holdTime, float unzoomTime, bool holdUntilAdvance)
     {
         float t = 0f;
 
@@ -463,10 +455,26 @@ public class DialogueManager : MonoBehaviour
             mainCamera.fieldOfView = Mathf.Lerp(originalFieldOfView, targetFieldOfView, Mathf.SmoothStep(0, 1, t));
             yield return null;
         }
+        
         mainCamera.fieldOfView = targetFieldOfView;
 
-        yield return StartCoroutine(WaitForCutsceneAdvance());
+        Debug.Log("holdUntilAdvance "+holdUntilAdvance);
+        
+        
+        if (!holdUntilAdvance)
+        {
+            yield return new WaitForSeconds(holdTime);
+        }
+        else
+        {
+            while (!advanceRequested)
+            {
+                yield return null;
+            }
+        }
 
+        Debug.Log("here?");
+        
         _stopCutsceneRotation = true;
 
         ClearHeldCutsceneDialogue();
@@ -481,8 +489,7 @@ public class DialogueManager : MonoBehaviour
 
         mainCamera.fieldOfView = originalFieldOfView;
 
-        if (UInstance.Instance != null)
-            StartCoroutine(UInstance.Instance.FadeOutCutsceneBars());
+        StartCoroutine(UInstance.Instance.FadeOutCutsceneBars());
 
         if (cameraZoom != null)
         {
@@ -523,29 +530,46 @@ public class DialogueManager : MonoBehaviour
         if (ContactName           != null) ContactName.text = "";
     }
 
-    private void RequestCutsceneAdvance(InputAction.CallbackContext ctx)
+    private void RequestAdvance(InputAction.CallbackContext ctx)
     {
-        cutsceneAdvanceRequested = true;
+        advanceRequested = true;
+        EventManager.DialogueCanProceed(false);
     }
 
-    private IEnumerator WaitForCutsceneAdvance()
+    public IEnumerator WaitForPlayerAdvance()
     {
-        cutsceneAdvanceRequested = false;
+        advanceRequested = false;
 
         if (advanceDialogue != null)
         {
-            advanceDialogue.action.performed -= RequestCutsceneAdvance;
-            advanceDialogue.action.performed += RequestCutsceneAdvance;
+            advanceDialogue.action.performed -= RequestAdvance;
+            advanceDialogue.action.performed += RequestAdvance;
         }
         else
         {
-            Debug.LogWarning("DialogueManager: advanceDialogue is not assigned. Cutscenes will never advance.");
+            Debug.LogWarning("DialogueManager: advanceDialogue not assigned.");
+            yield break;
         }
 
-        yield return new WaitUntil(() => cutsceneAdvanceRequested);
+        // ❌ REMOVED: EventManager.DialogueCanProceed(true);
+        // This was causing early input validity and race conditions
+
+        yield return new WaitUntil(() => advanceRequested);
 
         if (advanceDialogue != null)
-            advanceDialogue.action.performed -= RequestCutsceneAdvance;
+            advanceDialogue.action.performed -= RequestAdvance;
+    }
+    public Task WaitForPlayerAdvanceAsync()
+    {
+        var tcs = new TaskCompletionSource<bool>();
+        StartCoroutine(WaitForAdvanceCoroutine(tcs));
+        return tcs.Task;
+    }
+
+    private IEnumerator WaitForAdvanceCoroutine(TaskCompletionSource<bool> tcs)
+    {
+        yield return WaitForPlayerAdvance();
+        tcs.SetResult(true);
     }
 
     // ── Populate ──────────────────────────────────────────────────────────

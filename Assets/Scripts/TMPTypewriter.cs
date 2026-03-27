@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
@@ -29,6 +30,9 @@ public class TMPTypewriter : MonoBehaviour
     [Tooltip("If true, uses SmoothStep. If false, uses linear.")]
     public bool smoothStep = true;
 
+    private CancellationTokenSource _linkedCts;
+    private TaskCompletionSource<bool> _activeTcs;
+    
     // ── internal ──────────────────────────────────────────────────────────
     private TextMeshProUGUI _tmp;
     private Coroutine       _animCoroutine;
@@ -59,18 +63,23 @@ public class TMPTypewriter : MonoBehaviour
         _tmp.text = "";
     }
 
-    /// <summary>
-    /// Animate text in. Returns a Task that completes when all characters
-    /// have finished animating (or the token is cancelled).
-    /// Drop-in replacement for setting .text directly.
-    /// </summary>
-    public Task PlayText(string text, CancellationToken token = default)
+    public Task PlayText(string text, CancellationToken token)
     {
         StopAnimation();
 
-        var tcs = new TaskCompletionSource<bool>();
-        _animCoroutine = StartCoroutine(AnimateCoroutine(text, 0, token, tcs));
-        return tcs.Task;
+        // cancel previous run if still alive
+        _linkedCts?.Cancel();
+        _linkedCts?.Dispose();
+
+        _linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token);
+
+        _activeTcs = new TaskCompletionSource<bool>();
+
+        _animCoroutine = StartCoroutine(
+            AnimateCoroutine(text, 0, _linkedCts.Token, _activeTcs)
+        );
+
+        return _activeTcs.Task;
     }
 
     /// <summary>
@@ -87,9 +96,6 @@ public class TMPTypewriter : MonoBehaviour
         return tcs.Task;
     }
 
-    /// <summary>
-    /// Stop any running animation immediately and leave text as-is.
-    /// </summary>
     public void StopAnimation()
     {
         if (_animCoroutine != null)
@@ -97,87 +103,86 @@ public class TMPTypewriter : MonoBehaviour
             StopCoroutine(_animCoroutine);
             _animCoroutine = null;
         }
+
+        _linkedCts?.Cancel();
     }
 
     // ── Core coroutine ────────────────────────────────────────────────────
-    private System.Collections.IEnumerator AnimateCoroutine(
-        string text,
-        int    instantUpTo,         // TMP character index below which chars are revealed instantly
-        CancellationToken token,
-        TaskCompletionSource<bool> tcs)
+    private IEnumerator AnimateCoroutine(string text, int instantUpTo, CancellationToken token, TaskCompletionSource<bool> tcs)
     {
         _tmp.text = text;
         _tmp.alpha = 1f;
         _tmp.ForceMeshUpdate();
 
-        TMP_TextInfo info       = _tmp.textInfo;
-        int          totalChars = info.characterCount;
+        TMP_TextInfo info = _tmp.textInfo;
+        int totalChars = info.characterCount;
 
-        // ── Pass 1: hide every visible character that should animate ─────────
+        // ── Pass 1: hide characters ──────────────────────────────────────────
         for (int i = 0; i < totalChars; i++)
         {
             if (!info.characterInfo[i].isVisible) continue;
 
-            int      matIdx = info.characterInfo[i].materialReferenceIndex;
-            int      vtxIdx = info.characterInfo[i].vertexIndex;
-            Color32[] cols  = info.meshInfo[matIdx].colors32;
+            int matIdx = info.characterInfo[i].materialReferenceIndex;
+            int vtxIdx = info.characterInfo[i].vertexIndex;
+            Color32[] cols = info.meshInfo[matIdx].colors32;
 
-            // Characters inside the instant prefix stay fully visible
             byte alpha = (i < instantUpTo) ? (byte)255 : (byte)0;
+
             for (int v = 0; v < 4; v++)
                 cols[vtxIdx + v].a = alpha;
         }
+
         _tmp.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
 
-        // ── Pass 2: animate each character in sequence ──────────────────────
+        // ── Pass 2: animate ──────────────────────────────────────────────────
         for (int i = 0; i < totalChars; i++)
         {
-            // Skip prefix characters — already fully visible
             if (i < instantUpTo) continue;
 
             if (token.IsCancellationRequested)
             {
                 RevealAll();
-                tcs.SetResult(false);
+                SafeSetResult(tcs, false);
                 yield break;
             }
 
             TMP_CharacterInfo charInfo = info.characterInfo[i];
 
-            // Spaces / invisible glyphs: just wait the delay, no slide
             if (!charInfo.isVisible)
             {
-                if (charDelay > 0f) yield return new WaitForSeconds(charDelay);
+                if (charDelay > 0f)
+                    yield return new WaitForSeconds(charDelay);
                 continue;
             }
 
             int matIdx = charInfo.materialReferenceIndex;
             int vtxIdx = charInfo.vertexIndex;
 
-            // Snapshot baked vertex positions
             Vector3[] meshVerts = info.meshInfo[matIdx].vertices;
             var origin = new Vector3[4];
+
             for (int v = 0; v < 4; v++)
                 origin[v] = meshVerts[vtxIdx + v];
 
-            // ── Slide + fade animation for this one character ───────────────
             float elapsed = 0f;
+
             while (elapsed < charSlideDuration)
             {
                 if (token.IsCancellationRequested)
                 {
                     RevealAll();
-                    tcs.SetResult(false);
+                    SafeSetResult(tcs, false);
                     yield break;
                 }
 
                 elapsed += Time.deltaTime;
+
                 float t = Mathf.Clamp01(elapsed / charSlideDuration);
                 float s = smoothStep ? Mathf.SmoothStep(0f, 1f, t) : t;
 
-                float   ox    = Mathf.Lerp(slideOffsetX, 0f, s);
-                float   oy    = Mathf.Lerp(slideOffsetY, 0f, s);
-                byte    alpha = (byte)(s * 255f);
+                float ox = Mathf.Lerp(slideOffsetX, 0f, s);
+                float oy = Mathf.Lerp(slideOffsetY, 0f, s);
+                byte alpha = (byte)(s * 255f);
 
                 meshVerts = _tmp.textInfo.meshInfo[matIdx].vertices;
                 Color32[] cols = _tmp.textInfo.meshInfo[matIdx].colors32;
@@ -185,7 +190,7 @@ public class TMPTypewriter : MonoBehaviour
                 for (int v = 0; v < 4; v++)
                 {
                     meshVerts[vtxIdx + v] = origin[v] + new Vector3(ox, oy, 0f);
-                    cols[vtxIdx + v].a    = alpha;
+                    cols[vtxIdx + v].a = alpha;
                 }
 
                 _tmp.UpdateVertexData(
@@ -195,13 +200,13 @@ public class TMPTypewriter : MonoBehaviour
                 yield return null;
             }
 
-            // Settle exactly at final position / full alpha
+            // Final snap
             meshVerts = _tmp.textInfo.meshInfo[matIdx].vertices;
             Color32[] finalCols = _tmp.textInfo.meshInfo[matIdx].colors32;
 
             for (int v = 0; v < 4; v++)
             {
-                meshVerts[vtxIdx + v]   = origin[v];
+                meshVerts[vtxIdx + v] = origin[v];
                 finalCols[vtxIdx + v].a = 255;
             }
 
@@ -214,9 +219,18 @@ public class TMPTypewriter : MonoBehaviour
         }
 
         _animCoroutine = null;
-        tcs.SetResult(true);
-    }
 
+        // ✅ CRITICAL: wait one frame so final render is visible
+        yield return null;
+
+        // ✅ Now it's truly finished
+        SafeSetResult(tcs, true);
+    }
+    private void SafeSetResult(TaskCompletionSource<bool> tcs, bool result)
+    {
+        if (!tcs.Task.IsCompleted)
+            tcs.SetResult(result);
+    }
     // ── Helpers ───────────────────────────────────────────────────────────
 
     /// <summary>

@@ -10,16 +10,18 @@ using UnityEditor;
 
 
 
-public class DIRECTOR : MonoBehaviour
+public class ETV_DIRECTOR : MonoBehaviour
 {
     public Player thePlayer;
-    public NPCManager npcManager;
 
-    public List<GameObject> NPCTransforms = new List<GameObject>(); 
-    public List<DialogueName> dialogueList = new List<DialogueName>();
-
+    public GameObject Ellsworth;
+    public GameObject Presha; 
+    
+    
     public Coroutine RoutinePlayerCo;
 
+    public GameObject ThePapers;
+    
     public DirectedRoutines selectedRoutine = DirectedRoutines.PrefaceNoraFired;
 
     [Header("Input")]
@@ -96,13 +98,14 @@ public class DIRECTOR : MonoBehaviour
         // Ellsworth "Just wanted to have a quick catch-up, take a wee seat there"
 
         GameMaster.Instance.DialogueManager.PlayDialogue(
-            dialogueList[0],
+            DialogueName.EllsworthNora,
             5,
             DialogueType.normal,
             cutsceneDuration: 4f,
             cutscenePanTime: 1f,
-            cutsceneTarget: NPCTransforms[0],
+            cutsceneTarget: Ellsworth,
             false);
+        
         Debug.Log("start");
 
         yield return new WaitForSeconds(2f);
@@ -129,7 +132,7 @@ public class DIRECTOR : MonoBehaviour
         }
         
         // LOOK AT ELLSWORTH
-        Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[0].transform);
+        Player.Instance.FirstPersonLook.LookAtDevice(Ellsworth.transform);
         
 
         // WAIT FOR HIS DIALOGUE TO END
@@ -139,18 +142,18 @@ public class DIRECTOR : MonoBehaviour
         
         // HAVE YOU MET PRESHA? SHE'S HERE TO PUT YOU ON THE DOLE
         GameMaster.Instance.DialogueManager.PlayDialogue(
-            dialogueList[1],
+            DialogueName.EllsworthPreshaNora,
             0,
             DialogueType.normal,
             cutsceneDuration: 4f,
             cutscenePanTime: 1f,
-            cutsceneTarget: NPCTransforms[0],
+            cutsceneTarget: Ellsworth,
             false,
             true);
 
         
         // LOOK AT PRESHA
-        Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[1].transform);
+        Player.Instance.FirstPersonLook.LookAtDevice(Presha.transform);
         
         
         // PRESHA GREETS YOU
@@ -162,21 +165,19 @@ public class DIRECTOR : MonoBehaviour
         
         
         // LOOK BACK AT ELLSWORTH
-        Player.Instance.FirstPersonLook.LookAtDevice(NPCTransforms[0].transform);
+        Player.Instance.FirstPersonLook.LookAtDevice(Ellsworth.transform);
 
         
         // NORA: SOMEONE FROM HR FOR A CATCH UP...
         GameMaster.Instance.DialogueManager.PlayDialogue(
-            dialogueList[2],
+            DialogueName.NoraPresha,
             0,
             DialogueType.normal,
             cutsceneDuration: 4f,
             cutscenePanTime: 1f,
-            cutsceneTarget: NPCTransforms[0],
+            cutsceneTarget: Ellsworth,
             false,
             true);
-        
-        
         
         // WAITING FOR YOU TO ADVANCE
         yield return WaitForPlayerInput();
@@ -185,7 +186,80 @@ public class DIRECTOR : MonoBehaviour
         DirectorEvents.UpperBodyAnimation(NPC.Ellsworth_Ohanlon, "DoWhatever");
         
         
+        // Ellsworth: No Easy way
+        GameMaster.Instance.DialogueManager.PlayDialogue(
+            DialogueName.EllsworthNoraNoEasyWay,
+            0,
+            DialogueType.normal,
+            cutsceneDuration: 4f,
+            cutscenePanTime: 1f,
+            cutsceneTarget: Ellsworth,
+            false,
+            true);
+        
+        
+        
+        // WAITING FOR YOU TO ADVANCE
+        yield return WaitForPlayerInput();
+        
+        Player.Instance.FirstPersonLook.LookAtDevice(Presha.transform);
+        
+        // Presha shoves papers at you
+        DirectorEvents.UpperBodyAnimation(NPC.Presha, "DoSlidePapers");
+        
+        // non negotiable
+        GameMaster.Instance.DialogueManager.PlayDialogue(
+            DialogueName.PreshaNoraTheOffer,
+            0,
+            DialogueType.normal,
+            cutsceneDuration: 4f,
+            cutscenePanTime: 1f,
+            cutsceneTarget: Presha,
+            false,
+            true);
+        
+        
+        Player.Instance.FirstPersonLook.LookAtDevice(ThePapers.transform);
+        
+        DirectorEvents.SlidePapers();
+
+        // WAITING FOR YOU TO ADVANCE
+        yield return WaitForPlayerInput();
+        
+        
+        yield return new WaitForSeconds(1);
+
+        Player.Instance.FirstPersonLook.LookAtDevice(ThePapers.transform);
+        
+        // 
+        GameMaster.Instance.DialogueManager.PlayDialogue(
+            DialogueName.NoraPreshaNeverLikedYou,
+            0,
+            DialogueType.normal,
+            cutsceneDuration: 4f,
+            cutscenePanTime: 1f,
+            cutsceneTarget: Presha,
+            false,
+            true);
+        
+        
+        
+        // WAITING FOR YOU TO ADVANCE
+        yield return WaitForPlayerInput();
+        
+        
+        
+        
+        
+        
+        
+        
+        
         // END THE MEETING.
+        
+        
+        
+        
         
         yield return new WaitForSeconds(1);
         
@@ -220,14 +294,14 @@ public class DIRECTOR : MonoBehaviour
 
 
 #if UNITY_EDITOR
-[CustomEditor(typeof(DIRECTOR))]
-public class DIRECTOREDITOR : Editor
+[CustomEditor(typeof(ETV_DIRECTOR))]
+public class ETV_DIRECTOREDITOR : Editor
 {
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
 
-        DIRECTOR DIRECTOR = (DIRECTOR)target;
+        ETV_DIRECTOR DIRECTOR = (ETV_DIRECTOR)target;
 
         EditorGUILayout.Space(12);
         EditorGUILayout.LabelField("Director Controls", EditorStyles.boldLabel);

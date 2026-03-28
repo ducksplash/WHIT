@@ -6,6 +6,9 @@ public static class DirectorEvents
     public static event Action<NPC, string> OnNPCUpperBodyAnimation = (NPC, Trigger) => { };
     public static event Action<DirectedRoutines> OnStartDirector = (SelectedRoutine) => { };
     
+    
+    public static event Action OnSlidePapers = () => { };
+    
     public static void NPCCommand(NPC selectedNPC, NPCState selectedState)
     {
         OnNPCCommand.Invoke(selectedNPC, selectedState);
@@ -17,6 +20,10 @@ public static class DirectorEvents
     public static void StartDirector(DirectedRoutines selectedRoutine)
     {
         OnStartDirector.Invoke(selectedRoutine);
+    }
+    public static void SlidePapers()
+    {
+        OnSlidePapers.Invoke();
     }
     
 }

@@ -471,9 +471,13 @@ public class Player : Singleton<Player>
         Vector3 backstepPoint = new Vector3(seatPos.x + seatForward.x * sitBackstepDistance, transform.position.y, seatPos.z + seatForward.z * sitBackstepDistance);
 
 
+        
+        // refac
         bool allowLook = !seat.gameObject.CompareTag("EllsworthOfficeChair");
 
         GameMaster.Instance.INAMEETING = seat.gameObject.CompareTag("EllsworthOfficeChair");
+        //
+        
         
         yield return StartCoroutine(SitPhaseApproach(preSitPoint));
 

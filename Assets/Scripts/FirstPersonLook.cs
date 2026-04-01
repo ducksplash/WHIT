@@ -110,18 +110,18 @@ public class FirstPersonLook : MonoBehaviour
         else
             sensitivity = GameMaster.Instance.MouseSensitivity;
 
-        EventManager.OnStartComputer += LookAtDevice;
-        EventManager.OnStartPhone    += LookAtDevice;
-        EventManager.OnStartNotepad  += LookAtDevice;
+        EventManager.OnStartComputer += LookAtThis;
+        EventManager.OnStartPhone    += LookAtThis;
+        EventManager.OnStartNotepad  += LookAtThis;
         EventManager.OnCameraOpen    += PhoneCameraOpen;
         EventManager.OnCameraClosed  += PhoneCameraClosed;
     }
 
     private void OnDestroy()
     {
-        EventManager.OnStartComputer -= LookAtDevice;
-        EventManager.OnStartPhone    -= LookAtDevice;
-        EventManager.OnStartNotepad  -= LookAtDevice;
+        EventManager.OnStartComputer -= LookAtThis;
+        EventManager.OnStartPhone    -= LookAtThis;
+        EventManager.OnStartNotepad  -= LookAtThis;
         EventManager.OnCameraOpen    -= PhoneCameraOpen;
         EventManager.OnCameraClosed  -= PhoneCameraClosed;
     }
@@ -277,7 +277,7 @@ public class FirstPersonLook : MonoBehaviour
         appliedMouseDelta  = Vector2.zero;
     }
 
-    public void LookAtDevice(Transform deviceTransform)
+    public void LookAtThis(Transform deviceTransform)
     {
         if (deviceTransform == null) return;
 

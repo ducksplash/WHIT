@@ -36,11 +36,13 @@ public enum DialogueName
     EllsworthNoraNoEasyWay = 117, // 
     PreshaNoraTheOffer = 118,
     NoraPreshaNeverLikedYou = 119,
-    NoraEllsworthMachineKim = 120,
-    EllsworthNoraKimsTalent = 121,
-    NoraEllsworthKimsTwoBigTalents = 122,
-    EllsworthNoraNoHardFeelings = 123,
-    NoraEllsworthFuckOff = 124,
+    EllsworthMergedRoles = 120,
+    
+    NoraEllsworthMachineKim = 122,
+    EllsworthNoraKimsTalent = 123,
+    NoraEllsworthKimsTwoBigTalents = 124,
+    EllsworthNoraNoHardFeelings = 125,
+    NoraEllsworthFuckOff = 126,
     
     
     

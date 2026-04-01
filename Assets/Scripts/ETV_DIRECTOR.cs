@@ -99,7 +99,7 @@ public class ETV_DIRECTOR : MonoBehaviour
 
         GameMaster.Instance.DialogueManager.PlayDialogue(
             DialogueName.EllsworthNora,
-            5,
+            4,
             DialogueType.normal,
             cutsceneDuration: 4f,
             cutscenePanTime: 1f,
@@ -132,7 +132,7 @@ public class ETV_DIRECTOR : MonoBehaviour
         }
         
         // LOOK AT ELLSWORTH
-        Player.Instance.FirstPersonLook.LookAtDevice(Ellsworth.transform);
+        Player.Instance.FirstPersonLook.LookAtThis(Ellsworth.transform);
         
 
         // WAIT FOR HIS DIALOGUE TO END
@@ -153,7 +153,7 @@ public class ETV_DIRECTOR : MonoBehaviour
 
         
         // LOOK AT PRESHA
-        Player.Instance.FirstPersonLook.LookAtDevice(Presha.transform);
+        Player.Instance.FirstPersonLook.LookAtThis(Presha.transform);
         
         
         // PRESHA GREETS YOU
@@ -165,7 +165,7 @@ public class ETV_DIRECTOR : MonoBehaviour
         
         
         // LOOK BACK AT ELLSWORTH
-        Player.Instance.FirstPersonLook.LookAtDevice(Ellsworth.transform);
+        Player.Instance.FirstPersonLook.LookAtThis(Ellsworth.transform);
 
         
         // NORA: SOMEONE FROM HR FOR A CATCH UP...
@@ -202,10 +202,7 @@ public class ETV_DIRECTOR : MonoBehaviour
         // WAITING FOR YOU TO ADVANCE
         yield return WaitForPlayerInput();
         
-        Player.Instance.FirstPersonLook.LookAtDevice(Presha.transform);
         
-        // Presha shoves papers at you
-        DirectorEvents.UpperBodyAnimation(NPC.Presha, "DoSlidePapers");
         
         // non negotiable
         GameMaster.Instance.DialogueManager.PlayDialogue(
@@ -218,20 +215,17 @@ public class ETV_DIRECTOR : MonoBehaviour
             false,
             true);
         
-        
-        Player.Instance.FirstPersonLook.LookAtDevice(ThePapers.transform);
-        
-        DirectorEvents.SlidePapers();
-
+        // Presha shoves papers at you
+        DirectorEvents.UpperBodyAnimation(NPC.Presha, "DoSlidePapers");
         // WAITING FOR YOU TO ADVANCE
-        yield return WaitForPlayerInput();
-        
-        
+        DirectorEvents.SlidePapers();
         yield return new WaitForSeconds(1);
-
-        Player.Instance.FirstPersonLook.LookAtDevice(ThePapers.transform);
         
+        yield return WaitForPlayerInput();
         // 
+        
+        Player.Instance.FirstPersonLook.LookAtThis(Presha.transform);
+        
         GameMaster.Instance.DialogueManager.PlayDialogue(
             DialogueName.NoraPreshaNeverLikedYou,
             0,
@@ -243,15 +237,26 @@ public class ETV_DIRECTOR : MonoBehaviour
             true);
         
         
-        
         // WAITING FOR YOU TO ADVANCE
         yield return WaitForPlayerInput();
         
+        // 
+        Player.Instance.FirstPersonLook.LookAtThis(Ellsworth.transform);
         
+        DirectorEvents.UpperBodyAnimation(NPC.Ellsworth_Ohanlon, "DoPoint");
         
-        
-        
-        
+        // ellsworth ...
+        GameMaster.Instance.DialogueManager.PlayDialogue(
+            DialogueName.EllsworthMergedRoles,
+            0,
+            DialogueType.normal,
+            cutsceneDuration: 4f,
+            cutscenePanTime: 1f,
+            cutsceneTarget: Presha,
+            false,
+            true);
+
+
         
         
         

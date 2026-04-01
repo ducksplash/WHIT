@@ -217,7 +217,7 @@ public class DialogueManager : MonoBehaviour
 
             MarkDialogueSeen(dialogueName);
 
-            // 🚨 ONLY NOW allow external systems to proceed
+
             EventManager.DialogueCanProceed(true);
 
             await WaitForPlayerAdvanceAsync();

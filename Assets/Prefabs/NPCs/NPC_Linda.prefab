@@ -2204,7 +2204,7 @@ NavMeshAgent:
   m_AngularSpeed: 120
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
+  m_AutoBraking: 0
   m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 0
@@ -2224,7 +2224,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   thisNPC: 511
   FindSeat: 0
-  FindBed: 0
   useStateMachine: 1
   currentTarget: {fileID: 0}
   activeRadius: 100
@@ -2254,8 +2253,6 @@ MonoBehaviour:
   turnInPlaceSpeed: 160
   turnWhileMovingSpeed: 260
   turnInPlaceSpeedThreshold: 0.15
-  navFacingSmoothTime: 0.12
-  navFacingMinSpeed: 0.08
   animationController: {fileID: 7028855431765879597}
   agent: {fileID: 7785923499448996922}
   arriveDistance: 0.3
@@ -2292,6 +2289,10 @@ MonoBehaviour:
   triggerEnterTimeout: 1
   triggerMaxDuration: 8
   triggerExitBuffer: 0.05
+  upperBodyTriggerNames: []
+  selectedUpperBodyTriggerIndex: 0
+  upperBodyLayerName: UpperLayer
+  upperBodyReturnStateName: 
   locomotionStateName: Locomotion
   locomotionLayer: 0
   locomotionCrossfade: 0.12

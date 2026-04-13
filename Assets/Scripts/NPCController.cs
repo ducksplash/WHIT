@@ -824,9 +824,7 @@ public class NPCController : MonoBehaviour
                 _hasPatrolDestination = false;
                 _patrolChangeTimer = UnityEngine.Random.Range(patrolChangeDirInterval.x, patrolChangeDirInterval.y);
                 _patrolArriveTimer = 0f;
-                _patrolActionTimer = UnityEngine.Random.Range(
-                    patrolActionCheckInterval.x,
-                    patrolActionCheckInterval.y);
+                _patrolActionTimer = UnityEngine.Random.Range(patrolActionCheckInterval.x, patrolActionCheckInterval.y);
                 break;
 
             case NPCState.Alerted:
@@ -836,7 +834,6 @@ public class NPCController : MonoBehaviour
                     agent.isStopped = true;
                     agent.autoBraking = true;
                 }
-
                 break;
 
             case NPCState.Approaching:
@@ -928,8 +925,7 @@ public class NPCController : MonoBehaviour
                 }
                 else
                 {
-                    if (_state == NPCState.Patrolling || _state == NPCState.Seeking)
-                        EnterState(NPCState.Alerted);
+                    if (_state == NPCState.Patrolling || _state == NPCState.Seeking) EnterState(NPCState.Alerted);
                 }
             }
         }

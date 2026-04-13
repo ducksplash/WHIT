@@ -110,6 +110,9 @@ public enum NPC
     Michelle = 512,
     Tim = 513,
     Theresa = 514,
+    Connie = 515,
+    Katie = 516,
+    Polly  = 517,
     ZTESTNora = 998,
     ZTESTEimear = 997,
     ZTESTKim_Shae = 996,
@@ -123,7 +126,9 @@ public enum NPC
     ZTESTLoretta = 988,
     ZTESTLinda = 987,
     ZTESTMichelle = 986,
-    ZTESTTheresa = 985
+    ZTESTTheresa = 985,
+    ZTESTConnie = 984,
+    ZTESTPolly = 985
 } 
 
 public enum NPCAllegiance

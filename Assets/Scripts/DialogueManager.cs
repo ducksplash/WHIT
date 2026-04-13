@@ -226,7 +226,7 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-    // ── Normal timed dialogue ─────────────────────────────────────────
+        
         CancelActiveTimedDialogue(markSeen: true);
 
         _activeTimedCts          = new CancellationTokenSource();
@@ -305,9 +305,7 @@ public class DialogueManager : MonoBehaviour
 
 
 
-    /// <summary>
-    /// Fire-and-forget with an instant prefix (e.g. "Ellsworth: ").
-    /// </summary>
+    
     private void PlayWriterOrFallbackWithPrefix(TMPTypewriter writer, TextMeshProUGUI fallback, string prefix, string body)
     {
         if (writer != null)
@@ -316,10 +314,7 @@ public class DialogueManager : MonoBehaviour
             fallback.text = prefix + body;
     }
 
-    /// <summary>
-    /// Awaitable version for timed dialogues. Passes the cancellation token so the
-    /// animation stops cleanly if the dialogue is interrupted.
-    /// </summary>
+    
     private Task PlayWriterOrFallbackAsync(TMPTypewriter writer, TextMeshProUGUI fallback, string message, CancellationToken token)
     {
         if (writer != null) return writer.PlayText(message, token);
@@ -328,9 +323,8 @@ public class DialogueManager : MonoBehaviour
         return Task.CompletedTask;
     }
 
-    /// <summary>
-    /// Awaitable version with an instant prefix (e.g. "Ellsworth: ").
-    /// </summary>
+
+    
     private Task PlayWriterOrFallbackWithPrefixAsync(TMPTypewriter writer, TextMeshProUGUI fallback, string prefix, string body, CancellationToken token)
     {
         if (writer != null) return writer.PlayTextWithPrefix(prefix, body, token);
@@ -339,7 +333,6 @@ public class DialogueManager : MonoBehaviour
         return Task.CompletedTask;
     }
 
-    // ── Seen / save ───────────────────────────────────────────────────────
 
     private void MarkDialogueSeen(DialogueName dialogueName)
     {
@@ -359,7 +352,7 @@ public class DialogueManager : MonoBehaviour
             if (!DialogueSeen.Contains(_activeTimedDialogueName))
                 DialogueSeen.Add(_activeTimedDialogueName);
 
-            SaveWhatYouSee(); // save what you see, if you see it, save it. 
+            SaveWhatYouSee(); 
         }
 
         _hasActiveTimed = false;
@@ -572,7 +565,6 @@ public class DialogueManager : MonoBehaviour
         tcs.SetResult(true);
     }
 
-    // ── Populate ──────────────────────────────────────────────────────────
 
     private void PopulateDialogues()
     {
@@ -622,7 +614,6 @@ public class DialogueManager : MonoBehaviour
         return message;
     }
 
-    // ── Fade ─────────────────────────────────────────────────────────────
 
     private void StartFade(CanvasGroup canvas, int direction)
     {
@@ -654,7 +645,6 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    // ── Timers ────────────────────────────────────────────────────────────
 
     public async Task MessageTimer(float timevalue, CancellationToken token)
     {

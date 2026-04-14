@@ -113,6 +113,7 @@ public enum NPC
     Connie = 515,
     Katie = 516,
     Polly  = 517,
+    Aoibhe  = 518,
     ZTESTNora = 998,
     ZTESTEimear = 997,
     ZTESTKim_Shae = 996,
@@ -128,7 +129,8 @@ public enum NPC
     ZTESTMichelle = 986,
     ZTESTTheresa = 985,
     ZTESTConnie = 984,
-    ZTESTPolly = 985
+    ZTESTPolly = 985,
+    ZTESTAoibhe = 985
 } 
 
 public enum NPCAllegiance

@@ -114,6 +114,8 @@ public enum NPC
     Katie = 516,
     Polly  = 517,
     Aoibhe  = 518,
+    Dervla  = 519,
+    Marie  = 520,
     ZTESTNora = 998,
     ZTESTEimear = 997,
     ZTESTKim_Shae = 996,

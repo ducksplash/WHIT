@@ -345,24 +345,11 @@ public class DebugCamera : MonoBehaviour
     {
         switch (_mode)
         {
-            case CamMode.Fly:
-                break;
-
-            case CamMode.Orbit:
-                if (character != null) ApplyOrbit();
-                break;
-
-            case CamMode.PanHorizontal:
-                if (character != null) PanHorizontal(panTime01);
-                break;
-
-            case CamMode.PanVertical:
-                if (character != null) PanVertical(panTime01);
-                break;
-
-            case CamMode.Follow:
-                if (character != null) ApplyFollow();
-                break;
+            case CamMode.Fly: break;
+            case CamMode.Orbit: if (character != null) ApplyOrbit(); break;
+            case CamMode.PanHorizontal: if (character != null) PanHorizontal(panTime01); break;
+            case CamMode.PanVertical: if (character != null) PanVertical(panTime01); break;
+            case CamMode.Follow: if (character != null) ApplyFollow(); break;
         }
     }
 

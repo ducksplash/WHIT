@@ -2341,7 +2341,7 @@ PrefabInstance:
     - target: {fileID: 6145295456012596902, guid: d67dfc6d7e1f8e74dbb695ab41bb810f,
         type: 3}
       propertyPath: PCOwningNPC
-      value: 516
+      value: 519
       objectReference: {fileID: 0}
     - target: {fileID: 7843877719554687139, guid: d67dfc6d7e1f8e74dbb695ab41bb810f,
         type: 3}
@@ -4708,6 +4708,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1006518593562710823, guid: 6ed241739d3c44240afc13bc5fa7e832,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2673131030296827118, guid: 6ed241739d3c44240afc13bc5fa7e832,
         type: 3}
       propertyPath: m_Name
@@ -4762,6 +4767,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5750150523248941712, guid: 6ed241739d3c44240afc13bc5fa7e832,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6910394678363031019, guid: 6ed241739d3c44240afc13bc5fa7e832,
         type: 3}
@@ -24516,12 +24526,17 @@ PrefabInstance:
     - target: {fileID: 1699641530548291580, guid: 5a72414d0aa35264a9a46a3a0f123a1f,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3792098181828645740, guid: 5a72414d0aa35264a9a46a3a0f123a1f,
         type: 3}
       propertyPath: m_Name
       value: NPC_Dervla
+      objectReference: {fileID: 0}
+    - target: {fileID: 5970343365827400479, guid: 5a72414d0aa35264a9a46a3a0f123a1f,
+        type: 3}
+      propertyPath: thisNPC
+      value: 520
       objectReference: {fileID: 0}
     - target: {fileID: 5970343365827400479, guid: 5a72414d0aa35264a9a46a3a0f123a1f,
         type: 3}
@@ -54596,11 +54611,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1317133777237978568, guid: a7cb5e90602ef3842a4a4aa97fa95530,
-        type: 3}
-      propertyPath: FindSeat
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 2296944477688548055, guid: a7cb5e90602ef3842a4a4aa97fa95530,
         type: 3}
       propertyPath: m_Mesh
@@ -70434,6 +70444,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 642677681949903923, guid: c0591fe8b13d00847a771cb3cd6ca757,
+        type: 3}
+      propertyPath: thisNPC
+      value: 521
       objectReference: {fileID: 0}
     - target: {fileID: 642677681949903923, guid: c0591fe8b13d00847a771cb3cd6ca757,
         type: 3}
@@ -130459,7 +130474,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: 0.0015908594}
+  m_AnchoredPosition: {x: -0.0012638667, y: 0.0016020609}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &6445594205184765108
@@ -130662,7 +130677,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: 0.0015908594}
+  m_AnchoredPosition: {x: -0.0012638667, y: 0.0016020609}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6472477817453380253

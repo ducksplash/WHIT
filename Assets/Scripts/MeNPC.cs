@@ -6,6 +6,7 @@ public class MeNPC : MonoBehaviour
 {
     public List<SkinnedMeshRenderer> npcRendererOutfitOne;
     public List<SkinnedMeshRenderer> npcRendererOutfitTwo;
+    public List<SkinnedMeshRenderer> npcRendererOutfitThree;
 
     public NPCController npcController;
     
@@ -37,6 +38,13 @@ public class MeNPC : MonoBehaviour
     public void ToggleSecondOutfit()
     {
         foreach (var meshy in npcRendererOutfitTwo)
+        {
+            meshy.enabled = !meshy.enabled;
+        }
+    }
+    public void ToggleThirdOutfit()
+    {
+        foreach (var meshy in npcRendererOutfitThree)
         {
             meshy.enabled = !meshy.enabled;
         }

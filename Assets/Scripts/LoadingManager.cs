@@ -74,8 +74,12 @@ public class LoadingManager : MonoBehaviour
     {
         if (_isLoading) return;
 
-        GAMELEVEL toGoTo = inSecret ? GAMELEVEL.NorasFlat : GAMELEVEL.SecretLevel;
         
+        
+        GAMELEVEL toGoTo = inSecret ? GAMELEVEL.NorasFlat : GAMELEVEL.SecretLevel;
+
+        inSecret = toGoTo == GAMELEVEL.SecretLevel;
+        EventManager.DebugCamEnabled(false);
         StartCoroutine(LoadLevelSequence(toGoTo));
     }
 

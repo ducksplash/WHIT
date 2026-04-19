@@ -49,6 +49,7 @@ public class DebugCamHUD : MonoBehaviour
     [SerializeField] private Button talkButton;
     [SerializeField] private Button toggleOneButton;
     [SerializeField] private Button toggleTwoButton;
+    [SerializeField] private Button toggleThreeButton;
     [SerializeField] private Button sitButton;
     [SerializeField] private Button standButton;
     [SerializeField] private Button lieButton;
@@ -108,6 +109,7 @@ public class DebugCamHUD : MonoBehaviour
 
         if (toggleOneButton != null) toggleOneButton.onClick.AddListener(OnToggleOutfitOneClicked);
         if (toggleTwoButton != null) toggleTwoButton.onClick.AddListener(OnToggleOutfitTwoClicked);
+        if (toggleThreeButton != null) toggleThreeButton.onClick.AddListener(OnToggleOutfitThreeClicked);
 
         // Camera UI
         if (panHorizontalButton != null) panHorizontalButton.onClick.AddListener(OnPanHorizontalClicked);
@@ -143,6 +145,7 @@ public class DebugCamHUD : MonoBehaviour
 
         if (toggleOneButton != null) toggleOneButton.onClick.RemoveListener(OnToggleOutfitOneClicked);
         if (toggleTwoButton != null) toggleTwoButton.onClick.RemoveListener(OnToggleOutfitTwoClicked);
+        if (toggleThreeButton != null) toggleThreeButton.onClick.RemoveListener(OnToggleOutfitThreeClicked);
 
         if (targetNpcDropdown != null) targetNpcDropdown.onValueChanged.RemoveListener(OnTargetNpcDropdownChanged);
 
@@ -564,6 +567,17 @@ public class DebugCamHUD : MonoBehaviour
         MeNPC me = _npc.gameObject.GetComponent<MeNPC>();
         if (me != null)
             me.ToggleSecondOutfit();
+
+        RefreshForTarget(_lastTarget);
+    }
+
+    private void OnToggleOutfitThreeClicked()
+    {
+        if (_npc == null) return;
+
+        MeNPC me = _npc.gameObject.GetComponent<MeNPC>();
+        if (me != null)
+            me.ToggleThirdOutfit();
 
         RefreshForTarget(_lastTarget);
     }

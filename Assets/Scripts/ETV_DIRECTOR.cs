@@ -15,7 +15,7 @@ public class ETV_DIRECTOR : MonoBehaviour
     public Player thePlayer;
 
     public GameObject Ellsworth;
-    public GameObject Presha; 
+    public GameObject Priya; 
     
     
     public Coroutine RoutinePlayerCo;
@@ -140,9 +140,9 @@ public class ETV_DIRECTOR : MonoBehaviour
         
         
         
-        // HAVE YOU MET PRESHA? SHE'S HERE TO PUT YOU ON THE DOLE
+        // HAVE YOU MET Priya? SHE'S HERE TO PUT YOU ON THE DOLE
         GameMaster.Instance.DialogueManager.PlayDialogue(
-            DialogueName.EllsworthPreshaNora,
+            DialogueName.EllsworthPriyaNora,
             0,
             DialogueType.normal,
             cutsceneDuration: 4f,
@@ -152,12 +152,12 @@ public class ETV_DIRECTOR : MonoBehaviour
             true);
 
         
-        // LOOK AT PRESHA
-        Player.Instance.FirstPersonLook.LookAtThis(Presha.transform);
+        // LOOK AT Priya
+        Player.Instance.FirstPersonLook.LookAtThis(Priya.transform);
         
         
-        // PRESHA GREETS YOU
-        DirectorEvents.UpperBodyAnimation(NPC.Presha, "DoWave");
+        // Priya GREETS YOU
+        DirectorEvents.UpperBodyAnimation(NPC.Priya, "DoWave");
         
         
         // WAITING FOR YOU TO ADVANCE
@@ -170,7 +170,7 @@ public class ETV_DIRECTOR : MonoBehaviour
         
         // NORA: SOMEONE FROM HR FOR A CATCH UP...
         GameMaster.Instance.DialogueManager.PlayDialogue(
-            DialogueName.NoraPresha,
+            DialogueName.NoraPriya,
             0,
             DialogueType.normal,
             cutsceneDuration: 4f,
@@ -206,17 +206,17 @@ public class ETV_DIRECTOR : MonoBehaviour
         
         // non negotiable
         GameMaster.Instance.DialogueManager.PlayDialogue(
-            DialogueName.PreshaNoraTheOffer,
+            DialogueName.PriyaNoraTheOffer,
             0,
             DialogueType.normal,
             cutsceneDuration: 4f,
             cutscenePanTime: 1f,
-            cutsceneTarget: Presha,
+            cutsceneTarget: Priya,
             false,
             true);
         
-        // Presha shoves papers at you
-        DirectorEvents.UpperBodyAnimation(NPC.Presha, "DoSlidePapers");
+        // Priya shoves papers at you
+        DirectorEvents.UpperBodyAnimation(NPC.Priya, "DoSlidePapers");
         // WAITING FOR YOU TO ADVANCE
         DirectorEvents.SlidePapers();
         yield return new WaitForSeconds(1);
@@ -224,15 +224,15 @@ public class ETV_DIRECTOR : MonoBehaviour
         yield return WaitForPlayerInput();
         // 
         
-        Player.Instance.FirstPersonLook.LookAtThis(Presha.transform);
+        Player.Instance.FirstPersonLook.LookAtThis(Priya.transform);
         
         GameMaster.Instance.DialogueManager.PlayDialogue(
-            DialogueName.NoraPreshaNeverLikedYou,
+            DialogueName.NoraPriyaNeverLikedYou,
             0,
             DialogueType.normal,
             cutsceneDuration: 4f,
             cutscenePanTime: 1f,
-            cutsceneTarget: Presha,
+            cutsceneTarget: Priya,
             false,
             true);
         
@@ -252,7 +252,7 @@ public class ETV_DIRECTOR : MonoBehaviour
             DialogueType.normal,
             cutsceneDuration: 4f,
             cutscenePanTime: 1f,
-            cutsceneTarget: Presha,
+            cutsceneTarget: Priya,
             false,
             true);
 

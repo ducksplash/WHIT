@@ -31,11 +31,11 @@ public enum DialogueName
     // Level 0
     NoraEllsworth = 113, // see me?
     EllsworthNora = 114, // sit down
-    EllsworthPreshaNora = 115, // you know presha
-    NoraPresha = 116, // quick catch up? hr?
+    EllsworthPriyaNora = 115, // you know Priya
+    NoraPriya = 116, // quick catch up? hr?
     EllsworthNoraNoEasyWay = 117, // 
-    PreshaNoraTheOffer = 118,
-    NoraPreshaNeverLikedYou = 119,
+    PriyaNoraTheOffer = 118,
+    NoraPriyaNeverLikedYou = 119,
     EllsworthMergedRoles = 120,
     
     NoraEllsworthMachineKim = 122,

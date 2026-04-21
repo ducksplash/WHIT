@@ -203,7 +203,7 @@ public class DialogueManager : MonoBehaviour
             {
                 await PlayWriterOrFallbackAsync(NoraMessageWriter, NoraMessage, message, CancellationToken.None);
             }
-            else if (contact == Contacts.Ellsworth || contact == Contacts.Presha || contact == Contacts.Kim)
+            else if (contact == Contacts.Ellsworth || contact == Contacts.Priya || contact == Contacts.Kim)
             {
                 await PlayWriterOrFallbackWithPrefixAsync(SystemMessageWriter, SystemMessage, contact + ": ", message, CancellationToken.None);
             }
@@ -266,7 +266,7 @@ public class DialogueManager : MonoBehaviour
                 await PlayWriterOrFallbackWithPrefixAsync(SystemMessageWriter, SystemMessage, contact + ": ", message, token);
                 await SystemTimer(displaytimer, token);
             }
-            else if (contact == Contacts.Presha)
+            else if (contact == Contacts.Priya)
             {
                 _activeTimedWasShown = true;
                 await PlayWriterOrFallbackWithPrefixAsync(SystemMessageWriter, SystemMessage, contact + ": ", message, token);

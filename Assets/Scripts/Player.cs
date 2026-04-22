@@ -1047,8 +1047,7 @@ public class Player : Singleton<Player>
 
         if (stanceimg != null) stanceimg.sprite = standsprite;
 
-        if (thisCharController != null && _controllerBaselineCaptured)
-            StartCrouchControllerBlend(toCrouch: false);
+        if (thisCharController != null && _controllerBaselineCaptured) StartCrouchControllerBlend(toCrouch: false);
 
         FirstPersonLook?.SetCrouch(false);
         Noranimator?.SetBool(AnimCrouching, false);

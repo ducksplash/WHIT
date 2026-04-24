@@ -79,7 +79,7 @@ public class NPCController : MonoBehaviour
     public float triggerEnterTimeout = 1.0f;
     public float triggerMaxDuration = 8.0f;
     public float triggerExitBuffer = 0.05f;
-
+    
     [Header("Upper Body Animations")]
     public List<string> upperBodyTriggerNames = new List<string>();
     [HideInInspector] public int selectedUpperBodyTriggerIndex;
@@ -198,6 +198,7 @@ public class NPCController : MonoBehaviour
     private bool _triggerPrevPaused;
     private bool _triggerAgentWasValid;
     private bool _triggerWasStoppedBefore;
+    private bool _triggerAgentWasEnabled;
     private Coroutine _upperBodyCoroutine;
     private bool _isPlayingUpperBodyAnimation;
 
@@ -801,6 +802,8 @@ public class NPCController : MonoBehaviour
 
     public void EnterState(NPCState next)
     {
+        if (_isPlayingTriggeredAnimation) return;
+
         NPCState prev = _state;
 
         if (prev == NPCState.Talk && next != NPCState.Talk)
@@ -1346,6 +1349,7 @@ public class NPCController : MonoBehaviour
         PlayTrigger(triggerNames[selectedTriggerIndex]);
     }
 
+// 1. In PlayTrigger — kill the auto-action coroutine before the trigger starts
     public void PlayTrigger(string triggerParam)
     {
         if (string.IsNullOrWhiteSpace(triggerParam))
@@ -1360,24 +1364,22 @@ public class NPCController : MonoBehaviour
             return;
         }
 
+        // Stop any autonomous patrol action — its coroutine calls EnterState
+        // which sets agent.isStopped = false, overriding TriggerRoutine's stop.
+        if (_autoActionCoroutine != null)
+        {
+            StopCoroutine(_autoActionCoroutine);
+            _autoActionCoroutine = null;
+        }
+
         if (TryQueueActionAfterStand(() =>
             {
-                if (_triggerCoroutine != null)
-                {
-                    StopCoroutine(_triggerCoroutine);
-                    _triggerCoroutine = null;
-                }
-
+                if (_triggerCoroutine != null) { StopCoroutine(_triggerCoroutine); _triggerCoroutine = null; }
                 _talk?.UnregisterAsSpeaker();
                 _triggerCoroutine = StartCoroutine(TriggerRoutine(triggerParam));
             })) return;
 
-        if (_triggerCoroutine != null)
-        {
-            StopCoroutine(_triggerCoroutine);
-            _triggerCoroutine = null;
-        }
-
+        if (_triggerCoroutine != null) { StopCoroutine(_triggerCoroutine); _triggerCoroutine = null; }
         _talk?.UnregisterAsSpeaker();
         _triggerCoroutine = StartCoroutine(TriggerRoutine(triggerParam));
     }
@@ -1390,18 +1392,29 @@ public class NPCController : MonoBehaviour
 
     public void StopTriggeredAnimation()
     {
-        if (animationController == null) return;
-        if (_triggerCoroutine != null)
-        {
-            StopCoroutine(_triggerCoroutine);
-            _triggerCoroutine = null;
-        }
+        if (_triggerCoroutine != null) { StopCoroutine(_triggerCoroutine); _triggerCoroutine = null; }
 
         _isPlayingTriggeredAnimation = false;
-        animationController.speed = 1f;
+        if (animationController != null) animationController.speed = 1f;
         ResetAllAnimatorTriggers();
         isPaused = _triggerPrevPaused;
-        if (_triggerAgentWasValid && AgentReady()) agent.isStopped = _triggerWasStoppedBefore;
+
+        if (_triggerAgentWasValid && _triggerAgentWasEnabled)
+        {
+            if (TryGetNavmeshPoint(transform.position, out Vector3 navPos))
+            {
+                transform.position = navPos;
+                agent.enabled = true;
+                agent.Warp(navPos);
+            }
+            else
+            {
+                agent.enabled = true;
+            }
+            agent.isStopped = _triggerWasStoppedBefore;
+            agent.ResetPath();
+        }
+
         if (useStateMachine && !isPaused) ForceReturnToLocomotion();
     }
 
@@ -1576,16 +1589,19 @@ public class NPCController : MonoBehaviour
 
     IEnumerator TriggerRoutine(string triggerParam)
     {
+
         _isPlayingTriggeredAnimation = true;
-        _triggerPrevPaused = isPaused;
-        _triggerAgentWasValid = AgentReady();
-        _triggerWasStoppedBefore = _triggerAgentWasValid && agent.isStopped;
+        _triggerPrevPaused           = isPaused;
+        _triggerAgentWasValid        = agent != null && agent.isActiveAndEnabled;
+        _triggerAgentWasEnabled      = _triggerAgentWasValid && agent.enabled;
+        _triggerWasStoppedBefore     = _triggerAgentWasValid && agent.isStopped;
         isPaused = true;
 
         if (_triggerAgentWasValid)
         {
             agent.isStopped = true;
             agent.ResetPath();
+            agent.enabled = false;   // full detach — prevents ALL navmesh simulation
         }
 
         if (animationController == null)
@@ -1660,8 +1676,27 @@ public class NPCController : MonoBehaviour
             animationController.ResetTrigger(triggerParam);
 
         isPaused = _triggerPrevPaused;
-        if (_triggerAgentWasValid && AgentReady()) agent.isStopped = _triggerWasStoppedBefore;
+
+        if (_triggerAgentWasValid && _triggerAgentWasEnabled)
+        {
+            if (TryGetNavmeshPoint(transform.position, out Vector3 navPos))
+            {
+                transform.position = navPos;
+                agent.enabled = true;
+                agent.Warp(navPos);
+            }
+            else
+            {
+                agent.enabled = true;
+            }
+            agent.isStopped = _triggerWasStoppedBefore;
+            agent.ResetPath();
+        }
+
         _isPlayingTriggeredAnimation = false;
+        _triggerCoroutine = null;
+
+        if (useStateMachine && !isPaused) ForceReturnToLocomotion();
         _triggerCoroutine = null;
 
         if (useStateMachine && !isPaused) ForceReturnToLocomotion();
@@ -1989,7 +2024,7 @@ public class NPCController : MonoBehaviour
             return agent.isOnNavMesh;
         }
 
-        Debug.LogWarning($"{name}: Could not find NavMesh within {snapToNavMeshRadius}m ({context}).");
+        //Debug.LogWarning($"{name}: Could not find NavMesh within {snapToNavMeshRadius}m ({context}).");
         return false;
     }
 

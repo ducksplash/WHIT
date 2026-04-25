@@ -27,10 +27,15 @@ public class DebugCamera : MonoBehaviour
     [Tooltip("Spawn NPC button")]
     [SerializeField] private InputActionReference interactClick;
 
+    [Header("Height Offset")]
+    [SerializeField] private float cameraHeightOffset = 0f;
+    [SerializeField] private float minHeightOffset = -3f;
+    [SerializeField] private float maxHeightOffset = 5f;
+    
     [Header("Fly Cam Inputs")]
     [Tooltip("WASD / Left Stick (Vector2): X = strafe, Y = forward/back.")]
     [SerializeField] private InputActionReference flyMoveAction;
-
+    
     [Header("Fly Cam Tuning")]
     [SerializeField] private float flyMoveSpeed = 6f;
     [SerializeField] private float flyLookSensitivity = 0.08f;
@@ -93,7 +98,9 @@ public class DebugCamera : MonoBehaviour
     [SerializeField] private float followHeight = 1.5f;
     [SerializeField] private float followSideOffset = 0f;
     [SerializeField] private float followMinMoveSpeed = 0.05f;
-
+    public enum FollowDirection { Behind, Left, Right, Front }
+    private static readonly int FollowDirectionCount = Enum.GetValues(typeof(FollowDirection)).Length;
+    [SerializeField] private FollowDirection followDirection = FollowDirection.Behind;
     [Header("Follow Laziness")]
     [SerializeField] private float followDirSmoothTime = 0.25f;
 
@@ -122,11 +129,9 @@ public class DebugCamera : MonoBehaviour
     [SerializeField] private bool debugLogs = false;
 
     [Header("UI Distance Mapping")]
-    [Tooltip("Higher values give more control near the close end of the orbit slider.")]
-    [SerializeField] private float orbitDistanceSliderExponent = 2.2f;
-
-    [Tooltip("Higher values give more control near the close end of the follow slider.")]
-    [SerializeField] private float followDistanceSliderExponent = 2.2f;
+    [Tooltip("Higher values give more control near the close end of the distance slider.")]
+    [SerializeField] private float distanceSliderExponent = 2.2f;
+    
 
     private enum CamMode { Fly, Orbit, PanHorizontal, PanVertical, Follow }
     [SerializeField] private CamMode _mode = CamMode.Fly;
@@ -432,6 +437,8 @@ public class DebugCamera : MonoBehaviour
         _flyAngles = new Vector2(yaw, pitch);
         _flyLookApplied = Vector2.zero;
 
+        cameraHeightOffset = 0f;
+        
         SetCaptured(true);
 
         transform.rotation = Quaternion.Euler(_flyAngles.y, _flyAngles.x, 0f);
@@ -796,9 +803,6 @@ private void SpawnNpcAt(Vector3 worldPos)
     {
         if (character == null) return transform.position;
 
-        if (orbitAroundColliderCenter && _centerCollider != null)
-            return _centerCollider.bounds.center;
-
         return character.TransformPoint(_centerOffsetLocal);
     }
 
@@ -826,9 +830,11 @@ private void SpawnNpcAt(Vector3 worldPos)
 
         distance = Mathf.Clamp(distance, minDistance, maxDistance);
 
-        Vector3 center = GetOrbitCenterWorld();
+        // ← add height offset to centre
+        Vector3 center = GetOrbitCenterWorld() + Vector3.up * cameraHeightOffset;
         Quaternion orbitRot = Quaternion.Euler(_orbitAngles.y, _orbitAngles.x, 0f);
 
+        
         transform.position = center + (orbitRot * (Vector3.back * distance));
 
         if (!orbitKeepLevel)
@@ -1077,41 +1083,80 @@ private void SpawnNpcAt(Vector3 worldPos)
 
         Vector3 center = GetOrbitCenterWorld();
         float dt = Time.deltaTime;
-
-        Vector3 v = GetPlanarVelocity(center, dt);
-        float speed = v.magnitude;
-
-        Vector3 targetDir = _lastMoveDir;
-        if (speed > followMinMoveSpeed)
-            targetDir = v / Mathf.Max(0.0001f, speed);
-
-        float dirTime = Mathf.Max(0.01f, followDirSmoothTime);
-        _smoothedMoveDir = Vector3.SmoothDamp(_smoothedMoveDir, targetDir, ref _smoothedMoveDirVel, dirTime, Mathf.Infinity, dt);
-        _smoothedMoveDir = FlattenOnGround(_smoothedMoveDir);
-
-        if (speed > followMinMoveSpeed)
-            _lastMoveDir = _smoothedMoveDir;
-
-        float desiredYaw = Quaternion.LookRotation(_smoothedMoveDir, Vector3.up).eulerAngles.y;
-
-        float rotTime = Mathf.Max(0.01f, followRotSmoothTime);
-        float currentYaw = transform.rotation.eulerAngles.y;
-        float yaw = Mathf.SmoothDampAngle(currentYaw, desiredYaw, ref _followYawVel, rotTime, Mathf.Infinity, dt);
-
-        Quaternion yawRot = Quaternion.Euler(0f, yaw, 0f);
-
         float back = Mathf.Max(0.1f, followDistance);
-        Vector3 desiredPos =
-            center
-            - (yawRot * Vector3.forward) * back
-            + Vector3.up * followHeight
-            + (yawRot * Vector3.right) * followSideOffset;
+
+        Vector3 desiredPos;
+
+        if (followDirection == FollowDirection.Behind)
+        {
+            // Behind: camera trails the NPC's direction of travel using velocity smoothing.
+            Vector3 v = GetPlanarVelocity(center, dt);
+            float speed = v.magnitude;
+
+            Vector3 targetDir = _lastMoveDir;
+            if (speed > followMinMoveSpeed)
+                targetDir = v / Mathf.Max(0.0001f, speed);
+
+            float dirTime = Mathf.Max(0.01f, followDirSmoothTime);
+            _smoothedMoveDir = Vector3.SmoothDamp(_smoothedMoveDir, targetDir, ref _smoothedMoveDirVel, dirTime, Mathf.Infinity, dt);
+            _smoothedMoveDir = FlattenOnGround(_smoothedMoveDir);
+
+            if (speed > followMinMoveSpeed) _lastMoveDir = _smoothedMoveDir;
+
+            float desiredYaw = Quaternion.LookRotation(_smoothedMoveDir, Vector3.up).eulerAngles.y;
+            float rotTime = Mathf.Max(0.01f, followRotSmoothTime);
+            float currentYaw = transform.rotation.eulerAngles.y;
+            float yaw = Mathf.SmoothDampAngle(currentYaw, desiredYaw, ref _followYawVel, rotTime, Mathf.Infinity, dt);
+
+            Quaternion yawRot = Quaternion.Euler(0f, yaw, 0f);
+
+            desiredPos = center
+                         - (yawRot * Vector3.forward) * back
+                         + Vector3.up * (followHeight + cameraHeightOffset)
+                         + (yawRot * Vector3.right) * followSideOffset;
+        }
+        else
+        {
+            // Left / Right / Front: position locked to NPC's facing — no velocity, no yaw smoothing.
+            Vector3 charForward = FlattenOnGround(character.forward);
+            Vector3 charRight = Vector3.Cross(Vector3.up, charForward).normalized;
+
+            Vector3 offsetDir;
+            switch (followDirection)
+            {
+                case FollowDirection.Front:
+                    offsetDir = charForward;
+                    break;
+                case FollowDirection.Left:
+                    offsetDir = -charRight;
+                    break;
+                case FollowDirection.Right:
+                    offsetDir = charRight;
+                    break;
+                default:
+                    offsetDir = -charForward;
+                    break;
+            }
+
+            desiredPos = center
+                         + offsetDir * back
+                         + Vector3.up * (followHeight + cameraHeightOffset)
+                         + charRight * followSideOffset;
+        }
 
         float posTime = Mathf.Max(0.01f, followPosSmoothTime);
         float maxSpeed = (followMaxPosSpeed > 0f) ? followMaxPosSpeed : Mathf.Infinity;
         transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref _followPosVel, posTime, maxSpeed, dt);
 
-        transform.rotation = followKeepLevel ? yawRot : transform.rotation;
+        // Always look at the NPC from wherever we landed.
+        if (followKeepLevel)
+        {
+            Vector3 toTarget = center - transform.position;
+            toTarget.y = 0f;
+            if (toTarget.sqrMagnitude > 0.000001f)
+                transform.rotation = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
+        }
+
         _prevCenter = center;
     }
 
@@ -1126,7 +1171,13 @@ private void SpawnNpcAt(Vector3 worldPos)
         if (!HasTarget()) return;
         PlayPanHorizontal();
     }
+    public void UI_CycleFollowDirection()
+    {
+        followDirection = (FollowDirection)(((int)followDirection + 1) % FollowDirectionCount);
+    }
 
+    public string UI_GetFollowDirectionLabel() => followDirection.ToString();
+    
     public void UI_PlayPanVertical()
     {
         if (!HasTarget()) return;
@@ -1138,6 +1189,21 @@ private void SpawnNpcAt(Vector3 worldPos)
         StopPan();
     }
 
+    public void UI_SetHeightOffsetNormalized(float t)
+    {
+        cameraHeightOffset = Mathf.Lerp(minHeightOffset, maxHeightOffset, Mathf.Clamp01(t));
+    }
+
+    public float UI_GetHeightOffsetNormalized()
+    {
+        return Mathf.InverseLerp(minHeightOffset, maxHeightOffset, cameraHeightOffset);
+    }
+
+    public void UI_ResetHeightOffset()
+    {
+        cameraHeightOffset = 0f;
+    }
+    
     public void UI_SetFollowEnabled(bool enabled)
     {
         if (!HasTarget())
@@ -1160,26 +1226,18 @@ private void SpawnNpcAt(Vector3 worldPos)
         ResetZoomToDefault();
     }
 
-    public void UI_SetOrbitDistanceNormalized(float t)
+    public void UI_SetDistanceNormalized(float t)
     {
-        distance = SliderToDistance(t, orbitDistanceSliderExponent);
+        distance = SliderToDistance(t, distanceSliderExponent);
+        followDistance = distance;          
     }
 
-    public void UI_SetFollowDistanceNormalized(float t)
+    public float UI_GetDistanceNormalized()
     {
-        followDistance = SliderToDistance(t, followDistanceSliderExponent);
-    }
 
-    public float UI_GetOrbitDistanceNormalized()
-    {
-        return DistanceToSlider(distance, orbitDistanceSliderExponent);
+        float d = (followEnabled && character != null) ? followDistance : distance;
+        return DistanceToSlider(d, distanceSliderExponent);
     }
-
-    public float UI_GetFollowDistanceNormalized()
-    {
-        return DistanceToSlider(followDistance, followDistanceSliderExponent);
-    }
-    
     public void UI_SetSpawnNpc(NPC npcType)
     {
         selectedSpawnNPC = npcType;

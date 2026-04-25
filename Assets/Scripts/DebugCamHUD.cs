@@ -19,13 +19,15 @@ public class DebugCamHUD : MonoBehaviour
     [SerializeField] private GameObject controlsRoot;
     [SerializeField] private Button respawnButton;
     [Header("Camera UI")]
+    [SerializeField] private Slider cameraHeightSlider;
     [SerializeField] private Button panHorizontalButton;
     [SerializeField] private Button panVerticalButton;
     [SerializeField] private Button stopPanButton;
     [SerializeField] private Toggle followToggle;
     [SerializeField] private Button resetZoomButton;
-    [SerializeField] private Slider orbitDistanceSlider;
-    [SerializeField] private Slider followDistanceSlider;
+    [SerializeField] private Slider distanceSlider;
+    [SerializeField] private Button cycleFollowDirectionButton;
+    [SerializeField] private TMP_Text followDirectionLabel;   // optional — shows e.g. "Behind"
     [Header("Spawn UI")]
     [SerializeField] private TMP_Dropdown spawnNpcDropdown;
     [SerializeField] private Button deleteNpcButton;
@@ -118,9 +120,9 @@ public class DebugCamHUD : MonoBehaviour
         if (resetZoomButton != null) resetZoomButton.onClick.AddListener(OnResetZoomClicked);
 
         if (followToggle != null) followToggle.onValueChanged.AddListener(OnFollowToggleChanged);
-        if (orbitDistanceSlider != null) orbitDistanceSlider.onValueChanged.AddListener(OnOrbitDistanceSliderChanged);
-        if (followDistanceSlider != null) followDistanceSlider.onValueChanged.AddListener(OnFollowDistanceSliderChanged);
-        
+        if (cycleFollowDirectionButton != null) cycleFollowDirectionButton.onClick.AddListener(OnCycleFollowDirectionClicked);
+        if (distanceSlider != null) distanceSlider.onValueChanged.AddListener(OnDistanceSliderChanged);
+        if (cameraHeightSlider != null) cameraHeightSlider.onValueChanged.AddListener(OnCameraHeightSliderChanged);
         RefreshSpawnUI();
     }
 
@@ -158,8 +160,9 @@ public class DebugCamHUD : MonoBehaviour
         if (resetZoomButton != null) resetZoomButton.onClick.RemoveListener(OnResetZoomClicked);
 
         if (followToggle != null) followToggle.onValueChanged.RemoveListener(OnFollowToggleChanged);
-        if (orbitDistanceSlider != null) orbitDistanceSlider.onValueChanged.RemoveListener(OnOrbitDistanceSliderChanged);
-        if (followDistanceSlider != null) followDistanceSlider.onValueChanged.RemoveListener(OnFollowDistanceSliderChanged);
+        if (cycleFollowDirectionButton != null) cycleFollowDirectionButton.onClick.RemoveListener(OnCycleFollowDirectionClicked);
+        if (distanceSlider != null) distanceSlider.onValueChanged.RemoveListener(OnDistanceSliderChanged);
+        if (cameraHeightSlider != null) cameraHeightSlider.onValueChanged.RemoveListener(OnCameraHeightSliderChanged);
     }
 
     void Update()
@@ -339,18 +342,18 @@ public class DebugCamHUD : MonoBehaviour
         RefreshCameraUI();
     }
 
-    private void OnOrbitDistanceSliderChanged(float value)
+    private void OnDistanceSliderChanged(float value)
     {
         if (orbitCam == null) return;
-        orbitCam.UI_SetOrbitDistanceNormalized(value);
+        orbitCam.UI_SetDistanceNormalized(value);
     }
 
-    private void OnFollowDistanceSliderChanged(float value)
+    private void OnCameraHeightSliderChanged(float value)
     {
         if (orbitCam == null) return;
-        orbitCam.UI_SetFollowDistanceNormalized(value);
+        orbitCam.UI_SetHeightOffsetNormalized(value);
     }
-
+    
     void OnXClicked()
     {
         if (orbitCam != null) orbitCam.ClearTargetAndEnterFlyMode();
@@ -358,7 +361,12 @@ public class DebugCamHUD : MonoBehaviour
         _lastTarget = null;
         RefreshForTarget(null);
     }
-
+    private void OnCycleFollowDirectionClicked()
+    {
+        if (orbitCam == null) return;
+        orbitCam.UI_CycleFollowDirection();
+        RefreshCameraUI();
+    }
     private void RefreshCameraUI()
     {
         if (orbitCam == null) return;
@@ -368,12 +376,18 @@ public class DebugCamHUD : MonoBehaviour
         if (followToggle != null)
             followToggle.SetIsOnWithoutNotify(hasTarget && orbitCam.FollowEnabled);
 
-        if (orbitDistanceSlider != null)
-            orbitDistanceSlider.SetValueWithoutNotify(orbitCam.UI_GetOrbitDistanceNormalized());
+        if (distanceSlider != null)
+            distanceSlider.SetValueWithoutNotify(orbitCam.UI_GetDistanceNormalized());
 
-        if (followDistanceSlider != null)
-            followDistanceSlider.SetValueWithoutNotify(orbitCam.UI_GetFollowDistanceNormalized());
+        if (cameraHeightSlider != null)
+            cameraHeightSlider.SetValueWithoutNotify(orbitCam.UI_GetHeightOffsetNormalized());
+        
+        if (followDirectionLabel != null)
+            followDirectionLabel.text = orbitCam.UI_GetFollowDirectionLabel();
 
+        if (cycleFollowDirectionButton != null)
+            cycleFollowDirectionButton.interactable = hasTarget && orbitCam.FollowEnabled;
+        
         if (panHorizontalButton != null) panHorizontalButton.interactable = hasTarget;
         if (panVerticalButton != null) panVerticalButton.interactable = hasTarget;
         if (followToggle != null) followToggle.interactable = hasTarget;

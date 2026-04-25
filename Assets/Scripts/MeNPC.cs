@@ -9,13 +9,15 @@ public class MeNPC : MonoBehaviour
     public List<SkinnedMeshRenderer> npcRendererOutfitThree;
 
     public NPCController npcController;
+
+    public bool UnressedOnLoad;
     
     public string ThisNPCName;
     
     private void Start()
     {
         npcController = GetComponent<NPCController>();
-        ToggleFirstOutfit(true);
+        if (!UnressedOnLoad) ToggleFirstOutfit(true);
 
 
         ThisNPCName = npcController.thisNPC.ToString().Replace("_"," ");

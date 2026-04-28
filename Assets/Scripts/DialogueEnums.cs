@@ -7,7 +7,8 @@ public enum DialogueType
 public enum OSDTextName
 {
     TakePhoto = 101,
-    SavedPhoto = 102
+    SavedEvidence = 102,
+    SavedPhoto = 103
 }
 
 public enum DialogueName

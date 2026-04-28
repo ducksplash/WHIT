@@ -107,11 +107,11 @@ public class GameMaster : MonoBehaviour
         
         //Debug.Log($"This script is active in scene: {SceneManager.GetActiveScene().name}");
 
-        SPAWNPOINTETV = new Vector3(36, -8, 473);
-        SPAWNPOINTNORASFLAT = new Vector3(65, 2, 486);
-        SPAWNPOINTTAWLEYMEATS = new Vector3(71.50f, 12, 282);
-        SPAWNPOINTROARKOUTSIDE = new Vector3(90, 5, 252);
-        SPAWNPOINTROARKINSIDE = new Vector3(69, 16, 310);
+        // SPAWNPOINTETV = new Vector3(36, -8, 473);
+        // SPAWNPOINTNORASFLAT = new Vector3(65, 2, 486);
+        // SPAWNPOINTTAWLEYMEATS = new Vector3(71.50f, 12, 282);
+        // SPAWNPOINTROARKOUTSIDE = new Vector3(90, 5, 252);
+        // SPAWNPOINTROARKINSIDE = new Vector3(69, 16, 310);
         
 
         if (DEBUGGERY)
@@ -188,17 +188,18 @@ public class GameMaster : MonoBehaviour
 
     public void StartGame()
     {
-        
+        // here we can maybe retrieve last level player was on and spawn it in accordingly
         
         if (THISLEVEL == GAMELEVEL.MainMenu)
         {
             Debug.Log("Start Main Menu");
         }
 
+        
         switch (THISLEVEL)
         {
             
-            case GAMELEVEL.ETV:
+            case GAMELEVEL.ETVStudio:
                 StartLevelETV();
                 break;
             case GAMELEVEL.MainMenu:
@@ -210,13 +211,15 @@ public class GameMaster : MonoBehaviour
                 break;
 
             case GAMELEVEL.RoarkOutside:
+                StartLevelNorasFlat();
 
-                THISLEVEL = GAMELEVEL.RoarkOutside;
+                //THISLEVEL = GAMELEVEL.RoarkOutside;
                 break;
 
             case GAMELEVEL.RoarkInside:
+                StartLevelNorasFlat();
 
-                THISLEVEL = GAMELEVEL.RoarkInside;
+                //THISLEVEL = GAMELEVEL.RoarkInside;
                 break;
 
         }
@@ -226,7 +229,8 @@ public class GameMaster : MonoBehaviour
 
     public void StartLevelETV()
     {
-        THISLEVEL = GAMELEVEL.ETV;
+        THISLEVEL = GAMELEVEL.ETVStudio;
+        Player.Instance.Spawn();
         LoadingManager.SceneFadeIn();
         //StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
@@ -238,11 +242,13 @@ public class GameMaster : MonoBehaviour
     public void StartLevelNorasFlat()
     {
         THISLEVEL = GAMELEVEL.NorasFlat;
+        Player.Instance.Spawn();
         LoadingManager.SceneFadeIn();
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
     }
+
 
     
     public void StartAudio(AudioProfile selectedAudioProfile)
@@ -285,7 +291,7 @@ public class GameMaster : MonoBehaviour
 
 public enum GAMELEVEL
 {
-    ETV,
+    ETVStudio,
     MainMenu,
     NorasFlat,
     TawleyMeats,

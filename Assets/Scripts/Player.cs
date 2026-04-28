@@ -194,9 +194,8 @@ public class Player : Singleton<Player>
     public CanvasGroup TorchIndicator;
     public CanvasGroup EvidenceCompanion;
 
-    [Header("Spawn & Hands")]
-    public Vector3    SpawnPoint;
-    public Transform  playerHand;
+    [Header("Spawn & Hands")] 
+    public Transform playerHand;
 
     [Header("Input Actions")]
     public InputActionReference moveAction;
@@ -235,8 +234,7 @@ public class Player : Singleton<Player>
         thisCharController = GetComponentInParent<CharacterController>();
         if (thisCharController == null) thisCharController = GetComponent<CharacterController>();
 
-        SpawnPoint = transform.position;
-        speed      = sprintspeed;
+        speed = sprintspeed;
 
         if (Noranimator == null)
             Noranimator = GetComponentInChildren<Animator>(true);
@@ -277,6 +275,38 @@ public class Player : Singleton<Player>
         SetTorchLocomotion(false);
 
         CameraToggleAction.action.performed += ToggleDebugCamera;
+    }
+
+
+    public void Spawn()
+    {
+        Vector3 spawnPoint;
+
+        switch (GameMaster.Instance.THISLEVEL)
+        {
+            case GAMELEVEL.ETVStudio:    spawnPoint = GameMaster.Instance.SPAWNPOINTETV;          break;
+            case GAMELEVEL.NorasFlat:    spawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;    break;
+            case GAMELEVEL.TawleyMeats:  spawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE; break;
+            case GAMELEVEL.RoarkOutside: spawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE; break;
+            case GAMELEVEL.RoarkInside:  spawnPoint = GameMaster.Instance.SPAWNPOINTETV;          break;
+            default:                     spawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;    break;
+        }
+
+        // Disable the CC first so it doesn't fight the teleport
+        bool ccWasEnabled = thisCharController != null && thisCharController.enabled;
+        if (thisCharController != null) thisCharController.enabled = false;
+
+        // Move the CC's transform (the parent), not the Player child
+        Transform rootTransform = thisCharController != null
+            ? thisCharController.transform
+            : transform;
+
+        rootTransform.position = spawnPoint;
+        Physics.SyncTransforms(); // tell the physics engine immediately
+
+        if (thisCharController != null) thisCharController.enabled = ccWasEnabled;
+
+        Debug.Log("Spawn point: " + spawnPoint + " | Root landed at: " + rootTransform.position);
     }
 
     // ────────────────────────────────────────────────────────────────────────

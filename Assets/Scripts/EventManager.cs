@@ -35,6 +35,7 @@ public static class EventManager
     public static event Action<GameObject> OnRegisterPhone = (PhoneObj) => { };
     public static event Action OnUpdateCorkboard = () => { };
     public static event Action<Seat> OnNoraSit = (thisSeat) => { };
+    public static event Action OnSpawnPlayer = () => { };
     
     
     
@@ -43,11 +44,17 @@ public static class EventManager
     
     
     
+    public static void SpawnPlayer()
+    {
+        OnSpawnPlayer.Invoke();
+    }
+
+    
     public static void GameStartedEvent()
     {
         OnGameStarted.Invoke();
     }
-    
+
     public static void LevelLoaded()
     {
         OnLevelLoaded.Invoke();

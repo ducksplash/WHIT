@@ -88,6 +88,7 @@ public class LoadingManager : MonoBehaviour
     {
         _isLoading = true;
 
+
         // 1) Fade to black and wait
         yield return FadeToAndWait(1f);
 
@@ -97,7 +98,9 @@ public class LoadingManager : MonoBehaviour
 
         // 3) Load scene (controlled activation)
         yield return ChangeSceneAsync(levelName);
+        
 
+        
         // 4) Ensure fade is still black before removing loading UI
         if (fadeCanvas != null)
         {
@@ -202,6 +205,8 @@ public class LoadingManager : MonoBehaviour
         AsyncOperation op = SceneManager.LoadSceneAsync(levelName.ToString());
         op.allowSceneActivation = false;
 
+        
+        
         while (op.progress < 0.9f)
         {
             if (loadingbar != null)
@@ -211,21 +216,17 @@ public class LoadingManager : MonoBehaviour
         }
 
         if (loadingbar != null) loadingbar.fillAmount = 1f;
-
-        Transform playerTransform = Player.Instance != null
-            ? Player.Instance.gameObject.GetComponentInParent<Transform>()
-            : null;
-
-        ApplySpawn(levelName, playerTransform);
-
+        
         // Activate scene (this is where Unity often stalls)
         op.allowSceneActivation = true;
 
-        while (!_sceneLoadedFlag)
-            yield return null;
-
-
+        
+        Player.Instance.Spawn();
+        
+        while (!_sceneLoadedFlag) yield return null;
+        
         Time.timeScale = 1f;
+        
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -262,37 +263,7 @@ public class LoadingManager : MonoBehaviour
         loadingclock.text = buildDate;
     }
 
-    private void ApplySpawn(GAMELEVEL levelName, Transform playerTransform)
-    {
-        if (playerTransform == null || GameMaster.Instance == null || Player.Instance == null)
-            return;
 
-        if (levelName == GAMELEVEL.ETV)
-        {
-            playerTransform.position = GameMaster.Instance.SPAWNPOINTETV;
-            Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTETV;
-        }
-        else if (levelName == GAMELEVEL.NorasFlat)
-        {
-            playerTransform.position = GameMaster.Instance.SPAWNPOINTNORASFLAT;
-            Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;
-        }
-        else if (levelName == GAMELEVEL.TawleyMeats)
-        {
-            playerTransform.position = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
-            Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
-        }
-        else if (levelName == GAMELEVEL.RoarkInside)
-        {
-            playerTransform.position = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
-            Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
-        }
-        else if (levelName == GAMELEVEL.RoarkOutside)
-        {
-            playerTransform.position = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
-            Player.Instance.SpawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
-        }
-    }
 
     private static string MonthDay(string day)
     {
@@ -365,7 +336,7 @@ public class LoadingManagerEditor : Editor
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("RoarkOutside")) manager.LoadLevel(GAMELEVEL.RoarkOutside);
             if (GUILayout.Button("RoarkInside"))  manager.LoadLevel(GAMELEVEL.RoarkInside);
-            if (GUILayout.Button("ETV"))          manager.LoadLevel(GAMELEVEL.ETV);
+            if (GUILayout.Button("ETV"))          manager.LoadLevel(GAMELEVEL.ETVStudio);
             EditorGUILayout.EndHorizontal();
 
             // EditorGUILayout.BeginHorizontal();

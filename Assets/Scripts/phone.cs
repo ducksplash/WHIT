@@ -1383,69 +1383,132 @@ public class Phone : MonoBehaviour
 
     public void TakePhoto(InputAction.CallbackContext ctx)
     {
-        if (!CameraReady || ObservedEvidence == null) return;
+        if (!CameraOpen) return;
 
-        var ev = ObservedEvidence.GetComponent<Evidence>();
-        if (ev == null) return;
+        bool isEvidence = false;
 
         var cam = phoneCameraComponent;
         if (cam == null) return;
-        GameMaster.Instance.EvidenceManager.RecordEvidence(cam, ev);
 
-        CameraReadyFrame.color = Color.black;
-        if (cameraReadyTextGroup != null)
-            cameraReadyTextGroup.alpha = 0;
-        if (cameraReadyTextBgGroup != null)
-            cameraReadyTextBgGroup.alpha = 0;
+        if (CameraReady && ObservedEvidence != null)
+        {
+            isEvidence = true;
+            // Evidence in frame — record it as evidence (existing behaviour)
+            var ev = ObservedEvidence.GetComponent<Evidence>();
+            if (ev != null)
+            {
+                GameMaster.Instance.EvidenceManager.RecordEvidence(cam, ev);
 
-        CameraReady = false;
+                CameraReadyFrame.color = Color.black;
+                if (cameraReadyTextGroup != null) cameraReadyTextGroup.alpha = 0;
+                if (cameraReadyTextBgGroup != null) cameraReadyTextBgGroup.alpha = 0;
+                CameraReady = false;
+            }
+        }
+        else
+        {
+            // No evidence in frame — take a plain photo
+            isEvidence = false;
+            StartCoroutine(CaptureAndSavePhoto(cam));
+        }
 
-        StartCoroutine(SavedPhoto());
+        StartCoroutine(SavedPhoto(isEvidence));
     }
+    private IEnumerator CaptureAndSavePhoto(Camera cam)
+    {
+        yield return new WaitForEndOfFrame();
 
+        string photosDir = Path.Combine(Application.persistentDataPath, "Phone/0/Photos");
+        Directory.CreateDirectory(photosDir);
+
+        string fileName = DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".png";
+        string fullPath = Path.Combine(photosDir, fileName);
+
+        // Save whatever RenderTexture the phone camera was already pointing at
+        RenderTexture originalTarget = cam.targetTexture;
+
+        RenderTexture rt = new RenderTexture(resWidth, resHeight, 24);
+        cam.targetTexture = rt;
+        cam.Render();
+
+        RenderTexture.active = rt;
+        Texture2D photo = new Texture2D(resWidth, resHeight, TextureFormat.RGB24, false);
+        photo.ReadPixels(new Rect(0, 0, resWidth, resHeight), 0, 0);
+        photo.Apply();
+
+        // Restore the original target BEFORE destroying rt
+        cam.targetTexture = originalTarget;
+        RenderTexture.active = null;
+        Destroy(rt);
+
+        byte[] bytes = photo.EncodeToPNG();
+        Destroy(photo);
+
+        File.WriteAllBytes(fullPath, bytes);
+    }
     private void LoadGallery()
     {
         galleryItems.Clear();
 
+        string photosPath = Path.Combine(Application.persistentDataPath, "Phone/0/Photos");
         string evidencePath = Path.Combine(Application.persistentDataPath, "Phone/0/Evidence");
         string dcimPath = Path.Combine(Application.persistentDataPath, "Phone/0/DCIM");
 
-        if (!Directory.Exists(evidencePath))
-            return;
-
-        FileInfo[] files = new DirectoryInfo(evidencePath).GetFiles("*.quack");
-
-        foreach (FileInfo file in files)
+        // Load plain photos — no metadata, placeholders for now
+        if (Directory.Exists(photosPath))
         {
-            string[] lines = File.ReadAllLines(file.FullName);
-            if (lines.Length < 6) continue;
+            FileInfo[] photoFiles = new DirectoryInfo(photosPath).GetFiles("*.png");
 
-            string photoPath = Path.Combine(dcimPath, lines[1].Trim());
-            if (!File.Exists(photoPath)) continue;
-
-            galleryItems.Add(
-                new GalleryItem
+            foreach (FileInfo file in photoFiles)
+            {
+                galleryItems.Add(new GalleryItem
                 {
-                    evidenceName = lines[0],
+                    evidenceName  = "empty",
+                    photoFileName = "empty",
+                    date          = "empty",
+                    details       = "empty",
+                    photoFullPath = file.FullName
+                });
+            }
+        }
+
+        // Load evidence photos — full metadata from .quack files
+        if (Directory.Exists(evidencePath))
+        {
+            FileInfo[] files = new DirectoryInfo(evidencePath).GetFiles("*.quack");
+
+            foreach (FileInfo file in files)
+            {
+                string[] lines = File.ReadAllLines(file.FullName);
+                if (lines.Length < 6) continue;
+
+                string photoPath = Path.Combine(dcimPath, lines[1].Trim());
+                if (!File.Exists(photoPath)) continue;
+
+                galleryItems.Add(new GalleryItem
+                {
+                    evidenceName  = lines[0],
                     photoFileName = lines[1],
-                    date = lines[2],
-                    details = lines[5],
+                    date          = lines[2],
+                    details       = lines[5],
                     photoFullPath = photoPath
-                }
-            );
+                });
+            }
         }
 
         PhotosInGallery = galleryItems.Count;
-        galleryLoaded = PhotosInGallery > 0;
+        galleryLoaded   = PhotosInGallery > 0;
     }
 
-    IEnumerator SavedPhoto()
+    IEnumerator SavedPhoto(bool isEvidence)
     {
         CameraReadyText.text = "";
         CameraReadyTextBG.text = "";
         
-        CameraSavedText.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.SavedPhoto);
-        CameraSavedTextBG.text = GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.SavedPhoto);
+        string feedbackText = isEvidence ? GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.SavedEvidence) : GameMaster.Instance.DialogueManager.RetrieveOSDText(OSDTextName.SavedPhoto);
+        
+        CameraSavedText.text = feedbackText;
+        CameraSavedTextBG.text = feedbackText;
 
         if (cameraSavedTextGroup != null) cameraSavedTextGroup.alpha = 1;
         if (cameraSavedTextBgGroup != null)cameraSavedTextBgGroup.alpha = 1;

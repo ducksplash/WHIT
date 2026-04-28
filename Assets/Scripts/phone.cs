@@ -491,14 +491,23 @@ public class Phone : MonoBehaviour
 
     private IEnumerator StopAnimating()
     {
-        
-        yield return new WaitForSeconds(0.1f);
-        GameMaster.Instance.Player.Noranimator.speed = 0f;
+        Animator anim = GameMaster.Instance.Player.Noranimator;
+
+        // Zero the blend parameters so the locomotion tree drives toward idle.
+        // anim.speed stays at 1 so the blend actually plays out.
+        anim.SetFloat("Speed", 0f);
+        anim.SetFloat("MoveX", 0f);
+        anim.SetFloat("MoveY", 0f);
+
+        // Wait long enough for the damp blend to settle into the idle pose.
+        // animDampTime is 0.12s, so 0.25s is comfortably past it.
+        yield return new WaitForSeconds(0.25f);
+
+        // Pose is now stable — freeze and show the phone.
+        anim.speed = 0f;
         EventManager.StartPhone(transform);
         FacePlayerOnY();
-
     }
-    
     
     
     public void FacePlayerOnY()

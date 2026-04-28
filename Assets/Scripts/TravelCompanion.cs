@@ -160,7 +160,7 @@ public class TravelCompanion : MonoBehaviour
         toPlayer.y = 0f;
         if (toPlayer.sqrMagnitude < 0.0001f) return;
 
-        float targetYaw = Quaternion.LookRotation(toPlayer, Vector3.up).eulerAngles.y;
+        float targetYaw = Quaternion.LookRotation(toPlayer, Vector3.up).eulerAngles.y-1;
 
         transform.rotation = Quaternion.Euler(0, targetYaw, 0);
     }

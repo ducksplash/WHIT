@@ -15,13 +15,13 @@ MonoBehaviour:
   active: 1
   shadows:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: 0.150221}
+    m_Value: {x: 1, y: 1, z: 1, w: 0.0723893}
   midtones:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: 0.03488518}
+    m_Value: {x: 1, y: 1, z: 1, w: -0.054065812}
   highlights:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: 0.21092428}
+    m_Value: {x: 1, y: 1, z: 1, w: -0.08928423}
   shadowsStart:
     m_OverrideState: 0
     m_Value: 0
@@ -49,6 +49,29 @@ MonoBehaviour:
   components:
   - {fileID: 7580569523253527756}
   - {fileID: -5883967513821130404}
+  - {fileID: 3916424565356362154}
+--- !u!114 &3916424565356362154
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da5ab44aadfb1804db5fd470983ac1b8, type: 3}
+  m_Name: LiftGammaGain
+  m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.LiftGammaGain
+  active: 1
+  lift:
+    m_OverrideState: 1
+    m_Value: {x: 1, y: 1, z: 1, w: -0.01140407}
+  gamma:
+    m_OverrideState: 1
+    m_Value: {x: 1, y: 1, z: 1, w: -0.068424635}
+  gain:
+    m_OverrideState: 1
+    m_Value: {x: 1, y: 1, z: 1, w: 0.30933705}
 --- !u!114 &7580569523253527756
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -65,10 +88,10 @@ MonoBehaviour:
   shader: {fileID: 4800000, guid: c3a272ce444b462458cc508df6717e87, type: 3}
   intensity:
     m_OverrideState: 1
-    m_Value: 0.461
+    m_Value: 1
   steps:
     m_OverrideState: 1
-    m_Value: 12
+    m_Value: 11
   pixelScale:
     m_OverrideState: 1
-    m_Value: 1.66
+    m_Value: 3.9

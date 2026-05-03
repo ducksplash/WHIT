@@ -50,8 +50,8 @@ public class LiftController : MonoBehaviour
         
     }
 
-    private void Update()
-    {
+    //private void Update()
+    //{
         // if (Input.GetMouseButtonDown(1))
         // {
         //     if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Player.Instance.RayCastDistance) &&
@@ -64,7 +64,7 @@ public class LiftController : MonoBehaviour
         //         }
         //     }
         // }
-    }
+    //}
 
 
 

@@ -485,7 +485,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         if (snapToSeatWhenSeated && _seatTf != null)
         {
             Vector3 target = _seatTf.position + seatedRootOffset;
-            Body.position = new Vector3(target.x, Body.position.y, target.z);
+            Body.position = target;
         }
         
         if (!isSitting)

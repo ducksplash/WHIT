@@ -3162,6 +3162,7 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcRendererOutfitThree: []
   npcController: {fileID: 0}
+  UnressedOnLoad: 0
   ThisNPCName: 
 --- !u!195 &4448037757680532664
 NavMeshAgent:
@@ -3198,10 +3199,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   thisNPC: 504
-  FindSeat: 0
+  FindSeat: 1
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 100
+  activeRadius: 10
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -3220,7 +3221,7 @@ MonoBehaviour:
   seekingSpeedMultiplier: 1.2
   seekGiveUpSeconds: 6
   approachRepathInterval: 0.25
-  _state: 0
+  _state: 6
   approachTargetMoveThreshold: 0.35
   disableBrakingWhileApproaching: 1
   sceneNPCManager: {fileID: 0}
@@ -3280,12 +3281,12 @@ MonoBehaviour:
   sidestepDuration: 0.7
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
-  npcMetaActions: {fileID: 0}
-  _ladder: {fileID: 0}
-  _sitting: {fileID: 0}
-  _lying: {fileID: 0}
-  _talk: {fileID: 0}
-  _combat: {fileID: 0}
+  npcMetaActions: {fileID: 8765044896259245741}
+  _ladder: {fileID: 2869906676205434344}
+  _sitting: {fileID: 1695225703369581379}
+  _lying: {fileID: 4368255688116060151}
+  _talk: {fileID: 7126228272542755447}
+  _combat: {fileID: 8889488142305570109}
   CanSit: 0
   CanSleep: 0
   CanTalk: 0

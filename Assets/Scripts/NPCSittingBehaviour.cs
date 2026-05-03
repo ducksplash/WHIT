@@ -94,6 +94,8 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     private bool    _routeGoingUp;
     private Vector3 _routeApproachPoint, _routeExitPoint;
 
+    public bool isSitting;
+    
     public override void Init(NPCController controller)
     {
         base.Init(controller);
@@ -157,6 +159,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         if (_standLerpCoroutine != null) StopCoroutine(_standLerpCoroutine);
         Vector3 standTarget = _preSitPoint != Vector3.zero ? _preSitPoint : Body.position;
         _standLerpCoroutine = StartCoroutine(LerpBodyTo(standTarget, standUpLerpDuration));
+        isSitting = false; 
         if (seatDebugLogs) Debug.Log($"{name} Sit: BeginStandUp()");
     }
 
@@ -254,7 +257,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     private bool TryAcquireSeat()
     {
         float   radius = seatSearchRadius > 0.01f ? seatSearchRadius : Mathf.Max(0.1f, ActiveRadius);
-        Vector3 center = SpawnPoint;
+        Vector3 center = transform.position;
         Seat[]  seats  = FindObjectsByType<Seat>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         if (seats == null || seats.Length == 0) { if (seatDebugLogs) Debug.Log($"{name} Sit: No Seat components found."); return false; }
 
@@ -456,7 +459,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         {
             _sitPhase = SitPhase.SittingIdle;
             _seatedT = 0f;
-
+            
             if (_seatTf != null)
                 Body.rotation = Quaternion.LookRotation(GetSeatFacing(), Vector3.up);
 
@@ -475,14 +478,29 @@ public class NPCSittingBehaviour : NPCBehaviourBase
 
     private void TickSittingIdle(float dt, Vector3 seatForward)
     {
+
         ForceIdlePose();
         Body.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
+
         if (snapToSeatWhenSeated && _seatTf != null)
         {
             Vector3 target = _seatTf.position + seatedRootOffset;
             Body.position = new Vector3(target.x, Body.position.y, target.z);
         }
-        if (autoStandAfterSeconds > 0f) { _seatedT += dt; if (_seatedT >= autoStandAfterSeconds) BeginStandUp(); }
+        
+        if (!isSitting)
+        {
+            isSitting = true;
+            if (seatDebugLogs) Debug.Log($"{name} Sit: CONFIRMED seated");
+        }
+
+
+        if (autoStandAfterSeconds > 0f)
+        {
+            _seatedT += dt;
+            if (_seatedT >= autoStandAfterSeconds)
+                BeginStandUp();
+        }
     }
 
     private void TickStandUpPlaying(float dt)
@@ -539,6 +557,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         if (Anim != null) { Anim.Update(0f); ForceIdlePose(); }
         npc.HasCommand = false; npc.CommandGoal = NPCState.Patrolling;
         _sitPhase = SitPhase.None;
+        isSitting = false;
         npc.SetStateDirectly(NPCState.Patrolling);
         npc.ExecutePendingPostStandAction();
     }
@@ -559,6 +578,8 @@ public class NPCSittingBehaviour : NPCBehaviourBase
             if (!Agent.isOnNavMesh && TryGetNavmeshPoint(Body.position, out Vector3 navPos)) Agent.Warp(navPos);
             if (AgentReady()) { Agent.isStopped = false; Agent.ResetPath(); Agent.velocity = Vector3.zero; Agent.autoBraking = true; Agent.stoppingDistance = Mathf.Max(0.05f, ArriveDistance); }
         }
+        isSitting = false;
+        
         npc.HasCommand = false; npc.CommandGoal = NPCState.Patrolling;
     }
 
@@ -570,6 +591,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         _sitPhase = SitPhase.None;
         if (Anim != null) ForceReturnToLocomotion();
         ReattachAgentToNavmeshAtCurrentXZ();
+        isSitting = false; 
         EnterState(NPCState.Patrolling);
     }
 

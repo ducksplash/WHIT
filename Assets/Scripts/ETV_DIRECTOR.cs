@@ -34,8 +34,7 @@ public class ETV_DIRECTOR : MonoBehaviour
         DirectorEvents.OnStartDirector += EventStartDirector;
         EventManager.OnDialogueCanProceed += OnReadyToAdvance;
     }
-
-
+    
 
     private void OnReadyToAdvance(bool canadvance)
     {
@@ -261,9 +260,6 @@ public class ETV_DIRECTOR : MonoBehaviour
         
         
         // END THE MEETING.
-        
-        
-        
         
         
         yield return new WaitForSeconds(1);

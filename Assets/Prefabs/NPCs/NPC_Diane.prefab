@@ -2025,7 +2025,7 @@ MonoBehaviour:
   FindSeat: 0
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 100
+  activeRadius: 10
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -2105,11 +2105,11 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  _ladder: {fileID: 0}
-  _sitting: {fileID: 0}
-  _lying: {fileID: 0}
-  _talk: {fileID: 0}
-  _combat: {fileID: 0}
+  _ladder: {fileID: 5065969018915850676}
+  _sitting: {fileID: 4346835966485972745}
+  _lying: {fileID: 2962594900801857989}
+  _talk: {fileID: 3176565050789337811}
+  _combat: {fileID: 2287850858303975901}
   CanSit: 0
   CanSleep: 0
   CanTalk: 0
@@ -2123,6 +2123,8 @@ MonoBehaviour:
   patrolActionCooldownSeconds: 500
   patrolActionFailedRetrySeconds: 6
   autonomousTalkSearchRadius: 30
+  seatSearchRetryDelay: 3
+  bedSearchRetryDelay: 3
 --- !u!114 &2287850858303975901
 MonoBehaviour:
   m_ObjectHideFlags: 0

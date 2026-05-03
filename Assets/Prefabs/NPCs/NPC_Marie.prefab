@@ -2016,6 +2016,7 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcRendererOutfitThree: []
   npcController: {fileID: 642677681949903923}
+  UnressedOnLoad: 0
   ThisNPCName: 
 --- !u!195 &7359041191954647649
 NavMeshAgent:
@@ -2055,7 +2056,7 @@ MonoBehaviour:
   FindSeat: 0
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 100
+  activeRadius: 10
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -2135,11 +2136,11 @@ MonoBehaviour:
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
   npcMetaActions: {fileID: 0}
-  _ladder: {fileID: 0}
-  _sitting: {fileID: 0}
-  _lying: {fileID: 0}
-  _talk: {fileID: 0}
-  _combat: {fileID: 0}
+  _ladder: {fileID: 5354920197805821677}
+  _sitting: {fileID: 6555549840147462928}
+  _lying: {fileID: 2747278054916885682}
+  _talk: {fileID: 7892899250866114195}
+  _combat: {fileID: 7713678994089321707}
   CanSit: 0
   CanSleep: 0
   CanTalk: 0
@@ -2153,6 +2154,8 @@ MonoBehaviour:
   patrolActionCooldownSeconds: 500
   patrolActionFailedRetrySeconds: 6
   autonomousTalkSearchRadius: 30
+  seatSearchRetryDelay: 3
+  bedSearchRetryDelay: 3
 --- !u!136 &4285166954710942249
 CapsuleCollider:
   m_ObjectHideFlags: 0

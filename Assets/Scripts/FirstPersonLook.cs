@@ -209,11 +209,6 @@ public class FirstPersonLook : MonoBehaviour
             _activePitchMin  = seatedPitchClampMin;
             _activePitchMax  = seatedPitchClampMax;
 
-            // Re-derive pitch from the camera pivot's ACTUAL current local rotation
-            // rather than the accumulated currentMouseLook.y value. FixedUpdate was
-            // blocked during the approach/sit animation, so the pivot's rotation may
-            // not match what currentMouseLook.y thinks it is. Reading it back
-            // guarantees they are in sync when FixedUpdate resumes, preventing a jerk.
             if (cameraPivot != null)
             {
                 float rawPitch     = NormalizeAngle180(cameraPivot.localEulerAngles.x);

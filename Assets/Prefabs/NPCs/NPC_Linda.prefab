@@ -2546,7 +2546,7 @@ Transform:
   m_GameObject: {fileID: 4623357280412541222}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 106.47503, y: 0.000000031479658, z: 904.23505}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2575,6 +2575,7 @@ MonoBehaviour:
   npcRendererOutfitTwo: []
   npcRendererOutfitThree: []
   npcController: {fileID: 0}
+  UnressedOnLoad: 0
   ThisNPCName: 
 --- !u!195 &7785923499448996922
 NavMeshAgent:
@@ -2614,7 +2615,7 @@ MonoBehaviour:
   FindSeat: 0
   useStateMachine: 1
   currentTarget: {fileID: 0}
-  activeRadius: 100
+  activeRadius: 10
   allowApproachOutsideActiveRadius: 0
   debugTargetNPC: 100
   visionRange: 12
@@ -2712,6 +2713,8 @@ MonoBehaviour:
   patrolActionCooldownSeconds: 500
   patrolActionFailedRetrySeconds: 6
   autonomousTalkSearchRadius: 30
+  hasStartupActions: 0
+  startupActionsConcluded: 0
 --- !u!136 &4625506227314975376
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2848,6 +2851,7 @@ MonoBehaviour:
   isTalking: 0
   isGabbing: 0
   isDawdling: 0
+  isSitting: 0
 --- !u!114 &2377244129512527587
 MonoBehaviour:
   m_ObjectHideFlags: 0

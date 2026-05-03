@@ -206,8 +206,15 @@ public class NPCController : MonoBehaviour
     private float _renegotiateCooldownT;
     private Coroutine _sidestepCoroutine;
 
-    public bool AgentReady()
-        => agent != null && agent.isActiveAndEnabled && agent.enabled && agent.isOnNavMesh;
+    
+    
+
+    [SerializeField] private bool hasStartupActions;
+    [SerializeField] private bool startupActionsConcluded;
+    
+    
+    
+    public bool AgentReady() => agent != null && agent.isActiveAndEnabled && agent.enabled && agent.isOnNavMesh;
 
     public bool TryGetNavmeshPoint(Vector3 near, out Vector3 navPos)
     {
@@ -476,9 +483,65 @@ public class NPCController : MonoBehaviour
             EnterState(NPCState.Patrolling);
         }
 
-        if (FindSeat) RequestSitDown();
+        
+        StartCoroutine(StartupActions());
     }
 
+    
+    
+    
+    private IEnumerator StartupActions()
+    {
+        
+        yield return new WaitForSeconds(UnityEngine.Random.Range(0.1f,0.5f));
+
+        if (FindSeat)
+        {
+            RequestSitDown();
+            hasStartupActions = true;
+        }
+        
+        yield return new WaitForEndOfFrame();
+
+        if (hasStartupActions)
+        {
+            StartCoroutine(ActionObserver());
+        }
+
+    }
+
+    private IEnumerator ActionObserver()
+    {
+        RequestSitDown();
+
+        while (!startupActionsConcluded)
+        {
+            yield return new WaitForSeconds(1f);
+
+            var phase = _sitting.Phase;
+
+            if (phase == NPCSittingBehaviour.SitPhase.SittingIdle)
+            {
+                startupActionsConcluded = true;
+                yield break;
+            }
+
+            // Only retry if system is idle (not already trying)
+            if (phase == NPCSittingBehaviour.SitPhase.None)
+            {
+                RequestSitDown();
+            }
+        }
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
     private void ExecuteNPCCommand(NPC npc, NPCState npcState)
     {
         if (thisNPC == npc)

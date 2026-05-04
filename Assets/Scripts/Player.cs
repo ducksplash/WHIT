@@ -629,9 +629,10 @@ public class Player : Singleton<Player>
 
     public void StandUp(InputAction.CallbackContext ctx = default)
     {
+        if (!IsSeated) return;
         if (GameMaster.Instance.INAMEETING) return;
         
-        if (!IsSeated && _sitCoroutine == null)
+        if (_sitCoroutine == null)
         {
             Debug.LogWarning("[Player] StandUp called but player is not seated.");
             return;

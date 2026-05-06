@@ -4,7 +4,7 @@ using System.Collections;
 
 public class FirstPersonLook : MonoBehaviour
 {
-    [SerializeField] Transform character;
+    public Transform character;
     [SerializeField] InputActionReference lookAction;
 
     Vector2 currentMouseLook;
@@ -143,14 +143,6 @@ public class FirstPersonLook : MonoBehaviour
     void FixedUpdate()
     {
         if (!LookAllowedThisFrame()) return;
-
-        if (cameraPivot != null)
-            cameraPivot.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
-        else
-            transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
-
-        if (character != null)
-            character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
     }
 
     private void LateUpdate()
@@ -177,8 +169,16 @@ public class FirstPersonLook : MonoBehaviour
             currentMouseLook.x = _seatedFacingYaw + yawDelta;
         }
 
-        if (_cameraModeActive && _currentDevice != null)
-            FollowDeviceToView();
+        if (_cameraModeActive && _currentDevice != null) FollowDeviceToView();
+        
+        // APPLY ROTATION HERE INSTEAD
+        if (cameraPivot != null)
+            cameraPivot.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
+        else
+            transform.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
+
+        if (character != null)
+            character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
     }
 
     // ── Seated look control ───────────────────────────────────────────────

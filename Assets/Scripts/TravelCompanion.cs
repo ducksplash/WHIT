@@ -41,8 +41,6 @@ public class TravelCompanion : MonoBehaviour
 
         InitialiseLocations();
 
-        notepadMeshRenderers = Notepad.GetComponentsInChildren<MeshRenderer>();
-
         ToggleNotepadVisibility(false);
     }
 
@@ -131,6 +129,8 @@ public class TravelCompanion : MonoBehaviour
             StepBackInputRightClick.action.performed -= LaunchCompanion;
             StepBackInputESC.action.performed -= LaunchCompanion;
             
+            
+            EventManager.StopNotepad();
         
             GameMaster.Instance.Player.Noranimator.speed = 1;
             

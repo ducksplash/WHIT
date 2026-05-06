@@ -708,15 +708,19 @@ public class Player : Singleton<Player>
 
         moveInput = moveAction != null ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
 
-        Vector3 camForward = CurrentCamera != null ? CurrentCamera.transform.forward : transform.forward;
-        Vector3 camRight   = CurrentCamera != null ? CurrentCamera.transform.right   : transform.right;
+        Transform moveBasis = FirstPersonLook != null && FirstPersonLook.character != null ? FirstPersonLook.character : transform;
 
-        camForward.y = 0f;
-        camRight.y   = 0f;
-        camForward.Normalize();
-        camRight.Normalize();
+        Vector3 moveForward = moveBasis.forward;
+        Vector3 moveRight   = moveBasis.right;
 
-        Vector3 desiredMove = camForward * moveInput.y + camRight * moveInput.x;
+        moveForward.y = 0f;
+        moveRight.y   = 0f;
+
+        moveForward.Normalize();
+        moveRight.Normalize();
+
+        Vector3 desiredMove = (moveForward * moveInput.y) + (moveRight * moveInput.x);
+        desiredMove.Normalize();
 
         speed = crouching ? walkspeed : (walking ? walkspeed : sprintspeed);
 

@@ -43,9 +43,12 @@ public class Zoom : MonoBehaviour
 
         EventManager.OnStartComputer += AutoZoomInPC;
         EventManager.OnStopComputer += OnDeviceClosed;
-
+        
         EventManager.OnStartPhone += AutoZoomInPhone;
         EventManager.OnStopPhone += OnDeviceClosed;
+        
+        EventManager.OnStartNotepad += AutoZoomInPhone;
+        EventManager.OnStopNotepad += OnDeviceClosed;
     }
 
     private void OnDestroy()
@@ -58,6 +61,9 @@ public class Zoom : MonoBehaviour
         EventManager.OnStopPhone -= OnDeviceClosed;
 
         EventManager.OnPhoneOpened -= SetDefaultFOV;
+        
+        EventManager.OnStartNotepad -= AutoZoomInPhone;
+        EventManager.OnStopNotepad -= OnDeviceClosed;
     }
 
     private void Start()

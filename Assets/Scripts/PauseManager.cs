@@ -97,12 +97,13 @@ public class PauseManager : MonoBehaviour
 
     private void PauseGame()
     {
+        Debug.Log("pause???");
+        
         IsPaused = true;
 
         CacheLookSensitivityIfNeeded();
-        // ✅ Do NOT multiply / change sensitivity unless you truly want to
-        // If you want to disable look while paused, set it to 0f instead:
-        // SetLookSensitivity(0f);
+
+        SetLookSensitivity(0f);
 
         SafeBindExitAction();
 

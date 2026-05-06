@@ -18,6 +18,7 @@ public static class EventManager
     public static event Action<Transform> OnStartNotepad = (NorepadTransform) => { };
     public static event Action OnStopComputer = () => { };
     public static event Action OnStopPhone = () => { };
+    public static event Action OnStopNotepad = () => { };
     public static event Action OnCameraOpen = () => { };
     public static event Action OnCameraClosed = () => { };
     public static event Action<EvidenceName> OnAutoCollectEvidence = (EvidenceName) => { };
@@ -125,6 +126,10 @@ public static class EventManager
     public static void StopPhone()
     {
         OnStopPhone.Invoke();
+    }
+    public static void StopNotepad()
+    {
+        OnStopNotepad.Invoke();
     }
     public static void CameraOpen()
     {

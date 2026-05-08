@@ -20,7 +20,7 @@ public class InputManager : MonoBehaviour
     [Header("Input Definitions")]
     public List<InputSO> Inputs = new List<InputSO>();
 
-    // Built at runtime from Inputs list — keyed by eregi replace string e.g. "+phonekey+"
+    
     public Dictionary<string, string> InputEregiDict = new();
 
     private void Start()
@@ -61,18 +61,7 @@ public class InputManager : MonoBehaviour
         return "null";
     }
 
-    /// <summary>
-    /// Returns the InputSO for a given InputName, or null if not found.
-    /// </summary>
-    public InputSO GetInputSO(InputName selectedInputName)
-    {
-        foreach (var input in Inputs)
-        {
-            if (input != null && input.InputName == selectedInputName)
-                return input;
-        }
-        return null;
-    }
+
 
     public bool isSteamDeck()
     {

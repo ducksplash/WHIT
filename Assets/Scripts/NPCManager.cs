@@ -92,6 +92,9 @@ public enum NPC
     Tom_Oneill = 104,
     Ellsworth_Ohanlon = 105,
     Michael_Devlin = 106,
+    Essie = 107,
+    Sandra = 108,
+    Cait = 109,
     NoraKennedy = 999,
     
     // Extras

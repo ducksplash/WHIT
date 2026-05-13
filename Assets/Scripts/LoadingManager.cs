@@ -197,36 +197,34 @@ public class LoadingManager : MonoBehaviour
     private IEnumerator ChangeSceneAsync(GAMELEVEL levelName)
     {
         GameMaster.Instance.THISLEVEL = levelName;
-        
+    
         _sceneLoadedFlag = false;
-
         Time.timeScale = 0f;
 
         AsyncOperation op = SceneManager.LoadSceneAsync(levelName.ToString());
         op.allowSceneActivation = false;
 
-        
-        
         while (op.progress < 0.9f)
         {
             if (loadingbar != null)
                 loadingbar.fillAmount = Mathf.Clamp01(op.progress / 0.9f);
-
             yield return null;
         }
 
         if (loadingbar != null) loadingbar.fillAmount = 1f;
-        
-        // Activate scene (this is where Unity often stalls)
+
         op.allowSceneActivation = true;
 
-        
-        Player.Instance.Spawn();
-        
-        while (!_sceneLoadedFlag) yield return null;
-        
+        // Wait until scene is fully loaded
+        while (!_sceneLoadedFlag) 
+            yield return null;
+
         Time.timeScale = 1f;
-        
+
+        if (GameMaster.Instance != null)
+        {
+            GameMaster.Instance.StartLevel(levelName);
+        }
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

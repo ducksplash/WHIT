@@ -112,7 +112,12 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         ClearLadderRoute(); ReleaseSeatIfAny();
         if (Agent == null) return;
         if (!Agent.enabled) Agent.enabled = true;
-        if (!Agent.isOnNavMesh && TryGetNavmeshPoint(Body.position, out Vector3 navPos)) Agent.Warp(navPos);
+
+        // ── NEW: don't warp while mid-link ───────────────────────────────────
+        if (!Agent.isOnNavMesh && !Agent.isOnOffMeshLink &&
+            TryGetNavmeshPoint(Body.position, out Vector3 navPos))
+            Agent.Warp(navPos);
+
         if (AgentReady()) { Agent.isStopped = true; Agent.ResetPath(); }
     }
 
@@ -248,8 +253,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     {
         _seatSearchT += dt; _seatRescanT -= dt;
         if (_seatRescanT <= 0f) { _seatRescanT = Mathf.Max(0.05f, seatRescanInterval); if (TryAcquireSeat()) return; }
-        if (_seatSearchT >= Mathf.Max(0.1f, seatSearchTimeout))
-            { if (seatDebugLogs) Debug.LogWarning($"{name} Sit: search timed out after {_seatSearchT:F2}s"); Fail(); return; }
+        if (_seatSearchT >= Mathf.Max(0.1f, seatSearchTimeout)) { if (seatDebugLogs) Debug.LogWarning($"{name} Sit: search timed out after {_seatSearchT:F2}s"); Fail(); return; }
         if (AgentReady()) { Agent.isStopped = true; Agent.ResetPath(); }
         ForceIdlePose();
     }
@@ -280,10 +284,8 @@ public class NPCSittingBehaviour : NPCBehaviourBase
 
             Vector3 seatPos = s.seatTransform.position;
             Vector3 d = seatPos - center; d.y = 0f;
-            if (d.sqrMagnitude > radius * radius)
-                { if (seatDebugLogs) Debug.Log($"{name} Sit: REJECT '{s.name}' out of radius"); continue; }
-            if (!NavMesh.SamplePosition(seatPos, out NavMeshHit _, ActiveRadius, NavMesh.AllAreas))
-                { if (seatDebugLogs) Debug.Log($"{name} Sit: REJECT '{s.name}' navmesh failed"); continue; }
+            if (d.sqrMagnitude > radius * radius) { if (seatDebugLogs) Debug.Log($"{name} Sit: REJECT '{s.name}' out of radius"); continue; }
+            if (!NavMesh.SamplePosition(seatPos, out NavMeshHit _, ActiveRadius, NavMesh.AllAreas)) { if (seatDebugLogs) Debug.Log($"{name} Sit: REJECT '{s.name}' navmesh failed"); continue; }
 
             float sqr = (Body.position - seatPos).sqrMagnitude;
             if (sqr < bestSqr) { best = s; bestSqr = sqr; }
@@ -308,7 +310,11 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         _backstepTarget = NavMesh.SamplePosition(bsWorld, out NavMeshHit bsHit, ActiveRadius, NavMesh.AllAreas) ? bsHit.position : _preSitNavPos;
 
         if (!Agent.enabled) Agent.enabled = true;
-        if (!Agent.isOnNavMesh && TryGetNavmeshPoint(Body.position, out Vector3 navPos)) Agent.Warp(navPos);
+
+        if (!Agent.isOnNavMesh && !Agent.isOnOffMeshLink &&
+            TryGetNavmeshPoint(Body.position, out Vector3 navPos))
+            Agent.Warp(navPos);
+
         if (!AgentReady()) { ReleaseSeatIfAny(); return false; }
 
         if (npc.CanReachPosition(_preSitNavPos, out NavMeshPath directPath))
@@ -332,6 +338,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
 
     private void TickRoutingToLadder()
     {
+
         if (_routeLadder == null) { if (seatDebugLogs) Debug.LogWarning($"{name} Sit: RoutingToLadder no ladder."); Fail(); return; }
         if (seatDebugLogs) Debug.Log($"{name} Sit: RoutingToLadder hasPath={Agent.hasPath} remaining={Agent.remainingDistance:F2}");
         Agent.isStopped = false;
@@ -349,15 +356,69 @@ public class NPCSittingBehaviour : NPCBehaviourBase
             npc.StartLadderTraversal(_routeLadder, _routeGoingUp, OnFinishedLadderRoute);
         }
     }
+    
+    
+    
+    
+    private void ForceCompleteOffMeshLink()
+    {
+        if (Agent == null || !Agent.enabled)
+            return;
 
+        if (Agent.isOnOffMeshLink)
+        {
+            OffMeshLinkData data = Agent.currentOffMeshLinkData;
+
+            // Move agent to the END of the link
+            Vector3 endPos = data.endPos;
+
+            Agent.Warp(endPos);
+
+            Agent.CompleteOffMeshLink();
+
+            Agent.nextPosition = endPos;
+
+            transform.position = endPos;
+        }
+    }
+    
     private void OnFinishedLadderRoute()
     {
-        if (seatDebugLogs) Debug.Log($"{name} Sit: ladder traversal complete");
-        if (_seat == null || _seatTf == null) { Fail(); return; }
-        if (!AgentReady()) { if (seatDebugLogs) Debug.LogWarning($"{name} Sit: agent not ready after ladder."); Fail(); return; }
-        if (!npc.CanReachPosition(_preSitNavPos, out NavMeshPath path))
-            { if (seatDebugLogs) Debug.LogWarning($"{name} Sit: cannot reach seat after ladder."); Fail(); return; }
-        Agent.isStopped = false; Agent.autoBraking = true; Agent.ResetPath(); Agent.SetPath(path);
+        ForceCompleteOffMeshLink();
+
+        if (seatDebugLogs)
+            Debug.Log($"{name} Sit: ladder traversal complete");
+
+        if (_seat == null || _seatTf == null)
+        {
+            Fail();
+            return;
+        }
+
+        if (!AgentReady())
+        {
+            if (seatDebugLogs)
+                Debug.LogWarning($"{name} Sit: agent not ready after ladder.");
+
+            Fail();
+            return;
+        }
+
+        // IMPORTANT:
+        // Rebuild navmesh state from CURRENT position
+        Agent.ResetPath();
+
+        if (!Agent.SetDestination(_preSitNavPos))
+        {
+            if (seatDebugLogs)
+                Debug.LogWarning($"{name} Sit: failed SetDestination after ladder.");
+
+            Fail();
+            return;
+        }
+
+        Agent.isStopped = false;
+
         _sitPhase = SitPhase.ApproachingFront;
     }
 
@@ -365,19 +426,40 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     {
         if (seatDebugLogs) Debug.Log($"{name} Sit: ApproachingFront hasPath={Agent.hasPath} remaining={Agent.remainingDistance:F2}");
         Agent.isStopped = false;
-        if (!Agent.pathPending && Agent.pathStatus == NavMeshPathStatus.PathInvalid)
-            { if (seatDebugLogs) Debug.LogWarning($"{name} Sit: path invalid approaching."); Fail(); return; }
-        if (!Agent.pathPending && !Agent.hasPath)
-            { if (seatDebugLogs) Debug.LogWarning($"{name} Sit: lost path approaching."); Fail(); return; }
-        if (!Agent.pathPending && Vector3.Distance(Agent.destination, _preSitNavPos) > 0.15f)
-            Agent.SetDestination(_preSitNavPos);
 
-        float dist = Vector3.Distance(new Vector3(Body.position.x, 0f, Body.position.z),
-                                      new Vector3(_preSitNavPos.x, 0f, _preSitNavPos.z));
-        if (dist <= Mathf.Max(preSitArriveDistance, ArriveDistance))
+        // ── NEW: skip path-validity checks while mid-link ─────────────────────
+        bool onLink = Agent.isOnOffMeshLink;
+
+        if (!onLink && !Agent.pathPending && Agent.pathStatus == NavMeshPathStatus.PathInvalid)
         {
-            if (seatDebugLogs) Debug.Log($"{name} Sit: Arrived at pre-sit point. Aligning.");
-            Agent.isStopped = true; Agent.ResetPath(); _sitPhase = SitPhase.Aligning;
+            if (seatDebugLogs) Debug.LogWarning($"{name} Sit: path invalid approaching.");
+            Fail(); return;
+        }
+
+        if (!onLink && !Agent.pathPending && !Agent.hasPath)
+        {
+            if (seatDebugLogs) Debug.LogWarning($"{name} Sit: lost path approaching.");
+            Fail(); return;
+        }
+
+        if (!Agent.pathPending && !onLink &&
+            Vector3.Distance(Agent.destination, _preSitNavPos) > 0.3f)
+        {
+            Agent.SetDestination(_preSitNavPos);
+        }
+
+        // Arrival uses XZ only; skip while mid-link so we don't arrive at the wrong position
+        if (!onLink)
+        {
+            float dist = Vector3.Distance(
+                new Vector3(Body.position.x, 0f, Body.position.z),
+                new Vector3(_preSitNavPos.x,  0f, _preSitNavPos.z));
+
+            if (dist <= Mathf.Max(preSitArriveDistance, ArriveDistance))
+            {
+                if (seatDebugLogs) Debug.Log($"{name} Sit: Arrived at pre-sit point. Aligning.");
+                Agent.isStopped = true; Agent.ResetPath(); _sitPhase = SitPhase.Aligning;
+            }
         }
     }
 
@@ -392,12 +474,40 @@ public class NPCSittingBehaviour : NPCBehaviourBase
 
     private void TickBackstep(float dt, Vector3 seatFacing)
     {
+        if (Agent == null) return;
+
         Agent.isStopped = true;
-        Body.position = Vector3.MoveTowards(Body.position, _backstepTarget, Mathf.Max(0.01f, backstepSpeed) * dt);
-        Body.rotation = Quaternion.Slerp(Body.rotation, Quaternion.LookRotation(seatFacing, Vector3.up), dt * (TurnSmoothing * 2.0f));
-        float planarDist = Vector3.Distance(new Vector3(Body.position.x, 0f, Body.position.z),
-                                            new Vector3(_backstepTarget.x, 0f, _backstepTarget.z));
-        if (planarDist <= 0.06f) { if (seatDebugLogs) Debug.Log($"{name} Sit: Backstepped. Beginning SitDown."); BeginSitDown(); }
+
+        // Manual movement
+        Body.position = Vector3.MoveTowards(
+            Body.position,
+            _backstepTarget,
+            Mathf.Max(0.01f, backstepSpeed) * dt
+        );
+
+        // CRITICAL:
+        // Keep NavMeshAgent synced with manual movement
+        Agent.nextPosition = Body.position;
+
+        // Manual rotation
+        Body.rotation = Quaternion.Slerp(
+            Body.rotation,
+            Quaternion.LookRotation(seatFacing, Vector3.up),
+            dt * (TurnSmoothing * 2.0f)
+        );
+
+        float planarDist = Vector3.Distance(
+            new Vector3(Body.position.x, 0f, Body.position.z),
+            new Vector3(_backstepTarget.x, 0f, _backstepTarget.z)
+        );
+
+        if (planarDist <= 0.06f)
+        {
+            if (seatDebugLogs)
+                Debug.Log($"{name} Sit: Backstepped. Beginning SitDown.");
+
+            BeginSitDown();
+        }
     }
 
     private void BeginSitDown()
@@ -421,23 +531,59 @@ public class NPCSittingBehaviour : NPCBehaviourBase
 
     private IEnumerator SitDownLerpRoutine()
     {
-        float waited = 0f, maxWait = sitTriggerFallbackDelay + 0.15f;
+        float waited = 0f;
+        float maxWait = sitTriggerFallbackDelay + 0.15f;
+
         while (waited < maxWait)
         {
-            if (!string.IsNullOrWhiteSpace(sitDownStateName) && Anim.GetCurrentAnimatorStateInfo(sitAnimLayer).IsName(sitDownStateName)) break;
-            waited += Time.deltaTime; yield return null;
+            if (!string.IsNullOrWhiteSpace(sitDownStateName) &&
+                Anim.GetCurrentAnimatorStateInfo(sitAnimLayer).IsName(sitDownStateName))
+            {
+                break;
+            }
+
+            waited += Time.deltaTime;
+            yield return null;
         }
+
         Vector3 lerpStart = Body.position;
-        Vector3 lerpEnd   = _seatTf != null ? _seatTf.position + seatedRootOffset : Body.position;
+
+        Vector3 lerpEnd =
+            _seatTf != null
+                ? _seatTf.position + seatedRootOffset
+                : Body.position;
+
         while (true)
         {
-            if (_seatTf == null) yield break;
-            AnimatorStateInfo info = Anim.GetCurrentAnimatorStateInfo(sitAnimLayer);
-            if (!(!string.IsNullOrWhiteSpace(sitDownStateName) && info.IsName(sitDownStateName))) yield break;
+            if (_seatTf == null)
+                yield break;
+
+            AnimatorStateInfo info =
+                Anim.GetCurrentAnimatorStateInfo(sitAnimLayer);
+
+            bool inSitDown =
+                !string.IsNullOrWhiteSpace(sitDownStateName) &&
+                info.IsName(sitDownStateName);
+
+            if (!inSitDown)
+                yield break;
+
             float t = Mathf.Clamp01(info.normalizedTime);
-            Vector3 p = Body.position; p.x = Mathf.Lerp(lerpStart.x, lerpEnd.x, t); p.z = Mathf.Lerp(lerpStart.z, lerpEnd.z, t);
+
+            Vector3 p = Body.position;
+
+            p.x = Mathf.Lerp(lerpStart.x, lerpEnd.x, t);
+            p.z = Mathf.Lerp(lerpStart.z, lerpEnd.z, t);
+
             Body.position = p;
-            if (info.normalizedTime >= 0.95f) yield break;
+
+            
+            if (Agent != null && Agent.enabled)
+                Agent.nextPosition = Body.position;
+
+            if (info.normalizedTime >= 0.95f)
+                yield break;
+
             yield return null;
         }
     }
@@ -478,26 +624,44 @@ public class NPCSittingBehaviour : NPCBehaviourBase
 
     private void TickSittingIdle(float dt, Vector3 seatForward)
     {
-
         ForceIdlePose();
+
         Body.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
 
-        if (snapToSeatWhenSeated && _seatTf != null)
+        if (_seatTf != null)
         {
             Vector3 target = _seatTf.position + seatedRootOffset;
+
+            // KEEP THE Y OFFSET
             Body.position = target;
+
+            // IMPORTANT:
+            // Sync only X/Z to the agent so Unity doesn't snap Y back to navmesh.
+            if (Agent != null && Agent.enabled)
+            {
+                Vector3 next = Agent.nextPosition;
+
+                next.x = Body.position.x;
+                next.z = Body.position.z;
+
+                // DO NOT TOUCH next.y
+
+                Agent.nextPosition = next;
+            }
         }
-        
+
         if (!isSitting)
         {
             isSitting = true;
-            if (seatDebugLogs) Debug.Log($"{name} Sit: CONFIRMED seated");
-        }
 
+            if (seatDebugLogs)
+                Debug.Log($"{name} Sit: CONFIRMED seated");
+        }
 
         if (autoStandAfterSeconds > 0f)
         {
             _seatedT += dt;
+
             if (_seatedT >= autoStandAfterSeconds)
                 BeginStandUp();
         }
@@ -531,16 +695,43 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     private IEnumerator LerpBodyTo(Vector3 target, float duration)
     {
         Vector3 start = Body.position;
-        float endX = target.x, endZ = target.z, elapsed = 0f;
+
+        float endX = target.x;
+        float endZ = target.z;
+
+        float elapsed = 0f;
+
         duration = Mathf.Max(0.01f, duration);
+
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
+
             float t = Mathf.Clamp01(elapsed / duration);
-            Vector3 p = Body.position; p.x = Mathf.Lerp(start.x, endX, t); p.z = Mathf.Lerp(start.z, endZ, t);
-            Body.position = p; yield return null;
+
+            Vector3 p = Body.position;
+
+            p.x = Mathf.Lerp(start.x, endX, t);
+            p.z = Mathf.Lerp(start.z, endZ, t);
+
+            Body.position = p;
+
+            // CRITICAL:
+            // Sync navmesh internal position
+            if (Agent != null && Agent.enabled) Agent.nextPosition = Body.position;
+
+            yield return null;
         }
-        Vector3 final = Body.position; final.x = endX; final.z = endZ; Body.position = final;
+
+        Vector3 final = Body.position;
+
+        final.x = endX;
+        final.z = endZ;
+
+        Body.position = final;
+
+        if (Agent != null && Agent.enabled)
+            Agent.nextPosition = Body.position;
     }
 
     private void FinishStandUpToPatrol()

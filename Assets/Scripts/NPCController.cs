@@ -102,7 +102,7 @@ public class NPCController : MonoBehaviour
     public float renegotiateCooldown = 0.8f;
     public float renegotiateCheckInterval = 0.15f;
 
-    public MeNPC npcMetaActions;
+    public Me npcMetaActions;
 
     [Header("Behaviour Plugins")] [SerializeField]
     private NPCLadderBehaviour  _ladder;
@@ -113,6 +113,11 @@ public class NPCController : MonoBehaviour
 
     [NonSerialized] public bool isPaused;
 
+    // Off-mesh link manual traversal
+    private Coroutine _offMeshLinkCoroutine;
+    private bool _isTraversingOffMeshLink;
+    private Vector3 _offMeshLinkFakeVelocity; // drives animator during traversal
+    public bool IsTraversingOffMeshLink => _isTraversingOffMeshLink;
     
     private enum PatrolAction
     {
@@ -333,35 +338,56 @@ public class NPCController : MonoBehaviour
 
     public void DetachAgentForAnimation()
     {
-        if (agent == null) return;
+        if (agent == null)
+            return;
 
-        if (AgentReady())
-        {
-            agent.isStopped = true;
-            agent.ResetPath();
-        }
+        if (!agent.enabled)
+            agent.enabled = true;
 
+        // Stop navigation logic
+        agent.isStopped = true;
+        agent.ResetPath();
+
+        // Prevent NavMeshAgent from overriding transform movement
+        agent.updatePosition = false;
+        agent.updateRotation = false;
+
+        // Keep internal nav position synced
+        agent.nextPosition = transform.position;
+
+        // Optional safety
         agent.velocity = Vector3.zero;
-        agent.enabled = false;
     }
 
     public void ReattachAgentToNavmeshAtCurrentXZ()
     {
-        if (agent == null) return;
+        if (agent == null)
+            return;
 
-        Vector3 desired = transform.position;
-        if (TryGetNavmeshPoint(desired, out Vector3 navPos))
-        {
-            transform.position = navPos;
+        if (!agent.enabled)
             agent.enabled = true;
-            agent.Warp(navPos);
+
+        Vector3 bodyPos = transform.position;
+
+        // Find nearest valid navmesh position
+        if (NavMesh.SamplePosition(bodyPos, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        {
+            // IMPORTANT:
+            // Warp updates the agent's INTERNAL navmesh position.
+            agent.Warp(hit.position);
+
+            // Re-enable normal navmesh syncing
+            agent.updatePosition = true;
+            agent.updateRotation = true;
+
+            agent.nextPosition = hit.position;
+
             agent.isStopped = false;
-            agent.ResetPath();
+            agent.velocity = Vector3.zero;
         }
         else
         {
-            agent.enabled = true;
-            Debug.LogWarning($"{name}: Could not find NavMesh near {desired} to reattach agent.");
+            Debug.LogWarning($"{name}: Failed to reattach agent to navmesh.");
         }
     }
 
@@ -452,6 +478,7 @@ public class NPCController : MonoBehaviour
         if (_lying == null) _lying = GetComponent<NPCLyingBehaviour>();
         if (_talk == null) _talk = GetComponent<NPCTalkBehaviour>();
         if (_combat == null) _combat = GetComponent<NPCCombatBehaviour>();
+        if (npcMetaActions == null) npcMetaActions = GetComponent<Me>();
 
         _ladder?.Init(this);
         _sitting?.Init(this);
@@ -467,6 +494,7 @@ public class NPCController : MonoBehaviour
         if (agent != null)
         {
             agent.speed = moveSpeed;
+            agent.autoTraverseOffMeshLink = false;
             agent.angularSpeed = angularSpeed;
             agent.acceleration = acceleration;
             agent.stoppingDistance = Mathf.Max(agent.stoppingDistance, arriveDistance);
@@ -533,13 +561,6 @@ public class NPCController : MonoBehaviour
             }
         }
     }
-
-    
-    
-    
-    
-    
-    
     
     
     private void ExecuteNPCCommand(NPC npc, NPCState npcState)
@@ -560,6 +581,13 @@ public class NPCController : MonoBehaviour
             return;
         }
 
+        if (!IsTraversingLadder && !_isPlayingTriggeredAnimation
+                                && AgentReady() && agent.isOnOffMeshLink
+                                && _offMeshLinkCoroutine == null)
+        {
+            _offMeshLinkCoroutine = StartCoroutine(TraverseOffMeshLinkRoutine());
+        }
+        
         if (useStateMachine && !_isPlayingTriggeredAnimation && !IsTraversingLadder)
         {
             if (_state == NPCState.Sitting ||
@@ -615,6 +643,73 @@ public class NPCController : MonoBehaviour
         _hasResumeDestination = false;
         _resumeDestination = Vector3.zero;
         _commandGoal = NPCState.Patrolling;
+    }
+
+
+    private IEnumerator TraverseOffMeshLinkRoutine()
+    {
+        _isTraversingOffMeshLink = true;
+
+        OffMeshLinkData data = agent.currentOffMeshLinkData;
+        Vector3 startPos = transform.position;
+        Vector3 endPos = data.endPos;
+
+        // Snap end position to navmesh surface
+        if (NavMesh.SamplePosition(endPos, out NavMeshHit hit, snapToNavMeshRadius, NavMesh.AllAreas))
+            endPos = hit.position;
+
+        Vector3 dir = endPos - startPos;
+        dir.y = 0f;
+        Vector3 dirNorm = dir.sqrMagnitude > 0.0001f ? dir.normalized : transform.forward;
+
+        float distance = Vector3.Distance(startPos, endPos);
+        float duration = distance / Mathf.Max(0.01f, agent.speed);
+        float elapsed = 0f;
+
+        // Pre-face the link direction before moving
+        while (Mathf.Abs(Mathf.DeltaAngle(
+                   transform.eulerAngles.y,
+                   Quaternion.LookRotation(dirNorm, Vector3.up).eulerAngles.y)) > 8f)
+        {
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation,
+                Quaternion.LookRotation(dirNorm, Vector3.up),
+                turnWhileMovingSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        // Walk across the link at moveSpeed
+        _offMeshLinkFakeVelocity = dirNorm * agent.speed;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+
+            Vector3 pos = Vector3.Lerp(startPos, endPos, t);
+            transform.position = pos;
+            agent.nextPosition = pos; // keeps agent's internal position synced
+
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation,
+                Quaternion.LookRotation(dirNorm, Vector3.up),
+                turnWhileMovingSpeed * Time.deltaTime);
+
+            yield return null;
+        }
+
+        // Snap to end, complete link
+        transform.position = endPos;
+        agent.CompleteOffMeshLink();
+        agent.nextPosition = endPos;
+
+        _offMeshLinkFakeVelocity = Vector3.zero;
+
+        // One settle frame before releasing — prevents the FSM reading stale navmesh state
+        yield return null;
+
+        _isTraversingOffMeshLink = false;
+        _offMeshLinkCoroutine = null;
     }
 
     public void ForcePatrol()
@@ -702,6 +797,7 @@ public class NPCController : MonoBehaviour
         if (p == NPCSittingBehaviour.SitPhase.SittingIdle ||
             p == NPCSittingBehaviour.SitPhase.SitDownPlaying)
         {
+            agent.obstacleAvoidanceType = ObstacleAvoidanceType.HighQualityObstacleAvoidance;
             _sitting.BeginStandUp();
         }
     }
@@ -949,7 +1045,10 @@ public class NPCController : MonoBehaviour
 
             case NPCState.SeekingSeat:
                 if (prev != NPCState.SeekingSeat && prev != NPCState.Sitting)
+                {
+                    //agent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
                     _sitting?.EnterSitting();
+                }
                 break;
 
             case NPCState.Sitting:
@@ -1360,6 +1459,7 @@ public class NPCController : MonoBehaviour
             (inAnyLieBodyPhase && !lieWalkup);
 
         bool allowNavLocomotion = AgentReady() && IsNavDriven() && !blockLocomotion;
+        bool allowLinkLocomotion = _isTraversingOffMeshLink && !blockLocomotion;
 
         float movingX = 0f, movingY = 0f, blend = 0f;
 
@@ -1393,6 +1493,14 @@ public class NPCController : MonoBehaviour
                 transform.rotation,
                 Quaternion.LookRotation(desiredDir, Vector3.up),
                 turnRate * Time.deltaTime);
+        }
+        else if (allowLinkLocomotion)
+        {
+            // Drive blend tree as if walking straight at full speed
+            float speed01 = Mathf.Clamp01(_offMeshLinkFakeVelocity.magnitude / Mathf.Max(0.01f, moveSpeed));
+            movingX = 0f;
+            movingY = speed01;
+            blend   = speed01;
         }
 
         animationController.SetFloat(paramMovingX, movingX, animDampTime, Time.deltaTime);
@@ -1650,6 +1758,11 @@ public class NPCController : MonoBehaviour
         _upperBodyCoroutine = null;
     }
 
+    public bool IsOnOffMeshLink()
+    {
+        return agent != null && agent.isOnOffMeshLink;
+    }
+    
     IEnumerator TriggerRoutine(string triggerParam)
     {
 
@@ -1885,6 +1998,7 @@ public class NPCController : MonoBehaviour
         if (isPaused) return false;
         if (_isPlayingTriggeredAnimation) return false;
         if (IsTraversingLadder) return false;
+        
         return useStateMachine;
     }
 
@@ -2074,6 +2188,9 @@ public class NPCController : MonoBehaviour
 
         if (agent.isOnNavMesh) return true;
 
+        // ── NEW: agent is mid-traversal; leave it alone ───────────────────────
+        if (agent.isOnOffMeshLink) return true;
+
         if (!autoSnapToNavMeshOnGo)
         {
             Debug.LogWarning($"{name}: Agent not on NavMesh ({context}).");
@@ -2087,7 +2204,6 @@ public class NPCController : MonoBehaviour
             return agent.isOnNavMesh;
         }
 
-        //Debug.LogWarning($"{name}: Could not find NavMesh within {snapToNavMeshRadius}m ({context}).");
         return false;
     }
 

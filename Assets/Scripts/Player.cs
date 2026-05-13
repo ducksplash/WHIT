@@ -15,6 +15,8 @@ public class Player : Singleton<Player>
     private float speed;
     private Vector2 moveInput;
 
+    public Me Me;
+    
     private CharacterController thisCharController;
 
     public Camera MainCam;
@@ -286,9 +288,9 @@ public class Player : Singleton<Player>
         {
             case GAMELEVEL.ETVStudio:    spawnPoint = GameMaster.Instance.SPAWNPOINTETV;          break;
             case GAMELEVEL.NorasFlat:    spawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;    break;
-            case GAMELEVEL.TawleyMeats:  spawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE; break;
+            case GAMELEVEL.TawleyMeats:  spawnPoint = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS; break;
             case GAMELEVEL.RoarkOutside: spawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE; break;
-            case GAMELEVEL.RoarkInside:  spawnPoint = GameMaster.Instance.SPAWNPOINTETV;          break;
+            case GAMELEVEL.RoarkInside:  spawnPoint = GameMaster.Instance.SPAWNPOINTROARKINSIDE;          break;
             default:                     spawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;    break;
         }
 

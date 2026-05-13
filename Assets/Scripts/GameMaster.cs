@@ -203,19 +203,18 @@ public class GameMaster : MonoBehaviour
                 StartLevelETV();
                 break;
             case GAMELEVEL.MainMenu:
-                
                 StartLevelNorasFlat();
                 break;
             case GAMELEVEL.NorasFlat:
                 StartLevelNorasFlat();
                 break;
-
             case GAMELEVEL.RoarkOutside:
                 StartLevelNorasFlat();
-
+                break;
+            case GAMELEVEL.TawleyMeats:
+                StartLevelNorasFlat();
                 //THISLEVEL = GAMELEVEL.RoarkOutside;
                 break;
-
             case GAMELEVEL.RoarkInside:
                 StartLevelNorasFlat();
 
@@ -225,58 +224,119 @@ public class GameMaster : MonoBehaviour
         }
 
     }
-    
+    // ====================== MAIN LEVEL ROUTER ======================
+    public void StartLevel(GAMELEVEL level)
+    {
+        THISLEVEL = level;
 
+        switch (level)
+        {
+            case GAMELEVEL.ETVStudio:
+                StartLevelETV();
+                break;
+
+            case GAMELEVEL.MainMenu:
+            case GAMELEVEL.NorasFlat:
+                StartLevelNorasFlat();
+                break;
+
+            case GAMELEVEL.TawleyMeats:
+                StartLevelTawleyMeats();
+                break;
+
+            case GAMELEVEL.RoarkOutside:
+                StartLevelRoarkOutside();
+                break;
+
+            case GAMELEVEL.RoarkInside:
+                StartLevelRoarkInside();
+                break;
+
+            case GAMELEVEL.SecretLevel:
+                // TODO: Add when ready
+                StartLevelNorasFlat();
+                break;
+
+            default:
+                Debug.LogWarning($"No setup defined for {level}. Falling back to NorasFlat.");
+                StartLevelNorasFlat();
+                break;
+        }
+    }
+
+    // ====================== INDIVIDUAL LEVEL STARTS ======================
     public void StartLevelETV()
     {
         THISLEVEL = GAMELEVEL.ETVStudio;
         Player.Instance.Spawn();
-        LoadingManager.SceneFadeIn();
-        //StartAudio(AudioProfile.NorasFlat);
+        Player.Instance.Me.ToggleWorkOutfit(true);
+        StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
-        
+        LoadingManager.SceneFadeIn();
     }
-
 
     public void StartLevelNorasFlat()
     {
         THISLEVEL = GAMELEVEL.NorasFlat;
         Player.Instance.Spawn();
-        LoadingManager.SceneFadeIn();
+        Player.Instance.Me.TogglePyjamasOutfit(true);
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
+        LoadingManager.SceneFadeIn();
     }
 
+    public void StartLevelTawleyMeats()
+    {
+        THISLEVEL = GAMELEVEL.TawleyMeats;
+        Player.Instance.Spawn();
+        Player.Instance.Me.ToggleCasualOutfit(true);
+        StartAudio(AudioProfile.TawleyMeats);
+        EventManager.GameStartedEvent();
+        EventManager.LevelLoaded();
+        LoadingManager.SceneFadeIn();
+    }
 
-    
+    public void StartLevelRoarkOutside()
+    {
+        THISLEVEL = GAMELEVEL.RoarkOutside;
+        Player.Instance.Spawn();
+        Player.Instance.Me.ToggleCasualOutfit(true);
+        StartAudio(AudioProfile.RoarkOutside);
+        EventManager.GameStartedEvent();
+        EventManager.LevelLoaded();
+        LoadingManager.SceneFadeIn();
+    }
+
+    public void StartLevelRoarkInside()
+    {
+        THISLEVEL = GAMELEVEL.RoarkInside;
+        Player.Instance.Spawn();
+        Player.Instance.Me.ToggleCasualOutfit(true);
+        StartAudio(AudioProfile.RoarkInside);
+        EventManager.GameStartedEvent();
+        EventManager.LevelLoaded();
+        LoadingManager.SceneFadeIn();
+    }
+
     public void StartAudio(AudioProfile selectedAudioProfile)
     {
-        // Stop all if playing
-        
         AudioSlave.StopBGA();
         AudioSlave.StopBGM();
-        
-        Debug.Log("Playing Audio Profile - "+selectedAudioProfile);
-        
+
+        Debug.Log("Playing Audio Profile - " + selectedAudioProfile);
+
         switch (selectedAudioProfile)
         {
             case AudioProfile.MainMenu:
-                // Background music
-                AudioSlave.PlayBGM(BGMResource.SongOne);
-                // Ambience Track (i.e. Rain)
+            case AudioProfile.NorasFlat:
                 AudioSlave.PlayBGA(BGAResource.Rain);
+                // AudioSlave.PlayBGM(BGMResource.SongOne);   // uncomment when ready
                 break;
 
-            case AudioProfile.NorasFlat:
-                // Background music
-                // AudioSlave.PlayBGM(BGMResource.SongOne);
-                // Ambience Track (i.e. Rain)
-                AudioSlave.PlayBGA(BGAResource.Rain);
-                break;
+            // Add other cases as you expand
         }
-        
     }
     
     

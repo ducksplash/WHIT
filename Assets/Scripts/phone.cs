@@ -99,6 +99,7 @@ public class Phone : MonoBehaviour
     public InputActionReference numPadStar;
     public InputActionReference numPadHash;
     public InputActionReference numBackSpace;
+    public InputActionReference toggleCameraSelfie;
     private GameObject currentScreen;
     public bool viewingPhoto;
     public DialogueName phoneTutorialFirstPhoto = DialogueName.phoneTutorialFirstPhoto;
@@ -108,7 +109,9 @@ public class Phone : MonoBehaviour
     public CanvasGroup phoneCanvasGroup;
     public MeshRenderer phoneMeshRenderer;
     private CapsuleCollider phoneCollider;
-    private Camera phoneCameraComponent;
+    public Camera rearCameraComponent;
+    public Camera selfieCameraComponent;
+    public Camera phoneCameraComponent;
     private PhoneZoom phoneZoom;
     private TextMeshProUGUI clockText;
     private CanvasGroup galleryBigPhotoCanvas;
@@ -133,6 +136,7 @@ public class Phone : MonoBehaviour
     private int lastClockHour = -1;
 
     private bool PhoneOpened;
+    public bool TakingSelfie;
     
     private void Awake()
     {
@@ -141,7 +145,7 @@ public class Phone : MonoBehaviour
         
         if (PhoneCamera != null)
         {
-            phoneCameraComponent = PhoneCamera.GetComponent<Camera>();
+            phoneCameraComponent = rearCameraComponent;
             phoneZoom = PhoneCamera.GetComponent<PhoneZoom>();
         }
 
@@ -176,6 +180,7 @@ public class Phone : MonoBehaviour
 
         listBackButton.action.performed += GalleryBackAction;
         listNextButton.action.performed += GalleryNextAction;
+        toggleCameraSelfie.action.performed += ToggleSelfieCam;
 
         numPad0.action.performed += a0Button;
         numPad1.action.performed += a1Button;
@@ -200,6 +205,7 @@ public class Phone : MonoBehaviour
         listBackButton.action.performed -= GalleryBackAction;
         listNextButton.action.performed -= GalleryNextAction;
 
+        toggleCameraSelfie.action.performed -= ToggleSelfieCam;
         numPad0.action.performed -= a0Button;
         numPad1.action.performed -= a1Button;
         numPad2.action.performed -= a2Button;
@@ -375,6 +381,7 @@ public class Phone : MonoBehaviour
         if (useThisScreen != CameraScreen)
         {
             CameraOpen = false;
+            
             CameraReady = false;
             CameraSavedText.text = "";
             CameraSavedTextBG.text = "";                            
@@ -946,6 +953,8 @@ public class Phone : MonoBehaviour
         
         EventManager.CameraOpen();
 
+        phoneCameraComponent.enabled = true;
+        
         CameraFlash.enabled = true;
 
         if (GameMaster.Instance.EvidenceManager.EvidenceFound.Count < 1)
@@ -957,7 +966,6 @@ public class Phone : MonoBehaviour
         if (cameraSavedTextGroup != null) cameraSavedTextGroup.alpha = 0;
         if (cameraReadyTextBgGroup != null) cameraReadyTextBgGroup.alpha = 0;
         if (cameraSavedTextBgGroup != null) cameraSavedTextBgGroup.alpha = 0;
-        if (phoneCameraComponent != null) phoneCameraComponent.enabled = true;
         
         CameraOpen = true;
         Player.Instance.MoveOverride = true;
@@ -1390,6 +1398,26 @@ public class Phone : MonoBehaviour
         }
     }
 
+
+    private void ToggleSelfieCam(InputAction.CallbackContext callbackContext)
+    {
+        TakingSelfie = !TakingSelfie;
+
+        if (TakingSelfie)
+        {
+            phoneCameraComponent.enabled = false;
+            phoneCameraComponent = selfieCameraComponent;
+            phoneCameraComponent.enabled = true;
+        }
+        else
+        {
+            phoneCameraComponent.enabled = false;
+            phoneCameraComponent = rearCameraComponent;
+            phoneCameraComponent.enabled = true;
+        }
+        
+    }
+    
     public void TakePhoto(InputAction.CallbackContext ctx)
     {
         if (!CameraOpen) return;

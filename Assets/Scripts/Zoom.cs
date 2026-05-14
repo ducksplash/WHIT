@@ -9,56 +9,103 @@ public class Zoom : MonoBehaviour
     public float defaultFOV = 60f;
     public float maxZoom = 10f;
 
-    [Range(0f, 1f)]
+    [Tooltip("Entering below 0 enables third person")]
+    public float thirdPersonMinZoom = -0.5f;
+
+    [Tooltip("Maximum third person zoom out")]
+    public float thirdPersonMaxZoom = -1.5f;
+
+    [Range(-2f, 1f)]
     public float zoomAmount = 0f;
 
-    public float zoomStep = 0.1f;           // Per tap
-    public float continuousZoomSpeed = 0.8f; // Per second while holding (in zoomAmount space)
+    public float zoomStep = 0.1f;
+    public float continuousZoomSpeed = 0.8f;
 
     [Header("Hold Settings")]
-    public float holdThreshold = 0.5f;      // Time before continuous zoom starts
+    public float holdThreshold = 0.5f;
+
+    [Header("Cameras")]
+    public Camera FirstPersonCamera;
+    public Camera ThirdPersonCamera;
 
     [Header("Input Actions")]
     public InputActionReference zoomInInput;
     public InputActionReference zoomOutInput;
 
-    public bool zoomAllowed = false;
+    [Header("Third Person FOV")]
+    public float thirdPersonMinFOV = 60f;
+
+    [Tooltip("FOV when fully zoomed out in third person")]
+    public float thirdPersonMaxFOV = 85f;
 
     [Header("Auto Zoom (Devices)")]
     [Range(0.05f, 1f)] public float pcAutoZoomFactor = 0.40f;
     [Range(0.05f, 1f)] public float phoneAutoZoomFactor = 0.80f;
     public float autoZoomDuration = 0.15f;
 
-    private Camera cam;
+    public bool zoomAllowed = false;
+
     private Coroutine zoomRoutine;
     private Coroutine continuousZoomRoutine;
-
-    // Hold tracking
     private Coroutine holdTimerRoutine;
-    private bool isZoomingIn = false;
-    private bool isZoomingOut = false;
+
+    private bool isZoomingIn;
+    private bool isZoomingOut;
+
+    private bool _autoZoomActive;
+    private bool _forceFirstPersonMode;
+
+    public bool IsThirdPersonActive { get; private set; }
+
+    private bool IsInteractionLocked =>
+        _autoZoomActive || _forceFirstPersonMode;
 
     private void Awake()
     {
-        cam = GetComponent<Camera>();
+        if (FirstPersonCamera == null)
+            FirstPersonCamera = GetComponent<Camera>();
 
         EventManager.OnStartComputer += AutoZoomInPC;
         EventManager.OnStopComputer += OnDeviceClosed;
-        
+
         EventManager.OnStartPhone += AutoZoomInPhone;
         EventManager.OnStopPhone += OnDeviceClosed;
-        
+
         EventManager.OnStartNotepad += AutoZoomInPhone;
         EventManager.OnStopNotepad += OnDeviceClosed;
+
+        EventManager.OnCrouch += OnCrouch;
+        EventManager.OnUnCrouch += OnUncrouch;
+        
+    }
+    private void OnCrouch()
+    {
+        _forceFirstPersonMode = true;
+
+        zoomAmount = 0f; // immediately force FP state
+        UpdateCameraAndFOV();
     }
 
+    private void OnUncrouch()
+    {
+        _forceFirstPersonMode = false;
+    }
     private void Start()
     {
         EventManager.OnPhoneOpened += SetDefaultFOV;
+
         SetDefaultFOV();
+
         StartCoroutine(WaitForGameMaster());
         AttachListeners();
     }
+
+    private void OnEnable()
+    {
+        DetachListeners();
+        AttachListeners();
+    }
+
     private IEnumerator WaitForGameMaster()
     {
         while (GameMaster.Instance == null)
@@ -66,6 +113,7 @@ public class Zoom : MonoBehaviour
 
         zoomAllowed = true;
     }
+
     public void AttachListeners()
     {
         if (zoomInInput != null)
@@ -85,6 +133,11 @@ public class Zoom : MonoBehaviour
 
     private void OnDisable()
     {
+        DetachListeners();
+    }
+
+    private void DetachListeners()
+    {
         if (zoomInInput != null)
         {
             zoomInInput.action.started -= OnZoomInStarted;
@@ -100,36 +153,45 @@ public class Zoom : MonoBehaviour
         }
     }
 
-    // ====================== HOLD LOGIC ======================
+    public void ReportCameraCloseness(float closeness) { }
 
     private void OnZoomInStarted(InputAction.CallbackContext context)
     {
+        if (IsInteractionLocked) return;
         if (!CanZoom()) return;
 
         isZoomingIn = true;
         isZoomingOut = false;
 
-        // Immediate single step
-        zoomAmount = Mathf.Clamp01(zoomAmount + zoomStep);
-        UpdateFOV();
+        zoomAmount = Mathf.Clamp(
+            zoomAmount + zoomStep,
+            thirdPersonMaxZoom,
+            1f
+        );
 
-        // Start hold timer for continuous zoom
-        if (holdTimerRoutine != null) StopCoroutine(holdTimerRoutine);
+        if (holdTimerRoutine != null)
+            StopCoroutine(holdTimerRoutine);
+
         holdTimerRoutine = StartCoroutine(HoldTimer(true));
     }
 
     private void OnZoomOutStarted(InputAction.CallbackContext context)
     {
+        if (IsInteractionLocked) return;
         if (!CanZoom()) return;
 
-        isZoomingOut = true;
         isZoomingIn = false;
+        isZoomingOut = true;
 
-        // Immediate single step
-        zoomAmount = Mathf.Clamp01(zoomAmount - zoomStep);
-        UpdateFOV();
+        zoomAmount = Mathf.Clamp(
+            zoomAmount - zoomStep,
+            thirdPersonMaxZoom,
+            1f
+        );
 
-        if (holdTimerRoutine != null) StopCoroutine(holdTimerRoutine);
+        if (holdTimerRoutine != null)
+            StopCoroutine(holdTimerRoutine);
+
         holdTimerRoutine = StartCoroutine(HoldTimer(false));
     }
 
@@ -139,42 +201,49 @@ public class Zoom : MonoBehaviour
         isZoomingOut = false;
 
         if (holdTimerRoutine != null)
-        {
             StopCoroutine(holdTimerRoutine);
-            holdTimerRoutine = null;
-        }
 
         if (continuousZoomRoutine != null)
-        {
             StopCoroutine(continuousZoomRoutine);
-            continuousZoomRoutine = null;
-        }
     }
 
     private IEnumerator HoldTimer(bool zoomingIn)
     {
         yield return new WaitForSeconds(holdThreshold);
 
-        // If still holding after threshold → start continuous zoom
-        if ((zoomingIn && isZoomingIn) || (!zoomingIn && isZoomingOut))
+        if ((zoomingIn && isZoomingIn) ||
+            (!zoomingIn && isZoomingOut))
         {
             if (continuousZoomRoutine != null)
                 StopCoroutine(continuousZoomRoutine);
 
-            continuousZoomRoutine = StartCoroutine(ContinuousZoom(zoomingIn));
+            continuousZoomRoutine =
+                StartCoroutine(ContinuousZoom(zoomingIn));
         }
     }
 
     private IEnumerator ContinuousZoom(bool zoomIn)
     {
-        while ((zoomIn && isZoomingIn) || (!zoomIn && isZoomingOut))
+        while ((zoomIn && isZoomingIn) ||
+               (!zoomIn && isZoomingOut))
         {
             if (zoomIn)
-                zoomAmount = Mathf.Clamp01(zoomAmount + continuousZoomSpeed * Time.deltaTime);
+            {
+                zoomAmount = Mathf.Clamp(
+                    zoomAmount + continuousZoomSpeed * Time.deltaTime,
+                    thirdPersonMaxZoom,
+                    1f
+                );
+            }
             else
-                zoomAmount = Mathf.Clamp01(zoomAmount - continuousZoomSpeed * Time.deltaTime);
+            {
+                zoomAmount = Mathf.Clamp(
+                    zoomAmount - continuousZoomSpeed * Time.deltaTime,
+                    thirdPersonMaxZoom,
+                    1f
+                );
+            }
 
-            UpdateFOV();
             yield return null;
         }
     }
@@ -183,72 +252,155 @@ public class Zoom : MonoBehaviour
     {
         if (!Player.Instance.ZoomOverride)
         {
-            if (!zoomAllowed || GameMaster.Instance.PLAYERBUSY || 
-                GameMaster.Instance.PauseManager.IsPaused || 
+            if (!zoomAllowed ||
+                GameMaster.Instance.PLAYERBUSY ||
+                GameMaster.Instance.PauseManager.IsPaused ||
                 GameMaster.Instance.TravelCompanion.CompanionOpen)
+            {
                 return false;
+            }
         }
+
         return true;
     }
 
-    private void UpdateFOV()
+    private void Update()
     {
-        cam.fieldOfView = Mathf.Lerp(defaultFOV, maxZoom, zoomAmount);
+        if (IsInteractionLocked)
+            return;
+
+        UpdateCameraAndFOV();
     }
 
-    // ====================== EXISTING AUTO ZOOM ======================
+    private void UpdateCameraAndFOV()
+    {
+        if (_forceFirstPersonMode)
+        {
+            IsThirdPersonActive = false;
+            zoomAmount = 0f;
+        }
+        else
+        {
+            IsThirdPersonActive = zoomAmount < 0f;
+        }
+
+        if (FirstPersonCamera != null)
+            FirstPersonCamera.enabled = !IsThirdPersonActive;
+
+        if (ThirdPersonCamera != null)
+            ThirdPersonCamera.enabled = IsThirdPersonActive;
+
+        if (!IsThirdPersonActive && FirstPersonCamera != null)
+        {
+            float fpT = Mathf.Clamp01(zoomAmount);
+
+            FirstPersonCamera.fieldOfView =
+                Mathf.Lerp(defaultFOV, maxZoom, fpT);
+        }
+
+        if (IsThirdPersonActive && ThirdPersonCamera != null)
+        {
+            float tpT =
+                Mathf.InverseLerp(0f, thirdPersonMaxZoom, zoomAmount);
+
+            ThirdPersonCamera.fieldOfView =
+                Mathf.Lerp(thirdPersonMinFOV, thirdPersonMaxFOV, tpT);
+        }
+    }
 
     private void SetDefaultFOV()
     {
-        if (zoomRoutine != null) StopCoroutine(zoomRoutine);
-        if (continuousZoomRoutine != null) StopCoroutine(continuousZoomRoutine);
-        if (holdTimerRoutine != null) StopCoroutine(holdTimerRoutine);
+        StopAllCoroutines();
+        zoomAmount = 0f;
+        UpdateCameraAndFOV();
+    }
+
+    public void AutoZoomInPC(Transform pcTransform)
+    {
+        EnterInteractionMode(defaultFOV * pcAutoZoomFactor);
+    }
+
+    public void AutoZoomInPhone(Transform phoneTransform)
+    {
+        EnterInteractionMode(defaultFOV * phoneAutoZoomFactor);
+    }
+
+    private void OnDeviceClosed()
+    {
+        ExitInteractionMode();
+    }
+
+    private void EnterInteractionMode(float targetFOV)
+    {
+        StopAllCoroutines();
+
+        _autoZoomActive = true;
+        _forceFirstPersonMode = true;
 
         zoomAmount = 0f;
-        UpdateFOV();
+
+        if (ThirdPersonCamera != null)
+            ThirdPersonCamera.enabled = false;
+
+        if (FirstPersonCamera != null)
+            FirstPersonCamera.enabled = true;
+
+        StartCoroutine(SmoothFOV(targetFOV, autoZoomDuration));
     }
 
-    public void AutoZoomInPC(Transform pcTransform) => StartAutoZoom(defaultFOV * pcAutoZoomFactor);
-    public void AutoZoomInPhone(Transform phoneTransform) => StartAutoZoom(defaultFOV * phoneAutoZoomFactor);
-
-    private void OnDeviceClosed() => StartAutoZoom(defaultFOV);
-
-    private void StartAutoZoom(float targetFOV)
+    private void ExitInteractionMode()
     {
-        if (zoomRoutine != null) StopCoroutine(zoomRoutine);
-        if (continuousZoomRoutine != null) StopCoroutine(continuousZoomRoutine);
-        if (holdTimerRoutine != null) StopCoroutine(holdTimerRoutine);
+        StopAllCoroutines();
 
-        zoomRoutine = StartCoroutine(SmoothFOV_Unscaled(targetFOV, autoZoomDuration));
+        _autoZoomActive = false;
+        _forceFirstPersonMode = false;
+
+        zoomAmount = 0f;
+
+        UpdateCameraAndFOV();
     }
 
-    private IEnumerator SmoothFOV_Unscaled(float targetFOV, float duration)
+    private IEnumerator SmoothFOV(float targetFOV, float duration)
     {
-        float startFOV = cam.fieldOfView;
+        float startFOV =
+            FirstPersonCamera != null
+                ? FirstPersonCamera.fieldOfView
+                : defaultFOV;
+
         float t = 0f;
 
         while (t < duration)
         {
             t += Time.unscaledDeltaTime;
+
             float a = Mathf.Clamp01(t / duration);
 
-            cam.fieldOfView = Mathf.Lerp(startFOV, targetFOV, a);
+            if (FirstPersonCamera != null)
+            {
+                FirstPersonCamera.fieldOfView =
+                    Mathf.Lerp(startFOV, targetFOV, a);
+            }
+
             yield return null;
         }
 
-        cam.fieldOfView = targetFOV;
-        zoomAmount = Mathf.InverseLerp(defaultFOV, maxZoom, cam.fieldOfView);
-        zoomRoutine = null;
+        if (FirstPersonCamera != null)
+            FirstPersonCamera.fieldOfView = targetFOV;
+
+        _autoZoomActive = false;
     }
 
     private void OnDestroy()
     {
         EventManager.OnStartComputer -= AutoZoomInPC;
         EventManager.OnStopComputer -= OnDeviceClosed;
+
         EventManager.OnStartPhone -= AutoZoomInPhone;
         EventManager.OnStopPhone -= OnDeviceClosed;
+
         EventManager.OnStartNotepad -= AutoZoomInPhone;
         EventManager.OnStopNotepad -= OnDeviceClosed;
+
         EventManager.OnPhoneOpened -= SetDefaultFOV;
     }
 }

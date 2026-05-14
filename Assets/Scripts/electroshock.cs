@@ -20,9 +20,9 @@ public class electroshock : MonoBehaviour
 
     void Start()
     {
-        if (Player.Instance.MainCam != null)
+        if (Player.Instance.FirstPersonCamera != null)
         {
-            cameraTransform = Player.Instance.MainCam.transform;
+            cameraTransform = Player.Instance.FirstPersonCamera.transform;
         }
 
         

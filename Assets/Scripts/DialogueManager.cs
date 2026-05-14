@@ -407,23 +407,20 @@ public class DialogueManager : MonoBehaviour
 
         Coroutine zoomCo = null;
 
-        if (isZoomable)
-            zoomCo = StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime, holdUntilAdvance));
+        if (isZoomable) zoomCo = StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime, holdUntilAdvance));
 
         while (elapsedCutsceneTime < cutsceneDuration && !_stopCutsceneRotation)
         {
             Vector3 targetDirection = targetObject.transform.position - mainCamera.transform.position;
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
 
-            mainCamera.transform.rotation =
-                Quaternion.Lerp(mainCamera.transform.rotation, targetRotation, cutscenePanTime * Time.smoothDeltaTime);
+            mainCamera.transform.rotation = Quaternion.Lerp(mainCamera.transform.rotation, targetRotation, cutscenePanTime * Time.smoothDeltaTime);
 
             elapsedCutsceneTime += Time.smoothDeltaTime;
             yield return null;
         }
 
-        if (isZoomable)
-            yield return zoomCo;
+        if (isZoomable) yield return zoomCo;
 
         Vector3 dir = (targetObject.transform.position - mainCamera.transform.position).normalized;
         float yaw = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;

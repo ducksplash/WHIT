@@ -74,6 +74,7 @@ public class Torch : MonoBehaviour
     private void OnToggle(InputAction.CallbackContext ctx)
     {
         if (!GameMaster.Instance.OnboardingManager.TORCHCOLLECTED) return;
+        if (Player.Instance.PlayerPhone.CameraOpen) return;
         if (GameMaster.Instance.PLAYERBUSY) return;
         if (GameMaster.Instance.PauseManager != null && GameMaster.Instance.PauseManager.IsPaused) return;
 

@@ -19,12 +19,15 @@ public class Player : Singleton<Player>
     
     private CharacterController thisCharController;
 
-    public Camera MainCam;
+    public Camera FirstPersonCamera;
+    public Camera ThirdPersonCamera;
     public Camera DebugCam;
     public Camera CurrentCamera;
     
     public float RayCastDistance = 4f;
 
+    
+    
     [Header("Animation")]
     public Animator Noranimator;
 
@@ -104,6 +107,8 @@ public class Player : Singleton<Player>
     private bool _upperBodyHeldByMelee;
     private bool _upperBodyHeldByPhone;
 
+    public UpperBodyPitch UpperBodyPitch;
+    
     // ── Phone (UpperBody) ───────────────────────────────────────────────────
     [Header("Phone (UpperBody)")]
     public string upperBodyPhoneOutStateName  = "PHONE OUT";
@@ -131,7 +136,8 @@ public class Player : Singleton<Player>
     private Vector3 _standCenter;
     private float   _bottomLocalOffset;
     private bool    _controllerBaselineCaptured;
-
+    private Camera _previousGameplayCamera;
+    private bool _debugCameraEnabled;
     private Coroutine _crouchCo;
 
     public GameObject TravelNotepad;
@@ -226,7 +232,7 @@ public class Player : Singleton<Player>
     // ────────────────────────────────────────────────────────────────────────
     void Start()
     {
-        CurrentCamera = MainCam;
+        CurrentCamera = FirstPersonCamera;
 
         EventManager.OnTorchCollected += TorchCollected;
         EventManager.OnNoraSit        += NoraSit;
@@ -316,25 +322,97 @@ public class Player : Singleton<Player>
     // ────────────────────────────────────────────────────────────────────────
     private void TorchCollected() => SetTorchLocomotion(true);
 
-    public void ToggleDebugCamera(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
+    public void ToggleDebugCamera(InputAction.CallbackContext callbackContext)
     {
-        DebugCam.enabled = false;
-        DebugCam.gameObject.SetActive(false);
-        MainCam.enabled  = false;
+        _debugCameraEnabled = !_debugCameraEnabled;
 
-        CurrentCamera = (CurrentCamera == MainCam) ? DebugCam : MainCam;
-
-        if (CurrentCamera == DebugCam) DebugCam.gameObject.SetActive(true);
-
-        if (CurrentCamera == MainCam)
+        if (_debugCameraEnabled)
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible   = false;
+            EnterDebugCamera();
+        }
+        else
+        {
+            ExitDebugCamera();
+        }
+    }
+    
+    private void EnterDebugCamera()
+    {
+        Debug.Log("debug cam on");
+
+        // Remember ACTIVE gameplay camera
+        if (FirstPersonCamera != null && FirstPersonCamera.enabled)
+        {
+            _previousGameplayCamera = FirstPersonCamera;
+        }
+        else if (ThirdPersonCamera != null && ThirdPersonCamera.enabled)
+        {
+            _previousGameplayCamera = ThirdPersonCamera;
         }
 
-        EventManager.DebugCamEnabled(CurrentCamera == DebugCam);
-        CurrentCamera.enabled = true;
+        // Disable gameplay cameras
+        if (FirstPersonCamera != null)
+        {
+            FirstPersonCamera.enabled = false;
+            FirstPersonCamera.gameObject.GetComponent<Zoom>().enabled = false;
+        }
+
+        if (ThirdPersonCamera != null)
+        {
+            ThirdPersonCamera.enabled = false;
+        }
+
+        // Enable debug camera
+        if (DebugCam != null)
+        {
+            DebugCam.gameObject.SetActive(true);
+            DebugCam.enabled = true;
+        }
+        
     }
+    
+    private void ExitDebugCamera()
+    {
+        Debug.Log("debug cam off");
+
+        // Disable debug camera
+        if (DebugCam != null)
+        {
+            DebugCam.enabled = false;
+            DebugCam.gameObject.SetActive(false);
+        }
+
+        
+
+        // Restore previous gameplay camera
+        if (_previousGameplayCamera != null)
+        {
+            _previousGameplayCamera.enabled = true;
+            try
+            {
+                _previousGameplayCamera.gameObject.GetComponent<Zoom>().enabled = true;
+            }
+            catch
+            {
+                // 
+            }
+        }
+        else if (FirstPersonCamera != null)
+        {
+            FirstPersonCamera.enabled = true;
+            try
+            {
+                FirstPersonCamera.gameObject.GetComponent<Zoom>().enabled = true;
+            }
+            catch
+            {
+                // 
+            }
+        }
+        
+        
+    }
+    
 
     public void SetTorchLocomotion(bool hasTorch)
     {
@@ -1073,11 +1151,11 @@ public class Player : Singleton<Player>
 
         if (stanceimg != null) stanceimg.sprite = crouchsprite;
 
-        if (thisCharController != null && _controllerBaselineCaptured)
-            StartCrouchControllerBlend(toCrouch: true);
+        if (thisCharController != null && _controllerBaselineCaptured) StartCrouchControllerBlend(toCrouch: true);
 
         FirstPersonLook?.SetCrouch(true);
         Noranimator?.SetBool(AnimCrouching, true);
+        EventManager.Crouch();
     }
 
     public void Uncrouch()
@@ -1090,6 +1168,7 @@ public class Player : Singleton<Player>
 
         FirstPersonLook?.SetCrouch(false);
         Noranimator?.SetBool(AnimCrouching, false);
+        EventManager.UnCrouch();
     }
 
     private void StartCrouchControllerBlend(bool toCrouch)

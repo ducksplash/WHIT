@@ -4,9 +4,16 @@ using UnityEngine.InputSystem;
 
 public class PhoneZoom : MonoBehaviour
 {
-    [Header("Zoom Settings")]
+    [Header("Normal Camera Zoom Settings")]
     public float defaultFOV = 60f;
-    public float maxZoom = 10f;
+    public float maxZoomFOV = 10f;        // Fully zoomed in (narrow FOV)
+
+    [Header("Selfie Mode Zoom Settings")]
+    [Tooltip("Default FOV when starting selfie mode")]
+    public float selfieDefaultFOV = 70f;
+    [Tooltip("Maximum zoom FOV in selfie mode (usually wider for selfies)")]
+    public float selfieMaxZoomFOV = 110f;   // Fully "zoomed in" in selfie = wider angle
+
     [Range(0f, 1f)]
     public float zoomAmount = 0f;
     public float zoomStep = 0.1f;
@@ -22,7 +29,9 @@ public class PhoneZoom : MonoBehaviour
 
     void Start()
     {
+        // Initialize with normal defaults
         defaultFOV = cam.fieldOfView;
+        
         phone = GetComponentInParent<Phone>();
 
         StartCoroutine(WaitForGameMaster());
@@ -60,8 +69,7 @@ public class PhoneZoom : MonoBehaviour
         if (!zoomAllowed || !GameMaster.Instance.PLAYERBUSY || phone == null || !phone.CameraOpen)
             return;
 
-        zoomAmount = Mathf.Clamp01(zoomAmount + zoomStep);
-        UpdateFOV();
+        AdjustZoom(zoomStep);
     }
 
     private void OnZoomOutPerformed(InputAction.CallbackContext context)
@@ -69,18 +77,45 @@ public class PhoneZoom : MonoBehaviour
         if (!zoomAllowed || !GameMaster.Instance.PLAYERBUSY || phone == null || !phone.CameraOpen)
             return;
 
-        zoomAmount = Mathf.Clamp01(zoomAmount - zoomStep);
+        AdjustZoom(-zoomStep);
+    }
+
+    private void AdjustZoom(float delta)
+    {
+        bool isSelfie = Player.Instance?.PlayerPhone?.TakingSelfie == true;
+
+        if (isSelfie)
+        {
+            // In selfie mode: invert direction and use selfie bounds
+            zoomAmount = Mathf.Clamp01(zoomAmount - delta);
+        }
+        else
+        {
+            // Normal mode
+            zoomAmount = Mathf.Clamp01(zoomAmount + delta);
+        }
+
         UpdateFOV();
     }
 
     public void DefaultFOV()
     {
-        zoomAmount = 0;
-        cam.fieldOfView = Mathf.Lerp(defaultFOV, maxZoom, zoomAmount);
+        zoomAmount = 0f;
+        UpdateFOV();
     }
+
     private void UpdateFOV()
     {
-        cam.fieldOfView = Mathf.Lerp(defaultFOV, maxZoom, zoomAmount);
+        bool isSelfie = Player.Instance?.PlayerPhone?.TakingSelfie == true;
+
+        if (isSelfie)
+        {
+            cam.fieldOfView = Mathf.Lerp(selfieDefaultFOV, selfieMaxZoomFOV, zoomAmount);
+        }
+        else
+        {
+            cam.fieldOfView = Mathf.Lerp(defaultFOV, maxZoomFOV, zoomAmount);
+        }
     }
 
     private IEnumerator WaitForGameMaster()

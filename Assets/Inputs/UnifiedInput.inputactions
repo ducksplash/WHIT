@@ -392,6 +392,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "LaunchTravelCompanion",
+                    "type": "Button",
+                    "id": "fddf44d2-05ef-4854-aca4-065ee055face",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleSelfieCam",
+                    "type": "Button",
+                    "id": "6f2284e4-f313-4d08-b6dc-01477f7307ca",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1756,6 +1774,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "Secret",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a871756a-6555-441b-96ce-40a1bd763b51",
+                    "path": "<Keyboard>/t",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LaunchTravelCompanion",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b8780064-4eac-4208-a372-ea75fbb67105",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleSelfieCam",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "642957f0-aad8-4e3b-84b3-8261ed63fe48",
+                    "path": "<Gamepad>/rightStickPress",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleSelfieCam",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

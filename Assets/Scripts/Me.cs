@@ -190,12 +190,7 @@ public class MeEditor : Editor
         EditorGUILayout.Space();
 
         Me me = (Me)target;
-
-        if (GUILayout.Button("Disable All Main Outfits", GUILayout.Height(25)))
-        {
-            me.DisableAllMainOutfits();
-            EditorUtility.SetDirty(me);
-        }
+        
 
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Work Stuff", GUILayout.Height(35)))       { me.ToggleWorkOutfit(); EditorUtility.SetDirty(me); }
@@ -210,7 +205,6 @@ public class MeEditor : Editor
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Underwear Layer (Independent)", EditorStyles.boldLabel);
 
         if (GUILayout.Button("Toggle Underwear Layer", GUILayout.Height(35)))
         {
@@ -219,9 +213,7 @@ public class MeEditor : Editor
         }
 
         EditorGUILayout.Space();
-        EditorGUILayout.HelpBox("Call ToggleXXXOutfit(true) to force ON\n" +
-                              "Call ToggleXXXOutfit(false) to force OFF\n" +
-                              "Call without parameter to toggle.", MessageType.Info);
+        EditorGUILayout.HelpBox("Call ToggleXXXOutfit(true) to force ON\n" + "Call ToggleXXXOutfit(false) to force OFF\n" + "Call without parameter to toggle.", MessageType.Info);
     }
 }
 #endif

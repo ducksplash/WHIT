@@ -23,6 +23,7 @@ public class TravelCompanion : MonoBehaviour
     public GameObject notepadButtonPrefab;
     public RectTransform scrollViewContent;
 
+    public InputActionReference toggleButton;
     public InputActionReference exitButton;
     public InputActionReference exitButtonPhoneKey;
     public InputActionReference StepBackInputRightClick;
@@ -37,6 +38,7 @@ public class TravelCompanion : MonoBehaviour
 
         exitButton?.action.Enable();
         exitButton.action.performed += CloseCompanionInput;
+        toggleButton.action.performed += OpenCompanionInput;
         exitButtonPhoneKey.action.performed += CloseCompanionInput;
 
         InitialiseLocations();
@@ -61,6 +63,10 @@ public class TravelCompanion : MonoBehaviour
     }
     
     
+    private void OpenCompanionInput(InputAction.CallbackContext callbackContext)
+    {
+        LaunchCompanion();
+    }
     private void CloseCompanionInput(InputAction.CallbackContext callbackContext)
     {
         if (CompanionOpen) LaunchCompanion();

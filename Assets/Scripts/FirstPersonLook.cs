@@ -16,6 +16,8 @@ public class FirstPersonLook : MonoBehaviour
     private bool _lookLocked;
     private Coroutine _lockRoutine;
 
+    
+    
     [Header("Camera Height (Crouch/Crawl)")]
     [SerializeField] private Transform cameraPivot;
     [SerializeField] private float crouchLocalYOffset = -0.5f;
@@ -42,6 +44,9 @@ public class FirstPersonLook : MonoBehaviour
     private bool  _seatedLookAllowed;
     private float _seatedFacingYaw;
 
+    
+    public Camera ThirdPersonCamera;
+    
     [Header("Initial Look")]
     [SerializeField] private bool useSceneStartingRotation = true;
     [SerializeField] private float startingYaw   = 0f;
@@ -63,7 +68,12 @@ public class FirstPersonLook : MonoBehaviour
     [SerializeField] private AnimationCurve lookAtCurve = null;
 
     private Coroutine _lookAtCo;
+// Add these fields near the other public variables (around line 70)
+    [Header("Phone Camera Look Tuning")]
+    [Tooltip("Multiplier for pitch sensitivity when phone camera is open. Lower = slower/more controlled camera tilt.")]
+    public float phoneCameraPitchMultiplier = 0.65f;   // ← Tweak this (0.5 = half speed, 0.8 = subtle reduction)
 
+    private float _currentPitchMultiplier = 1f;
     [Header("Camera Mode Device Follow")]
     [SerializeField] private float deviceFollowSharpness = 60f;
 
@@ -76,7 +86,9 @@ public class FirstPersonLook : MonoBehaviour
     private Vector3    _deviceBaseLocalPos;
     private Quaternion _deviceBaseLocalRot;
     private bool       _deviceBaseCaptured;
-
+// Add near the other public properties (e.g. after CurrentYaw)
+    public float CurrentPitch => currentMouseLook.y;
+    
     public bool deviceCheckOverride;
     public DeviceHelperOutside deviceTypeSupplemental;
 
@@ -159,7 +171,12 @@ public class FirstPersonLook : MonoBehaviour
         Vector2 smoothMouseDelta = Vector2.Scale(rawMouse, Vector2.one * sensitivity * smoothing);
         appliedMouseDelta        = Vector2.Lerp(appliedMouseDelta, smoothMouseDelta, 1f / smoothing);
 
-        currentMouseLook  += appliedMouseDelta;
+        // === PHONE CAMERA PITCH MULTIPLIER ===
+        float pitchMultiplier = IsPhoneCameraMode() ? phoneCameraPitchMultiplier : 1f;
+
+        currentMouseLook.x += appliedMouseDelta.x;
+        currentMouseLook.y += appliedMouseDelta.y * pitchMultiplier;   // Slow down only pitch input
+
         currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, _activePitchMin, _activePitchMax);
 
         if (_isSeated && _seatedLookAllowed)
@@ -170,8 +187,8 @@ public class FirstPersonLook : MonoBehaviour
         }
 
         if (_cameraModeActive && _currentDevice != null) FollowDeviceToView();
-        
-        // APPLY ROTATION HERE INSTEAD
+    
+        // APPLY ROTATION
         if (cameraPivot != null)
             cameraPivot.localRotation = Quaternion.AngleAxis(-currentMouseLook.y, Vector3.right);
         else
@@ -181,8 +198,11 @@ public class FirstPersonLook : MonoBehaviour
             character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
     }
 
-    // ── Seated look control ───────────────────────────────────────────────
 
+    private bool IsPhoneCameraMode()
+    {
+        return Player.Instance?.PlayerPhone?.CameraOpen == true;
+    }
     /// <summary>
     /// Freeze or release raw look input without disabling the component.
     /// Called by Player during scripted approach / align / backstep phases.
@@ -337,11 +357,12 @@ public class FirstPersonLook : MonoBehaviour
     {
         if (_currentDevice == null) return;
 
-        Transform pivot        = cameraPivot != null ? cameraPivot : transform;
-        _deviceLocalPosInPivot = pivot.InverseTransformPoint(_currentDevice.position);
-        _deviceLocalRotInPivot = Quaternion.Inverse(pivot.rotation) * _currentDevice.rotation;
-        _cameraModeActive      = true;
-        appliedMouseDelta      = Vector2.zero;
+        // ignore but leave intact
+        // Transform pivot        = cameraPivot != null ? cameraPivot : transform;
+        // _deviceLocalPosInPivot = pivot.InverseTransformPoint(_currentDevice.position);
+        // _deviceLocalRotInPivot = Quaternion.Inverse(pivot.rotation) * _currentDevice.rotation;
+        // _cameraModeActive      = true;
+        // appliedMouseDelta      = Vector2.zero;
     }
 
     public void PhoneCameraClosed()

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ public class GameMaster : MonoBehaviour
     private static GameMaster _instance;
     public static GameMaster Instance => _instance ??= FindObjectOfType<GameMaster>();
 
+    
+    private const string TimeZoneId = "GMT Standard Time";
     
     GameData saveData = new GameData();
     
@@ -71,7 +74,8 @@ public class GameMaster : MonoBehaviour
     private bool SteamLoaded;
     private bool DialoguesLoaded;
     private bool EvidenceLoaded;
-    
+
+    public int nightTimeStartsAt = 17;
     
     // steam init
     private bool m_bInitialized;
@@ -278,9 +282,34 @@ public class GameMaster : MonoBehaviour
 
     public void StartLevelNorasFlat()
     {
+        
+        
+        
         THISLEVEL = GAMELEVEL.NorasFlat;
         Player.Instance.Spawn();
-        Player.Instance.Me.TogglePyjamasOutfit(true);
+        
+        // Always start from UTC
+        DateTime utcNow = DateTime.UtcNow;
+
+        // Convert to a known timezone (avoids Proton / Steam Deck offset bugs)
+        TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
+        
+        DateTime now = TimeZoneInfo.ConvertTimeFromUtc(utcNow, timeZone);
+
+        string anHour = now.Hour.ToString().PadLeft(2, '0');
+
+        if (int.Parse(anHour) > nightTimeStartsAt)
+        {
+            Player.Instance.Me.TogglePyjamasOutfit(true);
+        }
+        else
+        {
+            Player.Instance.Me.ToggleCasualOutfit(true);
+        }
+        
+        
+        
+        
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();

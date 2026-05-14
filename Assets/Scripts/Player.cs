@@ -1130,6 +1130,7 @@ public class Player : Singleton<Player>
     private void OnCrouchToggle(InputAction.CallbackContext ctx)
     {
         if (climbing) return;
+        if (PlayerPhone.CameraOpen) return;
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
         if (thisCharController == null) return;
 

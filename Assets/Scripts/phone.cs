@@ -10,6 +10,7 @@ using UnityEngine.InputSystem;
 
 public class Phone : MonoBehaviour
 {
+    public MP4Recorder VideoRecorder;
     public GameObject MobilePhone;
     public Animator PlayerAnim;
     public GameObject Clock;

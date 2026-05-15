@@ -10,7 +10,6 @@ using UnityEngine.InputSystem;
 
 public class Phone : MonoBehaviour
 {
-    public MP4Recorder VideoRecorder;
     public GameObject MobilePhone;
     public Animator PlayerAnim;
     public GameObject Clock;
@@ -105,6 +104,7 @@ public class Phone : MonoBehaviour
     public bool viewingPhoto;
     public DialogueName phoneTutorialFirstPhoto = DialogueName.phoneTutorialFirstPhoto;
     private Coroutine CallCoroutine;
+    private Coroutine InputLockCoroutine;
     public List<GalleryItem> galleryItems = new List<GalleryItem>();
     public bool galleryLoaded = false;
     public CanvasGroup phoneCanvasGroup;
@@ -138,6 +138,10 @@ public class Phone : MonoBehaviour
 
     private bool PhoneOpened;
     public bool TakingSelfie;
+    [SerializeField] private float photoInputLockDuration = 0.15f;
+    private bool _photoInputLocked;
+    
+    
     
     private void Awake()
     {
@@ -239,6 +243,16 @@ public class Phone : MonoBehaviour
         
         phoneCanvasGroup.alpha = 0f;
         phoneMeshRenderer.enabled = false;
+    }
+    
+    
+    private IEnumerator PhotoInputLock()
+    {
+        _photoInputLocked = true;
+
+        yield return new WaitForSeconds(photoInputLockDuration);
+
+        _photoInputLocked = false;
     }
     
     private void ActionStepBack(InputAction.CallbackContext callbackContext)
@@ -382,7 +396,6 @@ public class Phone : MonoBehaviour
         if (useThisScreen != CameraScreen)
         {
             CameraOpen = false;
-            
             CameraReady = false;
             CameraSavedText.text = "";
             CameraSavedTextBG.text = "";                            
@@ -393,6 +406,8 @@ public class Phone : MonoBehaviour
             
             TriggerAction.action.performed -= TakePhoto;
             InteractAction.action.performed -= TakePhoto;
+
+            SelfieCamOff();
             
             EventManager.CameraClosed();
         }
@@ -533,6 +548,8 @@ public class Phone : MonoBehaviour
     public void PutAwayPhone()
     {
         if (!PhoneOpened) return;
+        
+        if (_photoInputLocked) return;
 
         changeScreen(HomeScreen);
 
@@ -942,9 +959,6 @@ public class Phone : MonoBehaviour
     {
         changeScreen(CameraScreen);
 
-        InteractAction.action.performed += TakePhoto;
-
-        TriggerAction.action.performed += TakePhoto;
         
         if (TorchLight.enabled)
         {
@@ -970,6 +984,11 @@ public class Phone : MonoBehaviour
         
         CameraOpen = true;
         Player.Instance.MoveOverride = true;
+
+        DoInputLock();
+        
+        InteractAction.action.performed += TakePhoto;
+        TriggerAction.action.performed += TakePhoto;
     }
 
     public void GalleryButton()
@@ -1399,6 +1418,20 @@ public class Phone : MonoBehaviour
         }
     }
 
+    
+
+
+    private void SelfieCamOff()
+    {
+        // force switch back when closing phone or camera
+        
+        TakingSelfie = false;
+        
+        phoneCameraComponent.enabled = false;
+        phoneCameraComponent = rearCameraComponent;
+        phoneCameraComponent.enabled = true;
+    }
+
 
     private void ToggleSelfieCam(InputAction.CallbackContext callbackContext)
     {
@@ -1418,11 +1451,34 @@ public class Phone : MonoBehaviour
         }
         
     }
+
+
+
+
+
+
+    private void DoInputLock()
+    {
+        if (InputLockCoroutine != null)
+        {
+            StopCoroutine(InputLockCoroutine);
+            InputLockCoroutine = null;
+        }
+
+        InputLockCoroutine = StartCoroutine(PhotoInputLock());
+    }
+    
+    
+    
     
     public void TakePhoto(InputAction.CallbackContext ctx)
     {
         if (!CameraOpen) return;
 
+        if (_photoInputLocked) return;
+
+        DoInputLock();
+        
         bool isEvidence = false;
 
         var cam = phoneCameraComponent;
@@ -1452,6 +1508,7 @@ public class Phone : MonoBehaviour
 
         StartCoroutine(SavedPhoto(isEvidence));
     }
+    
     private IEnumerator CaptureAndSavePhoto(Camera cam)
     {
         yield return new WaitForEndOfFrame();

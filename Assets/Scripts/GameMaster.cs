@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
 using Steamworks;
-
+using UnityEngine.Rendering;
 
 
 public class GameMaster : MonoBehaviour
@@ -44,6 +44,7 @@ public class GameMaster : MonoBehaviour
     public DebugCamera DebugCam;
     public int DefaultFOV;
 
+    
 
     public string NORASPCPASSWORD = "1629";
     
@@ -68,6 +69,8 @@ public class GameMaster : MonoBehaviour
     public Vector3 SPAWNPOINTTAWLEYMEATS;
     public Vector3 SPAWNPOINTROARKOUTSIDE;
     public Vector3 SPAWNPOINTROARKINSIDE;
+
+    public Volume PostProcessingGlobalVolume;
     
     public static bool GarbageRun;
 
@@ -273,7 +276,8 @@ public class GameMaster : MonoBehaviour
     {
         THISLEVEL = GAMELEVEL.ETVStudio;
         Player.Instance.Spawn();
-        Player.Instance.Me.ToggleWorkOutfit(true);
+        //Player.Instance.Me.ToggleWorkOutfit(true);
+        Player.Instance.Me.ToggleDatingOutfit(true);
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();

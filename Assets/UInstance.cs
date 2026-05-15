@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UInstance : Singleton<UInstance>
 {
@@ -9,6 +10,12 @@ public class UInstance : Singleton<UInstance>
     public CanvasGroup HudCanvas;
     public CanvasGroup ProceedCanvas;
     public TextMeshProUGUI advanceInputText;
+    public CanvasGroup TipsCanvas;
+    public TextMeshProUGUI tipsText;
+    public TextMeshProUGUI tipsTextBG;
+
+
+    public ControlPad controlPad;
     
 
     public void Start()
@@ -18,12 +25,9 @@ public class UInstance : Singleton<UInstance>
         
         EventManager.OnDebugCameraToggle += DebugDisableHUD;
         EventManager.OnDialogueCanProceed += ToggleDialogueCanProceed;
-
-
     }
 
-
-
+    
     private void ToggleDialogueCanProceed(bool toggleval)
     {       
         
@@ -70,6 +74,14 @@ public class UInstance : Singleton<UInstance>
             yield return new WaitForEndOfFrame();
             
         }
+    }
+
+    public void DisplayTip(string tipText, ControlPadButton selectedButton)
+    {
+        tipsText.text = tipText;
+        tipsTextBG.text = tipText;
+        controlPad.HighlightButton(selectedButton);
+        
     }
 
     

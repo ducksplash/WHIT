@@ -709,16 +709,14 @@ public class Player : Singleton<Player>
 
     public void StandUp(InputAction.CallbackContext ctx = default)
     {
-        if (!IsSeated) return;
-        if (GameMaster.Instance.INAMEETING) return;
-        
-        if (_sitCoroutine == null)
+        if (!IsSeated)
         {
-            Debug.LogWarning("[Player] StandUp called but player is not seated.");
+            // Debug.LogWarning("[Player] StandUp called but player is not seated.");
             return;
         }
 
-        // Cancel any lingering sit coroutine (e.g. still in approach phase)
+        if (GameMaster.Instance.INAMEETING) return;
+
         if (_sitCoroutine != null)
         {
             StopCoroutine(_sitCoroutine);
@@ -749,27 +747,27 @@ public class Player : Singleton<Player>
     {
         _activeSeatTransform = null;
 
-        if (thisCharController != null) thisCharController.enabled = true;
+        if (thisCharController != null)
+            thisCharController.enabled = true;
 
-        // Restore normal pitch + yaw clamps
+        // Restore normal look
         FirstPersonLook?.SetSeated(false);
 
         moveDirection.y = 0f;
 
         if (Noranimator != null)
         {
-            Noranimator.SetBool (AnimCrouching, crouching);
-            Noranimator.SetBool (AnimGrounded,  true);
-            Noranimator.SetFloat(AnimSpeed,     0f);
-            Noranimator.SetFloat(AnimMoveX,     0f);
-            Noranimator.SetFloat(AnimMoveY,     0f);
+            Noranimator.SetBool(AnimCrouching, crouching);
+            Noranimator.SetBool(AnimGrounded, true);
+            Noranimator.SetFloat(AnimSpeed, 0f);
+            Noranimator.SetFloat(AnimMoveX, 0f);
+            Noranimator.SetFloat(AnimMoveY, 0f);
 
-            // Clear sitting triggers so they don't fire again
             Noranimator.ResetTrigger(AnimSitDown);
             Noranimator.ResetTrigger(AnimSitIdle);
             Noranimator.ResetTrigger(AnimStandUp);
         }
-        
+
         IsSeated = false;
     }
     

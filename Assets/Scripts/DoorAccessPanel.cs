@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -36,6 +37,10 @@ public class DoorAccessPanel : MonoBehaviour
 
     private static readonly int EmissiveColorProperty = Shader.PropertyToID("_EmissiveColor");
 
+    private DoorLockState currentLockState;
+    
+    public bool canHack;
+    
     private void Start()
     {
         SetState(OnLoadState);
@@ -107,9 +112,24 @@ public class DoorAccessPanel : MonoBehaviour
                 mat.SetColor(EmissiveColorProperty, emissive);
             }
         }
+
+        currentLockState = state;
     }
 
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+
+        canHack = currentLockState != DoorLockState.Inactive;
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+
+        canHack = false;
+    }
 }
 
 

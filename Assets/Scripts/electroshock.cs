@@ -26,7 +26,7 @@ public class electroshock : MonoBehaviour
         }
 
         
-        orignalCameraPos = cameraTransform.localPosition;
+        //orignalCameraPos = cameraTransform.localPosition;
 
         shockParticles = transform.GetChild(0).gameObject;
 

@@ -29,6 +29,8 @@ public class Phone : MonoBehaviour
     public OSDNavver MapsScreenNavver;
     public GameObject MessagesScreen;
     public OSDNavver MessagesScreenNavver;
+    public GameObject KelliScreen;
+    public OSDNavver KelliScreenNavver;
     public OSDNavver NotesScreenNavver;
     public GameObject InboxPane;
     public GameObject SentPane;
@@ -123,6 +125,7 @@ public class Phone : MonoBehaviour
     private CanvasGroup callingScreenGroup;
     private CanvasGroup mapsScreenGroup;
     private CanvasGroup messagesScreenGroup;
+    private CanvasGroup kelliScreenGroup;
     private CanvasGroup cameraScreenGroup;
     private CanvasGroup galleryScreenGroup;
     private CanvasGroup inboxPaneGroup;
@@ -166,6 +169,7 @@ public class Phone : MonoBehaviour
         callingScreenGroup = CallingScreen != null ? CallingScreen.GetComponent<CanvasGroup>() : null;
         mapsScreenGroup = MapsScreen != null ? MapsScreen.GetComponent<CanvasGroup>() : null;
         messagesScreenGroup = MessagesScreen != null ? MessagesScreen.GetComponent<CanvasGroup>() : null;
+        kelliScreenGroup = KelliScreen != null ? KelliScreen.GetComponent<CanvasGroup>() : null;
         cameraScreenGroup = CameraScreen != null ? CameraScreen.GetComponent<CanvasGroup>() : null;
         galleryScreenGroup = GalleryScreen != null ? GalleryScreen.GetComponent<CanvasGroup>() : null;
         inboxPaneGroup = InboxPane != null ? InboxPane.GetComponent<CanvasGroup>() : null;
@@ -435,6 +439,7 @@ public class Phone : MonoBehaviour
         ContactsScreenNavver.gameObject.SetActive(false);
         CallingScreenNavver.gameObject.SetActive(false);
         MessagesScreenNavver.gameObject.SetActive(false);
+        KelliScreenNavver.gameObject.SetActive(false);
         NotesScreenNavver.gameObject.SetActive(false);
         MapsScreenNavver.gameObject.SetActive(false);
     }
@@ -629,7 +634,6 @@ public class Phone : MonoBehaviour
             case PhonerGriddle.Gallery: GalleryButton(); break;
 
             case PhonerGriddle.ViewInboxMessage:
-
                 {
                     if (!BigMessageCanOpen)
                         return;
@@ -649,27 +653,30 @@ public class Phone : MonoBehaviour
 
             case PhonerGriddle.ViewSentMessage:
 
+            {
+                if (!BigMessageCanOpen)
+                    return;
+
+                if (!BigMessageOpen)
                 {
-                    if (!BigMessageCanOpen)
-                        return;
+                    BigMessageOpen = true;
+                    NotesScreenNavver.gameObject.SetActive(false);
+                    InteractAction.action.performed += CloseBigMessage;
 
-                    if (!BigMessageOpen)
-                    {
-                        BigMessageOpen = true;
-                        NotesScreenNavver.gameObject.SetActive(false);
-                        InteractAction.action.performed += CloseBigMessage;
-
-                        string dialogueText = GameMaster.Instance.DialogueManager.GetReplacedString(
-                            retrievedDialogue.DialogueText
-                        );
-                        BigMessage(
-                            retrievedDialogue.Contact.ToString(),
-                            dialogueText,
-                            PhoneMessageType.SentItems
-                        );
-                    }
+                    string dialogueText = GameMaster.Instance.DialogueManager.GetReplacedString(
+                        retrievedDialogue.DialogueText
+                    );
+                    BigMessage(
+                        retrievedDialogue.Contact.ToString(),
+                        dialogueText,
+                        PhoneMessageType.SentItems
+                    );
                 }
+            }
                 break;
+
+            case PhonerGriddle.Kelli: KelliButton(); break;
+
 
             case PhonerGriddle.Num0: a0Button(); break;
             case PhonerGriddle.Num1: a1Button(); break;
@@ -709,6 +716,12 @@ public class Phone : MonoBehaviour
         MiniMapCam.SetActive(true);
 
         Debug.Log("maps button");
+    }
+    public void KelliButton()
+    {
+        changeScreen(KelliScreen);
+
+        Debug.Log("kelli button");
     }
 
     public void MessagesButton(int messageType = 100)
@@ -1630,7 +1643,7 @@ public enum PhonerGriddle
     Map = 1008,
     Recorder = 1009,
     Help = 1010,
-    Calendar = 1011,
+    Kelli = 1011,
 
     ViewInboxMessage = 1100,
     ViewSentMessage = 1101,

@@ -1,66 +1,64 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
-public class PulsatingEmission : MonoBehaviour
+[RequireComponent(typeof(Image))]
+public class UIPulsatingGlowUniTask : MonoBehaviour
 {
-    public Color startColor = Color.black; // Initial dark color
-    public Color endColor = Color.black; // Back to dark color
-    public float lerpDuration = 3.0f; // Back to dark color
-    public float emissionIntensity = 2.0f; // Total duration for one cycle
-    private List<Material> EmissiveList = new List<Material>(); // List of materials to pulsate
-    public List<MeshRenderer> MeshRenderers = new List<MeshRenderer>(); // List of MeshRenderers
-    
-    
-    private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
+    [Header("Colors")]
+    [SerializeField] private Color colorA = Color.black;
+    [SerializeField] private Color colorB = Color.white;
+
+    [Header("Pulse Settings")]
+    [SerializeField] private float pulseSpeed = 1f;
+
+    [Header("Glow")]
+    [SerializeField] private float glowIntensity = 2f;
+
+    private Image uiImage;
+
+    private CancellationTokenSource cts;
 
     private void Start()
     {
-        // Clear the list before populating it to avoid duplicates
-        EmissiveList.Clear();
+        uiImage = GetComponent<Image>();
 
-        // Iterate through each MeshRenderer in the list
-        foreach (MeshRenderer meshRenderer in MeshRenderers)
-        {
-            // Add all materials of the current MeshRenderer to the EmissiveList
-            foreach (Material material in meshRenderer.materials)
-            {
-                EmissiveList.Add(material);
-            }
-        }
+        cts = new CancellationTokenSource();
 
-        StartCoroutine(LerpEmission());
+        PulseRoutine(cts.Token).Forget();
     }
 
-    private IEnumerator LerpEmission()
+    private async UniTaskVoid PulseRoutine(
+        CancellationToken token
+    )
     {
-        while (true)
+        while (!token.IsCancellationRequested)
         {
-            float elapsedTime = 0.0f;
+            float t =
+                Mathf.PingPong(
+                    Time.unscaledTime * pulseSpeed,
+                    1f
+                );
 
-            while (elapsedTime < lerpDuration)
-            {
-                float t = elapsedTime / lerpDuration; // Normalize time between 0 and 1
+            Color finalColor =
+                Color.Lerp(colorA, colorB, t);
 
-                // Use custom normalized time value for pulsating effect
-                float pulseT = Mathf.PingPong(t * 2, 1.0f);
+            // Fake emission/glow
+            finalColor *= glowIntensity;
 
-                // Lerp between startColor and endColor using the pulseT value
-                Color emissionColor = Color.Lerp(startColor, endColor, pulseT);
-                SetEmissionColor(emissionColor);
+            uiImage.color = finalColor;
 
-                elapsedTime += Time.unscaledDeltaTime;
-                yield return null;
-            }
+            await UniTask.Yield(
+                PlayerLoopTiming.Update,
+                token
+            );
         }
     }
 
-    // Set emission color for all materials in EmissiveList
-    private void SetEmissionColor(Color emissionColor)
+    private void OnDestroy()
     {
-        foreach (Material emissiveMaterial in EmissiveList)
-        {
-            emissiveMaterial.SetColor(EmissionColor, emissionColor * emissionIntensity);
-        }
+        cts?.Cancel();
+        cts?.Dispose();
     }
 }

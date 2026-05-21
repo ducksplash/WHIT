@@ -36,7 +36,7 @@ public class LightSwitch : MonoBehaviour
             Material mat = switchMats[i];
             string matName = mat.name.Replace(" (Instance)", ""); // remove instance suffix
 
-            if (matName.Contains("neon") || matName.Contains("led") || matName.Contains("bulb") || matName.Contains("diffuser"))
+            if (matName.Contains("neon") || matName.Contains("led") || matName.Contains("bulb"))
             {
                 if (mat.HasProperty("_EmissiveColor"))
                 {

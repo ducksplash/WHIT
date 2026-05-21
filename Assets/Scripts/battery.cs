@@ -33,26 +33,14 @@ public class battery : MonoBehaviour
         fillLevel = 0;
 
         CurrentlyFillingImage = FillMilestone0;
-
-
+        
         StartCoroutine(FillUp());
-
-
-        // FillMilestone0.color = Color.green;
-        //  FillMilestone1.color = Color.red;
-        //  FillMilestone2.color = Color.red;
-        //  FillMilestone3.color = Color.red;
-
-
+        
         lerpOn = true;
 
         fillFG.color = Color.red;
     }
-
-
-
-
-
+    
 
     private void Update()
     {

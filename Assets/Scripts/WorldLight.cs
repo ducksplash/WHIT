@@ -186,8 +186,7 @@ public class WorldLightEditor : Editor
         GUILayout.Space(10);
         GUILayout.BeginHorizontal();
 
-        if (GUILayout.Button("Toggle"))
-            wl.ToggleLight();
+        if (GUILayout.Button("Toggle")) wl.ToggleLight();
 
         GUILayout.EndHorizontal();
     }

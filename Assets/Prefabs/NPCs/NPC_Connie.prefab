@@ -1040,6 +1040,7 @@ SkinnedMeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: f025cb7b865cd244aa016b07e2896626, type: 2}
+  - {fileID: 2100000, guid: 0c2318b93075a8848a3e3a9132c65d49, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1066,7 +1067,7 @@ SkinnedMeshRenderer:
   m_Quality: 0
   m_UpdateWhenOffscreen: 1
   m_SkinnedMotionVectors: 1
-  m_Mesh: {fileID: 5878943781157951434, guid: 8485084e94fd0d44b83f3e8096b2ce4e, type: 3}
+  m_Mesh: {fileID: 3077554635974598432, guid: 8485084e94fd0d44b83f3e8096b2ce4e, type: 3}
   m_Bones:
   - {fileID: 546573848168979044}
   - {fileID: 8386526015159154335}
@@ -2771,16 +2772,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad585efbd547be4cb7a07627fcb8710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeNPC
-  npcRendererOutfitOne:
-  - {fileID: 8029645192806021029}
-  - {fileID: 8216512118805471428}
-  - {fileID: 8429507776606612987}
-  - {fileID: 1971666378476252679}
-  npcRendererOutfitTwo: []
-  npcRendererOutfitThree: []
-  npcController: {fileID: 0}
+  OutfitForWork: []
+  OutfitForCasual: []
+  OutfitForFirstDate: []
+  OutfitForSecondDate: []
+  OutfitForThirdDate: []
+  OutfitForNightOut: []
+  OutfitForPyjamas: []
+  OutfitForHomelessness: []
+  OutfitForWedding: []
+  OutfitForFuneral: []
+  nextOutfit: {fileID: 0}
+  previousOutfit: {fileID: 0}
   UnressedOnLoad: 0
-  ThisNPCName: 
+  ThisCharacterName: 
+  npcController: {fileID: 0}
+  currentOutfit: 1
 --- !u!195 &5379268717069924771
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2917,8 +2924,8 @@ MonoBehaviour:
   patrolActionCooldownSeconds: 500
   patrolActionFailedRetrySeconds: 6
   autonomousTalkSearchRadius: 30
-  seatSearchRetryDelay: 3
-  bedSearchRetryDelay: 3
+  hasStartupActions: 0
+  startupActionsConcluded: 0
 --- !u!136 &2091600423030273634
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3055,6 +3062,7 @@ MonoBehaviour:
   isTalking: 0
   isGabbing: 0
   isDawdling: 0
+  isSitting: 0
 --- !u!114 &6933004141555249174
 MonoBehaviour:
   m_ObjectHideFlags: 0

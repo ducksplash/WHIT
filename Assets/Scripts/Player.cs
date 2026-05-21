@@ -1121,6 +1121,13 @@ public class Player : Singleton<Player>
         if (thisCharController == null) return;
         if (!thisCharController.isGrounded) return;
 
+        if (Me.currentOutfit is OutfitType.Wedding or OutfitType.Funeral)
+        {
+            if (!GameMaster.Instance.DialogueManager.DialogInProgress) GameMaster.Instance.DialogueManager.NewDialogue(DialogueName.NoraNotJumpingInThis, 5);
+            return;
+        }
+        
+
         Noranimator?.SetTrigger(AnimJump);
         jumpRequested = true;
     }

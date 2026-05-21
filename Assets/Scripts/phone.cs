@@ -416,6 +416,13 @@ public class Phone : MonoBehaviour
             EventManager.CameraClosed();
         }
 
+        if (useThisScreen != KelliScreen)
+        {
+            EventManager.KelliStopped();
+            KelliScreen.GetComponent<KelliLinux>().ResetKelli();
+            KelliScreenNavver.gameObject.SetActive(false);
+        }
+        
         if (useThisScreen != MapsScreen)
         {
             MiniMapCam.SetActive(false);
@@ -721,6 +728,8 @@ public class Phone : MonoBehaviour
     {
         changeScreen(KelliScreen);
 
+        EventManager.KelliStarted();
+        
         Debug.Log("kelli button");
     }
 

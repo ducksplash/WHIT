@@ -2171,6 +2171,7 @@ SkinnedMeshRenderer:
   - {fileID: 2100000, guid: 6235ff76c93b70a439bc594af6e750a6, type: 2}
   - {fileID: 2100000, guid: 4fdca1dcd8511014cb89dc8efe6cbcfa, type: 2}
   - {fileID: 2100000, guid: 446a408c881a090458edbbf4fb6c46c1, type: 2}
+  - {fileID: 2100000, guid: 446a408c881a090458edbbf4fb6c46c1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2871,15 +2872,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad585efbd547be4cb7a07627fcb8710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeNPC
-  npcRendererOutfitOne:
-  - {fileID: 5017256906705641213}
-  - {fileID: 7552229906511734314}
-  - {fileID: 2226921472373423429}
-  npcRendererOutfitTwo: []
-  npcRendererOutfitThree: []
-  npcController: {fileID: 7804461980414067806}
+  OutfitForWork: []
+  OutfitForCasual: []
+  OutfitForFirstDate: []
+  OutfitForSecondDate: []
+  OutfitForThirdDate: []
+  OutfitForNightOut: []
+  OutfitForPyjamas: []
+  OutfitForHomelessness: []
+  OutfitForWedding: []
+  OutfitForFuneral: []
+  nextOutfit: {fileID: 0}
+  previousOutfit: {fileID: 0}
   UnressedOnLoad: 0
-  ThisNPCName: 
+  ThisCharacterName: 
+  npcController: {fileID: 7804461980414067806}
+  currentOutfit: 1
 --- !u!195 &4519856274470033345
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -3016,8 +3024,8 @@ MonoBehaviour:
   patrolActionCooldownSeconds: 500
   patrolActionFailedRetrySeconds: 6
   autonomousTalkSearchRadius: 30
-  seatSearchRetryDelay: 3
-  bedSearchRetryDelay: 3
+  hasStartupActions: 0
+  startupActionsConcluded: 0
 --- !u!136 &3881142807384619764
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3154,6 +3162,7 @@ MonoBehaviour:
   isTalking: 0
   isGabbing: 0
   isDawdling: 0
+  isSitting: 0
 --- !u!114 &9163968351700990098
 MonoBehaviour:
   m_ObjectHideFlags: 0

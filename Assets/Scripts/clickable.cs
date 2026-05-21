@@ -27,31 +27,22 @@ public class clickable : Singleton<clickable>
     [Header("Aim Assist (Steam Deck)")]
     public bool enableAimAssistOnSteamOS = true;
 
-    [Tooltip("Max yaw angle difference (degrees) to trigger assist.")]
     public float aimAssistMaxAngle = 30f;
-
-    [Tooltip("How long to disable look input after snapping.")]
     public float aimAssistLockSeconds = 0.5f;
-
-    [Tooltip("Cooldown after an assist triggers (prevents repeated locks).")]
     public float aimAssistCooldown = 0.35f;
 
     [Header("Aim Assist - Only when aiming slowly")]
-    [Tooltip("Optional: set this to your Look/Camera input (mouse delta / right stick). If null, we fallback to camera angular velocity.")]
     public InputActionReference lookDeltaAction;
-
-    [Tooltip("If using lookDeltaAction: max magnitude considered 'slow'. (Tune: gamepad ~0.15-0.35, mouse delta depends on your scaling)")]
     public float lookDeltaSlowThreshold = 0.25f;
-
-    [Tooltip("How long the aim must stay under the slow threshold before assist can snap.")]
     public float slowAimingHoldSeconds = 0.08f;
-
-    [Tooltip("Fallback if lookDeltaAction isn't assigned: max camera angular speed (deg/sec) considered slow.")]
     public float cameraAngularSlowThreshold = 45f;
 
     int doorlayer, drawerlayer, clickablelayer, enemylayer;
     int pickuplayer, evidencelayer, staticevidencelayer, slidingdoorlayer, seatlayer;
     int terminallayer;
+
+    // ✅ NEW: interaction mask (excludes player)
+    private int interactionMask;
 
     private RaycastHit currentHit;
     private bool hasHit;
@@ -63,10 +54,11 @@ public class clickable : Singleton<clickable>
     private Transform _lastAssistTarget;
     private float _nextAssistTime;
 
-    // --- Slow-aim gating state ---
     private float _slowAimTimer;
     private Vector3 _lastCamForward;
-
+    
+    
+    
     void Start()
     {
         selectcursor = GetComponent<Image>();
@@ -90,8 +82,11 @@ public class clickable : Singleton<clickable>
 
         lookDeltaAction?.action.Enable();
 
-        Camera cam = Camera.main;
+        Camera cam = Player.Instance.CurrentCamera;
         if (cam != null) _lastCamForward = cam.transform.forward;
+
+        // ✅ Build mask that ignores Player layer
+        interactionMask = ~LayerMask.GetMask("Player");
 
         EventManager.OnNoraSit += ClearHit;
     }
@@ -99,22 +94,21 @@ public class clickable : Singleton<clickable>
     void FixedUpdate()
     {
         if (GameMaster.Instance == null) return;
-        
         if (GameMaster.Instance.PLAYERBUSY) return;
-        
-        Camera cam = Camera.main;
+
+        Camera cam = Player.Instance.CurrentCamera;
         if (cam == null || Player.Instance == null) return;
 
-        // Update slow-aim timer (used to gate aim assist)
         UpdateSlowAimGate(cam);
 
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
         Debug.DrawRay(ray.origin, ray.direction * Player.Instance.RayCastDistance, Color.red);
 
+        // ✅ FIXED: no longer hits Player layer
         RaycastHit[] hits = Physics.RaycastAll(
             ray,
             Player.Instance.RayCastDistance,
-            ~0,
+            interactionMask,
             QueryTriggerInteraction.Ignore
         );
 
@@ -153,8 +147,6 @@ public class clickable : Singleton<clickable>
             hasHit = true;
 
             ApplyHoverToTarget(currentHit, currentTarget);
-
-            // Aim assist: now gated by "aiming slowly"
             TryAimAssistSnapAndLock(cam, currentHit, currentTarget);
 
             return;
@@ -177,15 +169,12 @@ public class clickable : Singleton<clickable>
 
     private bool IsAimingSlow(Camera cam)
     {
-        // Prefer actual look input if provided (best signal for "cursor moving slowly")
         if (lookDeltaAction != null && lookDeltaAction.action != null)
         {
             Vector2 delta = lookDeltaAction.action.ReadValue<Vector2>();
             return delta.magnitude <= lookDeltaSlowThreshold;
         }
 
-        // Fallback: approximate by camera angular speed
-        // Angle between forward vectors each fixed step -> deg/sec
         float angle = Vector3.Angle(_lastCamForward, cam.transform.forward);
         float degPerSec = angle / Mathf.Max(Time.fixedDeltaTime, 0.0001f);
         return degPerSec <= cameraAngularSlowThreshold;
@@ -204,8 +193,10 @@ public class clickable : Singleton<clickable>
             int layer = p.gameObject.layer;
 
             bool isInteractableLayer =
-                layer == pickuplayer || layer == drawerlayer || layer == doorlayer || layer == slidingdoorlayer ||
-                layer == clickablelayer || layer == enemylayer || layer == evidencelayer || layer == staticevidencelayer || layer == terminallayer || layer == seatlayer;
+                layer == pickuplayer || layer == drawerlayer || layer == doorlayer ||
+                layer == slidingdoorlayer || layer == clickablelayer || layer == enemylayer ||
+                layer == evidencelayer || layer == staticevidencelayer || layer == terminallayer ||
+                layer == seatlayer;
 
             if (isInteractableLayer) return p;
             if (p.CompareTag("COLLECTABLE")) return p;
@@ -260,8 +251,8 @@ public class clickable : Singleton<clickable>
             {
                 bool powerOn = GameMaster.Instance.POWER_SUPPLY_ENABLED;
                 SetCursor(powerOn ? clickablespritegreen : clickablespritered,
-                          powerOn ? "Lights" : "Lights (Power Disabled)",
-                          powerOn ? "green" : "red");
+                    powerOn ? "Lights" : "Lights (Power Disabled)",
+                    powerOn ? "green" : "red");
                 return;
             }
             SetCursor(clickablespritegreen);
@@ -286,7 +277,6 @@ public class clickable : Singleton<clickable>
             return;
         }
 
-
         if (layer == seatlayer)
         {
             SetCursor(seatsprite, "", "green");
@@ -302,9 +292,7 @@ public class clickable : Singleton<clickable>
         if (!enableAimAssistOnSteamOS) return;
         if (GameMaster.Instance == null) return;
 
-        // Only assist if the player has been aiming slowly for a short moment
         if (_slowAimTimer < slowAimingHoldSeconds) return;
-
         if (Time.time < _nextAssistTime) return;
 
         var look = Player.Instance.FirstPersonLook;
@@ -317,14 +305,12 @@ public class clickable : Singleton<clickable>
         float yawAngle = FlatAngle(cam.transform.forward, aimPoint - cam.transform.position);
         if (yawAngle > aimAssistMaxAngle) return;
 
-        // Snap yaw and disable look input briefly
         look.SnapYawTowardWorldPoint(aimPoint);
         look.AimAssistLock(aimAssistLockSeconds);
 
         _lastAssistTarget = target;
         _nextAssistTime = Time.time + aimAssistCooldown;
 
-        // Reset slow timer so it doesn't immediately chain to the next thing
         _slowAimTimer = 0f;
     }
 
@@ -376,7 +362,6 @@ public class clickable : Singleton<clickable>
         if (currentHit.transform.GetComponentInParent<ComputerSystem>() is ComputerSystem pc)
         {
             pc.OnStartComputer();
-            Debug.Log("this is pooter");
         }
 
         if (currentHit.transform.GetComponentInParent<Seat>() is Seat thisSeat)
@@ -394,7 +379,7 @@ public class clickable : Singleton<clickable>
     private void SetCursor(Sprite sprite, string text = "", string color = "white")
     {
         if (!Player.Instance.gameObject.activeSelf) return;
-        
+
         if (currentSprite != sprite)
         {
             selectcursor.sprite = sprite;

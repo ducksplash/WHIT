@@ -47,6 +47,31 @@ public class TextButtonMouseOver : MonoBehaviour, IPointerEnterHandler, IPointer
 
         theText.fontSharedMaterial = normalMaterial;
     }
+
+
+    public void ManualMouseOn()
+    {
+        theText.color = HoverColor;
+
+        if (usingFormatting)
+        {
+            theText.fontStyle = FontStyles.Underline;
+        }
+
+        theText.fontSharedMaterial = hoverMaterial;
+    }
+
+    public void ManualMouseOff()
+    {
+        theText.color = OrigColor;
+        
+        if (usingFormatting)
+        {
+            theText.fontStyle = FontStyles.Normal;
+        }
+
+        theText.fontSharedMaterial = normalMaterial;
+    }
 }
 
 

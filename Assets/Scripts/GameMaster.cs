@@ -79,6 +79,7 @@ public class GameMaster : MonoBehaviour
     private bool EvidenceLoaded;
 
     public int nightTimeStartsAt = 17;
+    public int nightTimeEndsAt = 6;
     
     // steam init
     private bool m_bInitialized;
@@ -277,7 +278,7 @@ public class GameMaster : MonoBehaviour
         THISLEVEL = GAMELEVEL.ETVStudio;
         Player.Instance.Spawn();
         //Player.Instance.Me.ToggleWorkOutfit(true);
-        Player.Instance.Me.ToggleDatingOutfit(true);
+        Player.Instance.Me.ToggleWorkOutfit(true);
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
@@ -286,23 +287,32 @@ public class GameMaster : MonoBehaviour
 
     public void StartLevelNorasFlat()
     {
-        
-        
-        
         THISLEVEL = GAMELEVEL.NorasFlat;
         Player.Instance.Spawn();
         
-        // Always start from UTC
         DateTime utcNow = DateTime.UtcNow;
 
-        // Convert to a known timezone (avoids Proton / Steam Deck offset bugs)
         TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
-        
+
         DateTime now = TimeZoneInfo.ConvertTimeFromUtc(utcNow, timeZone);
 
-        string anHour = now.Hour.ToString().PadLeft(2, '0');
+        int hour = now.Hour;
+        
+        bool isNight;
 
-        if (int.Parse(anHour) > nightTimeStartsAt)
+        if (nightTimeStartsAt < nightTimeEndsAt)
+        {
+            // normal range (e.g. 18 → 22)
+            isNight = hour >= nightTimeStartsAt && hour < nightTimeEndsAt;
+        }
+        else
+        {
+            // crosses midnight (e.g. 22 → 6)
+            isNight = hour >= nightTimeStartsAt || hour < nightTimeEndsAt;
+        }
+        
+        
+        if (isNight)
         {
             Player.Instance.Me.TogglePyjamasOutfit(true);
         }
@@ -310,8 +320,6 @@ public class GameMaster : MonoBehaviour
         {
             Player.Instance.Me.ToggleCasualOutfit(true);
         }
-        
-        
         
         
         StartAudio(AudioProfile.NorasFlat);

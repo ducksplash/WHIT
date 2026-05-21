@@ -30,6 +30,8 @@ public class TravelCompanion : MonoBehaviour
     public InputActionReference StepBackInputESC;
     public MeshRenderer[] notepadMeshRenderers;
 
+    public NotePadNavver notepadNavver;
+    
     
     private void Start()
     {
@@ -181,8 +183,7 @@ public class TravelCompanion : MonoBehaviour
     {
         if (scrollViewContent == null) return;
 
-        foreach (Transform child in scrollViewContent.transform)
-            Destroy(child.gameObject);
+        foreach (Transform child in scrollViewContent.transform) Destroy(child.gameObject);
 
         AvailableLocations.Clear();
 
@@ -213,7 +214,13 @@ public class TravelCompanion : MonoBehaviour
             newButton.buttonTextElement.text = availableLocation.Value;
             newButton.targetScene = availableLocation.Key;
 
+            NotePadNavButton notebutton = buttonObj.GetComponent<NotePadNavButton>();
+            notebutton.thisNotepadButton = newButton;
+
+            notepadNavver.GridButtons.Add(notebutton);
+
         }
+        
     }
 
     public void ChangeScene(GAMELEVEL sceneName)

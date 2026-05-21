@@ -419,6 +419,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "previousOutFit",
+                    "type": "Button",
+                    "id": "9bf37553-c297-4147-8f6c-dfce218b47c5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "nextOutFit",
+                    "type": "Button",
+                    "id": "7ce1ca44-503a-48af-8ce1-be6dabbddb5d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1838,6 +1856,50 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleVideoRecording",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ca7a76c9-cfde-4094-8a72-05aa0efcf080",
+                    "path": "<Keyboard>/numpad4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "previousOutFit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0279bb5c-867e-423f-b596-5a5389cfa108",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "previousOutFit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8f3bcd62-e678-4d58-af4d-186085482990",
+                    "path": "<Keyboard>/numpad6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "nextOutFit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8b45035a-885a-4334-873c-41a1210ce7b8",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "nextOutFit",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

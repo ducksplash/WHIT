@@ -48,7 +48,7 @@ public class LightFlickerEffect : MonoBehaviour
         smoothQueue = new Queue<float>(smoothing);
     }
 
-    void FixedUpdate()
+    void LateUpdate()
     {
         if (thelight != null && thelight.enabled)
         {

@@ -70,7 +70,8 @@ public enum DialogueName
     ScientistGettingAgitated = 402,
     
     // Generics
-    NoraCantCrawlAndPhone = 900
+    NoraCantCrawlAndPhone = 900,
+    NoraNotJumpingInThis = 901
     
     
 }

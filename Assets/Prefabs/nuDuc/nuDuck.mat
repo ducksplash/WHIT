@@ -43,6 +43,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _BENTNORMALMAP
   - _DISABLE_DECALS
   - _DISABLE_SSR
   - _DISABLE_SSR_TRANSPARENT
@@ -84,7 +85,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseColorMap:
-        m_Texture: {fileID: 2800000, guid: 247f69796c44d554ba0b5151ae60a9ad, type: 3}
+        m_Texture: {fileID: 2800000, guid: 637e387622583b0459f7078eaafe6bba, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseColorMap0:
@@ -104,7 +105,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BentNormalMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 920a61fa0f44dd446937de50e7366714, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BentNormalMap0:
@@ -232,11 +233,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 247f69796c44d554ba0b5151ae60a9ad, type: 3}
+        m_Texture: {fileID: 2800000, guid: 637e387622583b0459f7078eaafe6bba, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
-        m_Texture: {fileID: 2800000, guid: 53b01fa65a0f1d94c890bc2450ee5cc4, type: 3}
+        m_Texture: {fileID: 2800000, guid: a3d88e58e11ac9b4c84dc2559ce572a4, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap0:
@@ -260,7 +261,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: fd6a63cedf5e5094e98815ab9da49099, type: 3}
+        m_Texture: {fileID: 2800000, guid: e3e6e24725c6b35488839f5aac2cac7b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap0:
@@ -308,7 +309,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularColorMap:
-        m_Texture: {fileID: 2800000, guid: 6389ba3465130a94fa6e4904ca6867d2, type: 3}
+        m_Texture: {fileID: 2800000, guid: 920a61fa0f44dd446937de50e7366714, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SubsurfaceMaskMap:
@@ -386,7 +387,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AO: 1
-    - _AORemapMax: 0.046283364
+    - _AORemapMax: 0
     - _AORemapMax0: 1
     - _AORemapMax1: 1
     - _AORemapMax2: 1
@@ -578,7 +579,7 @@ Material:
     - _MetallicRemapMax1: 1
     - _MetallicRemapMax2: 1
     - _MetallicRemapMax3: 1
-    - _MetallicRemapMin: 1
+    - _MetallicRemapMin: 0
     - _MetallicRemapMin0: 0
     - _MetallicRemapMin1: 0
     - _MetallicRemapMin2: 0
@@ -590,7 +591,7 @@ Material:
     - _NormalMapSpace1: 0
     - _NormalMapSpace2: 0
     - _NormalMapSpace3: 0
-    - _NormalScale: 0
+    - _NormalScale: 1
     - _NormalScale0: 1
     - _NormalScale1: 1
     - _NormalScale2: 1
@@ -620,7 +621,7 @@ Material:
     - _Smoothness1: 0.5
     - _Smoothness2: 0.5
     - _Smoothness3: 0.5
-    - _SmoothnessRemapMax: 0.42086965
+    - _SmoothnessRemapMax: 0
     - _SmoothnessRemapMax0: 1
     - _SmoothnessRemapMax1: 1
     - _SmoothnessRemapMax2: 1

@@ -39,6 +39,10 @@ public static class EventManager
     public static event Action OnSpawnPlayer = () => { };
     public static event Action OnCrouch = () => { };
     public static event Action OnUnCrouch = () => { };
+    public static event Action OnKelliStarted = () => { };
+    public static event Action OnKelliStopped = () => { };
+    public static event Action<DoorAccessPanel> OnKelliFoundDevice = (AccessPanel) => { };
+    public static event Action OnKelliLostDevice = () => { };
     
     
     
@@ -60,6 +64,26 @@ public static class EventManager
     public static void UnCrouch()
     {
         OnUnCrouch.Invoke();
+    }
+
+    public static void KelliStarted()
+    {
+        OnKelliStarted.Invoke();
+    }
+
+    public static void KelliStopped()
+    {
+        OnKelliStopped.Invoke();
+    }
+
+    public static void KelliFoundDevice(DoorAccessPanel foundDevice)
+    {
+        OnKelliFoundDevice.Invoke(foundDevice);
+    }
+
+    public static void KelliLostDevice()
+    {
+        OnKelliLostDevice.Invoke();
     }
 
     

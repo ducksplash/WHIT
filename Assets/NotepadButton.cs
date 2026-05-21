@@ -10,7 +10,6 @@ public class NotepadButton : MonoBehaviour
     public GAMELEVEL targetScene;
     
     
-    // Start is called before the first frame update
     void Start()
     {
         buttonTextElement.text = buttonText;

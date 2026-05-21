@@ -33,8 +33,16 @@ public class CustomAspectRatio : MonoBehaviour
     IEnumerator GetPlayer()
     {
         while (Player.Instance == null)
+        {
             yield return new WaitForSeconds(0.5f);
-        player = Player.Instance.transform;
+            
+        }
+
+        if (Player.Instance != null)
+        {
+            player = Player.Instance.transform;
+        }
+
     }
 
     void OnEnable()

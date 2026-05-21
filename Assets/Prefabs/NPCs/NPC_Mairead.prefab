@@ -755,15 +755,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad585efbd547be4cb7a07627fcb8710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeNPC
-  npcRendererOutfitOne:
-  - {fileID: 1006518593562710823}
-  - {fileID: 5750150523248941712}
-  - {fileID: 1151937297155102176}
-  npcRendererOutfitTwo: []
-  npcRendererOutfitThree: []
-  npcController: {fileID: 0}
+  OutfitForWork: []
+  OutfitForCasual: []
+  OutfitForFirstDate: []
+  OutfitForSecondDate: []
+  OutfitForThirdDate: []
+  OutfitForNightOut: []
+  OutfitForPyjamas: []
+  OutfitForHomelessness: []
+  OutfitForWedding: []
+  OutfitForFuneral: []
+  nextOutfit: {fileID: 0}
+  previousOutfit: {fileID: 0}
   UnressedOnLoad: 0
-  ThisNPCName: 
+  ThisCharacterName: 
+  npcController: {fileID: 0}
+  currentOutfit: 1
 --- !u!195 &5931067003149023622
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -923,8 +930,8 @@ MonoBehaviour:
   patrolActionCooldownSeconds: 500
   patrolActionFailedRetrySeconds: 6
   autonomousTalkSearchRadius: 30
-  seatSearchRetryDelay: 3
-  bedSearchRetryDelay: 3
+  hasStartupActions: 0
+  startupActionsConcluded: 0
 --- !u!114 &8055983173781812237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1038,6 +1045,7 @@ MonoBehaviour:
   isTalking: 0
   isGabbing: 0
   isDawdling: 0
+  isSitting: 0
 --- !u!114 &6810528185707133947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1515,6 +1523,7 @@ SkinnedMeshRenderer:
   - {fileID: 2100000, guid: a26b7fc94cf37784eba28cf1c9ea83b0, type: 2}
   - {fileID: 2100000, guid: c1b1a7074ed4135459a43cfb977fc804, type: 2}
   - {fileID: 2100000, guid: dd5640bf38a48f341ba3980aab9b53d6, type: 2}
+  - {fileID: 2100000, guid: 2a59c4813213e8c46b3d7dcb07f45ba4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

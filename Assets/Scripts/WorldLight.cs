@@ -11,29 +11,63 @@ public class WorldLight : MonoBehaviour
 {
     [Header("Lights")]
     [SerializeField] private List<Light> bulbList = new List<Light>();
-    [SerializeField] private List<Renderer> rendererList = new List<Renderer>();
-    [SerializeField] private List<VolumetricLightBeamSD> lightBeams = new List<VolumetricLightBeamSD>();
+
+    [SerializeField] private List<Renderer> rendererList =
+        new List<Renderer>();
+
+    [SerializeField] private List<VolumetricLightBeamHD> lightBeams =
+        new List<VolumetricLightBeamHD>();
+
     public bool lightOn;
+
     [SerializeField] private bool lightFlickers;
 
     [Header("Flicker Settings")]
     [SerializeField] private int smoothing = 5;
 
+    [SerializeField] private float beamFlickerMultiplier = 1f;
+
     // Base intensity per light
-    private List<float> baseIntensities = new List<float>();
-    private Queue<float> smoothQueue = new Queue<float>();
+    private List<float> baseIntensities =
+        new List<float>();
+
+    // Base beam intensity
+    private List<float> baseBeamIntensities =
+        new List<float>();
+
+    private Queue<float> smoothQueue =
+        new Queue<float>();
+
     private float lastSum = 0f;
 
-    private List<Material[]> materialCache = new List<Material[]>();
-    static readonly int HDRP_EmissiveColor = Shader.PropertyToID("_EmissiveColor");
+    // Cached materials
+    private List<Material[]> materialCache =
+        new List<Material[]>();
 
-    void Start()
+    static readonly int HDRP_EmissiveColor =
+        Shader.PropertyToID("_EmissiveColor");
+
+    private void Start()
     {
         baseIntensities.Clear();
-        
+        baseBeamIntensities.Clear();
+
+        // Cache original light intensities
         foreach (var light in bulbList)
         {
-            if (light != null) baseIntensities.Add(light.intensity);
+            if (light != null)
+                baseIntensities.Add(light.intensity);
+            else
+                baseIntensities.Add(1f);
+        }
+
+        // Cache original beam intensities
+        foreach (var beam in lightBeams)
+        {
+            if (beam != null)
+                baseBeamIntensities.Add(beam.intensity);
+            else
+                baseBeamIntensities.Add(1f);
         }
 
         // Cache renderer materials
@@ -42,13 +76,16 @@ public class WorldLight : MonoBehaviour
             if (rend != null)
             {
                 var mats = rend.materials;
+
                 materialCache.Add(mats);
+
                 foreach (var m in mats)
                 {
                     if (m != null)
                     {
                         m.SetFloat("_UseEmissiveColor", 1f);
                         m.SetFloat("_EmissiveExposureWeight", 1f);
+
                         m.EnableKeyword("_EMISSIVE_COLOR");
                         m.EnableKeyword("_EMISSION");
                     }
@@ -56,44 +93,23 @@ public class WorldLight : MonoBehaviour
             }
         }
 
+        ApplyLightState();
+
+        // Start flicker if enabled
         if (lightFlickers && lightOn)
         {
             StopAllCoroutines();
             StartCoroutine(LightFlicker());
         }
-
-        for (int i = 0; i < bulbList.Count; i++)
-        {
-            bulbList[i].enabled = lightOn;
-        }
-
     }
 
     public void ToggleLight()
     {
         lightOn = !lightOn;
 
-        for (int i = 0; i < bulbList.Count; i++)
-        {
-            var light = bulbList[i];
-            if (light != null)
-            {
-                light.enabled = lightOn;
-                if (lightOn) light.intensity = baseIntensities[i];
-                UpdateBulbEmission(light, i);
-            }
-        }
+        ApplyLightState();
 
-        foreach (var beam in lightBeams)
-        {
-            if (beam != null)
-            {
-                beam.enabled = lightOn;
-                beam.colorFromLight = true;
-                beam.intensityFromLight = true;
-            }
-        }
-
+        // Flicker handling
         if (lightFlickers && lightOn)
         {
             StopAllCoroutines();
@@ -103,21 +119,77 @@ public class WorldLight : MonoBehaviour
         {
             StopAllCoroutines();
         }
-        
     }
 
-    private void UpdateBulbEmission(Light light, int index)
+    private void ApplyLightState()
     {
-        float intensity = lightOn ? baseIntensities[index] : 0f;
-        Color col = light.color * intensity * 5f;
+        // Apply Unity light state
+        for (int i = 0; i < bulbList.Count; i++)
+        {
+            var light = bulbList[i];
+
+            if (light != null)
+            {
+                light.enabled = lightOn;
+
+                if (lightOn)
+                    light.intensity = baseIntensities[i];
+                else
+                    light.intensity = 0f;
+
+                UpdateBulbEmission(light, i);
+            }
+        }
+
+        // Apply beam state
+        for (int i = 0; i < lightBeams.Count; i++)
+        {
+            var beam = lightBeams[i];
+
+            if (beam != null)
+            {
+                beam.enabled = lightOn;
+
+                if (lightOn)
+                {
+                    beam.intensity =
+                        baseBeamIntensities[i];
+                }
+                else
+                {
+                    beam.intensity = 0f;
+                }
+
+                beam.UpdateAfterManualPropertyChange();
+            }
+        }
+    }
+
+    private void UpdateBulbEmission(
+        Light light,
+        int index
+    )
+    {
+        float intensity =
+            lightOn ? light.intensity : 0f;
+
+        Color col =
+            light.color * intensity * 5f;
 
         if (index < materialCache.Count)
         {
             var mats = materialCache[index];
+
             foreach (var m in mats)
             {
-                if (m != null && m.name.Contains("bulb"))
-                    m.SetColor(HDRP_EmissiveColor, col);
+                if (m != null &&
+                    m.name.ToLower().Contains("bulb"))
+                {
+                    m.SetColor(
+                        HDRP_EmissiveColor,
+                        col
+                    );
+                }
             }
         }
     }
@@ -126,33 +198,65 @@ public class WorldLight : MonoBehaviour
     {
         while (lightOn)
         {
-            float flickerValue = GetSmoothedRandom();
+            float flickerValue =
+                GetSmoothedRandom();
 
-            // Apply same value to all lights & beams
+            // Flicker lights
             for (int i = 0; i < bulbList.Count; i++)
             {
                 var light = bulbList[i];
-                if (light != null && light.enabled)
-                {
-                    float v = flickerValue * baseIntensities[i]; // scale by each light's base intensity
-                    light.intensity = v;
-                    Color finalColor = light.color * v;
 
+                if (light != null &&
+                    light.enabled)
+                {
+                    float v =
+                        flickerValue *
+                        baseIntensities[i];
+
+                    light.intensity = v;
+
+                    Color finalColor =
+                        light.color *
+                        v *
+                        5f;
+
+                    // Update emissive materials
                     if (i < materialCache.Count)
                     {
-                        var mats = materialCache[i];
+                        var mats =
+                            materialCache[i];
+
                         foreach (var m in mats)
                         {
-                            if (m != null && m.name.Contains("bulb"))
-                                m.SetColor(HDRP_EmissiveColor, finalColor);
+                            if (m != null &&
+                                m.name
+                                    .ToLower()
+                                    .Contains("bulb"))
+                            {
+                                m.SetColor(
+                                    HDRP_EmissiveColor,
+                                    finalColor
+                                );
+                            }
                         }
                     }
+                }
+            }
 
-                    if (i < lightBeams.Count && lightBeams[i] != null && lightBeams[i].enabled)
-                    {
-                        float normalized = Mathf.Clamp01(v / baseIntensities[i]);
-                        lightBeams[i].intensityGlobal = normalized;
-                    }
+            // Flicker volumetric beams
+            for (int i = 0; i < lightBeams.Count; i++)
+            {
+                var beam = lightBeams[i];
+
+                if (beam != null &&
+                    beam.enabled)
+                {
+                    beam.intensity =
+                        baseBeamIntensities[i] *
+                        flickerValue *
+                        beamFlickerMultiplier;
+
+                    beam.UpdateAfterManualPropertyChange();
                 }
             }
 
@@ -165,8 +269,10 @@ public class WorldLight : MonoBehaviour
         while (smoothQueue.Count >= smoothing)
             lastSum -= smoothQueue.Dequeue();
 
-        float v = Random.Range(0f, 1f); // normalized 0..1
+        float v = Random.Range(0f, 1f);
+
         smoothQueue.Enqueue(v);
+
         lastSum += v;
 
         return lastSum / smoothQueue.Count;
@@ -181,12 +287,15 @@ public class WorldLightEditor : Editor
     {
         DrawDefaultInspector();
 
-        WorldLight wl = (WorldLight)target;
+        WorldLight wl =
+            (WorldLight)target;
 
         GUILayout.Space(10);
+
         GUILayout.BeginHorizontal();
 
-        if (GUILayout.Button("Toggle")) wl.ToggleLight();
+        if (GUILayout.Button("Toggle"))
+            wl.ToggleLight();
 
         GUILayout.EndHorizontal();
     }

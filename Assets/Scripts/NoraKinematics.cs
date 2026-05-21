@@ -528,6 +528,7 @@ public class NoraKinematics : MonoBehaviour
     
     
     
+#if UNITY_EDITOR
     
     public void DeleteKinematicState(string filePath)
     {
@@ -538,6 +539,8 @@ public class NoraKinematics : MonoBehaviour
             Debug.Log($"🗑 Deleted: {Path.GetFileName(filePath)}");
         }
     }
+    
+#endif
 }
 
 #if UNITY_EDITOR

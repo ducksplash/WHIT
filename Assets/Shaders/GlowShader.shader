@@ -1,63 +1,108 @@
-Shader "Custom/GlowShader" {
-    Properties {
+Shader "Custom/GlowShader"
+{
+    Properties
+    {
         _MainTex ("Texture", 2D) = "white" {}
-        _GlowColor ("Glow Color (Tint)", Color) = (1,1,1,1)
-        _GlowStrength ("Glow Strength", Range(0.0, 1.0)) = 0.5
-        _GlowSpeed ("Glow Speed", Range(0.0, 10.0)) = 1.0
+
+        _GlowColor ("Glow Color", Color) = (1,1,1,1)
+        _GlowStrength ("Glow Strength", Range(0,10)) = 1
+        _GlowSpeed ("Glow Speed", Range(0,10)) = 1
+
+        _EmissionColor ("Emission Color", Color) = (1,1,1,1)
+        _EmissionStrength ("Emission Strength", Range(0,10)) = 1
+
+        _Alpha ("Alpha", Range(0,1)) = 1
     }
 
-    SubShader {
-        Tags { "RenderType"="Opaque" }
+    SubShader
+    {
+        Tags
+        {
+            "Queue"="Transparent"
+            "RenderType"="Transparent"
+        }
+
         LOD 100
 
-        Pass {
-            CGPROGRAM
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+        Cull Back
+
+        Pass
+        {
+            HLSLPROGRAM
+
             #pragma vertex vert
             #pragma fragment frag
 
-            struct appdata {
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
             };
 
-            struct v2f {
+            struct v2f
+            {
                 float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
+                float4 positionCS : SV_POSITION;
             };
 
             sampler2D _MainTex;
+
             float4 _GlowColor;
             float _GlowStrength;
             float _GlowSpeed;
 
-            v2f vert (appdata v) {
+            float4 _EmissionColor;
+            float _EmissionStrength;
+
+            float _Alpha;
+
+            v2f vert(appdata v)
+            {
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
+
+                o.positionCS = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
+
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target {
+            half4 frag(v2f i) : SV_Target
+            {
                 // Base texture
-                fixed4 col = tex2D(_MainTex, i.uv);
+                half4 tex = tex2D(_MainTex, i.uv);
 
-                // Pulsing factor 0..1
+                // Pulsing glow
                 float pulse = sin(_Time.y * _GlowSpeed) * 0.5 + 0.5;
 
-                // Texture-driven glow (like emission map = MainTex, tinted by GlowColor)
-                fixed3 glowTex = col.rgb * _GlowColor.rgb;
+                // Glow contribution
+                half3 glow =
+                    tex.rgb *
+                    _GlowColor.rgb *
+                    pulse *
+                    _GlowStrength;
 
-                // Apply strength + pulse
-                fixed3 glow = glowTex * pulse * (_GlowStrength * 10.0);
+                // Emission contribution
+                half3 emission =
+                    tex.rgb *
+                    _EmissionColor.rgb *
+                    _EmissionStrength;
 
-                // Add glow on top
-                col.rgb += glow;
+                // Final color
+                half3 finalColor =
+                    tex.rgb +
+                    glow +
+                    emission;
 
-                return col;
+                return half4(finalColor, tex.a * _Alpha);
             }
-            ENDCG
+
+            ENDHLSL
         }
     }
 
-    FallBack "Lit"
+    FallBack "Transparent/Diffuse"
 }

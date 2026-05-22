@@ -1,8 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;      // ← Required for UniTask
 using VLB;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -11,256 +11,190 @@ public class WorldLight : MonoBehaviour
 {
     [Header("Lights")]
     [SerializeField] private List<Light> bulbList = new List<Light>();
+    [SerializeField] private List<Renderer> rendererList = new List<Renderer>();
+    [SerializeField] private List<VolumetricLightBeamHD> lightBeams = new List<VolumetricLightBeamHD>();
 
-    [SerializeField] private List<Renderer> rendererList =
-        new List<Renderer>();
-
-    [SerializeField] private List<VolumetricLightBeamHD> lightBeams =
-        new List<VolumetricLightBeamHD>();
-
-    public bool lightOn;
-
-    [SerializeField] private bool lightFlickers;
+    public bool lightOn = false;
+    [SerializeField] private bool lightFlickers = false;
 
     [Header("Flicker Settings")]
     [SerializeField] private int smoothing = 5;
-
     [SerializeField] private float beamFlickerMultiplier = 1f;
 
-    // Base intensity per light
-    private List<float> baseIntensities =
-        new List<float>();
+    // Base values
+    private List<float> baseIntensities = new List<float>();
+    private List<float> baseBeamIntensities = new List<float>();
 
-    // Base beam intensity
-    private List<float> baseBeamIntensities =
-        new List<float>();
-
-    private Queue<float> smoothQueue =
-        new Queue<float>();
-
+    private Queue<float> smoothQueue = new Queue<float>();
     private float lastSum = 0f;
 
     // Cached materials
-    private List<Material[]> materialCache =
-        new List<Material[]>();
+    private List<Material[]> materialCache = new List<Material[]>();
 
-    static readonly int HDRP_EmissiveColor =
-        Shader.PropertyToID("_EmissiveColor");
+    private static readonly int HDRP_EmissiveColor = Shader.PropertyToID("_EmissiveColor");
+
+    private CancellationTokenSource _flickerCts;
 
     private void Start()
+    {
+        CacheBaseValues();
+        CacheMaterials();
+        ApplyLightState();
+
+        if (lightFlickers && lightOn)
+            StartFlicker();
+    }
+
+    private void CacheBaseValues()
     {
         baseIntensities.Clear();
         baseBeamIntensities.Clear();
 
-        // Cache original light intensities
-        foreach (var light in bulbList)
-        {
-            if (light != null)
-                baseIntensities.Add(light.intensity);
-            else
-                baseIntensities.Add(1f);
-        }
+        foreach (var light in bulbList) baseIntensities.Add(light != null ? light.intensity : 1f);
 
-        // Cache original beam intensities
-        foreach (var beam in lightBeams)
-        {
-            if (beam != null)
-                baseBeamIntensities.Add(beam.intensity);
-            else
-                baseBeamIntensities.Add(1f);
-        }
+        foreach (var beam in lightBeams) baseBeamIntensities.Add(beam != null ? beam.intensity : 1f);
+    }
 
-        // Cache renderer materials
+    private void CacheMaterials()
+    {
+        materialCache.Clear();
+
         foreach (var rend in rendererList)
         {
-            if (rend != null)
+            if (rend == null) 
             {
-                var mats = rend.materials;
+                materialCache.Add(null);
+                continue;
+            }
 
-                materialCache.Add(mats);
+            var mats = rend.materials;
+            materialCache.Add(mats);
 
-                foreach (var m in mats)
+            foreach (var m in mats)
+            {
+                if (m != null)
                 {
-                    if (m != null)
-                    {
-                        m.SetFloat("_UseEmissiveColor", 1f);
-                        m.SetFloat("_EmissiveExposureWeight", 1f);
-
-                        m.EnableKeyword("_EMISSIVE_COLOR");
-                        m.EnableKeyword("_EMISSION");
-                    }
+                    m.SetFloat("_UseEmissiveColor", 1f);
+                    m.SetFloat("_EmissiveExposureWeight", 1f);
+                    m.EnableKeyword("_EMISSIVE_COLOR");
+                    m.EnableKeyword("_EMISSION");
                 }
             }
-        }
-
-        ApplyLightState();
-
-        // Start flicker if enabled
-        if (lightFlickers && lightOn)
-        {
-            StopAllCoroutines();
-            StartCoroutine(LightFlicker());
         }
     }
 
     public void ToggleLight()
     {
         lightOn = !lightOn;
-
         ApplyLightState();
 
-        // Flicker handling
         if (lightFlickers && lightOn)
-        {
-            StopAllCoroutines();
-            StartCoroutine(LightFlicker());
-        }
+            StartFlicker();
         else
-        {
-            StopAllCoroutines();
-        }
+            StopFlicker();
     }
 
-    private void ApplyLightState()
+    private void StartFlicker()
     {
-        // Apply Unity light state
-        for (int i = 0; i < bulbList.Count; i++)
-        {
-            var light = bulbList[i];
-
-            if (light != null)
-            {
-                light.enabled = lightOn;
-
-                if (lightOn)
-                    light.intensity = baseIntensities[i];
-                else
-                    light.intensity = 0f;
-
-                UpdateBulbEmission(light, i);
-            }
-        }
-
-        // Apply beam state
-        for (int i = 0; i < lightBeams.Count; i++)
-        {
-            var beam = lightBeams[i];
-
-            if (beam != null)
-            {
-                beam.enabled = lightOn;
-
-                if (lightOn)
-                {
-                    beam.intensity =
-                        baseBeamIntensities[i];
-                }
-                else
-                {
-                    beam.intensity = 0f;
-                }
-
-                beam.UpdateAfterManualPropertyChange();
-            }
-        }
+        StopFlicker();
+        _flickerCts = new CancellationTokenSource();
+        LightFlickerAsync(_flickerCts.Token).Forget();
     }
 
-    private void UpdateBulbEmission(
-        Light light,
-        int index
-    )
+    private void StopFlicker()
     {
-        float intensity =
-            lightOn ? light.intensity : 0f;
-
-        Color col =
-            light.color * intensity * 5f;
-
-        if (index < materialCache.Count)
-        {
-            var mats = materialCache[index];
-
-            foreach (var m in mats)
-            {
-                if (m != null &&
-                    m.name.ToLower().Contains("bulb"))
-                {
-                    m.SetColor(
-                        HDRP_EmissiveColor,
-                        col
-                    );
-                }
-            }
-        }
+        _flickerCts?.Cancel();
+        _flickerCts?.Dispose();
+        _flickerCts = null;
     }
 
-    private IEnumerator LightFlicker()
+    private async UniTask LightFlickerAsync(CancellationToken token)
     {
-        while (lightOn)
+        while (lightOn && !token.IsCancellationRequested)
         {
-            float flickerValue =
-                GetSmoothedRandom();
+            float flickerValue = GetSmoothedRandom();
 
-            // Flicker lights
+            // Flicker Unity Lights + Emission
             for (int i = 0; i < bulbList.Count; i++)
             {
                 var light = bulbList[i];
-
-                if (light != null &&
-                    light.enabled)
+                if (light != null && light.enabled)
                 {
-                    float v =
-                        flickerValue *
-                        baseIntensities[i];
-
+                    float v = flickerValue * baseIntensities[i];
                     light.intensity = v;
 
-                    Color finalColor =
-                        light.color *
-                        v *
-                        5f;
+                    Color finalColor = light.color * v / 5f;
 
-                    // Update emissive materials
                     if (i < materialCache.Count)
                     {
-                        var mats =
-                            materialCache[i];
-
+                        var mats = materialCache[i];
                         foreach (var m in mats)
                         {
-                            if (m != null &&
-                                m.name
-                                    .ToLower()
-                                    .Contains("bulb"))
+                            if (m != null && m.name.ToLower().Contains("bulb"))
                             {
-                                m.SetColor(
-                                    HDRP_EmissiveColor,
-                                    finalColor
-                                );
+                                m.SetColor(HDRP_EmissiveColor, finalColor);
                             }
                         }
                     }
                 }
             }
 
-            // Flicker volumetric beams
+            // Flicker Volumetric Beams
             for (int i = 0; i < lightBeams.Count; i++)
             {
                 var beam = lightBeams[i];
-
-                if (beam != null &&
-                    beam.enabled)
+                if (beam != null && beam.enabled)
                 {
-                    beam.intensity =
-                        baseBeamIntensities[i] *
-                        flickerValue *
-                        beamFlickerMultiplier;
-
+                    beam.intensity = baseBeamIntensities[i] * flickerValue * beamFlickerMultiplier;
                     beam.UpdateAfterManualPropertyChange();
                 }
             }
 
-            yield return new WaitForSeconds(0.05f);
+            await UniTask.WaitForSeconds(0.05f, cancellationToken: token);
+        }
+    }
+
+    private void ApplyLightState()
+    {
+        // Unity Lights
+        for (int i = 0; i < bulbList.Count; i++)
+        {
+            var light = bulbList[i];
+            if (light != null)
+            {
+                light.enabled = lightOn;
+                light.intensity = lightOn ? baseIntensities[i] : 0f;
+                UpdateBulbEmission(light, i);
+            }
+        }
+
+        // Volumetric Beams
+        for (int i = 0; i < lightBeams.Count; i++)
+        {
+            var beam = lightBeams[i];
+            if (beam != null)
+            {
+                beam.enabled = lightOn;
+                beam.intensity = lightOn ? baseBeamIntensities[i] : 0f;
+                beam.UpdateAfterManualPropertyChange();
+            }
+        }
+    }
+
+    private void UpdateBulbEmission(Light light, int index)
+    {
+        if (index >= materialCache.Count) return;
+
+        float intensity = lightOn ? light.intensity : 0f;
+        Color col = light.color * intensity / 5f;
+
+        var mats = materialCache[index];
+        foreach (var m in mats)
+        {
+            if (m != null && m.name.ToLower().Contains("bulb"))
+            {
+                m.SetColor(HDRP_EmissiveColor, col);
+            }
         }
     }
 
@@ -270,12 +204,15 @@ public class WorldLight : MonoBehaviour
             lastSum -= smoothQueue.Dequeue();
 
         float v = Random.Range(0f, 1f);
-
         smoothQueue.Enqueue(v);
-
         lastSum += v;
 
         return lastSum / smoothQueue.Count;
+    }
+
+    private void OnDestroy()
+    {
+        StopFlicker();
     }
 }
 
@@ -287,17 +224,11 @@ public class WorldLightEditor : Editor
     {
         DrawDefaultInspector();
 
-        WorldLight wl =
-            (WorldLight)target;
-
-        GUILayout.Space(10);
-
-        GUILayout.BeginHorizontal();
-
-        if (GUILayout.Button("Toggle"))
-            wl.ToggleLight();
-
-        GUILayout.EndHorizontal();
+        EditorGUILayout.Space();
+        if (GUILayout.Button("Toggle Light", GUILayout.Height(35)))
+        {
+            ((WorldLight)target).ToggleLight();
+        }
     }
 }
 #endif

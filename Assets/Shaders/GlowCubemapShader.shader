@@ -1,8 +1,10 @@
-Shader "Custom/GlowCubemapShader"
+Shader "Custom/GlowCubemapShaderRotatableTintedDoubleSided"
 {
     Properties
     {
         _CubeTex ("Cubemap (6 Faces)", CUBE) = "" {}
+
+        _TintColor ("Tint Color (RGBA)", Color) = (1,1,1,1)
 
         _GlowColor ("Glow Color", Color) = (1,1,1,1)
         _GlowStrength ("Glow Strength", Range(0,10)) = 1
@@ -12,6 +14,13 @@ Shader "Custom/GlowCubemapShader"
         _EmissionStrength ("Emission Strength", Range(0,10)) = 1
 
         _Alpha ("Alpha", Range(0,1)) = 1
+
+        _RotationY ("Horizontal Rotation", Range(0,360)) = 0
+        _RotationX ("Vertical Rotation", Range(-180,180)) = 0
+
+        // Double-sided control
+        [Enum(UnityEngine.Rendering.CullMode)]
+        _Cull ("Cull Mode (Off = Double Sided)", Float) = 0
     }
 
     SubShader
@@ -26,7 +35,7 @@ Shader "Custom/GlowCubemapShader"
 
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
-        Cull Back
+        Cull [_Cull]
 
         Pass
         {
@@ -51,6 +60,8 @@ Shader "Custom/GlowCubemapShader"
 
             samplerCUBE _CubeTex;
 
+            float4 _TintColor;
+
             float4 _GlowColor;
             float _GlowStrength;
             float _GlowSpeed;
@@ -60,14 +71,42 @@ Shader "Custom/GlowCubemapShader"
 
             float _Alpha;
 
+            float _RotationY;
+            float _RotationX;
+
+            float3 RotateY(float3 dir, float angle)
+            {
+                float s = sin(angle);
+                float c = cos(angle);
+
+                return float3(
+                    dir.x * c - dir.z * s,
+                    dir.y,
+                    dir.x * s + dir.z * c
+                );
+            }
+
+            float3 RotateX(float3 dir, float angle)
+            {
+                float s = sin(angle);
+                float c = cos(angle);
+
+                return float3(
+                    dir.x,
+                    dir.y * c - dir.z * s,
+                    dir.y * s + dir.z * c
+                );
+            }
+
             v2f vert(appdata v)
             {
                 v2f o;
 
                 o.positionCS = UnityObjectToClipPos(v.vertex);
 
-                // World direction for cubemap lookup
-                float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+                float3 worldPos =
+                    mul(unity_ObjectToWorld, v.vertex).xyz;
+
                 o.worldDir = worldPos - _WorldSpaceCameraPos;
 
                 return o;
@@ -77,20 +116,22 @@ Shader "Custom/GlowCubemapShader"
             {
                 float3 dir = normalize(i.worldDir);
 
-                // Sample cubemap
+                dir = RotateY(dir, radians(_RotationY));
+                dir = RotateX(dir, radians(_RotationX));
+
                 half4 tex = texCUBE(_CubeTex, dir);
 
-                // Pulse
+                // Tint (RGBA)
+                tex *= _TintColor;
+
                 float pulse = sin(_Time.y * _GlowSpeed) * 0.5 + 0.5;
 
-                // Glow
                 half3 glow =
                     tex.rgb *
                     _GlowColor.rgb *
                     pulse *
                     _GlowStrength;
 
-                // Emission
                 half3 emission =
                     tex.rgb *
                     _EmissionColor.rgb *

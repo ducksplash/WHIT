@@ -1,9 +1,13 @@
 ﻿// Player.cs
+
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
 using System.Collections;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 
 public class Player : Singleton<Player>
 {
@@ -230,6 +234,13 @@ public class Player : Singleton<Player>
     // ────────────────────────────────────────────────────────────────────────
     // Start
     // ────────────────────────────────────────────────────────────────────────
+    private CancellationTokenSource _sitCts;
+    private CancellationTokenSource _crouchCts;
+    private CancellationTokenSource _upperBodyCts;
+
+    // ────────────────────────────────────────────────────────────────────────
+    // Start
+    // ────────────────────────────────────────────────────────────────────────
     void Start()
     {
         CurrentCamera = FirstPersonCamera;
@@ -251,21 +262,19 @@ public class Player : Singleton<Player>
         {
             _animT = Noranimator.transform;
             Noranimator.applyRootMotion = false;
-            Noranimator.cullingMode     = AnimatorCullingMode.AlwaysAnimate;
+            Noranimator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
 
-            Noranimator.SetBool(AnimCrouching,  crouching);
-            Noranimator.SetBool(AnimGrounded,   true);
-            Noranimator.SetFloat(AnimSpeed,     0f);
-            Noranimator.SetFloat(AnimMoveX,     0f);
-            Noranimator.SetFloat(AnimMoveY,     0f);
+            Noranimator.SetBool(AnimCrouching, crouching);
+            Noranimator.SetBool(AnimGrounded, true);
+            Noranimator.SetFloat(AnimSpeed, 0f);
+            Noranimator.SetFloat(AnimMoveX, 0f);
+            Noranimator.SetFloat(AnimMoveY, 0f);
 
             _upperBodyLayerIndex = Noranimator.GetLayerIndex(upperBodyLayerName);
             if (_upperBodyLayerIndex < 0 && debugAnim)
                 Debug.LogWarning($"[Player] Animator has no layer named '{upperBodyLayerName}'.");
-            else
-                Noranimator.SetLayerWeight(_upperBodyLayerIndex, 0f);
 
-            _phoneOutStateHash  = Animator.StringToHash(upperBodyPhoneOutStateName);
+            _phoneOutStateHash = Animator.StringToHash(upperBodyPhoneOutStateName);
             _phoneAwayStateHash = Animator.StringToHash(upperBodyPhoneAwayStateName);
 
             Noranimator.ResetTrigger(AnimMelee);
@@ -276,7 +285,7 @@ public class Player : Singleton<Player>
         CaptureControllerBaseline();
         _lastWorldPos = GetWorldPositionForVelocity();
 
-        _baseController    = Noranimator.runtimeAnimatorController;
+        _baseController = Noranimator.runtimeAnimatorController;
         _locomotionOverride = new AnimatorOverrideController(_baseController);
         Noranimator.runtimeAnimatorController = _locomotionOverride;
 
@@ -524,182 +533,165 @@ public class Player : Singleton<Player>
         HandleMovement();
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // ── SITTING ─────────────────────────────────────────────────────────────
-    // ────────────────────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Called when the player clicks a seat. Begins the full sit-down sequence.
-    /// EventManager.OnNoraSit must be declared as Action&lt;Seat&gt;.
-    /// PLAYERBUSY is set true immediately and held until StandUp() completes.
-    /// </summary>
-    public void NoraSit(Seat seat)
+public void NoraSit(Seat seat)
     {
-        if (seat == null || seat.seatTransform == null)
-        {
-            Debug.LogWarning("[Player] NoraSit called with null seat or null seatTransform.");
-            return;
-        }
-
-        if (IsSeated)
-        {
-            Debug.LogWarning("[Player] NoraSit called while already seated – ignoring.");
-            return;
-        }
+        if (seat == null || seat.seatTransform == null) return;
+        if (IsSeated) return;
 
         GameMaster.Instance.PLAYERBUSY = true;
 
-        // Freeze look input during the scripted approach/align/backstep phases.
-        // The component stays enabled so it can resume immediately when seated.
-        // CC is disabled so direct transform movement works cleanly.
-        if (FirstPersonLook    != null) FirstPersonLook.LockLook(true);
+        if (FirstPersonLook != null) FirstPersonLook.LockLook(true);
         if (thisCharController != null) thisCharController.enabled = false;
 
-        if (_sitCoroutine != null)
-        {
-            StopCoroutine(_sitCoroutine);
-            _sitCoroutine = null;
-        }
+        _sitCts?.Cancel();
+        _sitCts = new CancellationTokenSource();
 
-        _activeSeatTransform = seat.seatTransform;
-        _sitCoroutine = StartCoroutine(SitSequence(seat.seatTransform, seat));
+        SitSequence(seat.seatTransform, seat).Forget();
     }
 
-    // ── Phase runner ────────────────────────────────────────────────────────
-    private IEnumerator SitSequence(Transform seatTf, Seat seat)
+    private async UniTask SitSequence(Transform seatTf, Seat seat)
     {
-        // ── Shared geometry ─────────────────────────────────────────────────
+        var token = _sitCts.Token;
+
+        // Fixed: No .WithY()
         Vector3 seatForward = seatTf.forward;
         seatForward.y = 0f;
-        if (seatForward.sqrMagnitude < 0.0001f) seatForward = transform.forward;
+        if (seatForward.sqrMagnitude < 0.0001f)
+            seatForward = transform.forward;
+
         seatForward.Normalize();
 
         Vector3 seatPos = seatTf.position;
+        Vector3 preSitPoint = seatPos + seatForward * sitPreSitForwardOffset;
+        Vector3 backstepPoint = seatPos + seatForward * sitBackstepDistance;
 
-        Vector3 preSitPoint   = new Vector3(seatPos.x + seatForward.x * sitPreSitForwardOffset, transform.position.y, seatPos.z + seatForward.z * sitPreSitForwardOffset);
-
-        Vector3 backstepPoint = new Vector3(seatPos.x + seatForward.x * sitBackstepDistance, transform.position.y, seatPos.z + seatForward.z * sitBackstepDistance);
-
-
-        
-        // refac
         bool allowLook = !seat.gameObject.CompareTag("EllsworthOfficeChair");
-
         GameMaster.Instance.INAMEETING = seat.gameObject.CompareTag("EllsworthOfficeChair");
-        //
-        
-        
-        yield return StartCoroutine(SitPhaseApproach(preSitPoint));
 
-        if (seatTf == null) { AbortSit(); yield break; }
-
-        yield return StartCoroutine(SitPhaseAlign(seatForward));
-
-        if (seatTf == null) { AbortSit(); yield break; }
-
-        yield return StartCoroutine(SitPhaseBackstep(backstepPoint, seatForward));
-
-        if (seatTf == null) { AbortSit(); yield break; }
-
-        transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
-
-        if (Noranimator != null)
+        try
         {
-            Noranimator.ResetTrigger(AnimSitDown);
-            Noranimator.SetTrigger(AnimSitDown);
-        }
+            await SitPhaseApproach(preSitPoint, token);
+            if (seatTf == null) throw new OperationCanceledException();
 
-        yield return new WaitForSeconds(sitDownDuration);
+            await SitPhaseAlign(seatForward, token);
+            if (seatTf == null) throw new OperationCanceledException();
 
-        if (seatTf != null)
-        {
-            transform.position = seatTf.position + sitSeatedRootOffset;
+            await SitPhaseBackstep(backstepPoint, seatForward, token);
+            if (seatTf == null) throw new OperationCanceledException();
+
             transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
-        }
 
-        if (Noranimator != null)
+            if (Noranimator != null)
+            {
+                Noranimator.ResetTrigger(AnimSitDown);
+                Noranimator.SetTrigger(AnimSitDown);
+            }
+
+            await UniTask.WaitForSeconds(sitDownDuration, cancellationToken: token);
+
+            if (seatTf != null)
+            {
+                transform.position = seatTf.position + sitSeatedRootOffset;
+                transform.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
+            }
+
+            if (Noranimator != null)
+            {
+                Noranimator.ResetTrigger(AnimSitIdle);
+                Noranimator.SetTrigger(AnimSitIdle);
+            }
+
+            float seatFacingYaw = Quaternion.LookRotation(seatForward, Vector3.up).eulerAngles.y;
+            FirstPersonLook?.SetSeated(true, seatFacingYaw, allowLook);
+
+            if (!allowLook) DirectorEvents.StartDirector(DirectedRoutines.MainNoraFired);
+
+            await UniTask.WaitForSeconds(1f, cancellationToken: token);
+
+            IsSeated = true;
+        }
+        catch (OperationCanceledException)
         {
-            Noranimator.ResetTrigger(AnimSitIdle);
-            Noranimator.SetTrigger(AnimSitIdle);
+            // Sit was aborted
         }
-
-        
-        float seatFacingYaw = Quaternion.LookRotation(seatForward, Vector3.up).eulerAngles.y;
-        FirstPersonLook?.SetSeated(true, seatFacingYaw, allowLook);
-        
-        if (!allowLook) DirectorEvents.StartDirector(DirectedRoutines.MainNoraFired);
-
-        yield return new WaitForSeconds(1);
-        
-        IsSeated = true;
-        _sitCoroutine = null;
-
-        // PLAYERBUSY remains true. StandUp() is called externally via input.
+        finally
+        {
+            _sitCts?.Dispose();
+            _sitCts = null;
+        }
     }
-    
-    
-    private IEnumerator SitPhaseApproach(Vector3 target)
+
+    private async UniTask SitPhaseApproach(Vector3 target, CancellationToken token)
     {
         float floorY = transform.position.y;
 
-        while (true)
+        while (!token.IsCancellationRequested)
         {
-            
-            float dist = new Vector2(target.x - transform.position.x, target.z - transform.position.z).magnitude;
+            float dist = Vector2.Distance(
+                new Vector2(target.x, target.z), 
+                new Vector2(transform.position.x, transform.position.z));
 
-            if (dist <= sitArriveDistance) yield break;
+            if (dist <= sitArriveDistance) return;
 
-            Vector3 dir = new Vector3(target.x - transform.position.x, 0f, target.z - transform.position.z).normalized;
+            Vector3 dir = target - transform.position;
+            dir.y = 0f;
+            dir.Normalize();
 
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir, Vector3.up), Time.deltaTime * sitRotateSpeed);
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir, Vector3.up), 
+                Time.deltaTime * sitRotateSpeed);
 
             Vector3 next = transform.position + dir * sitMoveSpeed * Time.deltaTime;
             next.y = floorY;
             transform.position = next;
 
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.Update, token);
         }
     }
 
-    private IEnumerator SitPhaseAlign(Vector3 targetFacing)
+    private async UniTask SitPhaseAlign(Vector3 targetFacing, CancellationToken token)
     {
         Quaternion targetRot = Quaternion.LookRotation(targetFacing, Vector3.up);
 
-        while (Mathf.Abs(Mathf.DeltaAngle(transform.eulerAngles.y, targetRot.eulerAngles.y)) > sitAlignToleranceDeg)
+        while (!token.IsCancellationRequested)
         {
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation, targetRot,
-                Time.deltaTime * sitRotateSpeed * 1.5f);
-            yield return null;
+            if (Mathf.Abs(Mathf.DeltaAngle(transform.eulerAngles.y, targetRot.eulerAngles.y)) <= sitAlignToleranceDeg)
+                break;
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * sitRotateSpeed * 1.5f);
+            await UniTask.Yield(PlayerLoopTiming.Update, token);
         }
 
         transform.rotation = targetRot;
     }
 
-    private IEnumerator SitPhaseBackstep(Vector3 backstepTarget, Vector3 seatFacing)
+    private async UniTask SitPhaseBackstep(Vector3 backstepTarget, Vector3 seatFacing, CancellationToken token)
     {
-        float floorY   = transform.position.y;
-        Quaternion faceRot  = Quaternion.LookRotation(seatFacing, Vector3.up);
+        float floorY = transform.position.y;
+        Quaternion faceRot = Quaternion.LookRotation(seatFacing, Vector3.up);
 
-        while (true)
+        while (!token.IsCancellationRequested)
         {
-            float dist = new Vector2(backstepTarget.x - transform.position.x, backstepTarget.z - transform.position.z).magnitude;
+            float dist = Vector2.Distance(
+                new Vector2(backstepTarget.x, backstepTarget.z), 
+                new Vector2(transform.position.x, transform.position.z));
 
-            if (dist <= 0.06f) yield break;
+            if (dist <= 0.06f) return;
 
-            transform.rotation = Quaternion.Slerp(transform.rotation, faceRot,
+            transform.rotation = Quaternion.Slerp(transform.rotation, faceRot, 
                 Time.deltaTime * sitRotateSpeed * 2f);
 
-            Vector3 dir = new Vector3(backstepTarget.x - transform.position.x, 0f, backstepTarget.z - transform.position.z).normalized;
+            // Fixed: Replaced .WithY(0) with manual Y = 0
+            Vector3 dir = backstepTarget - transform.position;
+            dir.y = 0f;
+            dir.Normalize();
 
             Vector3 next = transform.position + dir * sitBackstepSpeed * Time.deltaTime;
             next.y = floorY;
             transform.position = next;
 
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.Update, token);
         }
     }
-
     private void AbortSit()
     {
         Debug.LogWarning("[Player] SitSequence aborted (seat transform was destroyed).");
@@ -709,24 +701,15 @@ public class Player : Singleton<Player>
 
     public void StandUp(InputAction.CallbackContext ctx = default)
     {
-        if (!IsSeated)
-        {
-            // Debug.LogWarning("[Player] StandUp called but player is not seated.");
-            return;
-        }
-
+        if (!IsSeated) return;
         if (GameMaster.Instance.INAMEETING) return;
 
-        if (_sitCoroutine != null)
-        {
-            StopCoroutine(_sitCoroutine);
-            _sitCoroutine = null;
-        }
+        _sitCts?.Cancel();
 
-        _sitCoroutine = StartCoroutine(StandUpSequence());
+        StandUpSequence().Forget();
     }
 
-    private IEnumerator StandUpSequence()
+    private async UniTask StandUpSequence()
     {
         if (Noranimator != null)
         {
@@ -734,15 +717,12 @@ public class Player : Singleton<Player>
             Noranimator.SetTrigger(AnimStandUp);
         }
 
-        yield return new WaitForSeconds(standUpDuration);
+        await UniTask.WaitForSeconds(standUpDuration);
 
         ReturnToLocomotion();
-
         GameMaster.Instance.PLAYERBUSY = false;
-        _sitCoroutine = null;
     }
 
-    // ── Shared locomotion-restore helper ────────────────────────────────────
     private void ReturnToLocomotion()
     {
         _activeSeatTransform = null;
@@ -750,7 +730,6 @@ public class Player : Singleton<Player>
         if (thisCharController != null)
             thisCharController.enabled = true;
 
-        // Restore normal look
         FirstPersonLook?.SetSeated(false);
 
         moveDirection.y = 0f;
@@ -930,43 +909,42 @@ public class Player : Singleton<Player>
         Noranimator.SetLayerWeight(_upperBodyLayerIndex, Mathf.Clamp01(w));
     }
 
-    private IEnumerator BlendUpperBodyWeight(float from, float to, float seconds)
+    private async UniTask BlendUpperBodyWeight(float from, float to, float seconds, CancellationToken token)
     {
-        if (Noranimator == null || _upperBodyLayerIndex < 0) yield break;
+        if (Noranimator == null || _upperBodyLayerIndex < 0) return;
 
-        if (seconds <= 0f) { SetUpperBodyWeight(to); yield break; }
+        if (seconds <= 0f)
+        {
+            SetUpperBodyWeight(to);
+            return;
+        }
 
         float t = 0f;
-        while (t < seconds)
+        while (t < seconds && !token.IsCancellationRequested)
         {
             t += Time.deltaTime;
-            Noranimator.SetLayerWeight(_upperBodyLayerIndex, Mathf.Lerp(from, to, Mathf.Clamp01(t / seconds)));
-            yield return null;
+            SetUpperBodyWeight(Mathf.Lerp(from, to, t / seconds));
+            await UniTask.Yield(PlayerLoopTiming.Update, token);
         }
-        Noranimator.SetLayerWeight(_upperBodyLayerIndex, to);
+
+        if (!token.IsCancellationRequested)
+            SetUpperBodyWeight(to);
     }
 
     private void RefreshUpperBodyWeight()
     {
-        if (Noranimator == null) return;
+        // ... existing logic to decide target weight ...
 
-        if (_upperBodyLayerIndex < 0)
-            _upperBodyLayerIndex = Noranimator.GetLayerIndex(upperBodyLayerName);
+        bool shouldBeOn = _upperBodyHeldByMelee || _upperBodyHeldByPhone;
+        float current = Noranimator?.GetLayerWeight(_upperBodyLayerIndex) ?? 0f;
+        float target = shouldBeOn ? 1f : 0f;
 
-        if (_upperBodyLayerIndex < 0) return;
+        _upperBodyCts?.Cancel();
+        _upperBodyCts = new CancellationTokenSource();
 
-        bool  shouldBeOn = _upperBodyHeldByMelee || _upperBodyHeldByPhone;
-        float current    = Noranimator.GetLayerWeight(_upperBodyLayerIndex);
-        float target     = shouldBeOn ? 1f : 0f;
-
-        StopUpperBodyBlend();
-
-        if (Mathf.Approximately(current, target)) return;
-
-        _upperBodyBlendCo = StartCoroutine(
-            BlendUpperBodyWeight(current, target, shouldBeOn ? upperBodyBlendIn : upperBodyBlendOut)
-        );
+        BlendUpperBodyWeight(current, target, shouldBeOn ? upperBodyBlendIn : upperBodyBlendOut, _upperBodyCts.Token).Forget();
     }
+
 
     // ────────────────────────────────────────────────────────────────────────
     // Torch suppression (crawl)
@@ -1179,29 +1157,27 @@ public class Player : Singleton<Player>
 
     private void StartCrouchControllerBlend(bool toCrouch)
     {
-        if (_crouchCo != null) { StopCoroutine(_crouchCo); _crouchCo = null; }
+        _crouchCts?.Cancel();
+        _crouchCts = new CancellationTokenSource();
 
-        float targetHeight = Mathf.Max(0.2f, toCrouch ? croucheight : standheight);
-
-        if (crouchBlendSeconds <= 0f) { ApplyControllerHeightKeepBottom(targetHeight); return; }
-
-        _crouchCo = StartCoroutine(BlendControllerHeight(targetHeight, crouchBlendSeconds));
+        BlendControllerHeight(toCrouch ? croucheight : standheight, crouchBlendSeconds, _crouchCts.Token).Forget();
     }
 
-    private IEnumerator BlendControllerHeight(float targetHeight, float duration)
+    private async UniTask BlendControllerHeight(float targetHeight, float duration, CancellationToken token)
     {
-        if (thisCharController == null) yield break;
+        if (thisCharController == null) return;
 
-        float   startHeight = thisCharController.height;
+        float startHeight = thisCharController.height;
         Vector3 startCenter = thisCharController.center;
-        float   bottom      = _bottomLocalOffset;
-        float   t           = 0f;
+        float bottom = _bottomLocalOffset;
 
-        while (t < duration)
+        float t = 0f;
+
+        while (t < duration && !token.IsCancellationRequested)
         {
             t += Time.deltaTime;
-            float a  = Mathf.Clamp01(t / duration);
-            float h  = Mathf.Lerp(startHeight, targetHeight, a);
+            float a = Mathf.Clamp01(t / duration);
+            float h = Mathf.Lerp(startHeight, targetHeight, a);
             float cy = bottom + (h * 0.5f);
 
             Vector3 c = startCenter;
@@ -1210,16 +1186,18 @@ public class Player : Singleton<Player>
             thisCharController.height = h;
             thisCharController.center = c;
 
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.Update, token);
         }
 
-        thisCharController.height = targetHeight;
-        Vector3 finalC = thisCharController.center;
-        finalC.y = bottom + (targetHeight * 0.5f);
-        thisCharController.center = finalC;
+        if (!token.IsCancellationRequested)
+        {
+            thisCharController.height = targetHeight;
+            Vector3 finalC = thisCharController.center;
+            finalC.y = bottom + (targetHeight * 0.5f);
+            thisCharController.center = finalC;
+        }
 
         thisCharController.Move(Vector3.zero);
-        _crouchCo = null;
     }
 
     private void ApplyControllerHeightKeepBottom(float newHeight)

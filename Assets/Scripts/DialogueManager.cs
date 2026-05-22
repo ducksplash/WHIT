@@ -540,9 +540,7 @@ public class DialogueManager : MonoBehaviour
             Debug.LogWarning("DialogueManager: advanceDialogue not assigned.");
             yield break;
         }
-
-        // ❌ REMOVED: EventManager.DialogueCanProceed(true);
-        // This was causing early input validity and race conditions
+        
 
         yield return new WaitUntil(() => advanceRequested);
 

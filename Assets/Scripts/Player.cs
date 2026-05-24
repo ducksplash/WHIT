@@ -11,6 +11,9 @@ using Cysharp.Threading.Tasks;
 
 public class Player : Singleton<Player>
 {
+    [Header("Player Status")] 
+    public PlayerStatus PlayerStatus;
+    
     [Header("Movement & State")]
     public float walkspeed = 0.1f;
     public float sprintspeed = 0.2f;

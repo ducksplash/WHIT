@@ -21,11 +21,14 @@ public class Door : MonoBehaviour
 
     static readonly int EmissiveColor = Shader.PropertyToID("_EmissiveColor");
 
+    public bool openOnLoad;
+    
     private void Awake()
     {
         if (doorAnimator == null) doorAnimator = GetComponentInChildren<Animator>();
-
         UpdateIndicatorLights();
+        
+        if (openOnLoad) ToggleDoor();
     }
     
     public void TryUseDoor(Collider hitCollider = null)
@@ -83,7 +86,7 @@ public class Door : MonoBehaviour
     }
 
 
-    private void ToggleDoor(Collider hitCollider)
+    private void ToggleDoor(Collider hitCollider = null)
     {
         isAnimating = true;
         isOpen = !isOpen;

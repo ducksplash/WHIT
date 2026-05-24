@@ -108,18 +108,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad585efbd547be4cb7a07627fcb8710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeNPC
-  npcRendererOutfitOne:
-  - {fileID: 6034602143537873129}
-  - {fileID: 1580867336330153815}
-  - {fileID: 6671178475548556890}
-  - {fileID: 7225990516254160068}
-  - {fileID: 6057509307430192173}
-  - {fileID: 8062468703796927238}
-  npcRendererOutfitTwo: []
-  npcRendererOutfitThree: []
-  npcController: {fileID: 2633378211856721511}
+  OutfitForWork: []
+  JiggleForWork: 0
+  OutfitForCasual: []
+  JiggleCasually: 0
+  OutfitForFirstDate: []
+  JiggleOnAFirstDate: 0
+  OutfitForSecondDate: []
+  JiggleOnASecondDate: 0
+  OutfitForThirdDate: []
+  JiggleOnAThirdDate: 0
+  OutfitForNightOut: []
+  JiggleOnANightOut: 0
+  OutfitForPyjamas: []
+  JiggleInPyjamas: 0
+  OutfitForHomelessness: []
+  JiggleWhileHomeless: 0
+  OutfitForWedding: []
+  JiggleAtAWedding: 0
+  OutfitForFuneral: []
+  JiggleAtAFuneral: 0
+  JiggleLeftBoob: {fileID: 0}
+  JiggleRightBoob: {fileID: 0}
+  JiggleLeftButtcheek: {fileID: 0}
+  JiggleRightButtcheek: {fileID: 0}
+  nextOutfit: {fileID: 0}
+  previousOutfit: {fileID: 0}
   UnressedOnLoad: 0
-  ThisNPCName: 
+  ThisCharacterName: 
+  npcController: {fileID: 2633378211856721511}
+  currentOutfit: 1
 --- !u!195 &7433718000970962013
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -156,6 +174,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   thisNPC: 517
   FindSeat: 0
+  PlayAnimation: 0
+  startupAnimationTrigger: 
   useStateMachine: 1
   currentTarget: {fileID: 0}
   activeRadius: 10
@@ -256,8 +276,8 @@ MonoBehaviour:
   patrolActionCooldownSeconds: 500
   patrolActionFailedRetrySeconds: 6
   autonomousTalkSearchRadius: 30
-  seatSearchRetryDelay: 3
-  bedSearchRetryDelay: 3
+  hasStartupActions: 0
+  startupActionsConcluded: 0
 --- !u!136 &2702221439904202500
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -349,16 +369,16 @@ MonoBehaviour:
     m_Bits: 2097152
   seatDebugLogs: 0
   seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
+  seatSearchTimeout: 10
+  seatRescanInterval: 1
+  seatSearchRadius: 30
   preSitForwardOffset: 0.45
   preSitArriveDistance: 0.35
   alignYawToleranceDeg: 6
   backstepDistance: 1
   backstepSpeed: 10
   snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
+  seatedRootOffset: {x: 0.6, y: -0.94, z: 0}
   autoStandAfterSeconds: 0
   sitDownLerpDuration: 0.01
   standUpLerpDuration: 0.01
@@ -366,7 +386,7 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  useSitTriggerParam: 0
+  useSitTriggerParam: 1
   sitTriggerParam: SitDown
   sitTriggerFallbackDelay: 0.08
   useSitIdleTriggerParam: 1
@@ -390,10 +410,11 @@ MonoBehaviour:
   standUpTriggerParam: StandUp
   standUpStateName: StandUp
   floorSitHeightThreshold: 0.2
-  isTyping: 0
+  isTyping: 1
   isTalking: 0
   isGabbing: 0
   isDawdling: 0
+  isSitting: 0
 --- !u!114 &3887723564498466168
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1132,45 +1153,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 65330dec1b7bd8e4680b37692fad4f65, type: 3}
---- !u!137 &1580867336330153815 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -3177725539261295213, guid: 65330dec1b7bd8e4680b37692fad4f65,
-    type: 3}
-  m_PrefabInstance: {fileID: 5050273519365970628}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4727816983538810159 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 65330dec1b7bd8e4680b37692fad4f65,
-    type: 3}
-  m_PrefabInstance: {fileID: 5050273519365970628}
-  m_PrefabAsset: {fileID: 0}
---- !u!137 &6034602143537873129 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 1560809185941920301, guid: 65330dec1b7bd8e4680b37692fad4f65,
-    type: 3}
-  m_PrefabInstance: {fileID: 5050273519365970628}
-  m_PrefabAsset: {fileID: 0}
---- !u!137 &6057509307430192173 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 1298925227796930281, guid: 65330dec1b7bd8e4680b37692fad4f65,
-    type: 3}
-  m_PrefabInstance: {fileID: 5050273519365970628}
-  m_PrefabAsset: {fileID: 0}
---- !u!137 &6671178475548556890 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -7313031639774042978, guid: 65330dec1b7bd8e4680b37692fad4f65,
-    type: 3}
-  m_PrefabInstance: {fileID: 5050273519365970628}
-  m_PrefabAsset: {fileID: 0}
---- !u!137 &7225990516254160068 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 2472983159608012288, guid: 65330dec1b7bd8e4680b37692fad4f65,
-    type: 3}
-  m_PrefabInstance: {fileID: 5050273519365970628}
-  m_PrefabAsset: {fileID: 0}
---- !u!137 &8062468703796927238 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -6199898044954328638, guid: 65330dec1b7bd8e4680b37692fad4f65,
     type: 3}
   m_PrefabInstance: {fileID: 5050273519365970628}
   m_PrefabAsset: {fileID: 0}

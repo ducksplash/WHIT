@@ -2946,18 +2946,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad585efbd547be4cb7a07627fcb8710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeNPC
-  npcRendererOutfitOne:
-  - {fileID: 7958492989086716529}
-  - {fileID: 5348057239666278826}
-  - {fileID: 186272356825203774}
-  - {fileID: 8976299842051823703}
-  - {fileID: 4459968890020813453}
-  - {fileID: 8944953316141962517}
-  npcRendererOutfitTwo: []
-  npcRendererOutfitThree: []
-  npcController: {fileID: 8511135045822187989}
+  OutfitForWork: []
+  JiggleForWork: 0
+  OutfitForCasual: []
+  JiggleCasually: 0
+  OutfitForFirstDate: []
+  JiggleOnAFirstDate: 0
+  OutfitForSecondDate: []
+  JiggleOnASecondDate: 0
+  OutfitForThirdDate: []
+  JiggleOnAThirdDate: 0
+  OutfitForNightOut: []
+  JiggleOnANightOut: 0
+  OutfitForPyjamas: []
+  JiggleInPyjamas: 0
+  OutfitForHomelessness: []
+  JiggleWhileHomeless: 0
+  OutfitForWedding: []
+  JiggleAtAWedding: 0
+  OutfitForFuneral: []
+  JiggleAtAFuneral: 0
+  JiggleLeftBoob: {fileID: 0}
+  JiggleRightBoob: {fileID: 0}
+  JiggleLeftButtcheek: {fileID: 0}
+  JiggleRightButtcheek: {fileID: 0}
+  nextOutfit: {fileID: 0}
+  previousOutfit: {fileID: 0}
   UnressedOnLoad: 0
-  ThisNPCName: 
+  ThisCharacterName: 
+  npcController: {fileID: 8511135045822187989}
+  currentOutfit: 1
 --- !u!195 &2086499892612118500
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2994,6 +3012,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   thisNPC: 518
   FindSeat: 0
+  PlayAnimation: 0
+  startupAnimationTrigger: 
   useStateMachine: 1
   currentTarget: {fileID: 0}
   activeRadius: 10
@@ -3094,8 +3114,8 @@ MonoBehaviour:
   patrolActionCooldownSeconds: 500
   patrolActionFailedRetrySeconds: 6
   autonomousTalkSearchRadius: 30
-  seatSearchRetryDelay: 3
-  bedSearchRetryDelay: 3
+  hasStartupActions: 0
+  startupActionsConcluded: 0
 --- !u!136 &5239228992094061543
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3187,16 +3207,16 @@ MonoBehaviour:
     m_Bits: 2097152
   seatDebugLogs: 0
   seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
+  seatSearchTimeout: 10
+  seatRescanInterval: 1
+  seatSearchRadius: 30
   preSitForwardOffset: 0.45
   preSitArriveDistance: 0.35
   alignYawToleranceDeg: 6
   backstepDistance: 1
   backstepSpeed: 10
   snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
+  seatedRootOffset: {x: 0.63, y: -0.73, z: -0.3}
   autoStandAfterSeconds: 0
   sitDownLerpDuration: 0.01
   standUpLerpDuration: 0.01
@@ -3204,7 +3224,7 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  useSitTriggerParam: 0
+  useSitTriggerParam: 1
   sitTriggerParam: SitDown
   sitTriggerFallbackDelay: 0.08
   useSitIdleTriggerParam: 1
@@ -3228,10 +3248,11 @@ MonoBehaviour:
   standUpTriggerParam: StandUp
   standUpStateName: StandUp
   floorSitHeightThreshold: 0.2
-  isTyping: 0
+  isTyping: 1
   isTalking: 0
   isGabbing: 0
   isDawdling: 0
+  isSitting: 0
 --- !u!114 &2313359027151956737
 MonoBehaviour:
   m_ObjectHideFlags: 0

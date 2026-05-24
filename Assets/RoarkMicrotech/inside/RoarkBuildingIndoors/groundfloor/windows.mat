@@ -31,10 +31,15 @@ Material:
   m_InvalidKeywords:
   - _DISABLE_SSR_TRANSPARENT
   - _DOUBLESIDED_ON
+  - _LIGHTNINGENABLED_ON
   - _MASKMAP
   - _MATERIAL_FEATURE_SPECULAR_COLOR
   - _NORMALMAP
   - _NORMALMAP_TANGENT_SPACE
+  - _RAINBACK_ON
+  - _RAINFRONT_ON
+  - _RAINLEFT_ON
+  - _RAINRIGHT_ON
   - _SPECULARCOLORMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -95,6 +100,22 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _LightningTex0:
+        m_Texture: {fileID: 2800000, guid: 883017269773de946950db8b8d49a8bc, type: 3}
+        m_Scale: {x: 10, y: 10}
+        m_Offset: {x: 0, y: 0}
+    - _LightningTex1:
+        m_Texture: {fileID: 2800000, guid: c24ada08d3aa3334bba3ac31ea10f1af, type: 3}
+        m_Scale: {x: 10, y: 10}
+        m_Offset: {x: 0, y: 0}
+    - _LightningTex2:
+        m_Texture: {fileID: 2800000, guid: b24fe78e3285fb144a077d4ad01f8192, type: 3}
+        m_Scale: {x: 10, y: 10}
+        m_Offset: {x: 0, y: 0}
+    - _LightningTex3:
+        m_Texture: {fileID: 2800000, guid: 1d6270b4034366b4ea8bdbd7861c38a9, type: 3}
+        m_Scale: {x: 10, y: 10}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: a71e745916977ce41a5e6ae1708f33c6, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -109,6 +130,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _NormalMapOS:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OverlayTex:
+        m_Texture: {fileID: 2800000, guid: dc5dc4610a9135a48af190957ec79345, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RainTex:
+        m_Texture: {fileID: 2800000, guid: b769a34c057c62244acd452adc2fbbca, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularColorMap:
@@ -215,6 +244,12 @@ Material:
     - _Ior: 1.5
     - _IridescenceMask: 1
     - _IridescenceThickness: 1
+    - _LightningEnabled: 1
+    - _LightningMaxDuration: 0.6
+    - _LightningMaxTime: 3
+    - _LightningMinDuration: 0.01
+    - _LightningMinTime: 0.1
+    - _LightningStrength: 2.02
     - _LinkDetailsWithBase: 1
     - _MaterialID: 4
     - _Metallic: 0
@@ -225,18 +260,32 @@ Material:
     - _ObjectSpaceUVMapping: 0
     - _ObjectSpaceUVMappingEmissive: 0
     - _OpaqueCullMode: 2
+    - _OverlayRotation: 274
+    - _OverlayStrength: 1
     - _PPDLodThreshold: 5
     - _PPDMaxSamples: 15
     - _PPDMinSamples: 5
     - _PPDPrimitiveLength: 1
     - _PPDPrimitiveWidth: 1
     - _PerPixelSorting: 0
+    - _RainBack: 1
+    - _RainBottom: 0
+    - _RainDirection: 0.34
+    - _RainFront: 1
+    - _RainLeft: 1
+    - _RainRight: 1
+    - _RainRotation: 241
+    - _RainSpeed: 1.5
+    - _RainStrength: 1
+    - _RainTiling: 8
+    - _RainTop: 0
+    - _RainTopMask: 0.7
     - _RayTracing: 0
     - _ReceivesSSR: 1
     - _ReceivesSSRTransparent: 0
     - _RefractionModel: 0
     - _RotationX: 0
-    - _RotationY: 142
+    - _RotationY: 178
     - _Smoothness: 0.5
     - _SmoothnessRemapMax: 0.7088306
     - _SmoothnessRemapMin: 0.7088306
@@ -258,6 +307,10 @@ Material:
     - _TexWorldScale: 1
     - _TexWorldScaleEmissive: 1
     - _Thickness: 1
+    - _TopRainDensity: 56.3
+    - _TopRainSize: 1.73
+    - _TopRainSpeed: 5.5
+    - _TopRainVariation: 0.7
     - _TransmissionEnable: 1
     - _TransmissionMask: 1
     - _TransparentBackfaceEnable: 0
@@ -288,9 +341,15 @@ Material:
     - _GlowColor: {r: 1, g: 1, b: 1, a: 1}
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
+    - _LightningForeground: {r: 1, g: 1, b: 1, a: 0}
+    - _LightningTiling: {r: 16, g: 8, b: 1, a: 0}
+    - _OverlayTiling: {r: 64, g: 128, b: 0, a: 0}
+    - _OverlayTint: {r: 1, g: 1, b: 1, a: 1}
+    - _RainTiling: {r: 200, g: 5, b: 0, a: 0}
+    - _RainTint: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _ThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
-    - _TintColor: {r: 1, g: 0, b: 0, a: 1}
+    - _TintColor: {r: 0, g: 0.30795163, b: 0.7509433, a: 1}
     - _TransmittanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}

@@ -13,7 +13,10 @@ public class NPCController : MonoBehaviour
 
     [Header("Identity")] public NPC thisNPC = NPC.Eimear_Scott;
 
-    [Header("Startup Behaviour")] public bool FindSeat;
+    [Header("Startup Behaviour")]
+    public bool FindSeat;
+    public bool PlayAnimation;
+    public string startupAnimationTrigger;
 
     [Header("AI State Machine")] public bool useStateMachine = true;
     public Transform currentTarget;
@@ -85,8 +88,7 @@ public class NPCController : MonoBehaviour
     [HideInInspector] public int selectedUpperBodyTriggerIndex;
     [Tooltip("Exact name of the Animator layer used for upper-body-only animations.")]
     public string upperBodyLayerName = "UpperLayer";
-    [Tooltip("State on the upper body layer to crossfade back to when the animation finishes. "
-             + "Usually an empty clip or a neutral pose. Leave blank to skip the return crossfade.")]
+    [Tooltip("State on the upper body layer to crossfade back to when the animation finishes. " + "Usually an empty clip or a neutral pose. Leave blank to skip the return crossfade.")]
     public string upperBodyReturnStateName = "";
 
     [Header("Locomotion / Blend Tree Return")] [SerializeField]
@@ -486,8 +488,7 @@ public class NPCController : MonoBehaviour
         _talk?.Init(this);
         _combat?.Init(this);
 
-        if (animationController != null)
-            animationController.applyRootMotion = false;
+        //if (animationController != null) animationController.applyRootMotion = false;
 
         _spawnPoint = transform.position;
 
@@ -520,22 +521,26 @@ public class NPCController : MonoBehaviour
     
     private IEnumerator StartupActions()
     {
-        
-        yield return new WaitForSeconds(UnityEngine.Random.Range(0.1f,0.5f));
+        yield return new WaitForSeconds(UnityEngine.Random.Range(0.1f, 0.5f));
 
         if (FindSeat)
         {
             RequestSitDown();
             hasStartupActions = true;
         }
-        
+
+        if (PlayAnimation && !string.IsNullOrWhiteSpace(startupAnimationTrigger))
+        {
+            PlayTrigger(startupAnimationTrigger);
+            hasStartupActions = true;
+        }
+
         yield return new WaitForEndOfFrame();
 
-        if (hasStartupActions)
+        if (hasStartupActions && FindSeat)
         {
             StartCoroutine(ActionObserver());
         }
-
     }
 
     private IEnumerator ActionObserver()
@@ -2822,6 +2827,20 @@ public class NPCControllerEditor : Editor
             EditorGUILayout.EndHorizontal();
         }
 
+        EditorGUILayout.Space(12);
+        EditorGUILayout.LabelField("Startup Animation", EditorStyles.boldLabel);
+        using (new EditorGUI.DisabledScope(!Application.isPlaying))
+        {
+            if (GUILayout.Button("Play Startup Animation", GUILayout.Height(35)))
+            {
+                if (!string.IsNullOrWhiteSpace(npc.startupAnimationTrigger))
+                    npc.PlayTrigger(npc.startupAnimationTrigger);
+                else
+                    EditorUtility.DisplayDialog("No Trigger Set",
+                        "Set 'Startup Animation Trigger' in the Inspector first.", "OK");
+            }
+        }
+        
         EditorGUILayout.Space(12);
         EditorGUILayout.LabelField("Lying Controls", EditorStyles.boldLabel);
         using (new EditorGUI.DisabledScope(!Application.isPlaying))

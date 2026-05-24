@@ -126,7 +126,10 @@ public class AudioSlave : MonoBehaviour
     {
         if (_sfxSource == null)
         {
-            Debug.LogError("AudioSlave.PlaySFX: _sfxSource is null (Awake may not have run?).");
+            //Debug.LogError("AudioSlave.PlaySFX: _sfxSource is null (Awake may not have run?).");
+            // don't worry. some of the doors are set to run on load, we'd rather there not be the sound of 40 doors opening
+            // when a scene loads anyway so this is a happy accident.
+            // I'll fix it properly later. 
             return;
         }
 

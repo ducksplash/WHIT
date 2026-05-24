@@ -95,6 +95,7 @@ public enum NPC
     Essie = 107,
     Sandra = 108,
     Cait = 109,
+    Water_Guy = 110,
     NoraKennedy = 999,
     
     // Extras

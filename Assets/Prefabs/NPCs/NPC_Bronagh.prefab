@@ -2847,15 +2847,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeNPC
   OutfitForWork: []
+  JiggleForWork: 0
   OutfitForCasual: []
+  JiggleCasually: 0
   OutfitForFirstDate: []
+  JiggleOnAFirstDate: 0
   OutfitForSecondDate: []
+  JiggleOnASecondDate: 0
   OutfitForThirdDate: []
+  JiggleOnAThirdDate: 0
   OutfitForNightOut: []
+  JiggleOnANightOut: 0
   OutfitForPyjamas: []
+  JiggleInPyjamas: 0
   OutfitForHomelessness: []
+  JiggleWhileHomeless: 0
   OutfitForWedding: []
+  JiggleAtAWedding: 0
   OutfitForFuneral: []
+  JiggleAtAFuneral: 0
+  JiggleLeftBoob: {fileID: 0}
+  JiggleRightBoob: {fileID: 0}
+  JiggleLeftButtcheek: {fileID: 0}
+  JiggleRightButtcheek: {fileID: 0}
   nextOutfit: {fileID: 0}
   previousOutfit: {fileID: 0}
   UnressedOnLoad: 0
@@ -2898,6 +2912,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   thisNPC: 519
   FindSeat: 1
+  PlayAnimation: 0
+  startupAnimationTrigger: 
   useStateMachine: 1
   currentTarget: {fileID: 0}
   activeRadius: 10
@@ -3091,16 +3107,16 @@ MonoBehaviour:
     m_Bits: 2097152
   seatDebugLogs: 0
   seatQueryTriggers: 2
-  seatSearchTimeout: 4
-  seatRescanInterval: 0.35
-  seatSearchRadius: 0
+  seatSearchTimeout: 10
+  seatRescanInterval: 1
+  seatSearchRadius: 30
   preSitForwardOffset: 0.45
   preSitArriveDistance: 0.35
   alignYawToleranceDeg: 6
   backstepDistance: 1
   backstepSpeed: 10
   snapToSeatWhenSeated: 1
-  seatedRootOffset: {x: 0, y: 0, z: 0}
+  seatedRootOffset: {x: 0.66, y: -0.15, z: 0}
   autoStandAfterSeconds: 0
   sitDownLerpDuration: 0.01
   standUpLerpDuration: 0.01
@@ -3108,7 +3124,7 @@ MonoBehaviour:
   sitIdleStateName: SitIdle
   sitAnimLayer: 0
   sitCrossfade: 0.1
-  useSitTriggerParam: 0
+  useSitTriggerParam: 1
   sitTriggerParam: SitDown
   sitTriggerFallbackDelay: 0.08
   useSitIdleTriggerParam: 1
@@ -3132,7 +3148,7 @@ MonoBehaviour:
   standUpTriggerParam: StandUp
   standUpStateName: StandUp
   floorSitHeightThreshold: 0.2
-  isTyping: 0
+  isTyping: 1
   isTalking: 0
   isGabbing: 0
   isDawdling: 0

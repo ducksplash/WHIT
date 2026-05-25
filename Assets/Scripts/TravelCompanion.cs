@@ -189,6 +189,7 @@ public class TravelCompanion : MonoBehaviour
 
         // order matters
         AvailableLocations.Add(GAMELEVEL.TawleyMeats, "Tawley Meats");
+        AvailableLocations.Add(GAMELEVEL.NorasOldFlat, "Old Flat");
         AvailableLocations.Add(GAMELEVEL.RoarkOutside, "Roark Microtech");
         AvailableLocations.Add(GAMELEVEL.NorasFlat, "\n...just go home");
 

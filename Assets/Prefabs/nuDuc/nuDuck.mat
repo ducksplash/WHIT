@@ -71,11 +71,11 @@ Material:
   - DistortionVectors
   - DecalProjectorForwardEmissive
   - DecalMeshForwardEmissive
-  - TransparentBackface
+  - MOTIONVECTORS
   - RayTracingPrepass
   - TransparentDepthPrepass
   - TransparentDepthPostpass
-  - MOTIONVECTORS
+  - TransparentBackface
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -85,7 +85,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseColorMap:
-        m_Texture: {fileID: 2800000, guid: 637e387622583b0459f7078eaafe6bba, type: 3}
+        m_Texture: {fileID: 2800000, guid: 4289d90bec2183842aeb9a1b49953f4c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseColorMap0:
@@ -233,11 +233,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 637e387622583b0459f7078eaafe6bba, type: 3}
+        m_Texture: {fileID: 2800000, guid: 4289d90bec2183842aeb9a1b49953f4c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
-        m_Texture: {fileID: 2800000, guid: a3d88e58e11ac9b4c84dc2559ce572a4, type: 3}
+        m_Texture: {fileID: 2800000, guid: 4a77e92829b649e479954c9b706e5b34, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap0:
@@ -261,7 +261,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: e3e6e24725c6b35488839f5aac2cac7b, type: 3}
+        m_Texture: {fileID: 2800000, guid: c018ca5e42cd6e140bd17ccc76d96acd, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap0:
@@ -675,13 +675,13 @@ Material:
     - _Thickness3: 1
     - _TransmissionEnable: 1
     - _TransmissionMask: 1
-    - _TransparentBackfaceEnable: 0
+    - _TransparentBackfaceEnable: 1
     - _TransparentCullMode: 2
     - _TransparentDepthPostpassEnable: 0
     - _TransparentDepthPrepassEnable: 0
     - _TransparentSortPriority: 0
     - _TransparentWritingMotionVec: 0
-    - _TransparentZWrite: 0
+    - _TransparentZWrite: 1
     - _UVBase: 0
     - _UVBase0: 0
     - _UVBase1: 0

@@ -325,16 +325,35 @@ public class LoadingManagerEditor : Editor
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("Quick Load", EditorStyles.boldLabel);
 
+
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("MainMenu"))     manager.LoadLevel(GAMELEVEL.MainMenu);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("ETV"))          manager.LoadLevel(GAMELEVEL.ETVStudio);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("NorasOldFlat"))    manager.LoadLevel(GAMELEVEL.NorasOldFlat);
+            EditorGUILayout.EndHorizontal();
+
+            // more locations here (train station, train scene)
+            
+            EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("NorasFlat"))    manager.LoadLevel(GAMELEVEL.NorasFlat);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("TawleyMeats"))  manager.LoadLevel(GAMELEVEL.TawleyMeats);
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("RoarkOutside")) manager.LoadLevel(GAMELEVEL.RoarkOutside);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("RoarkInside"))  manager.LoadLevel(GAMELEVEL.RoarkInside);
-            if (GUILayout.Button("ETV"))          manager.LoadLevel(GAMELEVEL.ETVStudio);
             EditorGUILayout.EndHorizontal();
 
             // EditorGUILayout.BeginHorizontal();

@@ -106,13 +106,9 @@ public class OnboardingManager : MonoBehaviour
 
     private void OnboardingCheckEvent()
     {
-        Debug.Log("Run OB: "+GameMaster.Instance.THISLEVEL);
-        
-        if (GameMaster.Instance.THISLEVEL != GAMELEVEL.NorasFlat) return;
 
-        Debug.Log("Run OB");
+        //if (GameMaster.Instance.THISLEVEL != GAMELEVEL.NorasFlat) return;
         
-
         StartCoroutine(DeferredInit());
     }
 

@@ -66,6 +66,7 @@ public class GameMaster : MonoBehaviour
     // spawn points
     public Vector3 SPAWNPOINTETV;
     public Vector3 SPAWNPOINTNORASFLAT;
+    public Vector3 SPAWNPOINTNORASOLDFLAT;
     public Vector3 SPAWNPOINTTAWLEYMEATS;
     public Vector3 SPAWNPOINTROARKOUTSIDE;
     public Vector3 SPAWNPOINTROARKINSIDE;
@@ -395,6 +396,7 @@ public enum GAMELEVEL
     ETVStudio,
     MainMenu,
     NorasFlat,
+    NorasOldFlat,
     TawleyMeats,
     RoarkOutside,
     RoarkInside,
@@ -407,6 +409,7 @@ public enum DevModeScene
     ETV,
     MainMenu,
     NorasFlat,
+    NorasOldFlat,
     TawleyMeats,
     RoarkOutside,
     RoarkInside 
@@ -416,6 +419,7 @@ public enum AudioProfile
 {
     MainMenu,
     NorasFlat,
+    NorasOldFlat,
     TawleyMeats,
     RoarkOutside,
     RoarkInside

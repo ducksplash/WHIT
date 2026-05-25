@@ -35,7 +35,8 @@ Shader "Custom/OutsideTheWindowShader"
 
         _EmissionColor ("Emission Color", Color) = (1,1,1,1)
         _EmissionStrength ("Emission Strength", Range(0,10)) = 1
-
+        _Smoothness ("Smoothness", Range(0,1)) = 0.5
+        _Metallic ("Metallic", Range(0,1)) = 0.0
         _Alpha ("Alpha", Range(0,1)) = 1
 
         _RotationY ("Horizontal Rotation", Range(0,360)) = 0
@@ -124,7 +125,9 @@ Shader "Custom/OutsideTheWindowShader"
 
             float _RotationY;
             float _RotationX;
-
+            
+            float _Smoothness;
+            float _Metallic;
             // ================= HELPERS =================
 
             float Hash21(float2 p)
@@ -292,15 +295,21 @@ Shader "Custom/OutsideTheWindowShader"
                 // ================= APPLY RAIN AFTER LIGHTNING =================
                 tex.rgb = lerp(tex.rgb, rain.rgb, rain.a * _RainStrength);
 
-                // ================= OVERLAY =================
                 float2 overlayUV = i.uv * _OverlayTiling.xy;
                 half4 overlay = tex2D(_OverlayTex, overlayUV) * _OverlayTint;
                 tex.rgb = lerp(tex.rgb, overlay.rgb, overlay.a * _OverlayStrength);
 
-                // ================= FINAL =================
                 float pulse = sin(_Time.y * _GlowSpeed) * 0.5 + 0.5;
+
                 tex.rgb += tex.rgb * _GlowColor.rgb * pulse * _GlowStrength;
                 tex.rgb += tex.rgb * _EmissionColor.rgb * _EmissionStrength;
+
+                float3 viewDir = normalize(_WorldSpaceCameraPos);
+                float fresnel = pow(1.0 - saturate(dot(dir, viewDir)), 4.0);
+
+                float smoothGlow = fresnel * _Smoothness * 2.0;
+
+                tex.rgb += smoothGlow * lerp(0.04, tex.rgb, _Metallic);
 
                 return half4(tex.rgb, tex.a * _Alpha);
             }

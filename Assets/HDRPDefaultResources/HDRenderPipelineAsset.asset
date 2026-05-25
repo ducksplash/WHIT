@@ -50,18 +50,18 @@ MonoBehaviour:
     supportTransparentBackface: 1
     supportTransparentDepthPrepass: 1
     supportTransparentDepthPostpass: 1
-    colorBufferFormat: 74
-    depthBufferFormat: 0
-    supportCustomPass: 0
+    colorBufferFormat: 48
+    depthBufferFormat: 151
+    supportCustomPass: 1
     supportVariableRateShading: 1
-    customBufferFormat: 8
-    supportedLitShaderMode: 3
+    customBufferFormat: 12
+    supportedLitShaderMode: 1
     planarReflectionResolution:
-      m_Values: 000100000004000000080000
+      m_Values: 800000000002000000040000
       m_SchemaId:
         m_Id: With3Levels
     cubeReflectionResolution:
-      m_Values: 800000000001000000020000
+      m_Values: 000000008000000000010000
       m_SchemaId:
         m_Id: With3Levels
     supportDecals: 1
@@ -71,12 +71,12 @@ MonoBehaviour:
     supportHighQualityLineRendering: 0
     highQualityLineRenderingMemoryBudget: 128
     msaaSampleCount: 2
-    supportMotionVectors: 0
+    supportMotionVectors: 1
     supportScreenSpaceLensFlare: 0
     supportDataDrivenLensFlare: 0
     supportDitheringCrossFade: 0
     supportRuntimeAOVAPI: 0
-    supportTerrainHole: 0
+    supportTerrainHole: 1
     lightProbeSystem: 1
     oldLightProbeSystem: 0
     probeVolumeMemoryBudget: 1024
@@ -98,9 +98,9 @@ MonoBehaviour:
       reflectionProbeCacheSize: 0
       reflectionCubemapSize: 0
       maxEnvLightsOnScreen: 0
-      reflectionCacheCompressed: 0
+      reflectionCacheCompressed: 1
       reflectionProbeFormat: 74
-      reflectionProbeTexCacheSize: 8192
+      reflectionProbeTexCacheSize: 1024
       reflectionProbeTexLastValidCubeMip: 3
       reflectionProbeTexLastValidPlanarMip: 0
       reflectionProbeDecreaseResToFit: 1
@@ -119,28 +119,28 @@ MonoBehaviour:
       maxLocalVolumetricFogSize: 0
       maxLocalVolumetricFogOnScreen: 326
     hdShadowInitParams:
-      maxShadowRequests: 64
+      maxShadowRequests: 32
       directionalShadowsDepthBits: 16
       punctualShadowFilteringQuality: 0
       directionalShadowFilteringQuality: 0
       areaShadowFilteringQuality: 0
       punctualLightShadowAtlas:
-        shadowAtlasResolution: 2048
+        shadowAtlasResolution: 1024
         shadowAtlasDepthBits: 32
         useDynamicViewportRescale: 0
       areaLightShadowAtlas:
-        shadowAtlasResolution: 1024
+        shadowAtlasResolution: 128
         shadowAtlasDepthBits: 16
         useDynamicViewportRescale: 0
-      cachedPunctualLightShadowAtlas: 2048
-      cachedAreaLightShadowAtlas: 1024
+      cachedPunctualLightShadowAtlas: 1024
+      cachedAreaLightShadowAtlas: 128
       allowDirectionalMixedCachedShadows: 0
       shadowResolutionDirectional:
         m_Values: 80000000000100000002000000080000
         m_SchemaId:
           m_Id: With4Levels
       shadowResolutionPunctual:
-        m_Values: 80000000000100000002000000040000
+        m_Values: 40000000800000000001000000020000
         m_SchemaId:
           m_Id: With4Levels
       shadowResolutionArea:
@@ -158,7 +158,7 @@ MonoBehaviour:
       atlasWidth: 1024
       atlasHeight: 1024
       transparentTextureResolution:
-        m_Values: 000100000002000000040000
+        m_Values: 800000000001000000020000
         m_SchemaId:
           m_Id: With3Levels
       perChannelMask: 0
@@ -212,29 +212,29 @@ MonoBehaviour:
       cameraJitter: 0
       allowMotionBlur: 0
     postProcessQualitySettings:
-      NearBlurSampleCount: 030000000500000008000000
+      NearBlurSampleCount: 030000000300000003000000
       NearBlurMaxRadius:
-      - 2
-      - 4
-      - 7
-      FarBlurSampleCount: 04000000070000000e000000
+      - 0
+      - 0
+      - 0
+      FarBlurSampleCount: 030000000300000003000000
       FarBlurMaxRadius:
-      - 5
-      - 8
-      - 13
+      - 0
+      - 0
+      - 0
       DoFResolution: 040000000200000001000000
-      DoFHighQualityFiltering: 000101
+      DoFHighQualityFiltering: 000001
       DoFPhysicallyBased: 000000
       AdaptiveSamplingWeight:
       - 0.5
       - 0.75
       - 2
       LimitManualRangeNearBlur: 000000
-      MotionBlurSampleCount: 04000000080000000c000000
-      BloomRes: 040000000200000002000000
+      MotionBlurSampleCount: 020000000200000002000000
+      BloomRes: 040000000400000004000000
       BloomHighQualityFiltering: 000000
       BloomHighQualityPrefiltering: 000000
-      ChromaticAberrationMaxSamples: 03000000060000000c000000
+      ChromaticAberrationMaxSamples: 030000000300000003000000
     lightSettings:
       useContactShadow:
         m_Values: 000000
@@ -252,13 +252,13 @@ MonoBehaviour:
       m_SchemaId:
         m_Id: With3Levels
     lightingQualitySettings:
-      AOStepCount: 020000000600000010000000
+      AOStepCount: 020000000200000002000000
       AOFullRes: 000001
-      AOMaximumRadiusPixels: 100000002800000050000000
+      AOMaximumRadiusPixels: 200000002800000050000000
       AOBilateralUpsample: 000101
       AODirectionCount: 010000000200000004000000
-      ContactShadowSampleCount: 04000000060000000a000000
-      SSRMaxRaySteps: 100000002000000040000000
+      ContactShadowSampleCount: 040000000400000004000000
+      SSRMaxRaySteps: 000000000000000000000000
       SSGIRaySteps: 200000004000000080000000
       SSGIDenoise: 010101
       SSGIHalfResDenoise: 010000

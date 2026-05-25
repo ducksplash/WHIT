@@ -121,6 +121,135 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &783063
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 783065}
+  - component: {fileID: 783064}
+  m_Layer: 0
+  m_Name: Player (Singleton)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &783064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 783063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97fca36bd81de7c4cafce7bbf02ca611, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Player
+  PlayerStatus: {fileID: 0}
+  walkspeed: 0.1
+  sprintspeed: 0.2
+  jumpForce: 2
+  Me: {fileID: 0}
+  FirstPersonCamera: {fileID: 0}
+  ThirdPersonCamera: {fileID: 0}
+  DebugCam: {fileID: 0}
+  CurrentCamera: {fileID: 0}
+  RayCastDistance: 4
+  Noranimator: {fileID: 0}
+  idleWithTorch: {fileID: 0}
+  idleWithoutTorch: {fileID: 0}
+  walkingWithTorch: {fileID: 0}
+  walkingWithoutTorch: {fileID: 0}
+  crawlClipName: NoraCrawl
+  crawlLayerIndex: 0
+  crawlWeightThreshold: 0.15
+  animDampTime: 0.12
+  debugAnim: 0
+  PlayerTorch: {fileID: 0}
+  groundedFalseAfterJumpSeconds: 0.12
+  CombatEnabled: 0
+  meleeAction: {fileID: 0}
+  meleeCooldown: 0.55
+  lockMovementDuringMelee: 0
+  lockMoveSeconds: 0.25
+  upperBodyLayerName: UpperBody
+  upperBodyBlendIn: 0.03
+  upperBodyBlendOut: 0.06
+  UpperBodyPitch: {fileID: 0}
+  upperBodyPhoneOutStateName: PHONE OUT
+  upperBodyPhoneAwayStateName: PHONE AWAY
+  crouching: 0
+  standheight: 0
+  croucheight: 1
+  crouchBlendSeconds: 0.12
+  standCheckMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  standCheckShrink: 0.02
+  stanceimg: {fileID: 0}
+  crouchsprite: {fileID: 0}
+  standsprite: {fileID: 0}
+  TravelNotepad: {fileID: 0}
+  climbing: 0
+  LadderAttachedTo: {fileID: 0}
+  sitMoveSpeed: 3.5
+  sitArriveDistance: 0.3
+  sitRotateSpeed: 7
+  sitAlignToleranceDeg: 5
+  sitPreSitForwardOffset: 0.45
+  sitBackstepDistance: 0.25
+  sitBackstepSpeed: 0.8
+  sitSeatedRootOffset: {x: 0, y: 0, z: 0}
+  sitAnimLayer: 0
+  sitDownDuration: 1.2
+  standUpDuration: 1
+  IsSeated: 0
+  PaperDeathText: {fileID: 0}
+  PaperDateText: {fileID: 0}
+  DeathScreenMain: {fileID: 0}
+  DeathScreenFader: {fileID: 0}
+  PaperScreenFader: {fileID: 0}
+  DiedTextFader: {fileID: 0}
+  ButtonFaderLeave: {fileID: 0}
+  ButtonFaderContinue: {fileID: 0}
+  CrossHair: {fileID: 0}
+  CrouchIndicator: {fileID: 0}
+  TorchIndicator: {fileID: 0}
+  EvidenceCompanion: {fileID: 0}
+  playerHand: {fileID: 0}
+  moveAction: {fileID: 0}
+  jumpAction: {fileID: 0}
+  crouchAction: {fileID: 0}
+  walkAction: {fileID: 0}
+  climbUpAction: {fileID: 0}
+  climbDownAction: {fileID: 0}
+  exitLadderAction: {fileID: 0}
+  CameraToggleAction: {fileID: 0}
+  StandUpAction: {fileID: 0}
+  FirstPersonLook: {fileID: 0}
+  PlayerPhone: {fileID: 0}
+  MoveOverride: 0
+  ZoomOverride: 0
+--- !u!4 &783065
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 783063}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8151168
 GameObject:
   m_ObjectHideFlags: 0
@@ -27440,7 +27569,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &455555697
 Transform:
   m_ObjectHideFlags: 0
@@ -233229,3 +233358,4 @@ SceneRoots:
   - {fileID: 560086282}
   - {fileID: 1051532295}
   - {fileID: 903996726}
+  - {fileID: 783065}

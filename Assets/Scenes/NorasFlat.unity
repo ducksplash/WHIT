@@ -6206,6 +6206,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   colliderDisableTime: 0.5
   indicatorLights: []
+  openOnLoad: 0
 --- !u!1 &291489026
 GameObject:
   m_ObjectHideFlags: 0
@@ -8640,10 +8641,11 @@ MonoBehaviour:
   - {fileID: 373659286}
   - {fileID: 1422383061}
   lightBeams:
-  - {fileID: 1614662132}
+  - {fileID: 0}
   lightOn: 1
   lightFlickers: 0
   smoothing: 5
+  beamFlickerMultiplier: 1
 --- !u!1 &395266907
 GameObject:
   m_ObjectHideFlags: 0
@@ -10078,6 +10080,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 1923563735}
   colliderDisableTime: 0.5
   indicatorLights: []
+  openOnLoad: 0
 --- !u!1 &472373895
 GameObject:
   m_ObjectHideFlags: 0
@@ -10337,6 +10340,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97fca36bd81de7c4cafce7bbf02ca611, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
+  PlayerStatus: {fileID: 0}
   walkspeed: 0.1
   sprintspeed: 0.2
   jumpForce: 2
@@ -19647,6 +19651,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 368821717}
   colliderDisableTime: 0.5
   indicatorLights: []
+  openOnLoad: 0
 --- !u!65 &890601253
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -24026,6 +24031,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 690746814}
   colliderDisableTime: 0.5
   indicatorLights: []
+  openOnLoad: 0
 --- !u!1 &1115820190
 GameObject:
   m_ObjectHideFlags: 0
@@ -27069,6 +27075,7 @@ MonoBehaviour:
   lightOn: 1
   lightFlickers: 0
   smoothing: 5
+  beamFlickerMultiplier: 1
 --- !u!1001 &1245106965
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -39072,10 +39079,11 @@ MonoBehaviour:
   - {fileID: 1926350789}
   - {fileID: 1368942297}
   lightBeams:
-  - {fileID: 1770917277}
+  - {fileID: 0}
   lightOn: 1
   lightFlickers: 0
   smoothing: 5
+  beamFlickerMultiplier: 1
 --- !u!4 &1806358257
 Transform:
   m_ObjectHideFlags: 0
@@ -42233,8 +42241,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: a93db8c0ec703524eb7ed2bfc372019f,
         type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: a93db8c0ec703524eb7ed2bfc372019f,
+        type: 3}
       propertyPath: m_CastShadows
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: a93db8c0ec703524eb7ed2bfc372019f,
+        type: 3}
+      propertyPath: m_RendererPriority
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: a93db8c0ec703524eb7ed2bfc372019f,
         type: 3}
@@ -52164,7 +52182,7 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -52177,9 +52195,9 @@ MeshRenderer:
   m_ForceMeshLod: -1
   m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
-  m_RendererPriority: 0
+  m_RendererPriority: -1
   m_Materials:
-  - {fileID: 2100000, guid: 09289a2fbdec2604f972c94b4602fd11, type: 2}
+  - {fileID: 2100000, guid: 6245a3b945abb344f9b78d3540ebf1dc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -74291,6 +74309,7 @@ MonoBehaviour:
   lightOn: 1
   lightFlickers: 0
   smoothing: 5
+  beamFlickerMultiplier: 1
 --- !u!222 &4141971683483779312
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -83624,6 +83643,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 1953777586}
   colliderDisableTime: 0.5
   indicatorLights: []
+  openOnLoad: 0
 --- !u!23 &5671417283164899462
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -89421,6 +89441,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 696123371}
   colliderDisableTime: 0.5
   indicatorLights: []
+  openOnLoad: 0
 --- !u!65 &6629085242873042519
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -95934,6 +95955,7 @@ MonoBehaviour:
   lightOn: 1
   lightFlickers: 0
   smoothing: 5
+  beamFlickerMultiplier: 1
 --- !u!1 &7852452976978433483
 GameObject:
   m_ObjectHideFlags: 0
@@ -101322,6 +101344,7 @@ MonoBehaviour:
   lightOn: 1
   lightFlickers: 0
   smoothing: 5
+  beamFlickerMultiplier: 1
 --- !u!1 &8774233498915830772
 GameObject:
   m_ObjectHideFlags: 0
@@ -101763,6 +101786,7 @@ MonoBehaviour:
   lightOn: 1
   lightFlickers: 0
   smoothing: 5
+  beamFlickerMultiplier: 1
 --- !u!33 &8818928956738600786
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -103786,6 +103810,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 1468383291}
   colliderDisableTime: 0.5
   indicatorLights: []
+  openOnLoad: 0
 --- !u!65 &9142202439406776123
 BoxCollider:
   m_ObjectHideFlags: 0

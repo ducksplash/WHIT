@@ -29,7 +29,6 @@ public class GameMaster : MonoBehaviour
     public DialogueManager DialogueManager;
     // public CutsceneManager CutsceneManager;
     public TravelCompanion TravelCompanion;
-    public Pickup Pickup;
     public OnboardingManager OnboardingManager;
     public TerminalEventManager TerminalEventManager;
     public EvidenceManager EvidenceManager;

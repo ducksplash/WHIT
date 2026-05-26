@@ -38,7 +38,7 @@ public class clickable : Singleton<clickable>
     public float cameraAngularSlowThreshold = 45f;
 
     int doorlayer, drawerlayer, clickablelayer, enemylayer;
-    int pickuplayer, evidencelayer, staticevidencelayer, slidingdoorlayer, seatlayer;
+    int itemlayer, evidencelayer, staticevidencelayer, slidingdoorlayer, seatlayer;
     int terminallayer;
 
     // ✅ NEW: interaction mask (excludes player)
@@ -67,8 +67,8 @@ public class clickable : Singleton<clickable>
         drawerlayer = LayerMask.NameToLayer("drawer");
         clickablelayer = LayerMask.NameToLayer("clickable");
         enemylayer = LayerMask.NameToLayer("enemy");
-        pickuplayer = LayerMask.NameToLayer("pickupable");
         evidencelayer = LayerMask.NameToLayer("evidence");
+        itemlayer = LayerMask.NameToLayer("items");
         staticevidencelayer = LayerMask.NameToLayer("staticevidence");
         slidingdoorlayer = LayerMask.NameToLayer("slidingdoor");
         terminallayer = LayerMask.NameToLayer("terminal");
@@ -193,7 +193,7 @@ public class clickable : Singleton<clickable>
             int layer = p.gameObject.layer;
 
             bool isInteractableLayer =
-                layer == pickuplayer || layer == drawerlayer || layer == doorlayer ||
+                layer == itemlayer || layer == drawerlayer || layer == doorlayer ||
                 layer == slidingdoorlayer || layer == clickablelayer || layer == enemylayer ||
                 layer == evidencelayer || layer == staticevidencelayer || layer == terminallayer ||
                 layer == seatlayer;
@@ -222,7 +222,7 @@ public class clickable : Singleton<clickable>
     {
         int layer = target.gameObject.layer;
 
-        if (layer == pickuplayer || target.CompareTag("COLLECTABLE"))
+        if (layer == itemlayer || target.CompareTag("COLLECTABLE"))
         {
             SetCursor(IsCloseEnough(hit) ? pickupcloseenoughsprite : pickupsprite);
             return;
@@ -341,6 +341,18 @@ public class clickable : Singleton<clickable>
         if (GameMaster.Instance.PLAYERBUSY) return;
         if (!hasHit) return;
 
+
+        if (currentHit.transform.CompareTag("CollectablePhone")) GameMaster.Instance.OnboardingManager.CollectPhone();
+        if (currentHit.transform.CompareTag("CollectableNotepad")) GameMaster.Instance.OnboardingManager.CollectNotepad();
+        if (currentHit.transform.CompareTag("CollectableTorch")) GameMaster.Instance.OnboardingManager.CollectTorch();
+        
+        
+        if (currentHit.transform.CompareTag("COLLECTABLE"))
+        {
+            Debug.Log("process other collectable item");
+        }
+        
+
         if (currentHit.transform.GetComponentInParent<Drawers>() is Drawers drawer)
         {
             drawer.Interact();
@@ -397,7 +409,7 @@ public class clickable : Singleton<clickable>
     public bool IsHoveringPickup()
     {
         if (!hasHit || currentTarget == null) return false;
-        return currentTarget.CompareTag("COLLECTABLE") || currentTarget.gameObject.layer == pickuplayer;
+        return currentTarget.CompareTag("COLLECTABLE") || currentTarget.gameObject.layer == itemlayer;
     }
 
     public RaycastHit GetCurrentHit() => currentHit;

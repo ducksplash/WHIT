@@ -357,12 +357,20 @@ public class Player : Singleton<Player>
 
     private void DoCameraLoadingThings()
     {
-        concentricCircleDriver.DoZigzag();
+        
+        
+        concentricCircleDriver.DoSwirl();
+        
+        
     }
 
     private void UnDoCameraLoadingThings()
     {
-        concentricCircleDriver.UndoZigzag();
+        
+        
+        concentricCircleDriver.UndoSwirl();
+        
+        
     }
 
     private void EnterDebugCamera()

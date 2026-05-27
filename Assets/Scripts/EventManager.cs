@@ -46,8 +46,8 @@ public static class EventManager
     
     
     
-    //public static event Action OnLightSwitchClick = () => { };
-    //public static event Action<bool> OnBoolToggled = (bool) => { };
+    public static event Action OnDoLoadingSwirl = () => { };
+    public static event Action OnUnDoLoadingSwirl = () => { };
     
     
     
@@ -224,6 +224,16 @@ public static class EventManager
     public static void DialogueCanProceed(bool toggle)
     {
         OnDialogueCanProceed.Invoke(toggle);
+    }
+
+    public static void DoLoadingSwirl()
+    {
+        OnDoLoadingSwirl.Invoke();
+    }
+
+    public static void UnDoLoadingSwirl()
+    {
+        OnUnDoLoadingSwirl.Invoke();
     }
 
     

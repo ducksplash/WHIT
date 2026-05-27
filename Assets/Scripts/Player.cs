@@ -30,6 +30,8 @@ public class Player : Singleton<Player>
     public Camera ThirdPersonCamera;
     public Camera DebugCam;
     public Camera CurrentCamera;
+
+    public ConcentricCircleDriver concentricCircleDriver;
     
     public float RayCastDistance = 4f;
 
@@ -250,6 +252,11 @@ public class Player : Singleton<Player>
 
         EventManager.OnTorchCollected += TorchCollected;
         EventManager.OnNoraSit        += NoraSit;
+        
+        EventManager.OnDoLoadingSwirl += DoCameraLoadingThings;
+        EventManager.OnUnDoLoadingSwirl += UnDoCameraLoadingThings;
+
+
 
         if (StandUpAction != null) StandUpAction.action.performed += StandUp;
 
@@ -347,7 +354,17 @@ public class Player : Singleton<Player>
             ExitDebugCamera();
         }
     }
-    
+
+    private void DoCameraLoadingThings()
+    {
+        concentricCircleDriver.DoZigzag();
+    }
+
+    private void UnDoCameraLoadingThings()
+    {
+        concentricCircleDriver.UndoZigzag();
+    }
+
     private void EnterDebugCamera()
     {
         Debug.Log("debug cam on");

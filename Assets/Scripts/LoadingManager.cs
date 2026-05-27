@@ -66,6 +66,9 @@ public class LoadingManager : MonoBehaviour
     public void LoadLevel(GAMELEVEL levelName, Action onFinished = null)
     {
         if (_isLoading) return;
+        
+        EventManager.DoLoadingSwirl();
+        
         StartCoroutine(LoadLevelSequence(levelName, onFinished));
     }
     
@@ -110,14 +113,17 @@ public class LoadingManager : MonoBehaviour
 
         // 5) Hide loading UI
         ShowLoadingUI(false);
-
+        
+        
         // ✅ Force UI to rebuild *now*, then wait until end-of-frame so it truly disappears visually
         Canvas.ForceUpdateCanvases();
         yield return null;
         yield return new WaitForEndOfFrame();
 
-        // 6) Fade in and wait (this is the first frame where loading UI is definitely gone)
+        EventManager.UnDoLoadingSwirl();
+        
         yield return FadeToAndWait(0f);
+        
         
         _isLoading = false;
         onFinished?.Invoke();
@@ -146,6 +152,7 @@ public class LoadingManager : MonoBehaviour
     {
         if (fadeCanvas == null) yield break;
 
+        
         fadeCanvas.gameObject.SetActive(true);
 
         if (_fadeCo != null)
@@ -206,8 +213,7 @@ public class LoadingManager : MonoBehaviour
 
         while (op.progress < 0.9f)
         {
-            if (loadingbar != null)
-                loadingbar.fillAmount = Mathf.Clamp01(op.progress / 0.9f);
+            if (loadingbar != null) loadingbar.fillAmount = Mathf.Clamp01(op.progress / 0.9f);
             yield return null;
         }
 
@@ -216,8 +222,7 @@ public class LoadingManager : MonoBehaviour
         op.allowSceneActivation = true;
 
         // Wait until scene is fully loaded
-        while (!_sceneLoadedFlag) 
-            yield return null;
+        while (!_sceneLoadedFlag) yield return null;
 
         Time.timeScale = 1f;
 
@@ -231,8 +236,9 @@ public class LoadingManager : MonoBehaviour
     {
         _sceneLoadedFlag = true;
 
-        if (GameMaster.Instance != null)
-            GameMaster.Instance.PLAYERBUSY = false;
+        if (GameMaster.Instance != null) GameMaster.Instance.PLAYERBUSY = false;
+        
+        
     }
 
     // ---------------------------------------------------------------------

@@ -121,135 +121,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &783063
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 783065}
-  - component: {fileID: 783064}
-  m_Layer: 0
-  m_Name: Player (Singleton)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &783064
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 783063}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97fca36bd81de7c4cafce7bbf02ca611, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Player
-  PlayerStatus: {fileID: 0}
-  walkspeed: 0.1
-  sprintspeed: 0.2
-  jumpForce: 2
-  Me: {fileID: 0}
-  FirstPersonCamera: {fileID: 0}
-  ThirdPersonCamera: {fileID: 0}
-  DebugCam: {fileID: 0}
-  CurrentCamera: {fileID: 0}
-  RayCastDistance: 4
-  Noranimator: {fileID: 0}
-  idleWithTorch: {fileID: 0}
-  idleWithoutTorch: {fileID: 0}
-  walkingWithTorch: {fileID: 0}
-  walkingWithoutTorch: {fileID: 0}
-  crawlClipName: NoraCrawl
-  crawlLayerIndex: 0
-  crawlWeightThreshold: 0.15
-  animDampTime: 0.12
-  debugAnim: 0
-  PlayerTorch: {fileID: 0}
-  groundedFalseAfterJumpSeconds: 0.12
-  CombatEnabled: 0
-  meleeAction: {fileID: 0}
-  meleeCooldown: 0.55
-  lockMovementDuringMelee: 0
-  lockMoveSeconds: 0.25
-  upperBodyLayerName: UpperBody
-  upperBodyBlendIn: 0.03
-  upperBodyBlendOut: 0.06
-  UpperBodyPitch: {fileID: 0}
-  upperBodyPhoneOutStateName: PHONE OUT
-  upperBodyPhoneAwayStateName: PHONE AWAY
-  crouching: 0
-  standheight: 0
-  croucheight: 1
-  crouchBlendSeconds: 0.12
-  standCheckMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  standCheckShrink: 0.02
-  stanceimg: {fileID: 0}
-  crouchsprite: {fileID: 0}
-  standsprite: {fileID: 0}
-  TravelNotepad: {fileID: 0}
-  climbing: 0
-  LadderAttachedTo: {fileID: 0}
-  sitMoveSpeed: 3.5
-  sitArriveDistance: 0.3
-  sitRotateSpeed: 7
-  sitAlignToleranceDeg: 5
-  sitPreSitForwardOffset: 0.45
-  sitBackstepDistance: 0.25
-  sitBackstepSpeed: 0.8
-  sitSeatedRootOffset: {x: 0, y: 0, z: 0}
-  sitAnimLayer: 0
-  sitDownDuration: 1.2
-  standUpDuration: 1
-  IsSeated: 0
-  PaperDeathText: {fileID: 0}
-  PaperDateText: {fileID: 0}
-  DeathScreenMain: {fileID: 0}
-  DeathScreenFader: {fileID: 0}
-  PaperScreenFader: {fileID: 0}
-  DiedTextFader: {fileID: 0}
-  ButtonFaderLeave: {fileID: 0}
-  ButtonFaderContinue: {fileID: 0}
-  CrossHair: {fileID: 0}
-  CrouchIndicator: {fileID: 0}
-  TorchIndicator: {fileID: 0}
-  EvidenceCompanion: {fileID: 0}
-  playerHand: {fileID: 0}
-  moveAction: {fileID: 0}
-  jumpAction: {fileID: 0}
-  crouchAction: {fileID: 0}
-  walkAction: {fileID: 0}
-  climbUpAction: {fileID: 0}
-  climbDownAction: {fileID: 0}
-  exitLadderAction: {fileID: 0}
-  CameraToggleAction: {fileID: 0}
-  StandUpAction: {fileID: 0}
-  FirstPersonLook: {fileID: 0}
-  PlayerPhone: {fileID: 0}
-  MoveOverride: 0
-  ZoomOverride: 0
---- !u!4 &783065
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 783063}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8151168
 GameObject:
   m_ObjectHideFlags: 0
@@ -8314,7 +8185,7 @@ MonoBehaviour:
   aspectHeight: 13.8
   orthoSize: 1.7
   letterboxAmount: 0
-  player: {fileID: 783065}
+  player: {fileID: 0}
   maxTrackingDistance: 10
 --- !u!114 &139135912
 MonoBehaviour:
@@ -42550,7 +42421,7 @@ MonoBehaviour:
   aspectHeight: 13.8
   orthoSize: 1.7
   letterboxAmount: 0
-  player: {fileID: 783065}
+  player: {fileID: 0}
   maxTrackingDistance: 10
 --- !u!114 &664759289
 MonoBehaviour:
@@ -66704,55 +66575,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 902305513}
   m_Mesh: {fileID: 1223193264159863814, guid: dbd3327e3a596af499d26386fee3f291, type: 3}
---- !u!1 &903996724
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 903996726}
-  - component: {fileID: 903996725}
-  m_Layer: 0
-  m_Name: Sky and Fog Global Volume
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &903996725
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 903996724}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
-  m_IsGlobal: 1
-  priority: 0
-  blendDistance: 0
-  weight: 1
-  sharedProfile: {fileID: 11400000, guid: ac7fefe25c267f24f931ce8668b941f9, type: 2}
---- !u!4 &903996726
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 903996724}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.033309937, y: 1.8475294, z: 3.0662842}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &905758578
 GameObject:
   m_ObjectHideFlags: 0
@@ -117740,77 +117562,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1556299389}
   m_Mesh: {fileID: 3658057607522200696, guid: dbd3327e3a596af499d26386fee3f291, type: 3}
---- !u!1 &1557688832
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1557688833}
-  - component: {fileID: 1557688835}
-  - component: {fileID: 1557688834}
-  m_Layer: 0
-  m_Name: FridgeVolume
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1557688833
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1557688832}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -18.78, y: 35.09, z: -14.51}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2428697688299142798}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1557688834
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1557688832}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IsGlobal: 0
-  priority: 1
-  blendDistance: 0.9
-  weight: 1
-  sharedProfile: {fileID: 11400000, guid: 8503c8aa0666c9243975c2493b4a8d8d, type: 2}
---- !u!65 &1557688835
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1557688832}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 23.6, y: 19.999998, z: 25.27958}
-  m_Center: {x: 0, y: 0, z: 0.11018864}
 --- !u!1 &1557894405
 GameObject:
   m_ObjectHideFlags: 0
@@ -172085,7 +171836,6 @@ Transform:
   m_Children:
   - {fileID: 732145406}
   - {fileID: 1532798312}
-  - {fileID: 1557688833}
   - {fileID: 1892139852}
   m_Father: {fileID: 655215019}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -172123,7 +171873,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FridgeDoor: {fileID: 917381087}
-  FridgeVol: {fileID: 1557688834}
+  FridgeVol: {fileID: 0}
   FridgeDoorImg: {fileID: 1529725552}
   fridgeFog: {fileID: 0}
   FogAvailable: 0
@@ -234923,5 +234673,3 @@ SceneRoots:
   - {fileID: 932103404}
   - {fileID: 560086282}
   - {fileID: 1051532295}
-  - {fileID: 903996726}
-  - {fileID: 783065}

@@ -7938,6 +7938,7 @@ MonoBehaviour:
   m_Script: {fileID: 662025646}
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.SceneObjectIDMapSceneAsset
+  m_Entries: []
 --- !u!4 &101176300
 Transform:
   m_ObjectHideFlags: 19
@@ -24294,6 +24295,7 @@ GameObject:
   m_Component:
   - component: {fileID: 229798676}
   - component: {fileID: 229798675}
+  - component: {fileID: 229798677}
   m_Layer: 0
   m_Name: Global Volume
   m_TagString: Untagged
@@ -24314,7 +24316,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
   m_IsGlobal: 1
-  priority: 0
+  priority: 100
   blendDistance: 0
   weight: 1
   sharedProfile: {fileID: 11400000, guid: a6a3a7870424e5a4f9fa8d09eee60792, type: 2}
@@ -24333,6 +24335,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1525618386}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &229798677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229798674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 777bd254efccd4144b9ec04f6ff52daa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  PostProcessVolume: {fileID: 229798675}
 --- !u!1 &241189905
 GameObject:
   m_ObjectHideFlags: 0
@@ -106606,6 +106621,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 229798676}
   - {fileID: 1874393889}
   - {fileID: 169549908}
   - {fileID: 27225421}
@@ -106619,7 +106635,6 @@ Transform:
   - {fileID: 670599364}
   - {fileID: 1097157901}
   - {fileID: 2114331502}
-  - {fileID: 229798676}
   - {fileID: 1003470721}
   - {fileID: 1344058804}
   m_Father: {fileID: 0}
@@ -122284,6 +122299,7 @@ GameObject:
   - component: {fileID: 1791570006}
   - component: {fileID: 1791570005}
   - component: {fileID: 1791570004}
+  - component: {fileID: 1791570012}
   - component: {fileID: 1791570011}
   m_Layer: 26
   m_Name: First person camera
@@ -122648,6 +122664,57 @@ MonoBehaviour:
   outputFolder: Recordings
   fileName: Recording
   recCanvas: {fileID: 2041542953}
+--- !u!114 &1791570012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791570002}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8aaa6b3beefe6d6468d15f84527496e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ConcentricCircleDriver
+  volume: {fileID: 229798675}
+  ring0: 0
+  ring1: 0
+  ring2: 0
+  ring3: 0
+  ring4: 0
+  ring5: 0
+  ring6: 0
+  ring7: 0
+  ring8: 0
+  ring9: 0
+  swirlDuration: 3.5
+  targetAngle: 270
+  staggerFraction: 0.4
+  easeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  loop: 0
 --- !u!1 &1792244568
 GameObject:
   m_ObjectHideFlags: 0
@@ -149039,10 +149106,10 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2114136336}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
+  m_StaticShadowCaster: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -151744,6 +151811,7 @@ MonoBehaviour:
   ThirdPersonCamera: {fileID: 339516755}
   DebugCam: {fileID: 1003470715}
   CurrentCamera: {fileID: 1791570010}
+  concentricCircleDriver: {fileID: 1791570012}
   RayCastDistance: 4.5
   Noranimator: {fileID: 5521572918565293575}
   idleWithTorch: {fileID: 7400000, guid: 22b6014c00e3ff24b8a3be8226176210, type: 2}
@@ -182015,7 +182083,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: 0.0018786396}
+  m_AnchoredPosition: {x: -0.0012638667, y: 0.00089880783}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &6445594205184765108
@@ -182191,7 +182259,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: 0.0018786396}
+  m_AnchoredPosition: {x: -0.0012638667, y: 0.00089880783}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6472477817453380253

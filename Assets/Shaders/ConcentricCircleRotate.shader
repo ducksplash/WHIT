@@ -10,15 +10,14 @@ Shader "Hidden/HDRP/ConcentricCircleRotate"
 
     TEXTURE2D_X(_InputTexture);
 
-    // Ring rotations (10 rings)
-    float _Rotations[10];
+    float4 _TintColor;
+
+    
+    // Ring rotations (20 rings)
+    float _Rotations[20];
 
     // Horizontal slice offsets (20 slices)
     float _SliceOffsets[20];
-
-    // Dissolve grid (48x32 = 1536 cells)
-    float _DissolveProgress[1536];
-    int   _DissolveEnabled;
 
     struct Attributes
     {
@@ -65,7 +64,8 @@ Shader "Hidden/HDRP/ConcentricCircleRotate"
         float radius = length(centered);
         float angle  = atan2(centered.y, centered.x);
 
-        int ring = clamp((int)(radius * 10.0), 0, 9);
+        // Updated for 20 rings
+        int ring = clamp((int)(radius * 20.0), 0, 19);
         angle += radians(_Rotations[ring]);
 
         float2 rotated;
@@ -81,13 +81,14 @@ Shader "Hidden/HDRP/ConcentricCircleRotate"
         float2 finalUV = ringUV;
         finalUV.x += _SliceOffsets[slice];
 
-        // WRAP FIX (this is the important part)
+        // WRAP FIX
         finalUV = frac(finalUV);
 
         // HDRP scale
         finalUV *= _RTHandleScale.xy;
 
-        return SAMPLE_TEXTURE2D_X(_InputTexture, s_linear_clamp_sampler, finalUV);
+        float4 col = SAMPLE_TEXTURE2D_X(_InputTexture, s_linear_clamp_sampler, finalUV);
+        return lerp(col, col * _TintColor, _TintColor.a);
     }
 
     ENDHLSL
@@ -110,5 +111,6 @@ Shader "Hidden/HDRP/ConcentricCircleRotate"
             ENDHLSL
         }
     }
+
     Fallback Off
 }

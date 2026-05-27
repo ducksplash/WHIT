@@ -567,16 +567,14 @@ public class DialogueManager : MonoBehaviour
         foreach (var d in Dialogues)
         {
             DialogueDict.TryAdd(d.DialogueName, d);
-            if (d.repeatable)
-                RepeatableDialogues.Add(d.DialogueName);
+            if (d.repeatable) RepeatableDialogues.Add(d.DialogueName);
         }
     }
 
     private void PopulateOSDTexts()
     {
         OSDTextDict.Clear();
-        foreach (var o in OSDTexts)
-            OSDTextDict.TryAdd(o.OSDTextName, o);
+        foreach (var o in OSDTexts) OSDTextDict.TryAdd(o.OSDTextName, o);
     }
 
     private void CreateEregiDictionary()

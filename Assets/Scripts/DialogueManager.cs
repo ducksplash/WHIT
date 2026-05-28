@@ -23,6 +23,20 @@ public class DialogueManager : MonoBehaviour
     public TextMeshProUGUI DialogueSpeakerName;
     public TextMeshProUGUI SpeakerText;
 
+    
+    [Header("NoraThoughts")]
+    public List<TextMeshProUGUI> ThoughtTexts = new List<TextMeshProUGUI>();
+    public CanvasGroup ThoughtCanvas;
+    [Header("Thought Settings")]
+    [Tooltip("How long each thought fades in then out (seconds)")]
+    public float thoughtFadeDuration    = 3f;
+    [Tooltip("How long the final thought fades out (seconds)")]
+    public float thoughtFinalFadeDuration = 4f;
+    [Tooltip("Delay between each thought starting — should be less than thoughtFadeDuration to create overlap")]
+    public float thoughtStaggerDelay    = 1.5f;
+    [Tooltip("How long the colour-to-white fade-in takes at the start of each thought")]
+    public float thoughtFadeInDuration  = 0.3f;
+    
     [Header("Typewriters")]
     public TMPTypewriter SystemMessageWriter;
     public TMPTypewriter NoraMessageWriter;
@@ -32,11 +46,15 @@ public class DialogueManager : MonoBehaviour
     public Image timebar;
     public float messagetimer;
 
+    
+    
+    
     // ─── Dialogue Data ─────────────────────────────────────────────────────
 
     [Header("Dialogue Data")]
     public List<Dialogue> Dialogues   = new();
     public List<OSDText>  OSDTexts    = new();
+    public List<NoraThought>  NoraThoughts    = new();
 
     public List<DialogueName> RepeatableDialogues = new();
     public List<DialogueName> DialogueSeen        = new();
@@ -67,6 +85,7 @@ public class DialogueManager : MonoBehaviour
 
     readonly Dictionary<DialogueName, Dialogue>  _dialogueDict  = new();
     readonly Dictionary<OSDTextName,  OSDText>   _osdTextDict   = new();
+    readonly Dictionary<ThoughtName,  NoraThought>   _noraThoughtDict   = new();
     readonly Dictionary<string, string>          _eregiDict     = new();
 
     // Timed-dialogue cancellation
@@ -86,6 +105,10 @@ public class DialogueManager : MonoBehaviour
     // Fade coroutine handle
     Coroutine _fadeCo;
 
+    
+    // Add with the other private state fields at the top of the class
+    Coroutine _activeThoughtCo;
+
     // ───────────────────────────────────────────────────────────────────────
     // Unity lifecycle
     // ───────────────────────────────────────────────────────────────────────
@@ -98,7 +121,8 @@ public class DialogueManager : MonoBehaviour
         BuildDialogueDictionary();
         BuildOSDDictionary();
         BuildEregiDictionary();
-
+        BuildNoraThoughtDictionary();
+        
         if (mainCamera != null)
             originalFieldOfView = mainCamera.fieldOfView;
 
@@ -109,6 +133,8 @@ public class DialogueManager : MonoBehaviour
         if (OnscreenDialogueCanvas  != null) OnscreenDialogueCanvas.alpha  = 0f;
 
         _ = InitSeenAsync();
+        
+        CleanThoughts();
     }
 
     void LateUpdate()
@@ -119,6 +145,110 @@ public class DialogueManager : MonoBehaviour
 
     void OnDisable() => CancelActiveTimed(markSeen: true);
 
+        
+    public void PlayThought(ThoughtName thoughtName)
+    {
+        
+        Debug.Log("play thought" +thoughtName);
+        
+        
+        if (!_noraThoughtDict.TryGetValue(thoughtName, out var data))
+        {
+            Debug.LogWarning($"DialogueManager: No thought found for '{name}'.");
+            return;
+        }
+
+        if (ThoughtTexts == null || ThoughtTexts.Count == 0)
+        {
+            Debug.LogWarning("DialogueManager: ThoughtTexts list is empty.");
+            return;
+        }
+
+        List<string> lines = data.EregiReplace
+            ? data.NoraThoughtString.ConvertAll(GetReplacedString)
+            : new List<string>(data.NoraThoughtString);
+
+        if (lines.Count == 0) return;
+
+        // Stop any in-progress thought sequence and clear leftover text before starting
+        if (_activeThoughtCo != null)
+        {
+            StopCoroutine(_activeThoughtCo);
+            _activeThoughtCo = null;
+            CleanThoughts();
+        }
+
+        _activeThoughtCo = StartCoroutine(ThoughtSequence(lines));
+    }
+
+    IEnumerator ThoughtSequence(List<string> lines)
+    {
+        
+        ThoughtCanvas.alpha = 1f;
+
+        var available = new List<int>();
+
+        int PickNextIndex()
+        {
+            if (available.Count == 0)
+            {
+                for (int i = 0; i < ThoughtTexts.Count; i++) available.Add(i);
+                for (int i = available.Count - 1; i > 0; i--)
+                {
+                    int j = Random.Range(0, i + 1);
+                    (available[i], available[j]) = (available[j], available[i]);
+                }
+            }
+            int pick = available[0];
+            available.RemoveAt(0);
+            return pick;
+        }
+
+        for (int i = 0; i < lines.Count; i++)
+        {
+            bool  isFinal  = i == lines.Count - 1;
+            float fadeOut  = isFinal ? thoughtFinalFadeDuration : thoughtFadeDuration;
+            int   boxIndex = PickNextIndex();
+
+            StartCoroutine(ShowThought(ThoughtTexts[boxIndex], lines[i], thoughtFadeInDuration, fadeOut));
+
+            if (!isFinal)
+                yield return new WaitForSeconds(thoughtStaggerDelay);
+            else
+                yield return new WaitForSeconds(thoughtFadeInDuration + fadeOut);
+        }
+
+        ThoughtCanvas.alpha  = 0f;
+        _activeThoughtCo     = null;
+    }
+
+    IEnumerator ShowThought(TextMeshProUGUI box, string text, float fadeInTime, float fadeOutTime)
+    {
+        box.text  = text;
+        box.color = Color.clear;
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t        += Time.deltaTime / Mathf.Max(fadeInTime, 0.0001f);
+            box.color = Color.Lerp(Color.clear, Color.white, Mathf.Clamp01(t));
+            yield return null;
+        }
+        box.color = Color.white;
+
+        t = 0f;
+        while (t < 1f)
+        {
+            t        += Time.deltaTime / Mathf.Max(fadeOutTime, 0.0001f);
+            box.color = Color.Lerp(Color.white, Color.clear, Mathf.Clamp01(t));
+            yield return null;
+        }
+
+        box.color = Color.clear;
+        box.text  = "";
+    }
+    
+    
     // ───────────────────────────────────────────────────────────────────────
     // Public entry points
     // ───────────────────────────────────────────────────────────────────────
@@ -180,14 +310,12 @@ public class DialogueManager : MonoBehaviour
 
     async Task RunDialogue(DialogueName name, float displayTimer, DialogueType type, bool holdUntilAdvance)
     {
-        // Skip already-seen non-repeatable dialogues
         if (DialogueSeen.Contains(name) && !RepeatableDialogues.Contains(name))
         {
             if (holdUntilAdvance) ClearHeldDialogue();
             return;
         }
 
-        // Resolve content
         if (!_dialogueDict.TryGetValue(name, out var data))
         {
             Debug.LogWarning($"DialogueManager: No dialogue found for '{name}'.");
@@ -198,12 +326,13 @@ public class DialogueManager : MonoBehaviour
             ? GetReplacedString(data.DialogueText)
             : data.DialogueText;
 
-        // ── Hold-to-advance path ───────────────────────────────────────────
+        // ── Read type from the ScriptableObject, not the caller ───────────────
+        DialogueType resolvedType = data.DialogueType;
 
         if (holdUntilAdvance)
         {
             CancelActiveTimed(markSeen: true);
-            messagetimer     = 0f;
+            messagetimer = 0f;
             DialogInProgress = true;
 
             ShowOnscreenDialogue(data.Contact);
@@ -217,29 +346,26 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        // ── Timed path ────────────────────────────────────────────────────
-
         CancelActiveTimed(markSeen: true);
 
-        _timedCts               = new CancellationTokenSource();
-        _hasActiveTimed         = true;
-        _activeTimedName        = name;
-        _activeTimedIsRepeatable= RepeatableDialogues.Contains(name);
-        _activeTimedWasShown    = false;
-        messagetimer            = displayTimer;
-        DialogInProgress        = true;
+        _timedCts = new CancellationTokenSource();
+        _hasActiveTimed = true;
+        _activeTimedName = name;
+        _activeTimedIsRepeatable = RepeatableDialogues.Contains(name);
+        _activeTimedWasShown = false;
+        messagetimer = displayTimer;
+        DialogInProgress = true;
 
         var ct = _timedCts.Token;
 
         try
         {
-            switch (type)
+            switch (resolvedType) // ← was: switch (type)
             {
                 case DialogueType.SMS:
                     await RunSMS(data.Contact, message, displayTimer, ct);
                     break;
-
-                default: // DialogueType.normal
+                default:
                     await RunNormal(data.Contact, message, displayTimer, ct);
                     break;
             }
@@ -247,7 +373,6 @@ public class DialogueManager : MonoBehaviour
         catch (TaskCanceledException) { return; }
         finally
         {
-            // Only clean up if we're still the active timed dialogue
             if (_hasActiveTimed && EqualityComparer<DialogueName>.Default.Equals(_activeTimedName, name))
             {
                 _hasActiveTimed = false;
@@ -271,18 +396,29 @@ public class DialogueManager : MonoBehaviour
     /// Legacy entry point used by Evidence, DialogueBeef, OnboardingManager,
     /// Player, Phone etc. Routes into the new queue/play pipeline.
     /// </summary>
-    public Task NewDialogue(DialogueName name, float displayTimer, bool holdUntilAdvance = false) => PlayDialogue(name, displayTimer, DialogueType.normal, displayTimer,displayTimer, null, false, holdUntilAdvance);
-
+    public Task NewDialogue(
+        DialogueName name,
+        float displayTimer,
+        bool holdUntilAdvance = false,
+        DialogueType type = DialogueType.normal)
+    {
+        return PlayDialogue(
+            name,
+            displayTimer,
+            type,
+            displayTimer,
+            displayTimer,
+            null,
+            false,
+            holdUntilAdvance);
+    }
     /// <summary>
     /// Legacy field read/written by cutscene.cs.
     /// Wraps the private _elapsedCutsceneTime so external code still compiles.
     /// </summary>
-    public float elapsedCutsceneTime
-    {
-        get => elapsedCutsceneTime;
-        set => elapsedCutsceneTime = value;
-    }
-
+    ///
+    /// 
+    public float ElapsedCutsceneTime => _elapsedCutsceneTime;
     
     async Task RunNormal(Contacts contact, string message, float displayTimer, CancellationToken ct)
     {
@@ -313,33 +449,43 @@ public class DialogueManager : MonoBehaviour
     // Display helpers — SMS
     // ───────────────────────────────────────────────────────────────────────
 
+// ───────────────────────────────────────────────────────────────────────
+    // SMS Display Logic
+    // ───────────────────────────────────────────────────────────────────────
     async Task RunSMS(Contacts contact, string message, float displayTimer, CancellationToken ct)
     {
-        ContactName.text     = contact.ToString();
-        ReceivedMessage.text = message;   // SMS never uses typewriter
-        _activeTimedWasShown = true;
+        Debug.Log("[SMS] START");
 
-        await MessageTimer(displayTimer, ct);
-    }
+        DialogInProgress = true;
 
-    // ───────────────────────────────────────────────────────────────────────
-    // Timer helpers
-    // ───────────────────────────────────────────────────────────────────────
+        // Hide other UI
+        OnscreenDialogueCanvas.alpha = 0f;
+        DialogueSpeakerNameCanvas.alpha = 0f;
 
-    async Task MessageTimer(float duration, CancellationToken ct)
-    {
-        timebar.fillAmount = 1f;
-        StartFade(PhoneMessageCanvas, fadeIn: true);
+        // Show SMS
+        PhoneMessageCanvas.alpha = 1f;
+        ContactName.text = contact.ToString();
+        ReceivedMessage.text = message;
 
-        await Task.Delay((int)(duration * 1000), ct);
+        try
+        {
+            await Task.Delay(Mathf.RoundToInt(displayTimer * 1000), ct);
+        }
+        catch (TaskCanceledException)
+        {
+            return;
+        }
 
-        StartFade(PhoneMessageCanvas, fadeIn: false);
+        // Fade out
+        PhoneMessageCanvas.alpha = 0f;
+        ContactName.text = "";
         ReceivedMessage.text = "";
-        ContactName.text     = "";
 
-        await Task.Delay(500, ct);
         DialogInProgress = false;
+
+        Debug.Log("[SMS] END");
     }
+
 
     async Task DialogueTimer(float duration, CancellationToken ct)
     {
@@ -554,7 +700,7 @@ public class DialogueManager : MonoBehaviour
         if (SpeakerText      != null) SpeakerText.text      = "";
         if (ReceivedMessage  != null) ReceivedMessage.text  = "";
         if (ContactName      != null) ContactName.text      = "";
-
+        if (PhoneMessageCanvas != null) PhoneMessageCanvas.alpha = 0f;
         if (OnscreenDialogueCanvas   != null) OnscreenDialogueCanvas.alpha   = 0f;
         if (DialogueSpeakerNameCanvas!= null) DialogueSpeakerNameCanvas.alpha= 0f;
     }
@@ -596,6 +742,18 @@ public class DialogueManager : MonoBehaviour
     }
 
     // ───────────────────────────────────────────────────────────────────────
+    // NoraThoughtses
+    // ───────────────────────────────────────────────────────────────────────
+
+    public List<string> RetrieveNoraThoughtText(ThoughtName name)
+    {
+        if (!_noraThoughtDict.TryGetValue(name, out var entry)) return new List<string> { "." };
+        
+        return entry.NoraThoughtString;
+        
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
     // Eregi replacement
     // ───────────────────────────────────────────────────────────────────────
 
@@ -607,10 +765,29 @@ public class DialogueManager : MonoBehaviour
         return message;
     }
 
+    
+    
+    
+    private void CleanThoughts()
+    {
+        ThoughtCanvas.alpha = 0;
+        
+        foreach (var textBox in ThoughtTexts)
+        {
+            textBox.color = Color.clear;
+            textBox.text = "";
+        }
+    }
+
+    
+    
+    
+    
     // ───────────────────────────────────────────────────────────────────────
     // Initialisation helpers
     // ───────────────────────────────────────────────────────────────────────
 
+    
     async Task InitSeenAsync()
     {
         try
@@ -649,6 +826,14 @@ public class DialogueManager : MonoBehaviour
         _osdTextDict.Clear();
         foreach (var o in OSDTexts)
             _osdTextDict.TryAdd(o.OSDTextName, o);
+    }
+
+
+    void BuildNoraThoughtDictionary()
+    {
+        _noraThoughtDict.Clear();
+        foreach (var o in NoraThoughts)
+            _noraThoughtDict.TryAdd(o.ThoughtName, o);
     }
 
     void BuildEregiDictionary()

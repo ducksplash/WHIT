@@ -76,3 +76,10 @@ public enum DialogueName
     
     
 }
+
+public enum ThoughtName
+{
+    StartingWork = 0000,
+    FacingKim = 0001,
+    WhatEllsworthWants = 0002,
+}

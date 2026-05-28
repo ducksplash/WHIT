@@ -279,11 +279,17 @@ public class GameMaster : MonoBehaviour
         THISLEVEL = GAMELEVEL.ETVStudio;
         Player.Instance.Spawn();
         //Player.Instance.Me.ToggleWorkOutfit(true);
+        
+        
+        
         Player.Instance.Me.ToggleWorkOutfit(true);
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
         LoadingManager.SceneFadeIn();
+        
+        // play first thought
+        DialogueManager.PlayThought(ThoughtName.StartingWork);
     }
 
     public void StartLevelNorasFlat()

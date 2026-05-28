@@ -8,6 +8,8 @@ public class RectTransformChaChaSlide : MonoBehaviour
     [SerializeField] private float startX = 4000f;
     [SerializeField] private float endX = 0f;
     [SerializeField] private float duration = 1f;
+
+    public bool tickerActive;
     
     [Header("Ease")]
     [SerializeField] private AnimationCurve easeCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -38,6 +40,9 @@ public class RectTransformChaChaSlide : MonoBehaviour
     {
         if (targetRect == null) return;
 
+        if (tickerActive) return;
+        tickerActive = true;
+        
         float elapsed = 0f;
         Vector2 startPosition = new Vector2(startX, targetRect.anchoredPosition.y);
         Vector2 endPosition = new Vector2(endX, targetRect.anchoredPosition.y);
@@ -66,8 +71,11 @@ public class RectTransformChaChaSlide : MonoBehaviour
     public async UniTask SlideOutAsync()
     {
         if (targetRect == null) return;
+        
+        if (!tickerActive) return;
 
         float elapsed = 0f;
+
         Vector2 startPosition = new Vector2(endX, targetRect.anchoredPosition.y);
         Vector2 endPosition = new Vector2(startX, targetRect.anchoredPosition.y);
 
@@ -79,16 +87,18 @@ public class RectTransformChaChaSlide : MonoBehaviour
 
             elapsed += Time.deltaTime;
             float normalizedTime = elapsed / duration;
-            
-            // Apply easing
+
             float t = easeCurve.Evaluate(normalizedTime);
-            
-            float currentX = Mathf.Lerp(startX, endX, t);
-            targetRect.anchoredPosition = new Vector2(currentX, targetRect.anchoredPosition.y);
+
+            // FIXED DIRECTION
+            float currentX = Mathf.Lerp(endX, startX, t);
+
+            targetRect.anchoredPosition =
+                new Vector2(currentX, targetRect.anchoredPosition.y);
         }
 
-        // Ensure final position
         targetRect.anchoredPosition = endPosition;
+        tickerActive = false;
     }
 
 

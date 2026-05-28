@@ -244,6 +244,7 @@ public class Player : Singleton<Player>
     private CancellationTokenSource _crouchCts;
     private CancellationTokenSource _upperBodyCts;
 
+    
     // ────────────────────────────────────────────────────────────────────────
     // Start
     // ────────────────────────────────────────────────────────────────────────
@@ -266,8 +267,7 @@ public class Player : Singleton<Player>
 
         speed = sprintspeed;
 
-        if (Noranimator == null)
-            Noranimator = GetComponentInChildren<Animator>(true);
+        if (Noranimator == null) Noranimator = GetComponentInChildren<Animator>(true);
 
         if (Noranimator != null)
         {
@@ -282,8 +282,7 @@ public class Player : Singleton<Player>
             Noranimator.SetFloat(AnimMoveY, 0f);
 
             _upperBodyLayerIndex = Noranimator.GetLayerIndex(upperBodyLayerName);
-            if (_upperBodyLayerIndex < 0 && debugAnim)
-                Debug.LogWarning($"[Player] Animator has no layer named '{upperBodyLayerName}'.");
+            if (_upperBodyLayerIndex < 0 && debugAnim) Debug.LogWarning($"[Player] Animator has no layer named '{upperBodyLayerName}'.");
 
             _phoneOutStateHash = Animator.StringToHash(upperBodyPhoneOutStateName);
             _phoneAwayStateHash = Animator.StringToHash(upperBodyPhoneAwayStateName);
@@ -983,8 +982,6 @@ public void NoraSit(Seat seat)
 
     private void RefreshUpperBodyWeight()
     {
-        // ... existing logic to decide target weight ...
-
         bool shouldBeOn = _upperBodyHeldByMelee || _upperBodyHeldByPhone;
         float current = Noranimator?.GetLayerWeight(_upperBodyLayerIndex) ?? 0f;
         float target = shouldBeOn ? 1f : 0f;

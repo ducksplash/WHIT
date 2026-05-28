@@ -7,6 +7,9 @@ using UnityEngine;
     order = 10)]
 public class NoraThought : ScriptableObject
 {
+
+    [Header("Thought Designation")] 
+    public ThoughtName ThoughtName;
     [Header("Thoughts Texts")]
     [TextArea(3, 10)]
     public List<string> NoraThoughtString = new List<string>(); 

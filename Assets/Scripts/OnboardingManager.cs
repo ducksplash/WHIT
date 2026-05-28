@@ -175,6 +175,9 @@ public class OnboardingManager : MonoBehaviour
         //Debug.Log("CollectTorch");
         TORCHCOLLECTED = true;
         Player.Instance.CombatEnabled = true;
+        
+        EventManager.SlideTickerIn();
+        
         // dialogueName, displayTimer, type, cutsceneDuration, cutscenePanTime, cutsceneTarget
         await GameMaster.Instance.DialogueManager.PlayDialogue(
             pickupTorchDialogue,
@@ -193,6 +196,7 @@ public class OnboardingManager : MonoBehaviour
         StoredPrefs.Instance.SetInt("TORCHCOLLECTED", TORCHCOLLECTED ? 1 : 0);
         StoredPrefs.Instance.Save();
 
+        EventManager.SlideTickerOut();
         EventManager.TorchCollectedEvent();
         CheckOnboardingStatus();
         
@@ -203,6 +207,8 @@ public class OnboardingManager : MonoBehaviour
         //Debug.Log("CollectNotepad");
         NOTEPADCOLLECTED = true;
 
+        EventManager.SlideTickerIn();
+        
         await GameMaster.Instance.DialogueManager.PlayDialogue(
             pickupNotepadDialogue,
             6f,
@@ -222,6 +228,8 @@ public class OnboardingManager : MonoBehaviour
         StoredPrefs.Instance.SetInt("NOTEPADCOLLECTED", NOTEPADCOLLECTED ? 1 : 0);
         StoredPrefs.Instance.Save();
 
+        EventManager.SlideTickerOut();
+        
         EventManager.NotepadCollectedEvent();
         CheckOnboardingStatus();
     }
@@ -229,6 +237,10 @@ public class OnboardingManager : MonoBehaviour
     public async void CollectPhone()
     {
         //Debug.Log("CollectPhone");
+        
+        EventManager.SlideTickerIn();
+        
+        
         PHONECOLLECTED = true;
         await GameMaster.Instance.DialogueManager.PlayDialogue(
             pickupPhoneDialogue,
@@ -247,6 +259,9 @@ public class OnboardingManager : MonoBehaviour
 
         StoredPrefs.Instance.SetInt("PHONECOLLECTED", PHONECOLLECTED ? 1 : 0);
         StoredPrefs.Instance.Save();
+        
+        
+        EventManager.SlideTickerOut();
 
         CheckOnboardingStatus();
         EventManager.PhoneCollectedEvent();

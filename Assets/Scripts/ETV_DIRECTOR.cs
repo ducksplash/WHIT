@@ -107,11 +107,14 @@ public class ETV_DIRECTOR : MonoBehaviour
         
         Debug.Log("start");
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitUntil(() => !GameMaster.Instance.DialogueManager.DialogInProgress);
         
         DirectorEvents.UpperBodyAnimation(NPC.Ellsworth_Ohanlon, "DoPoint");
         
         yield return null;
+        
+        EventManager.SlideTickerOut();
+        
     }
 
 
@@ -124,6 +127,10 @@ public class ETV_DIRECTOR : MonoBehaviour
         GameMaster.Instance.PLAYERBUSY = true;
         GameMaster.Instance.INAMEETING = true;
 
+        
+        
+        EventManager.SlideTickerIn();
+        
         // WAIT TIL SEATED
         while (!thePlayer.IsSeated)
         {

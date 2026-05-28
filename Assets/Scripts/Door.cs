@@ -21,6 +21,9 @@ public class Door : MonoBehaviour
 
     static readonly int EmissiveColor = Shader.PropertyToID("_EmissiveColor");
 
+    [Header("optional - use with InstantTravel")]
+    public GAMELEVEL DestinationLevel;
+    
     public bool openOnLoad;
     
     private void Awake()
@@ -57,6 +60,10 @@ public class Door : MonoBehaviour
 
             case DoorType.Cupboard:
                 HandleStandardDoor(hitCollider);
+                break;
+            case DoorType.InstantTravel:
+                Debug.Log("inst?");
+                GameMaster.Instance.LoadingManager.LoadLevel(DestinationLevel);
                 break;
         }
     }
@@ -135,6 +142,8 @@ public class Door : MonoBehaviour
             case DoorType.Metal:
                 GameMaster.Instance.AudioSlave.PlaySFX(openValue ? SFXResource.MetalDoorOpen : SFXResource.MetalDoorClosed);
                 break;
+            
+
         }
     }
     
@@ -195,5 +204,8 @@ public enum DoorType
     Metal,
 
     // Launch Travel Companion for this door type
-    Travel
+    Travel,
+    
+    // Load immediately
+    InstantTravel
 }

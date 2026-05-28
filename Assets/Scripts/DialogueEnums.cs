@@ -1,7 +1,8 @@
 public enum DialogueType
 {
     cutscene,
-    normal
+    normal,
+    SMS
 }
 
 public enum OSDTextName

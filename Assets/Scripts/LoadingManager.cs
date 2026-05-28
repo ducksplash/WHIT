@@ -65,7 +65,12 @@ public class LoadingManager : MonoBehaviour
     /// </summary>
     public void LoadLevel(GAMELEVEL levelName, Action onFinished = null)
     {
+        
+        Debug.Log("LoadLevel?");
         if (_isLoading) return;
+        
+        Debug.Log("LoadLevel??");
+        
         
         EventManager.DoLoadingSwirl();
         
@@ -103,8 +108,10 @@ public class LoadingManager : MonoBehaviour
         yield return ChangeSceneAsync(levelName);
         
 
+
+        EventManager.UnDoLoadingSwirl();
         
-        // 4) Ensure fade is still black before removing loading UI
+        
         if (fadeCanvas != null)
         {
             fadeCanvas.gameObject.SetActive(true);
@@ -120,7 +127,6 @@ public class LoadingManager : MonoBehaviour
         yield return null;
         yield return new WaitForEndOfFrame();
 
-        EventManager.UnDoLoadingSwirl();
         
         yield return FadeToAndWait(0f);
         

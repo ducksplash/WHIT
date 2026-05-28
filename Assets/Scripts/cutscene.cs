@@ -37,30 +37,17 @@ public class Cutscene : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (GameMaster.Instance.PLAYERBUSY) return;
-        if (!GameMaster.Instance.DialogueManager.SeenLoaded) return;
-        
         if (other.gameObject.layer != 3) return;
+        if (GameMaster.Instance.PLAYERBUSY) return;
 
         var dm = GameMaster.Instance?.DialogueManager;
-        if (dm == null) return;
+        if (dm == null || !dm.SeenLoaded) return;
 
-        // NEW: don't allow cutscene checks until DialogueManager has loaded CutSceneSeen from StoredPrefs
-        if (!dm.SeenLoaded) return;
+        if (dm.DialogueSeen.Contains(selectedMessage)) return;
 
-        var key = selectedMessage.ToString();
+        dm.cameraZoom.enabled = false;
 
-        if (!dm.CutSceneSeen.ContainsKey(key))
-        {
-            dm.cameraZoom.enabled = false;
-            dm.elapsedCutsceneTime = 0.0f;
-
-            dm.CutSceneSeen[key] = ContactName.ToString();
-            dm.SaveWhatYouSee();
-
-            dm.PlayDialogue(selectedMessage, duration, DialogueType.cutscene, 7, panTime, targetObject);
-        }
-
+        dm.PlayDialogue(selectedMessage, duration, DialogueType.cutscene, 7, panTime, targetObject);
     }
 }
 

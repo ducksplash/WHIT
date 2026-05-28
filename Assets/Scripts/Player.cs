@@ -236,6 +236,7 @@ public class Player : Singleton<Player>
     public bool MoveOverride;
     public bool ZoomOverride;
 
+    private int cameraEffectSelected = 0;
     // ────────────────────────────────────────────────────────────────────────
     // Start
     // ────────────────────────────────────────────────────────────────────────
@@ -355,22 +356,43 @@ public class Player : Singleton<Player>
         }
     }
 
+    
     private void DoCameraLoadingThings()
     {
-        
-        
-        concentricCircleDriver.DoSwirl();
-        
-        
+        cameraEffectSelected = UnityEngine.Random.Range(0, 3);
+
+        switch (cameraEffectSelected)
+        {
+            case 0:
+                concentricCircleDriver.DoSwirl();
+                break;
+
+            case 1:
+                concentricCircleDriver.DoZigzag();
+                break;
+
+            case 2:
+                concentricCircleDriver.ZigZagSlideIn();
+                break;
+        }
     }
 
     private void UnDoCameraLoadingThings()
     {
-        
-        
-        concentricCircleDriver.UndoSwirl();
-        
-        
+        switch (cameraEffectSelected)
+        {
+            case 0:
+                concentricCircleDriver.UndoSwirl();
+                break;
+
+            case 1:
+                concentricCircleDriver.UndoZigzag();
+                break;
+
+            case 2:
+                concentricCircleDriver.ZigZagSlideOut();
+                break;
+        }
     }
 
     private void EnterDebugCamera()

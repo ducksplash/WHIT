@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
@@ -361,6 +362,12 @@ public class GameMaster : MonoBehaviour
         LoadingManager.SceneFadeIn();
     }
 
+    /// <summary>
+    /// Legacy dictionary accessed by cutscene.cs.
+    /// Kept as a public field; persistence was removed (it was never populated)
+    /// but the field exists so external reads/writes don't break.
+    /// </summary>
+    public Dictionary<string, string> CutSceneSeen = new();
     public void StartAudio(AudioProfile selectedAudioProfile)
     {
         AudioSlave.StopBGA();

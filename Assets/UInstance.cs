@@ -21,7 +21,7 @@ public class UInstance : Singleton<UInstance>
     public void Start()
     {
         cutsceneBarsCanvas.alpha = 0;
-        ProceedCanvas.alpha = 0;
+        ProceedCanvas.gameObject.SetActive(false);
         
         EventManager.OnDebugCameraToggle += DebugDisableHUD;
         EventManager.OnDialogueCanProceed += ToggleDialogueCanProceed;
@@ -33,10 +33,8 @@ public class UInstance : Singleton<UInstance>
         
         Debug.Log("UInstance ProceedCanvas "+toggleval);
 
-        ProceedCanvas.alpha = toggleval ? 1 : 0;
+        ProceedCanvas.gameObject.SetActive(toggleval);
         advanceInputText.text = toggleval ? GameMaster.Instance.InputManager.ReturnInputName(InputName.Submit) : "";
-        Debug.Log("ProceedCanvas.alpha "+ProceedCanvas.alpha);
-        Debug.Log("advanceInputText.text "+advanceInputText.text);
     }
 
 

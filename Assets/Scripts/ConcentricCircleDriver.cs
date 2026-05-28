@@ -67,13 +67,11 @@ public class ConcentricCircleDriver : MonoBehaviour
     private CancellationTokenSource _cts;
 
     
-    
     readonly float[] _runtimeRingValues = new float[20];
     readonly float[] _runtimeSliceValues = new float[20];
 
     private void Awake()
     {
-        DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
     private Color EvaluateTint(Color a, Color b, float t)
@@ -352,6 +350,130 @@ public class ConcentricCircleDriver : MonoBehaviour
         }
     }
 
+    
+    public void ZigZagSlide() => StartPattern(RunZigZagSlide);
+
+    async UniTaskVoid RunZigZagSlide(CancellationToken ct)
+    {
+        try
+        {
+            do
+            {
+                await RunZigZagSlidePass(true, ct);
+                if (ct.IsCancellationRequested || _stopRequested) break;
+
+                await RunZigZagSlidePass(false, ct);
+                if (ct.IsCancellationRequested || _stopRequested) break;
+
+            } while (loop);
+        }
+        finally
+        {
+            Cleanup();
+        }
+    }
+    
+    public void ZigZagSlideIn() => StartPattern(RunZigZagSlideIn);
+
+    async UniTaskVoid RunZigZagSlideIn(CancellationToken ct)
+    {
+        try
+        {
+            do
+            {
+                await RunZigZagSlidePass(true, ct);
+                if (ct.IsCancellationRequested || _stopRequested) break;
+
+            } while (loop);
+        }
+        finally
+        {
+            Cleanup();
+        }
+    }
+    
+    public void ZigZagSlideOut() => StartPattern(RunZigZagSlideOut);
+
+    async UniTaskVoid RunZigZagSlideOut(CancellationToken ct)
+    {
+        try
+        {
+            do
+            {
+                await RunZigZagSlidePass(false, ct);
+                if (ct.IsCancellationRequested || _stopRequested) break;
+
+            } while (loop);
+        }
+        finally
+        {
+            Cleanup();
+        }
+    }
+    
+    
+    
+    async UniTask RunZigZagSlidePass(bool forward, CancellationToken ct)
+    {
+        const int count = 20;
+
+        float staggerSpread = slideDuration * slideStaggerFraction;
+        float travelTime = slideDuration - staggerSpread;
+        float delayPerSlice = staggerSpread / (count - 1);
+
+        // ZigZag direction offsets (THIS is the key difference)
+        float[] direction = new float[count];
+
+        for (int s = 0; s < count; s++)
+        {
+            float dir = (s % 2 == 0) ? 1f : -1f;
+            direction[s] = dir * slideDistance;
+
+            _runtimeSliceValues[s] = forward ? 0f : direction[s];
+        }
+
+        PushRuntimeValues();
+
+        float passStart = Time.time;
+
+        while (true)
+        {
+            float now = Time.time - passStart;
+            bool allDone = true;
+
+            for (int s = 0; s < count; s++)
+            {
+                float t = Mathf.Clamp01(Mathf.InverseLerp(
+                    s * delayPerSlice,
+                    s * delayPerSlice + travelTime,
+                    now));
+
+                if (t < 1f) allDone = false;
+
+                float eased = easeCurve.Evaluate(t);
+
+                float from = forward ? 0f : direction[s];
+                float to   = forward ? direction[s] : 0f;
+
+                _runtimeSliceValues[s] = Mathf.LerpUnclamped(from, to, eased);
+            }
+
+            // optional: reuse slide tint (or make a new zigzag-slide tint set if you want)
+            float globalT = Mathf.Clamp01(now / slideDuration);
+
+            tintColor = forward
+                ? EvaluateTint(slideStartColor, slideEndColor, globalT)
+                : EvaluateTint(slideEndColor, slideStartColor, globalT);
+
+            PushRuntimeValues();
+
+            if (allDone) break;
+
+            await UniTask.Yield(PlayerLoopTiming.Update, ct);
+            if (ct.IsCancellationRequested) return;
+        }
+    }
+    
     // ─── Push Methods (Fully Expanded) ─────────────────────────────────────
 
     private void PushEditorValues()
@@ -481,28 +603,74 @@ public class ConcentricCircleDriver : MonoBehaviour
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Pattern Controls", EditorStyles.boldLabel);
 
+            // ─────────────────────────────────────
+            // MAIN LOOPS
+            // ─────────────────────────────────────
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("▶ Swirl", GUILayout.Height(30))) ((ConcentricCircleDriver)target).PlaySwirl();
-            if (GUILayout.Button("▶ Zigzag", GUILayout.Height(30))) ((ConcentricCircleDriver)target).PlayZigzag();
-            if (GUILayout.Button("▶ Slide", GUILayout.Height(30))) ((ConcentricCircleDriver)target).PlaySlide();
+            if (GUILayout.Button("▶ Swirl", GUILayout.Height(30)))
+                ((ConcentricCircleDriver)target).PlaySwirl();
+
+            if (GUILayout.Button("▶ Zigzag", GUILayout.Height(30)))
+                ((ConcentricCircleDriver)target).PlayZigzag();
+
+            if (GUILayout.Button("▶ Slide", GUILayout.Height(30)))
+                ((ConcentricCircleDriver)target).PlaySlide();
             EditorGUILayout.EndHorizontal();
 
+            // ─────────────────────────────────────
+            // SWIRL
+            // ─────────────────────────────────────
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Do Swirl", GUILayout.Height(25))) ((ConcentricCircleDriver)target).DoSwirl();
-            if (GUILayout.Button("Undo Swirl", GUILayout.Height(25))) ((ConcentricCircleDriver)target).UndoSwirl();
+            if (GUILayout.Button("Do Swirl", GUILayout.Height(25)))
+                ((ConcentricCircleDriver)target).DoSwirl();
+
+            if (GUILayout.Button("Undo Swirl", GUILayout.Height(25)))
+                ((ConcentricCircleDriver)target).UndoSwirl();
             EditorGUILayout.EndHorizontal();
 
+            // ─────────────────────────────────────
+            // ZIGZAG (RINGS)
+            // ─────────────────────────────────────
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Do Zigzag", GUILayout.Height(25))) ((ConcentricCircleDriver)target).DoZigzag();
-            if (GUILayout.Button("Undo Zigzag", GUILayout.Height(25))) ((ConcentricCircleDriver)target).UndoZigzag();
+            if (GUILayout.Button("Do Zigzag", GUILayout.Height(25)))
+                ((ConcentricCircleDriver)target).DoZigzag();
+
+            if (GUILayout.Button("Undo Zigzag", GUILayout.Height(25)))
+                ((ConcentricCircleDriver)target).UndoZigzag();
             EditorGUILayout.EndHorizontal();
 
+            // ─────────────────────────────────────
+            // SLIDE (LINEAR)
+            // ─────────────────────────────────────
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Slide In", GUILayout.Height(25))) ((ConcentricCircleDriver)target).SlideIn();
-            if (GUILayout.Button("Slide Out", GUILayout.Height(25))) ((ConcentricCircleDriver)target).SlideOut();
+            if (GUILayout.Button("Slide In", GUILayout.Height(25)))
+                ((ConcentricCircleDriver)target).SlideIn();
+
+            if (GUILayout.Button("Slide Out", GUILayout.Height(25)))
+                ((ConcentricCircleDriver)target).SlideOut();
             EditorGUILayout.EndHorizontal();
 
-            if (GUILayout.Button("Stop After Cycle", GUILayout.Height(35))) ((ConcentricCircleDriver)target).StopPattern();
+            // ─────────────────────────────────────
+            // ZIGZAG SLIDE (NEW)
+            // ─────────────────────────────────────
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("ZigZag Slide", GUILayout.Height(25)))
+                ((ConcentricCircleDriver)target).ZigZagSlide();
+
+            if (GUILayout.Button("ZigZag In", GUILayout.Height(25)))
+                ((ConcentricCircleDriver)target).ZigZagSlideIn();
+
+            if (GUILayout.Button("ZigZag Out", GUILayout.Height(25)))
+                ((ConcentricCircleDriver)target).ZigZagSlideOut();
+            EditorGUILayout.EndHorizontal();
+
+            // ─────────────────────────────────────
+            // STOP
+            // ─────────────────────────────────────
+            EditorGUILayout.Space();
+
+            if (GUILayout.Button("Stop After Cycle", GUILayout.Height(35)))
+                ((ConcentricCircleDriver)target).StopPattern();
         }
     }
 #endif

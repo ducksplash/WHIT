@@ -20,7 +20,7 @@ public class UIPulsatingGlowUniTask : MonoBehaviour
 
     private CancellationTokenSource cts;
 
-    private void Start()
+    private void OnEnable()
     {
         uiImage = GetComponent<Image>();
 
@@ -28,6 +28,14 @@ public class UIPulsatingGlowUniTask : MonoBehaviour
 
         PulseRoutine(cts.Token).Forget();
     }
+
+
+    private void OnDisable()
+    {
+        Dispose();
+    }
+
+
 
     private async UniTaskVoid PulseRoutine(
         CancellationToken token
@@ -57,6 +65,11 @@ public class UIPulsatingGlowUniTask : MonoBehaviour
     }
 
     private void OnDestroy()
+    {
+        Dispose();
+    }
+
+    private void Dispose()
     {
         cts?.Cancel();
         cts?.Dispose();

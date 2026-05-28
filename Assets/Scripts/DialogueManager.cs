@@ -9,79 +9,95 @@ using UnityEngine.UI;
 
 public class DialogueManager : MonoBehaviour
 {
-    [Header("Dialogue UI")]
-    public GameObject DialogManager;
-    private CanvasGroup DialogManagerCanvas;
+    // ─── UI References ─────────────────────────────────────────────────────
 
+    [Header("SMS / Phone")]
+    public CanvasGroup PhoneMessageCanvas;
     public TextMeshProUGUI ContactName;
     public Image ContactPhoto;
     public TextMeshProUGUI ReceivedMessage;
-    public TextMeshProUGUI NoraMessage;
-    public TextMeshProUGUI SystemMessage;
 
-    [Header("Typewriter Animators")]
+    [Header("Onscreen Dialogue")]
+    public CanvasGroup OnscreenDialogueCanvas;
+    public CanvasGroup DialogueSpeakerNameCanvas;
+    public TextMeshProUGUI DialogueSpeakerName;
+    public TextMeshProUGUI SpeakerText;
+
+    [Header("Typewriters")]
     public TMPTypewriter SystemMessageWriter;
     public TMPTypewriter NoraMessageWriter;
     public TMPTypewriter ReceivedMessageWriter;
 
+    [Header("Timer Bar")]
     public Image timebar;
-    public float messagetimer = 0f;
+    public float messagetimer;
 
-    public bool DialogInProgress;
+    // ─── Dialogue Data ─────────────────────────────────────────────────────
 
     [Header("Dialogue Data")]
-    public List<Dialogue> Dialogues = new();
-    public List<OSDText> OSDTexts = new();
-    private readonly Dictionary<DialogueName, Dialogue> DialogueDict = new();
-    private readonly Dictionary<OSDTextName, OSDText> OSDTextDict = new();
+    public List<Dialogue> Dialogues   = new();
+    public List<OSDText>  OSDTexts    = new();
 
     public List<DialogueName> RepeatableDialogues = new();
-    public List<DialogueName> DialogueSeen = new();
+    public List<DialogueName> DialogueSeen        = new();
 
-    private readonly Dictionary<string, string> EregiDict = new();
+    
+    
+    // ─── Cutscene ──────────────────────────────────────────────────────────
 
     [Header("Cutscene")]
     public Camera mainCamera;
-    public Zoom cameraZoom;
+    public Zoom   cameraZoom;
+    public float  originalFieldOfView = 70f;
+    public float  targetFieldOfView   = 40f;
+    public float  panTime             = 5f;
+    public float  duration            = 10f;
 
-    public float originalFieldOfView = 70f;
-    public float targetFieldOfView = 40f;
-    public float panTime = 5f;
-    public float duration = 10f;
-
-    public bool CutsceneInProgress;
-    public float elapsedCutsceneTime;
-
-    public Dictionary<string, string> CutSceneSeen = new Dictionary<string, string>();
+    // ─── Input ─────────────────────────────────────────────────────────────
 
     public InputActionReference advanceDialogue;
 
-    private bool cutsceneAdvanceRequested;  // kept for any existing references
-    private bool advanceRequested;
+    // ─── State ─────────────────────────────────────────────────────────────
 
-    private bool _stopCutsceneRotation;
+    public bool DialogInProgress  { get; private set; }
+    public bool CutsceneInProgress{ get; private set; }
+    public bool SeenLoaded        { get; private set; }
 
-    public bool SeenLoaded;
+    // ─── Private state ─────────────────────────────────────────────────────
 
-    private Coroutine _fadeCo;
+    readonly Dictionary<DialogueName, Dialogue>  _dialogueDict  = new();
+    readonly Dictionary<OSDTextName,  OSDText>   _osdTextDict   = new();
+    readonly Dictionary<string, string>          _eregiDict     = new();
 
-    private CancellationTokenSource _activeTimedCts;
-    private bool _hasActiveTimed;
-    private DialogueName _activeTimedDialogueName;
-    private bool _activeTimedIsRepeatable;
-    private bool _activeTimedWasShown;
-    private bool _currentDialogueIsHeld;
-    
-    private void Start()
+    // Timed-dialogue cancellation
+    CancellationTokenSource _timedCts;
+    bool       _hasActiveTimed;
+    DialogueName _activeTimedName;
+    bool       _activeTimedIsRepeatable;
+    bool       _activeTimedWasShown;
+
+    // Cutscene internals
+    float _elapsedCutsceneTime;
+    bool  _stopCutsceneRotation;
+
+    // Advance-key state
+    bool _advanceRequested;
+
+    // Fade coroutine handle
+    Coroutine _fadeCo;
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Unity lifecycle
+    // ───────────────────────────────────────────────────────────────────────
+
+    void Start()
     {
-        DialogManagerCanvas = DialogManager.GetComponent<CanvasGroup>();
-
         DialogInProgress = false;
-        ClearAllText();
+        ClearAllUI();
 
-        PopulateDialogues();
-        PopulateOSDTexts();
-        CreateEregiDictionary();
+        BuildDialogueDictionary();
+        BuildOSDDictionary();
+        BuildEregiDictionary();
 
         if (mainCamera != null)
             originalFieldOfView = mainCamera.fieldOfView;
@@ -89,10 +105,513 @@ public class DialogueManager : MonoBehaviour
         if (UInstance.Instance != null)
             UInstance.Instance.cutsceneBarsCanvas.alpha = 0;
 
+        if (PhoneMessageCanvas      != null) PhoneMessageCanvas.alpha      = 0f;
+        if (OnscreenDialogueCanvas  != null) OnscreenDialogueCanvas.alpha  = 0f;
+
         _ = InitSeenAsync();
     }
 
-    private async Task InitSeenAsync()
+    void LateUpdate()
+    {
+        if (!DialogInProgress || messagetimer <= 0) return;
+        timebar.fillAmount -= (1f / messagetimer) * Time.deltaTime;
+    }
+
+    void OnDisable() => CancelActiveTimed(markSeen: true);
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Public entry points
+    // ───────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Primary entry point. Queues if a dialogue is already running.
+    /// </summary>
+    public Task PlayDialogue(
+        DialogueName  name,
+        float         displayTimer,
+        DialogueType  type,
+        float         cutsceneDuration  = -1f,
+        float         cutscenePanTime   = -1f,
+        GameObject    cutsceneTarget    = null,
+        bool          isZoomable        = true,
+        bool          holdUntilAdvance  = false)
+    {
+        switch (type)
+        {
+            case DialogueType.cutscene:
+                if (cutsceneTarget == null)
+                {
+                    Debug.LogError("DialogueManager: Cutscene requested but cutsceneTarget is null.");
+                    return Task.CompletedTask;
+                }
+                float useDuration = cutsceneDuration > 0 ? cutsceneDuration : duration;
+                float usePanTime  = cutscenePanTime  > 0 ? cutscenePanTime  : panTime;
+                return StartCutscene(name, displayTimer, cutsceneTarget, useDuration, usePanTime, isZoomable, holdUntilAdvance);
+
+            default: // normal + sms both go through the same queue
+                return EnqueueOrPlay(name, displayTimer, type, holdUntilAdvance);
+        }
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Queueing
+    // ───────────────────────────────────────────────────────────────────────
+
+    Task EnqueueOrPlay(DialogueName name, float timer, DialogueType type, bool hold)
+    {
+        if (!DialogInProgress)
+            return RunDialogue(name, timer, type, hold);
+
+        var tcs = new TaskCompletionSource<bool>();
+        StartCoroutine(QueueCoroutine(name, timer, type, hold, tcs));
+        return tcs.Task;
+    }
+
+    IEnumerator QueueCoroutine(DialogueName name, float timer, DialogueType type, bool hold, TaskCompletionSource<bool> tcs)
+    {
+        yield return new WaitWhile(() => DialogInProgress);
+        _ = RunDialogue(name, timer, type, hold);
+        tcs.SetResult(true);
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Core dialogue runner
+    // ───────────────────────────────────────────────────────────────────────
+
+    async Task RunDialogue(DialogueName name, float displayTimer, DialogueType type, bool holdUntilAdvance)
+    {
+        // Skip already-seen non-repeatable dialogues
+        if (DialogueSeen.Contains(name) && !RepeatableDialogues.Contains(name))
+        {
+            if (holdUntilAdvance) ClearHeldDialogue();
+            return;
+        }
+
+        // Resolve content
+        if (!_dialogueDict.TryGetValue(name, out var data))
+        {
+            Debug.LogWarning($"DialogueManager: No dialogue found for '{name}'.");
+            return;
+        }
+
+        string message = data.EregiReplace
+            ? GetReplacedString(data.DialogueText)
+            : data.DialogueText;
+
+        // ── Hold-to-advance path ───────────────────────────────────────────
+
+        if (holdUntilAdvance)
+        {
+            CancelActiveTimed(markSeen: true);
+            messagetimer     = 0f;
+            DialogInProgress = true;
+
+            ShowOnscreenDialogue(data.Contact);
+            await TypeOnscreen(data.Contact, message, CancellationToken.None);
+
+            MarkSeen(name);
+            EventManager.DialogueCanProceed(true);
+            await WaitForPlayerAdvanceAsync();
+
+            ClearHeldDialogue();
+            return;
+        }
+
+        // ── Timed path ────────────────────────────────────────────────────
+
+        CancelActiveTimed(markSeen: true);
+
+        _timedCts               = new CancellationTokenSource();
+        _hasActiveTimed         = true;
+        _activeTimedName        = name;
+        _activeTimedIsRepeatable= RepeatableDialogues.Contains(name);
+        _activeTimedWasShown    = false;
+        messagetimer            = displayTimer;
+        DialogInProgress        = true;
+
+        var ct = _timedCts.Token;
+
+        try
+        {
+            switch (type)
+            {
+                case DialogueType.SMS:
+                    await RunSMS(data.Contact, message, displayTimer, ct);
+                    break;
+
+                default: // DialogueType.normal
+                    await RunNormal(data.Contact, message, displayTimer, ct);
+                    break;
+            }
+        }
+        catch (TaskCanceledException) { return; }
+        finally
+        {
+            // Only clean up if we're still the active timed dialogue
+            if (_hasActiveTimed && EqualityComparer<DialogueName>.Default.Equals(_activeTimedName, name))
+            {
+                _hasActiveTimed = false;
+                _timedCts?.Dispose();
+                _timedCts = null;
+            }
+        }
+
+        MarkSeen(name);
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Display helpers — Normal / Onscreen
+    // ───────────────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────────────────
+// Backwards-compatibility shims
+// External scripts that called these members will compile without changes.
+// ───────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Legacy entry point used by Evidence, DialogueBeef, OnboardingManager,
+    /// Player, Phone etc. Routes into the new queue/play pipeline.
+    /// </summary>
+    public Task NewDialogue(DialogueName name, float displayTimer, bool holdUntilAdvance = false) => PlayDialogue(name, displayTimer, DialogueType.normal, displayTimer,displayTimer, null, false, holdUntilAdvance);
+
+    /// <summary>
+    /// Legacy field read/written by cutscene.cs.
+    /// Wraps the private _elapsedCutsceneTime so external code still compiles.
+    /// </summary>
+    public float elapsedCutsceneTime
+    {
+        get => elapsedCutsceneTime;
+        set => elapsedCutsceneTime = value;
+    }
+
+    
+    async Task RunNormal(Contacts contact, string message, float displayTimer, CancellationToken ct)
+    {
+        ShowOnscreenDialogue(contact);
+        _activeTimedWasShown = true;
+
+        await TypeOnscreen(contact, message, ct);
+        await DialogueTimer(displayTimer, ct);
+    }
+
+    /// <summary>Sets speaker name visibility and canvas alpha based on contact.</summary>
+    void ShowOnscreenDialogue(Contacts contact)
+    {
+        bool hasSpeakerName = contact != Contacts.System && contact != Contacts.Unknown;
+        DialogueSpeakerNameCanvas.alpha = hasSpeakerName ? 1f : 0f;
+        if (hasSpeakerName) DialogueSpeakerName.text = contact.ToString();
+        OnscreenDialogueCanvas.alpha = 1f;
+    }
+
+    /// <summary>Types the message using the appropriate writer for the contact.</summary>
+    Task TypeOnscreen(Contacts contact, string message, CancellationToken ct)
+    {
+        var writer = contact == Contacts.Nora ? NoraMessageWriter : SystemMessageWriter;
+        return PlayWriterOrFallback(writer, SpeakerText, message, ct);
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Display helpers — SMS
+    // ───────────────────────────────────────────────────────────────────────
+
+    async Task RunSMS(Contacts contact, string message, float displayTimer, CancellationToken ct)
+    {
+        ContactName.text     = contact.ToString();
+        ReceivedMessage.text = message;   // SMS never uses typewriter
+        _activeTimedWasShown = true;
+
+        await MessageTimer(displayTimer, ct);
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Timer helpers
+    // ───────────────────────────────────────────────────────────────────────
+
+    async Task MessageTimer(float duration, CancellationToken ct)
+    {
+        timebar.fillAmount = 1f;
+        StartFade(PhoneMessageCanvas, fadeIn: true);
+
+        await Task.Delay((int)(duration * 1000), ct);
+
+        StartFade(PhoneMessageCanvas, fadeIn: false);
+        ReceivedMessage.text = "";
+        ContactName.text     = "";
+
+        await Task.Delay(500, ct);
+        DialogInProgress = false;
+    }
+
+    async Task DialogueTimer(float duration, CancellationToken ct)
+    {
+        await Task.Delay((int)(duration * 1000), ct);
+
+        if (SystemMessageWriter != null) SystemMessageWriter.Clear();
+        else if (SpeakerText != null)    SpeakerText.text = "";
+
+        await Task.Delay(500, ct);
+        DialogInProgress = false;
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Cutscene
+    // ───────────────────────────────────────────────────────────────────────
+
+    Task StartCutscene(DialogueName name, float dialogueTimer, GameObject target, float cutsceneDuration, float cutscenePanTime, bool isZoomable, bool hold)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+        StartCoroutine(CutsceneCoroutine(name, dialogueTimer, target, cutsceneDuration, cutscenePanTime, tcs, isZoomable, hold));
+        return tcs.Task;
+    }
+
+    IEnumerator CutsceneCoroutine(
+        DialogueName name, float dialogueTimer, GameObject target,
+        float cutsceneDuration, float cutscenePanTime,
+        TaskCompletionSource<bool> tcs,
+        bool isZoomable, bool hold)
+    {
+        if (CutsceneInProgress) { tcs.SetResult(false); yield break; }
+
+        GameMaster.Instance.PLAYERBUSY = true;
+        CutsceneInProgress      = true;
+        _elapsedCutsceneTime    = 0f;
+        _stopCutsceneRotation   = false;
+
+        StartCoroutine(UInstance.Instance.FadeInCutsceneBars(cutscenePanTime));
+
+        yield return new WaitForSeconds(1f);
+
+        var dialogueTask = RunDialogue(name, dialogueTimer, DialogueType.normal, hold);
+        yield return new WaitUntil(() => dialogueTask.IsCompleted);
+
+        float zoomTime   = cutsceneDuration * 0.33f;
+        float unzoomTime = cutsceneDuration * 0.33f;
+        float holdTime   = cutsceneDuration - zoomTime - unzoomTime;
+
+        if (cameraZoom != null) cameraZoom.enabled = false;
+
+        Coroutine zoomCo = null;
+        if (isZoomable)
+            zoomCo = StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime, hold));
+
+        while (_elapsedCutsceneTime < cutsceneDuration && !_stopCutsceneRotation)
+        {
+            Vector3    dir      = target.transform.position - mainCamera.transform.position;
+            Quaternion rotation = Quaternion.LookRotation(dir);
+            mainCamera.transform.rotation = Quaternion.Lerp(
+                mainCamera.transform.rotation, rotation, cutscenePanTime * Time.smoothDeltaTime);
+
+            _elapsedCutsceneTime += Time.smoothDeltaTime;
+            yield return null;
+        }
+
+        if (isZoomable && zoomCo != null) yield return zoomCo;
+
+        Vector3 finalDir = (target.transform.position - mainCamera.transform.position).normalized;
+        float yaw   = Mathf.Atan2(finalDir.x, finalDir.z) * Mathf.Rad2Deg;
+        float pitch = Mathf.Asin(finalDir.y)               * Mathf.Rad2Deg;
+        Player.Instance.FirstPersonLook.SetPlayerRotation(new Vector2(yaw, pitch));
+
+        CutsceneInProgress             = false;
+        GameMaster.Instance.PLAYERBUSY = false;
+
+        SaveWhatYouSee();
+        tcs.SetResult(true);
+    }
+
+    IEnumerator CutsceneZoomSequence(float zoomTime, float holdTime, float unzoomTime, bool hold)
+    {
+        yield return LerpFOV(originalFieldOfView, targetFieldOfView, zoomTime);
+
+        if (hold)
+            yield return new WaitUntil(() => _advanceRequested);
+        else
+            yield return new WaitForSeconds(holdTime);
+
+        _stopCutsceneRotation = true;
+        ClearHeldDialogue();
+
+        yield return LerpFOV(targetFieldOfView, originalFieldOfView, unzoomTime);
+
+        StartCoroutine(UInstance.Instance.FadeOutCutsceneBars());
+
+        if (cameraZoom != null)
+        {
+            cameraZoom.enabled = true;
+            cameraZoom.AttachListeners();
+        }
+    }
+
+    IEnumerator LerpFOV(float from, float to, float time)
+    {
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / Mathf.Max(time, 0.0001f);
+            mainCamera.fieldOfView = Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, t));
+            yield return null;
+        }
+        mainCamera.fieldOfView = to;
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Advance input
+    // ───────────────────────────────────────────────────────────────────────
+
+    void RequestAdvance(InputAction.CallbackContext ctx)
+    {
+        _advanceRequested = true;
+        EventManager.DialogueCanProceed(false);
+    }
+
+    public Task WaitForPlayerAdvanceAsync()
+    {
+        var tcs = new TaskCompletionSource<bool>();
+        StartCoroutine(WaitForAdvanceCoroutine(tcs));
+        return tcs.Task;
+    }
+
+    IEnumerator WaitForAdvanceCoroutine(TaskCompletionSource<bool> tcs)
+    {
+        _advanceRequested = false;
+
+        if (advanceDialogue == null)
+        {
+            Debug.LogWarning("DialogueManager: advanceDialogue not assigned.");
+            tcs.SetResult(false);
+            yield break;
+        }
+
+        advanceDialogue.action.performed -= RequestAdvance;
+        advanceDialogue.action.performed += RequestAdvance;
+
+        yield return new WaitUntil(() => _advanceRequested);
+
+        advanceDialogue.action.performed -= RequestAdvance;
+        tcs.SetResult(true);
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Typewriter helper
+    // ───────────────────────────────────────────────────────────────────────
+
+    Task PlayWriterOrFallback(TMPTypewriter writer, TextMeshProUGUI fallback, string message, CancellationToken ct)
+    {
+        if (writer != null) return writer.PlayText(message, ct);
+        fallback.text = message;
+        return Task.CompletedTask;
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Seen / Repeatable tracking
+    // ───────────────────────────────────────────────────────────────────────
+
+    void MarkSeen(DialogueName name)
+    {
+        if (!DialogueSeen.Contains(name))
+            DialogueSeen.Add(name);
+        SaveWhatYouSee();
+    }
+
+    void CancelActiveTimed(bool markSeen)
+    {
+        if (!_hasActiveTimed) return;
+
+        try { _timedCts?.Cancel(); } catch { /* ignored */ }
+
+        if (markSeen && _activeTimedWasShown && !_activeTimedIsRepeatable)
+        {
+            if (!DialogueSeen.Contains(_activeTimedName))
+                DialogueSeen.Add(_activeTimedName);
+            SaveWhatYouSee();
+        }
+
+        _hasActiveTimed = false;
+        try { _timedCts?.Dispose(); } catch { /* ignored */ }
+        _timedCts = null;
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // UI clear helpers
+    // ───────────────────────────────────────────────────────────────────────
+
+    void ClearHeldDialogue()
+    {
+        messagetimer     = 0f;
+        DialogInProgress = false;
+
+        if (_fadeCo != null) { StopCoroutine(_fadeCo); _fadeCo = null; }
+
+        ClearAllUI();
+        if (PhoneMessageCanvas != null) PhoneMessageCanvas.alpha = 0f;
+    }
+
+    void ClearAllUI()
+    {
+        SystemMessageWriter?.Clear();
+        NoraMessageWriter?.Clear();
+        ReceivedMessageWriter?.Clear();
+
+        if (SpeakerText      != null) SpeakerText.text      = "";
+        if (ReceivedMessage  != null) ReceivedMessage.text  = "";
+        if (ContactName      != null) ContactName.text      = "";
+
+        if (OnscreenDialogueCanvas   != null) OnscreenDialogueCanvas.alpha   = 0f;
+        if (DialogueSpeakerNameCanvas!= null) DialogueSpeakerNameCanvas.alpha= 0f;
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Fade helper
+    // ───────────────────────────────────────────────────────────────────────
+
+    void StartFade(CanvasGroup canvas, bool fadeIn)
+    {
+        if (canvas == null) return;
+        if (_fadeCo != null) StopCoroutine(_fadeCo);
+        _fadeCo = StartCoroutine(FadeCoroutine(canvas, fadeIn));
+    }
+
+    IEnumerator FadeCoroutine(CanvasGroup canvas, bool fadeIn)
+    {
+        float target = fadeIn ? 1f : 0f;
+        float step   = (fadeIn ? 1f : -1f) * 0.1f;
+        for (int i = 0; i < 9; i++)
+        {
+            yield return new WaitForSeconds(0.05f);
+            canvas.alpha = Mathf.Clamp01(canvas.alpha + step);
+        }
+        canvas.alpha = target;
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // OSD
+    // ───────────────────────────────────────────────────────────────────────
+
+    public string RetrieveOSDText(OSDTextName name)
+    {
+        if (!_osdTextDict.TryGetValue(name, out var entry)) return ".";
+
+        string msg = entry.OSDTextString;
+        if (entry.EregiReplace) msg = GetReplacedString(msg);
+        return msg;
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Eregi replacement
+    // ───────────────────────────────────────────────────────────────────────
+
+    public string GetReplacedString(string message)
+    {
+        if (string.IsNullOrEmpty(message)) return message;
+        foreach (var kvp in _eregiDict)
+            message = message.Replace(kvp.Key, kvp.Value);
+        return message;
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Initialisation helpers
+    // ───────────────────────────────────────────────────────────────────────
+
+    async Task InitSeenAsync()
     {
         try
         {
@@ -101,7 +620,7 @@ public class DialogueManager : MonoBehaviour
             if (StoredPrefs.Instance != null)
                 LoadWhatYouSee();
             else
-                Debug.LogWarning("DialogueManager: StoredPrefs is ready but Instance is null. Seen lists will remain default.");
+                Debug.LogWarning("DialogueManager: StoredPrefs ready but Instance is null.");
         }
         catch (System.Exception e)
         {
@@ -114,606 +633,50 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    private void OnDisable()
+    void BuildDialogueDictionary()
     {
-        CancelActiveTimedDialogue(markSeen: true);
-    }
-
-    private void LateUpdate()
-    {
-        if (!DialogInProgress) return;
-        if (messagetimer > 0) timebar.fillAmount -= 1.0f / messagetimer * Time.deltaTime;
-    }
-
-    public Task PlayDialogue(DialogueName dialogueName, float displayTimer, DialogueType type, float cutsceneDuration = -1f, float cutscenePanTime = -1f, GameObject cutsceneTarget = null, bool isZoomable = true, bool holdUntilAdvance = false)
-    {
-        if (type == DialogueType.normal) return NewDialogue(dialogueName, displayTimer, holdUntilAdvance);
-
-        if (cutsceneTarget == null)
-        {
-            Debug.LogError("DialogueManager.PlayDialogue: Cutscene requested but cutsceneTarget is null.");
-            return Task.CompletedTask;
-        }
-
-        float useDuration = cutsceneDuration > 0 ? cutsceneDuration : duration;
-        float usePanTime  = cutscenePanTime  > 0 ? cutscenePanTime  : panTime;
-
-        return CutsceneWithDialogue(dialogueName, displayTimer, cutsceneTarget, useDuration, usePanTime, isZoomable, holdUntilAdvance);
-    }
-
-    public async Task NewDialogue(DialogueName dialogueName, float displaytimer, bool holdUntilAdvance = false)
-    {
-        if (!DialogInProgress)
-            await CreateDialogue(dialogueName, displaytimer, holdUntilAdvance);
-        else
-            await Queuer(dialogueName, displaytimer, holdUntilAdvance);
-    }
-
-    public Task Queuer(DialogueName dialogueName, float displaytimer, bool holdUntilAdvance = false)
-    {
-        var tcs = new TaskCompletionSource<bool>();
-        StartCoroutine(QueuerCoroutine(dialogueName, displaytimer, tcs, holdUntilAdvance));
-        return tcs.Task;
-    }
-
-    private IEnumerator QueuerCoroutine(DialogueName dialogueName, float displaytimer, TaskCompletionSource<bool> tcs, bool holdUntilAdvance = false)
-    {
-        yield return new WaitWhile(() => DialogInProgress);
-        _ = NewDialogue(dialogueName, displaytimer, holdUntilAdvance);
-        tcs.SetResult(true);
-    }
-
-    public async Task CreateDialogue(DialogueName dialogueName, float displaytimer, bool holdUntilAdvance)
-    {
-        if (DialogueSeen.Contains(dialogueName) && !RepeatableDialogues.Contains(dialogueName))
-        {
-            if (holdUntilAdvance)
-            {
-                _currentDialogueIsHeld = holdUntilAdvance;
-                ClearHeldCutsceneDialogue();
-            }
-            return;
-        }
-
-        Contacts contact = Contacts.System;
-        string message = "...";
-
-        if (DialogueDict.TryGetValue(dialogueName, out var selectedDialogue))
-        {
-            contact = selectedDialogue.Contact;
-            message = selectedDialogue.DialogueText;
-
-            if (selectedDialogue.EregiReplace)
-                message = GetReplacedString(message);
-        }
-
-        if (holdUntilAdvance)
-        {
-            CancelActiveTimedDialogue(markSeen: true);
-
-            messagetimer = 0f;
-            DialogInProgress = true;
-
-            // ✅ TYPEWRITER FIRST (fully awaited)
-            if (contact == Contacts.System || contact == Contacts.Unknown)
-            {
-                await PlayWriterOrFallbackAsync(SystemMessageWriter, SystemMessage, message, CancellationToken.None);
-            }
-            else if (contact == Contacts.Nora)
-            {
-                await PlayWriterOrFallbackAsync(NoraMessageWriter, NoraMessage, message, CancellationToken.None);
-            }
-            else if (contact == Contacts.Ellsworth || contact == Contacts.Priya || contact == Contacts.Kim)
-            {
-                await PlayWriterOrFallbackWithPrefixAsync(SystemMessageWriter, SystemMessage, contact + ": ", message, CancellationToken.None);
-            }
-            else
-            {
-                timebar.fillAmount = 1.0f;
-                StartFade(DialogManagerCanvas, 1);
-                ContactName.text = contact.ToString();
-                await PlayWriterOrFallbackAsync(ReceivedMessageWriter, ReceivedMessage, message, CancellationToken.None);
-            }
-
-            MarkDialogueSeen(dialogueName);
-
-
-            EventManager.DialogueCanProceed(true);
-
-            await WaitForPlayerAdvanceAsync();
-
-            ClearHeldCutsceneDialogue();
-            return;
-        }
-
-        
-        CancelActiveTimedDialogue(markSeen: true);
-
-        _activeTimedCts          = new CancellationTokenSource();
-        _hasActiveTimed          = true;
-        _activeTimedDialogueName = dialogueName;
-        _activeTimedIsRepeatable = RepeatableDialogues.Contains(dialogueName);
-        _activeTimedWasShown     = false;
-
-        var token = _activeTimedCts.Token;
-
-        messagetimer     = displaytimer;
-        DialogInProgress = true;
-
-        try
-        {
-            if (contact == Contacts.System)
-            {
-                _activeTimedWasShown = true;
-                await PlayWriterOrFallbackAsync(SystemMessageWriter, SystemMessage, message, token);
-                await SystemTimer(displaytimer, token);
-            }
-            else if (contact == Contacts.Unknown)
-            {
-                _activeTimedWasShown = true;
-                await PlayWriterOrFallbackAsync(SystemMessageWriter, SystemMessage, contact + ": " + message, token);
-                await SystemTimer(displaytimer, token);
-            }
-            else if (contact == Contacts.Nora)
-            {
-                _activeTimedWasShown = true;
-                await PlayWriterOrFallbackAsync(NoraMessageWriter, NoraMessage, message, token);
-                await NoraTimer(displaytimer, token);
-            }
-            else if (contact == Contacts.Ellsworth)
-            {
-                _activeTimedWasShown = true;
-                await PlayWriterOrFallbackWithPrefixAsync(SystemMessageWriter, SystemMessage, contact + ": ", message, token);
-                await SystemTimer(displaytimer, token);
-            }
-            else if (contact == Contacts.Priya)
-            {
-                _activeTimedWasShown = true;
-                await PlayWriterOrFallbackWithPrefixAsync(SystemMessageWriter, SystemMessage, contact + ": ", message, token);
-                await SystemTimer(displaytimer, token);
-            }
-            else if (contact == Contacts.Kim)
-            {
-                _activeTimedWasShown = true;
-                await PlayWriterOrFallbackWithPrefixAsync(SystemMessageWriter, SystemMessage, contact + ": ", message, token);
-                await SystemTimer(displaytimer, token);
-            }
-            else
-            {
-                ContactName.text     = contact.ToString();
-                _activeTimedWasShown = true;
-                await PlayWriterOrFallbackAsync(ReceivedMessageWriter, ReceivedMessage, message, token);
-                await MessageTimer(displaytimer, token);
-            }
-        }
-        catch (TaskCanceledException)
-        {
-            return;
-        }
-        finally
-        {
-            if (_hasActiveTimed && EqualityComparer<DialogueName>.Default.Equals(_activeTimedDialogueName, dialogueName))
-            {
-                _hasActiveTimed = false;
-                _activeTimedCts?.Dispose();
-                _activeTimedCts = null;
-            }
-        }
-
-        MarkDialogueSeen(dialogueName);
-    }
-
-
-
-    
-    private void PlayWriterOrFallbackWithPrefix(TMPTypewriter writer, TextMeshProUGUI fallback, string prefix, string body)
-    {
-        if (writer != null)
-            _ = writer.PlayTextWithPrefix(prefix, body);
-        else
-            fallback.text = prefix + body;
-    }
-
-    
-    private Task PlayWriterOrFallbackAsync(TMPTypewriter writer, TextMeshProUGUI fallback, string message, CancellationToken token)
-    {
-        if (writer != null) return writer.PlayText(message, token);
-
-        fallback.text = message;
-        return Task.CompletedTask;
-    }
-
-
-    
-    private Task PlayWriterOrFallbackWithPrefixAsync(TMPTypewriter writer, TextMeshProUGUI fallback, string prefix, string body, CancellationToken token)
-    {
-        if (writer != null) return writer.PlayTextWithPrefix(prefix, body, token);
-
-        fallback.text = prefix + body;
-        return Task.CompletedTask;
-    }
-
-
-    private void MarkDialogueSeen(DialogueName dialogueName)
-    {
-        if (!DialogueSeen.Contains(dialogueName)) DialogueSeen.Add(dialogueName);
-        
-        SaveWhatYouSee();
-    }
-
-    private void CancelActiveTimedDialogue(bool markSeen)
-    {
-        if (!_hasActiveTimed) return;
-
-        try { _activeTimedCts?.Cancel(); } catch { }
-
-        if (markSeen && _activeTimedWasShown && !_activeTimedIsRepeatable)
-        {
-            if (!DialogueSeen.Contains(_activeTimedDialogueName))
-                DialogueSeen.Add(_activeTimedDialogueName);
-
-            SaveWhatYouSee(); 
-        }
-
-        _hasActiveTimed = false;
-
-        try { _activeTimedCts?.Dispose(); } catch { }
-        _activeTimedCts = null;
-    }
-
-
-    private Task CutsceneWithDialogue(DialogueName dialogueName, float dialogueDisplayTimer, GameObject targetObject, float cutsceneDuration, float cutscenePanTime, bool isZoomable = true, bool holdUntilAdvance = false)
-    {
-        var tcs = new TaskCompletionSource<bool>();
-        StartCoroutine(CutsceneCoroutine(dialogueName, dialogueDisplayTimer, targetObject, cutsceneDuration, cutscenePanTime, tcs, isZoomable, holdUntilAdvance));
-        return tcs.Task;
-    }
-
-    private IEnumerator CutsceneCoroutine(
-        DialogueName dialogueName,
-        float dialogueDisplayTimer,
-        GameObject targetObject,
-        float cutsceneDuration,
-        float cutscenePanTime,
-        TaskCompletionSource<bool> tcs,
-        bool isZoomable = true,
-        bool holdUntilAdvance = false)
-    {
-        if (CutsceneInProgress)
-        {
-            tcs.SetResult(false);
-            yield break;
-        }
-
-        GameMaster.Instance.PLAYERBUSY = true;
-        CutsceneInProgress = true;
-        elapsedCutsceneTime = 0f;
-        _stopCutsceneRotation = false;
-
-        StartCoroutine(UInstance.Instance.FadeInCutsceneBars(cutscenePanTime));
-
-        yield return new WaitForSeconds(1f);
-
-        // ✅ CRITICAL FIX: WAIT for dialogue to fully finish typing BEFORE continuing cutscene flow
-        var dialogueTask = CreateDialogue(dialogueName, dialogueDisplayTimer, holdUntilAdvance);
-        yield return new WaitUntil(() => dialogueTask.IsCompleted);
-
-        float zoomTime = cutsceneDuration * 0.33f;
-        float unzoomTime = cutsceneDuration * 0.33f;
-        float holdTime = cutsceneDuration - zoomTime - unzoomTime;
-
-        if (cameraZoom != null)
-            cameraZoom.enabled = false;
-
-        Coroutine zoomCo = null;
-
-        if (isZoomable) zoomCo = StartCoroutine(CutsceneZoomSequence(zoomTime, holdTime, unzoomTime, holdUntilAdvance));
-
-        while (elapsedCutsceneTime < cutsceneDuration && !_stopCutsceneRotation)
-        {
-            Vector3 targetDirection = targetObject.transform.position - mainCamera.transform.position;
-            Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-
-            mainCamera.transform.rotation = Quaternion.Lerp(mainCamera.transform.rotation, targetRotation, cutscenePanTime * Time.smoothDeltaTime);
-
-            elapsedCutsceneTime += Time.smoothDeltaTime;
-            yield return null;
-        }
-
-        if (isZoomable) yield return zoomCo;
-
-        Vector3 dir = (targetObject.transform.position - mainCamera.transform.position).normalized;
-        float yaw = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-        float pitch = Mathf.Asin(dir.y) * Mathf.Rad2Deg;
-
-        Player.Instance.FirstPersonLook.SetPlayerRotation(new Vector2(yaw, pitch));
-
-        CutsceneInProgress = false;
-        GameMaster.Instance.PLAYERBUSY = false;
-
-        SaveWhatYouSee();
-        tcs.SetResult(true);
-    }
-
-    private IEnumerator CutsceneZoomSequence(float zoomTime, float holdTime, float unzoomTime, bool holdUntilAdvance)
-    {
-        float t = 0f;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime / Mathf.Max(zoomTime, 0.0001f);
-            mainCamera.fieldOfView = Mathf.Lerp(originalFieldOfView, targetFieldOfView, Mathf.SmoothStep(0, 1, t));
-            yield return null;
-        }
-        
-        mainCamera.fieldOfView = targetFieldOfView;
-
-        Debug.Log("holdUntilAdvance "+holdUntilAdvance);
-        
-        
-        if (!holdUntilAdvance)
-        {
-            yield return new WaitForSeconds(holdTime);
-        }
-        else
-        {
-            while (!advanceRequested)
-            {
-                yield return null;
-            }
-        }
-
-        Debug.Log("here?");
-        
-        _stopCutsceneRotation = true;
-
-        ClearHeldCutsceneDialogue();
-
-        t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime / Mathf.Max(unzoomTime, 0.0001f);
-            mainCamera.fieldOfView = Mathf.Lerp(targetFieldOfView, originalFieldOfView, Mathf.SmoothStep(0, 1, t));
-            yield return null;
-        }
-
-        mainCamera.fieldOfView = originalFieldOfView;
-
-        StartCoroutine(UInstance.Instance.FadeOutCutsceneBars());
-
-        if (cameraZoom != null)
-        {
-            cameraZoom.enabled = true;
-            cameraZoom.AttachListeners();
-        }
-    }
-
-    private void ClearHeldCutsceneDialogue()
-    {
-        messagetimer     = 0f;
-        DialogInProgress = false;
-
-        if (_fadeCo != null)
-        {
-            StopCoroutine(_fadeCo);
-            _fadeCo = null;
-        }
-
-        ClearAllText();
-
-        if (DialogManagerCanvas != null)
-            DialogManagerCanvas.alpha = 0f;
-    }
-
-    /// <summary>Stops all typewriter animations and blanks every text field.</summary>
-    private void ClearAllText()
-    {
-        if (SystemMessageWriter   != null) SystemMessageWriter.Clear();
-        else if (SystemMessage    != null) SystemMessage.text = "";
-
-        if (NoraMessageWriter     != null) NoraMessageWriter.Clear();
-        else if (NoraMessage      != null) NoraMessage.text = "";
-
-        if (ReceivedMessageWriter != null) ReceivedMessageWriter.Clear();
-        else if (ReceivedMessage  != null) ReceivedMessage.text = "";
-
-        if (ContactName           != null) ContactName.text = "";
-    }
-
-    private void RequestAdvance(InputAction.CallbackContext ctx)
-    {
-        advanceRequested = true;
-        EventManager.DialogueCanProceed(false);
-    }
-
-    public IEnumerator WaitForPlayerAdvance()
-    {
-        advanceRequested = false;
-
-        if (advanceDialogue != null)
-        {
-            advanceDialogue.action.performed -= RequestAdvance;
-            advanceDialogue.action.performed += RequestAdvance;
-        }
-        else
-        {
-            Debug.LogWarning("DialogueManager: advanceDialogue not assigned.");
-            yield break;
-        }
-        
-
-        yield return new WaitUntil(() => advanceRequested);
-
-        if (advanceDialogue != null)
-            advanceDialogue.action.performed -= RequestAdvance;
-    }
-    public Task WaitForPlayerAdvanceAsync()
-    {
-        var tcs = new TaskCompletionSource<bool>();
-        StartCoroutine(WaitForAdvanceCoroutine(tcs));
-        return tcs.Task;
-    }
-
-    private IEnumerator WaitForAdvanceCoroutine(TaskCompletionSource<bool> tcs)
-    {
-        yield return WaitForPlayerAdvance();
-        tcs.SetResult(true);
-    }
-
-
-    private void PopulateDialogues()
-    {
-        DialogueDict.Clear();
+        _dialogueDict.Clear();
+        RepeatableDialogues.Clear();
         foreach (var d in Dialogues)
         {
-            DialogueDict.TryAdd(d.DialogueName, d);
+            _dialogueDict.TryAdd(d.DialogueName, d);
             if (d.repeatable) RepeatableDialogues.Add(d.DialogueName);
         }
     }
 
-    private void PopulateOSDTexts()
+    void BuildOSDDictionary()
     {
-        OSDTextDict.Clear();
-        foreach (var o in OSDTexts) OSDTextDict.TryAdd(o.OSDTextName, o);
+        _osdTextDict.Clear();
+        foreach (var o in OSDTexts)
+            _osdTextDict.TryAdd(o.OSDTextName, o);
     }
 
-    private void CreateEregiDictionary()
+    void BuildEregiDictionary()
     {
-        EregiDict.Clear();
+        _eregiDict.Clear();
+        bool isSteam = GameMaster.Instance.DeviceType.selectedDeviceType == PlayerDeviceType.SteamOS;
 
-        if (GameMaster.Instance.DeviceType.selectedDeviceType == PlayerDeviceType.SteamOS)
-        {
-            EregiDict.TryAdd("+phonekey+",    "X");
-            EregiDict.TryAdd("+torchkey+",    "Right Stick Button");
-            EregiDict.TryAdd("+camerakey+",   "A");
-            EregiDict.TryAdd("+melee+",       "R2");
-        }
-        else
-        {
-            EregiDict.TryAdd("+phonekey+",    "P");
-            EregiDict.TryAdd("+torchkey+",    "H");
-            EregiDict.TryAdd("+camerakey+",   "Enter");
-            EregiDict.TryAdd("+melee+",       "Left Click");
-        }
+        _eregiDict["+phonekey+"]  = isSteam ? "X"                  : "P";
+        _eregiDict["+torchkey+"]  = isSteam ? "Right Stick Button" : "H";
+        _eregiDict["+camerakey+"] = isSteam ? "A"                  : "Enter";
+        _eregiDict["+melee+"]     = isSteam ? "R2"                 : "Left Click";
     }
 
-    public string GetReplacedString(string message)
-    {
-        if (string.IsNullOrEmpty(message)) return message;
-
-        foreach (var kvp in EregiDict)
-            message = message.Replace(kvp.Key, kvp.Value);
-
-        return message;
-    }
-
-
-    private void StartFade(CanvasGroup canvas, int direction)
-    {
-        if (canvas == null) return;
-        if (_fadeCo != null) StopCoroutine(_fadeCo);
-        _fadeCo = StartCoroutine(Fader(canvas, direction));
-    }
-
-    public IEnumerator Fader(CanvasGroup ThisCanvas, int direction)
-    {
-        var counter = 9;
-        if (direction == 0)
-        {
-            while (counter > 0)
-            {
-                yield return new WaitForSeconds(0.05f);
-                ThisCanvas.alpha -= 0.1f;
-                counter--;
-            }
-        }
-        else
-        {
-            while (counter > 0)
-            {
-                yield return new WaitForSeconds(0.05f);
-                ThisCanvas.alpha += 0.1f;
-                counter--;
-            }
-        }
-    }
-
-
-    public async Task MessageTimer(float timevalue, CancellationToken token)
-    {
-        timebar.fillAmount = 1.0f;
-        StartFade(DialogManagerCanvas, 1);
-
-        await Task.Delay((int)(timevalue * 1000), token);
-
-        StartFade(DialogManagerCanvas, 0);
-
-        if (ReceivedMessageWriter != null) ReceivedMessageWriter.Clear();
-        else                               ReceivedMessage.text = "";
-
-        ContactName.text = "";
-
-        await Task.Delay(500, token);
-        DialogInProgress = false;
-    }
-
-    public async Task NoraTimer(float timevalue, CancellationToken token)
-    {
-        await Task.Delay((int)(timevalue * 1000), token);
-
-        if (NoraMessageWriter != null) NoraMessageWriter.Clear();
-        else                           NoraMessage.text = "";
-
-        await Task.Delay(500, token);
-        DialogInProgress = false;
-    }
-
-    public async Task SystemTimer(float timevalue, CancellationToken token)
-    {
-        await Task.Delay((int)(timevalue * 1000), token);
-
-        if (SystemMessageWriter != null) SystemMessageWriter.Clear();
-        else                             SystemMessage.text = "";
-
-        await Task.Delay(500, token);
-        DialogInProgress = false;
-    }
-
-    // ── OSD ──────────────────────────────────────────────────────────────
-
-    public string RetrieveOSDText(OSDTextName requestedOSDText)
-    {
-        if (OSDTextDict.TryGetValue(requestedOSDText, out var selected))
-        {
-            string msg = selected.OSDTextString;
-
-            if (selected.EregiReplace)
-            {
-                foreach (var kvp in EregiDict)
-                    if (!string.IsNullOrEmpty(msg))
-                        msg = msg.Replace(kvp.Key, kvp.Value);
-            }
-
-            return msg;
-        }
-
-        return ".";
-    }
-
-    // ── Persistence ───────────────────────────────────────────────────────
+    // ───────────────────────────────────────────────────────────────────────
+    // Persistence
+    // ───────────────────────────────────────────────────────────────────────
 
     public void SaveWhatYouSee()
     {
         if (StoredPrefs.Instance == null) return;
-        StoredPrefs.Instance.SetCollection("DialogueSeen",  DialogueSeen,  CollectionType.list);
-        StoredPrefs.Instance.SetCollection("CutSceneSeen",  CutSceneSeen,  CollectionType.dictionary);
+        StoredPrefs.Instance.SetCollection("DialogueSeen", DialogueSeen, CollectionType.list);
         StoredPrefs.Instance.Save();
     }
 
     public void LoadWhatYouSee()
     {
         if (StoredPrefs.Instance == null) return;
-        DialogueSeen = StoredPrefs.Instance.GetCollection<List<DialogueName>>("DialogueSeen")              ?? new List<DialogueName>();
-        CutSceneSeen = StoredPrefs.Instance.GetCollection<Dictionary<string, string>>("CutSceneSeen") ?? new Dictionary<string, string>();
+        DialogueSeen = StoredPrefs.Instance.GetCollection<List<DialogueName>>("DialogueSeen")
+                       ?? new List<DialogueName>();
     }
 }

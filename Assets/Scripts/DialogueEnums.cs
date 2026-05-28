@@ -17,7 +17,6 @@ public enum DialogueName
     // Level 0; Start
     None,
     KieronToNoraBathroom = 100,
-    NoraAboutKieronBathroom = 101,
     NoraLookingAtCorkboard = 102,
     NoraNeedsHerThings = 103,
     NoraNeedsTestEvidence = 104,
@@ -79,7 +78,8 @@ public enum DialogueName
 
 public enum ThoughtName
 {
-    StartingWork = 0000,
-    FacingKim = 0001,
-    WhatEllsworthWants = 0002,
+    StartingWork = 0,
+    FacingKim = 1,
+    WhatEllsworthWants = 2,
+    NoraAboutKieronBathroom = 3,
 }

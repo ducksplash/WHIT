@@ -58,6 +58,7 @@ public class DialogueManager : MonoBehaviour
 
     public List<DialogueName> RepeatableDialogues = new();
     public List<DialogueName> DialogueSeen        = new();
+    public List<ThoughtName> ThoughtsSeen        = new();
 
     
     
@@ -146,15 +147,23 @@ public class DialogueManager : MonoBehaviour
     void OnDisable() => CancelActiveTimed(markSeen: true);
 
         
-    public void PlayThought(ThoughtName thoughtName)
+    public async void PlayThought(ThoughtName thoughtName)
     {
-        
-        Debug.Log("play thought" +thoughtName);
-        
-        
+        // Wait until save data has loaded
+        while (!SeenLoaded)
+            await Task.Yield();
+
+        if (ThoughtsSeen.Contains(thoughtName))
+        {
+            Debug.Log("Thought already seen: " + thoughtName);
+            return;
+        }
+
+        Debug.Log("Play thought: " + thoughtName);
+
         if (!_noraThoughtDict.TryGetValue(thoughtName, out var data))
         {
-            Debug.LogWarning($"DialogueManager: No thought found for '{name}'.");
+            Debug.LogWarning($"DialogueManager: No thought found for '{thoughtName}'.");
             return;
         }
 
@@ -169,8 +178,7 @@ public class DialogueManager : MonoBehaviour
             : new List<string>(data.NoraThoughtString);
 
         if (lines.Count == 0) return;
-
-        // Stop any in-progress thought sequence and clear leftover text before starting
+        
         if (_activeThoughtCo != null)
         {
             StopCoroutine(_activeThoughtCo);
@@ -178,10 +186,12 @@ public class DialogueManager : MonoBehaviour
             CleanThoughts();
         }
 
-        _activeThoughtCo = StartCoroutine(ThoughtSequence(lines));
+        _activeThoughtCo = StartCoroutine(
+            ThoughtSequence(lines, thoughtName)
+        );
     }
 
-    IEnumerator ThoughtSequence(List<string> lines)
+    IEnumerator ThoughtSequence(List<string> lines, ThoughtName thoughtName)
     {
         
         ThoughtCanvas.alpha = 1f;
@@ -210,7 +220,14 @@ public class DialogueManager : MonoBehaviour
             float fadeOut  = isFinal ? thoughtFinalFadeDuration : thoughtFadeDuration;
             int   boxIndex = PickNextIndex();
 
-            StartCoroutine(ShowThought(ThoughtTexts[boxIndex], lines[i], thoughtFadeInDuration, fadeOut));
+            StartCoroutine(
+                ShowThought(
+                    ThoughtTexts[boxIndex],
+                    lines[i],
+                    thoughtFadeInDuration,
+                    fadeOut
+                )
+            );
 
             if (!isFinal)
                 yield return new WaitForSeconds(thoughtStaggerDelay);
@@ -218,8 +235,10 @@ public class DialogueManager : MonoBehaviour
                 yield return new WaitForSeconds(thoughtFadeInDuration + fadeOut);
         }
 
-        ThoughtCanvas.alpha  = 0f;
-        _activeThoughtCo     = null;
+        ThoughtCanvas.alpha = 0f;
+        _activeThoughtCo = null;
+
+        MarkThoughtSeen(thoughtName);
     }
 
     IEnumerator ShowThought(TextMeshProUGUI box, string text, float fadeInTime, float fadeOutTime)
@@ -651,11 +670,16 @@ public class DialogueManager : MonoBehaviour
     // Seen / Repeatable tracking
     // ───────────────────────────────────────────────────────────────────────
 
-    void MarkSeen(DialogueName name)
+    void MarkSeen(DialogueName dialogueName)
     {
-        if (!DialogueSeen.Contains(name))
-            DialogueSeen.Add(name);
+        if (!DialogueSeen.Contains(dialogueName)) DialogueSeen.Add(dialogueName);
         SaveWhatYouSee();
+    }
+
+    void MarkThoughtSeen(ThoughtName thoughtName)
+    {
+        if (!ThoughtsSeen.Contains(thoughtName)) ThoughtsSeen.Add(thoughtName);
+        SaveWhatYouThought();
     }
 
     void CancelActiveTimed(bool markSeen)
@@ -857,11 +881,17 @@ public class DialogueManager : MonoBehaviour
         StoredPrefs.Instance.SetCollection("DialogueSeen", DialogueSeen, CollectionType.list);
         StoredPrefs.Instance.Save();
     }
+    public void SaveWhatYouThought()
+    {
+        if (StoredPrefs.Instance == null) return;
+        StoredPrefs.Instance.SetCollection("ThoughtsSeen", ThoughtsSeen, CollectionType.list);
+        StoredPrefs.Instance.Save();
+    }
 
     public void LoadWhatYouSee()
     {
         if (StoredPrefs.Instance == null) return;
-        DialogueSeen = StoredPrefs.Instance.GetCollection<List<DialogueName>>("DialogueSeen")
-                       ?? new List<DialogueName>();
+        DialogueSeen = StoredPrefs.Instance.GetCollection<List<DialogueName>>("DialogueSeen") ?? new List<DialogueName>();
+        ThoughtsSeen = StoredPrefs.Instance.GetCollection<List<ThoughtName>>("ThoughtsSeen") ?? new List<ThoughtName>();
     }
 }

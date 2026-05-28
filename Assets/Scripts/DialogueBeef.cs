@@ -23,13 +23,13 @@ public class DialogueBeef : MonoBehaviour
     public bool slideInTicker;
     public bool slideOutTicker;
 
-    [Header("Does Nora Reply?")]
-    public bool Noraply;
+    [Header("Does Nora have any thoughts?")]
+    public bool NoraThought;
 
     [Header("Nora's Dialogue:")]
-    public DialogueName followUpDialogue;
+    public ThoughtName followUpThought;
 
-    [Header("Delay before Nora's reply?")]
+    [Header("Delay before Nora's thought?")]
     public float Noradelay = 5.0f;
 
 
@@ -46,9 +46,6 @@ public class DialogueBeef : MonoBehaviour
     {
         if (other.gameObject.layer == 3)
         {
-
-            
-            
             gameObject.GetComponent<Collider>().enabled = false;
 
 
@@ -62,7 +59,7 @@ public class DialogueBeef : MonoBehaviour
 
             GameMaster.Instance.DialogueManager.NewDialogue(selectedDialogue, DisplayTimer);
            
-            if (Noraply)
+            if (NoraThought)
             {
                 StartCoroutine(Norasponse());
             }
@@ -74,7 +71,7 @@ public class DialogueBeef : MonoBehaviour
     {
         yield return new WaitForSeconds(Noradelay);
 
-        GameMaster.Instance.DialogueManager.NewDialogue(followUpDialogue, 4);
+        GameMaster.Instance.DialogueManager.PlayThought(followUpThought);
         
         
         

@@ -26,7 +26,7 @@ public class ETV_DIRECTOR : MonoBehaviour
 
     [Header("Input")]
     public InputActionReference advanceAction;
-
+    
     private bool _advancePressed;
     
     private void Start()
@@ -257,9 +257,12 @@ public class ETV_DIRECTOR : MonoBehaviour
 
 
         //
+
+
         
         
-        
+        yield return WaitForPlayerInput();
+
         
         
         // END THE MEETING.
@@ -267,7 +270,12 @@ public class ETV_DIRECTOR : MonoBehaviour
         
         yield return new WaitForSeconds(1);
         
+        EventManager.SlideTickerOut();
+        
         GameMaster.Instance.INAMEETING = false;
+        
+
+
         
         yield return null;
     }

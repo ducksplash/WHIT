@@ -71,7 +71,10 @@ public class UIPulsatingGlowUniTask : MonoBehaviour
 
     private void Dispose()
     {
-        cts?.Cancel();
-        cts?.Dispose();
+        if (cts != null)
+        {
+            cts?.Cancel();
+            cts?.Dispose();
+        }
     }
 }

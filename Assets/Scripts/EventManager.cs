@@ -48,7 +48,11 @@ public static class EventManager
     
     public static event Action OnDoLoadingSwirl = () => { };
     public static event Action OnUnDoLoadingSwirl = () => { };
-    
+
+    public static event Action OnSlideTickerIn = () => { };
+
+    public static event Action OnSlideTickerOut = () => { };
+
     
     
     public static void SpawnPlayer()
@@ -234,6 +238,16 @@ public static class EventManager
     public static void UnDoLoadingSwirl()
     {
         OnUnDoLoadingSwirl.Invoke();
+    }
+
+    public static void SlideTickerIn()
+    {
+        OnSlideTickerIn.Invoke();
+    }
+
+    public static void SlideTickerOut()
+    {
+        OnSlideTickerOut.Invoke();
     }
 
     

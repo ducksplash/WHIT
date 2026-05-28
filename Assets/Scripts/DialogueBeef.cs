@@ -19,6 +19,10 @@ public class DialogueBeef : MonoBehaviour
     public float DisplayTimer = 5.0f;
 
 
+    [Header("Slide in the News Ticker?")]
+    public bool slideInTicker;
+    public bool slideOutTicker;
+
     [Header("Does Nora Reply?")]
     public bool Noraply;
 
@@ -43,10 +47,18 @@ public class DialogueBeef : MonoBehaviour
         if (other.gameObject.layer == 3)
         {
 
+            
+            
             gameObject.GetComponent<Collider>().enabled = false;
 
 
             forhowlong = DisplayTimer;
+
+            if (slideInTicker)
+            {
+                EventManager.SlideTickerIn();
+            }
+
 
             GameMaster.Instance.DialogueManager.NewDialogue(selectedDialogue, DisplayTimer);
            
@@ -64,6 +76,12 @@ public class DialogueBeef : MonoBehaviour
 
         GameMaster.Instance.DialogueManager.NewDialogue(followUpDialogue, 4);
         
+        
+        
+        if (slideOutTicker)
+        {
+            EventManager.SlideTickerOut();
+        }
     }
 
 }

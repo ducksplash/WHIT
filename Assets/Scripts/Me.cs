@@ -11,6 +11,10 @@ public class Me : MonoBehaviour
     public List<SkinnedMeshRenderer> OutfitForWork;
     public bool JiggleForWork;
 
+    [Header("Work Two")]
+    public List<SkinnedMeshRenderer> OutfitForWorkTwo;
+    public bool JiggleForWorkTwo;
+
     [Header("Casual")]
     public List<SkinnedMeshRenderer> OutfitForCasual;
     public bool JiggleCasually;
@@ -26,10 +30,6 @@ public class Me : MonoBehaviour
     [Header("Casual Four")]
     public List<SkinnedMeshRenderer> OutfitForCasualFour;
     public bool JiggleCasuallyFour;
-
-    [Header("Casual Five")]
-    public List<SkinnedMeshRenderer> OutfitForCasualFive;
-    public bool JiggleCasuallyFive;
 
     [Header("First Date")]
     public List<SkinnedMeshRenderer> OutfitForFirstDate;
@@ -153,7 +153,7 @@ public class Me : MonoBehaviour
             case OutfitType.Casual2:      ToggleCasualTwoOutfit(true);     break;
             case OutfitType.Casual3:      ToggleCasualThreeOutfit(true);   break;
             case OutfitType.Casual4:      ToggleCasualFourOutfit(true);    break;
-            case OutfitType.Casual5:      ToggleCasualFiveOutfit(true);    break;
+            case OutfitType.WorkTwo:      ToggleWorkTwoOutfit(true);    break;
             case OutfitType.Date1:        ToggleFirstDateOutfit(true);     break;
             case OutfitType.Date2:        ToggleSecondDateOutfit(true);    break;
             case OutfitType.Date3:        ToggleThirdDateOutfit(true);     break;
@@ -172,7 +172,7 @@ public class Me : MonoBehaviour
     public void ToggleCasualTwoOutfit(bool? forceOn = null) { JiggleToggle(JiggleCasuallyTwo); ToggleMainOutfit(OutfitType.Casual2, forceOn); }
     public void ToggleCasualThreeOutfit(bool? forceOn = null) { JiggleToggle(JiggleCasuallyThree); ToggleMainOutfit(OutfitType.Casual3, forceOn); }
     public void ToggleCasualFourOutfit(bool? forceOn = null) { JiggleToggle(JiggleCasuallyFour); ToggleMainOutfit(OutfitType.Casual4, forceOn); }
-    public void ToggleCasualFiveOutfit(bool? forceOn = null) { JiggleToggle(JiggleCasuallyFive); ToggleMainOutfit(OutfitType.Casual5, forceOn); }
+    public void ToggleWorkTwoOutfit(bool? forceOn = null) { JiggleToggle(JiggleForWorkTwo); ToggleMainOutfit(OutfitType.WorkTwo, forceOn); }
 
     public void ToggleFirstDateOutfit(bool? forceOn = null) { JiggleToggle(JiggleOnAFirstDate); ToggleMainOutfit(OutfitType.Date1, forceOn); }
     public void ToggleSecondDateOutfit(bool? forceOn = null) { JiggleToggle(JiggleOnASecondDate); ToggleMainOutfit(OutfitType.Date2, forceOn); }
@@ -221,7 +221,7 @@ public class Me : MonoBehaviour
             case OutfitType.Casual2:      SetListEnabled(OutfitForCasualTwo, true); break;
             case OutfitType.Casual3:      SetListEnabled(OutfitForCasualThree, true); break;
             case OutfitType.Casual4:      SetListEnabled(OutfitForCasualFour, true); break;
-            case OutfitType.Casual5:      SetListEnabled(OutfitForCasualFive, true); break;
+            case OutfitType.WorkTwo:      SetListEnabled(OutfitForWorkTwo, true); break;
             case OutfitType.Date1:        SetListEnabled(OutfitForFirstDate, true); break;
             case OutfitType.Date2:        SetListEnabled(OutfitForSecondDate, true); break;
             case OutfitType.Date3:        SetListEnabled(OutfitForThirdDate, true); break;
@@ -240,7 +240,7 @@ public class Me : MonoBehaviour
         SetListEnabled(OutfitForCasualTwo, false);
         SetListEnabled(OutfitForCasualThree, false);
         SetListEnabled(OutfitForCasualFour, false);
-        SetListEnabled(OutfitForCasualFive, false);
+        SetListEnabled(OutfitForWorkTwo, false);
         SetListEnabled(OutfitForFirstDate, false);
         SetListEnabled(OutfitForSecondDate, false);
         SetListEnabled(OutfitForThirdDate, false);
@@ -272,7 +272,7 @@ public enum OutfitType
     Casual2,
     Casual3,
     Casual4,
-    Casual5,
+    WorkTwo,
     Date1,
     Date2,
     Date3,
@@ -297,12 +297,12 @@ public class MeEditor : Editor
 
         Me me = (Me)target;
 
-        if (GUILayout.Button("Work Stuff", GUILayout.Height(35))) { me.ToggleWorkOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Work", GUILayout.Height(35))) { me.ToggleWorkOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Work Two", GUILayout.Height(35))) { me.ToggleWorkTwoOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Casual One", GUILayout.Height(35))) { me.ToggleCasualOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Casual Two", GUILayout.Height(35))) { me.ToggleCasualTwoOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Casual Three", GUILayout.Height(35))) { me.ToggleCasualThreeOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Casual Four", GUILayout.Height(35))) { me.ToggleCasualFourOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Casual Five", GUILayout.Height(35))) { me.ToggleCasualFiveOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("First Date", GUILayout.Height(35))) { me.ToggleFirstDateOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Second Date", GUILayout.Height(35))) { me.ToggleSecondDateOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Third Date", GUILayout.Height(35))) { me.ToggleThirdDateOutfit(); EditorUtility.SetDirty(me); }

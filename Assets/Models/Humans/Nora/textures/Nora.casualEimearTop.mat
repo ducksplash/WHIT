@@ -17,6 +17,8 @@ Material:
   - _DISABLE_SSR_TRANSPARENT
   - _DOUBLESIDED_ON
   - _ENABLE_FOG_ON_TRANSPARENT
+  - _MASKMAP
+  - _NORMALMAP
   - _NORMALMAP_TANGENT_SPACE
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords: []
@@ -40,7 +42,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseColorMap:
-        m_Texture: {fileID: 2800000, guid: 2f981bf871b7ae549b4852125536fcd2, type: 3}
+        m_Texture: {fileID: 2800000, guid: e6a011db4c6f8ee47873a690549fa156, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BentNormalMap:
@@ -76,15 +78,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 2f981bf871b7ae549b4852125536fcd2, type: 3}
+        m_Texture: {fileID: 2800000, guid: e6a011db4c6f8ee47873a690549fa156, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: bde91a39bae36514dbd3aac302109fa2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: c22c46b6ad083bd4fa7fd27215e726ff, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMapOS:
@@ -133,7 +135,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AORemapMax: 1
+    - _AORemapMax: 0
     - _AORemapMin: 0
     - _ATDistance: 1
     - _AddPrecomputedVelocity: 0
@@ -259,8 +261,8 @@ Material:
     - _ZTestTransparent: 4
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.36792436, g: 0.8610823, b: 1, a: 1}
-    - _Color: {r: 0.36792433, g: 0.8610823, b: 1, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DiffusionProfileAsset: {r: 0, g: 0, b: 0, a: 0}
     - _DoubleSidedConstants: {r: -1, g: -1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}

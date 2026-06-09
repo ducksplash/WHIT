@@ -10,6 +10,9 @@ public class Me : MonoBehaviour
     [Header("Body")]
     public SkinnedMeshRenderer Body;
 
+    
+    [Header("\nWork\n")]
+    // WORK OUTFITS
     [Header("Work")]
     public List<SkinnedMeshRenderer> OutfitForWork;
     public Color lipsColorForWork = new Color(0.9f, 0.2f, 0.3f);
@@ -23,8 +26,10 @@ public class Me : MonoBehaviour
     public bool JiggleForWorkTwo;
     
     
-    [Header("\nCasual\n")]
     
+    
+    [Header("\nCasual\n")]
+    // Casual Outfits
     [Header("Casual One")]
     public List<SkinnedMeshRenderer> OutfitForCasual;
     public Color lipsColorForCasual = new Color(0.85f, 0.25f, 0.35f);
@@ -51,17 +56,10 @@ public class Me : MonoBehaviour
     public Color lipsColorForPyjamas = new Color(0.8f, 0.15f, 0.25f);
     public Color nailsColorForPyjamas = new Color(0.85f, 0.6f, 0.7f);
     public bool JiggleInPyjamas;
-
-    [Header("On Skid Row")]
-    public List<SkinnedMeshRenderer> OutfitForHomelessness;
-    public Color lipsColorForHomelessness = new Color(0.7f, 0.1f, 0.2f);
-    public Color nailsColorForHomelessness = new Color(0.75f, 0.55f, 0.6f);
-    public bool JiggleWhileHomeless;
-
     
   
     [Header("\nCute\n")]
-    
+    // Cute Outfits
     [Header("Cute One")]
     public List<SkinnedMeshRenderer> OutfitForCuteOne;
     public Color lipsColorForCuteOne = new Color(0.98f, 0.45f, 0.55f);
@@ -127,6 +125,9 @@ public class Me : MonoBehaviour
     public Color nailsColorForEdea = new Color(0.9f, 0.7f, 0.75f);
     public bool JiggleCasuallyFour;
 
+    
+    [Header("\nStoryline\n")]
+    
     [Header("Wedding")]
     public List<SkinnedMeshRenderer> OutfitForWedding;
     public Color lipsColorForWedding = new Color(0.95f, 0.55f, 0.6f);
@@ -138,10 +139,17 @@ public class Me : MonoBehaviour
     public Color lipsColorForFuneral = new Color(0.65f, 0.08f, 0.15f);
     public Color nailsColorForFuneral = new Color(0.7f, 0.5f, 0.55f);
     public bool JiggleAtAFuneral;
+    
+    [Header("On Skid Row")]
+    public List<SkinnedMeshRenderer> OutfitForHomelessness;
+    public Color lipsColorForHomelessness = new Color(0.7f, 0.1f, 0.2f);
+    public Color nailsColorForHomelessness = new Color(0.75f, 0.55f, 0.6f);
+    public bool JiggleWhileHomeless;
+
 
     
     [Header("\nNight Out\n")]
-    
+    // Night Out Outfits
     [Header("Third Date")]
     public List<SkinnedMeshRenderer> OutfitForThirdDate;
     public Color lipsColorForThirdDate = new Color(0.85f, 0.22f, 0.32f);
@@ -356,6 +364,92 @@ public class Me : MonoBehaviour
         ApplyBodyColors(outfit);
     }
 
+    
+        // ====================== RANDOM OUTFIT SELECTION ======================
+
+    /// <summary>
+    /// Picks a completely random outfit from all available outfits.
+    /// </summary>
+    public void SetRandomOutfit()
+    {
+        OutfitType randomType = (OutfitType)Random.Range(1, System.Enum.GetValues(typeof(OutfitType)).Length);
+        SwitchToOutfit(randomType);
+    }
+
+    /// <summary>
+    /// Random outfit from the Work group
+    /// </summary>
+    public void SetRandomWorkOutfit()
+    {
+        OutfitType[] workOutfits = { OutfitType.Work, OutfitType.WorkTwo };
+        SwitchToOutfit(workOutfits[Random.Range(0, workOutfits.Length)]);
+    }
+
+    /// <summary>
+    /// Random outfit from the Casual group
+    /// </summary>
+    public void SetRandomCasualOutfit()
+    {
+        OutfitType[] casualOutfits = 
+        {
+            OutfitType.Casual,
+            OutfitType.Fitness,
+            OutfitType.CuteSix,     
+            OutfitType.Pyjamas
+        };
+        SwitchToOutfit(casualOutfits[Random.Range(0, casualOutfits.Length)]);
+    }
+
+    /// <summary>
+    /// Random outfit from the Cute group
+    /// </summary>
+    public void SetRandomCuteOutfit()
+    {
+        OutfitType[] cuteOutfits =
+        {
+            OutfitType.CuteOne,
+            OutfitType.CuteTwo,
+            OutfitType.CuteThree,
+            OutfitType.CuteFour,
+            OutfitType.CuteFive,
+            OutfitType.Date2,       
+            OutfitType.CuteSeven,
+            OutfitType.CuteEight,
+            OutfitType.Edea
+        };
+        SwitchToOutfit(cuteOutfits[Random.Range(0, cuteOutfits.Length)]);
+    }
+    /// <summary>
+    /// Random outfit from the Cute group
+    /// </summary>
+    public void SetRandomStorylineOutfit()
+    {
+        OutfitType[] cuteOutfits =
+        {
+            OutfitType.Wedding,
+            OutfitType.Funeral,
+            OutfitType.Homelessness
+        };
+        SwitchToOutfit(cuteOutfits[Random.Range(0, cuteOutfits.Length)]);
+    }
+
+    /// <summary>
+    /// Random outfit from the Night Out group
+    /// </summary>
+    public void SetRandomNightOutOutfit()
+    {
+        OutfitType[] nightOutOutfits =
+        {
+            OutfitType.Date3,       // Third Date
+            OutfitType.Casual3,
+            OutfitType.Essie
+        };
+        SwitchToOutfit(nightOutOutfits[Random.Range(0, nightOutOutfits.Length)]);
+    }
+    
+    
+    
+    
     private void ApplyBodyColors(OutfitType outfit)
     {
         if (Body == null) return;
@@ -510,6 +604,7 @@ public enum OutfitType
 }
 
 // ====================== EDITOR ======================
+// ====================== EDITOR ======================
 #if UNITY_EDITOR
 [CustomEditor(typeof(Me))]
 public class MeEditor : Editor
@@ -521,80 +616,89 @@ public class MeEditor : Editor
         EditorGUILayout.LabelField("Outfit Controls", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
-        
-        EditorGUILayout.BeginHorizontal();
+        // Work
         EditorGUILayout.LabelField("Work Outfits", EditorStyles.boldLabel);
-        EditorGUILayout.EndHorizontal();
-        
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Work", GUILayout.Height(35))) { me.ToggleWorkOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Work Two", GUILayout.Height(35))) { me.ToggleWorkTwoOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
-        
+
         EditorGUILayout.Space();
-        EditorGUILayout.BeginHorizontal();
+
+        // Casual
         EditorGUILayout.LabelField("Casual Outfits", EditorStyles.boldLabel);
-        EditorGUILayout.EndHorizontal();
-        
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Casual One", GUILayout.Height(35))) { me.ToggleCasualOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("First Date", GUILayout.Height(35))) { me.ToggleFirstDateOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Fitness", GUILayout.Height(35))) { me.ToggleFitnessOutfit(); EditorUtility.SetDirty(me); }
-        EditorGUILayout.EndHorizontal();
-        EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Pyjamas", GUILayout.Height(35))) { me.TogglePyjamasOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Skid Row", GUILayout.Height(35))) { me.ToggleHomelessnessOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
         
         EditorGUILayout.Space();
-        EditorGUILayout.BeginHorizontal();
+
+        // Cute
         EditorGUILayout.LabelField("Cute Outfits", EditorStyles.boldLabel);
-        EditorGUILayout.EndHorizontal();
-        
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Cute One", GUILayout.Height(35))) { me.ToggleCuteOneOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Cute Two", GUILayout.Height(35))) { me.ToggleCuteTwoOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Cute Three", GUILayout.Height(35))) { me.ToggleCuteThreeOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Cute Four", GUILayout.Height(35))) { me.ToggleCuteFourOutfit(); EditorUtility.SetDirty(me); }
-        
-        
         EditorGUILayout.EndHorizontal();
+
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Cute Five", GUILayout.Height(35))) { me.ToggleCuteFiveOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Cute Six", GUILayout.Height(35))) { me.ToggleCuteSixOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Cute Seven", GUILayout.Height(35))) { me.ToggleCuteSevenOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Cute Eight", GUILayout.Height(35))) { me.ToggleCuteEightOutfit(); EditorUtility.SetDirty(me); }
-        
         EditorGUILayout.EndHorizontal();
+
         EditorGUILayout.BeginHorizontal();
-        
         if (GUILayout.Button("Edea", GUILayout.Height(35))) { me.ToggleEdeaOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Wedding", GUILayout.Height(35))) { me.ToggleWeddingOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Funeral", GUILayout.Height(35))) { me.ToggleFuneralOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space();
+
+        // Storyline
+        EditorGUILayout.LabelField("Storyline Outfits", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Night Out Outfits", EditorStyles.boldLabel);
+        if (GUILayout.Button("Wedding", GUILayout.Height(35))) { me.ToggleWeddingOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Funeral", GUILayout.Height(35))) { me.ToggleFuneralOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Skid Row", GUILayout.Height(35))) { me.ToggleHomelessnessOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
+        EditorGUILayout.Space();
+
+        // Night Out
+        EditorGUILayout.LabelField("Night Out Outfits", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Essie", GUILayout.Height(35))) { me.ToggleEssieOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Third Date", GUILayout.Height(35))) { me.ToggleThirdDateOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Casual Three", GUILayout.Height(35))) { me.ToggleCasualThreeOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
+        EditorGUILayout.Space();
 
-        EditorGUILayout.BeginHorizontal();
-        GUILayout.FlexibleSpace();
+        // ────────────────────────────────────────
         EditorGUILayout.LabelField("──────────────────────────────────────────────────────────────", EditorStyles.boldLabel);
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space();
 
+        // Random Outfits
+        EditorGUILayout.LabelField("Random Outfits", EditorStyles.boldLabel);
 
         EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Random All", GUILayout.Height(40))) { me.SetRandomOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Random Work", GUILayout.Height(40))) { me.SetRandomWorkOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Random Casual", GUILayout.Height(40))) { me.SetRandomCasualOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Random Cute", GUILayout.Height(40))) { me.SetRandomCuteOutfit(); EditorUtility.SetDirty(me); }
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Random Storyline", GUILayout.Height(40))) { me.SetRandomStorylineOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Random Night Out", GUILayout.Height(40))) { me.SetRandomNightOutOutfit(); EditorUtility.SetDirty(me); }
+        EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space();
         DrawDefaultInspector();

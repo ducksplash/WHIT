@@ -347,9 +347,7 @@ public class Player : Singleton<Player>
         bool ccWasEnabled = thisCharController != null && thisCharController.enabled;
         if (thisCharController != null) thisCharController.enabled = false;
 
-        Transform rootTransform = thisCharController != null 
-            ? thisCharController.transform 
-            : transform;
+        Transform rootTransform = thisCharController != null ? thisCharController.transform : transform;
 
         // Apply Position + Rotation
         rootTransform.position = spawnPoint;

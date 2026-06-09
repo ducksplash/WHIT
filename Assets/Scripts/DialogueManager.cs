@@ -128,9 +128,12 @@ public class DialogueManager : MonoBehaviour
     // ───────────────────────────────────────────────────────────────────────
     public async void PlayThought(ThoughtName thoughtName)
     {
-        // Wait until seen data is fully loaded before checking ThoughtsSeen.
-        // SeenLoaded is only set to true after LoadWhatYouSee() has completed,
-        // so this guard ensures we never miss a previously-seen thought.
+
+        if (AwaitingFirstThoughts)
+        {
+            GameMaster.Instance.PLAYERBUSY = true;
+        }
+        
         while (!SeenLoaded) await Task.Yield();
 
         Debug.Log("Play thought " + thoughtName);

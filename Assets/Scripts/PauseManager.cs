@@ -33,8 +33,7 @@ public class PauseManager : MonoBehaviour
         UnbindInputs();
         SafeUnbindExitAction();
 
-        if (IsPaused)
-            RestoreLookSensitivityIfNeeded();
+        if (IsPaused) RestoreLookSensitivityIfNeeded();
     }
 
     private void OnDestroy()
@@ -43,10 +42,10 @@ public class PauseManager : MonoBehaviour
         SafeUnbindExitAction();
     }
 
-    // ====================== FOCUS LOSS HANDLING ======================
     
     private void OnApplicationFocus(bool hasFocus)
     {
+        if (GameMaster.Instance.PLAYERBUSY) return;
         if (!PauseOnFocusLost) return;
 
         var gm = GameMaster.Instance;

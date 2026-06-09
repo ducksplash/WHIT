@@ -33,20 +33,20 @@ public class OnboardingManager : MonoBehaviour
 
     
     [Header("Onboarding Dialogues")]
-    public DialogueName needMyThings = DialogueName.NoraNeedsHerThings;
-    public DialogueName pickupPhoneDialogue = DialogueName.NoraCollectedPhone;
-    public DialogueName pickupTorchDialogue = DialogueName.NoraCollectedTorch;
-    public DialogueName pickupNotepadDialogue = DialogueName.NoraCollectedNotepad;
-    public DialogueName needTestEvidence = DialogueName.NoraNeedsTestEvidence;
+    public ThoughtName needMyThings = ThoughtName.NoraNeedsHerThings;
+    public ThoughtName pickupPhoneThought = ThoughtName.CollectedPhone;
+    public ThoughtName pickupTorchThought = ThoughtName.CollectedTorch;
+    public ThoughtName pickupNotepadThought = ThoughtName.CollectedNotepad;
+    public ThoughtName needTestEvidence = ThoughtName.NoraNeedsTestEvidence;
     public DialogueName phoneTutorialGotPhone = DialogueName.KieronToNoraGotPhone;
     public DialogueName phoneTutorialFirstEvidence = DialogueName.KieronToNoraFirstEvidence;
-    public DialogueName readyMessage = DialogueName.NoraReadyToGo;
+    public ThoughtName readyMessage = ThoughtName.NoraReadyToGo;
     
     [Header("First Evidence")]
     public EvidenceName FirstOnboardingEvidence = EvidenceName.Wine;
 
-    public Image MyFirstEvidence;
-    public TextMeshProUGUI EvidenceDesc;
+    // public Image MyFirstEvidence;
+    // public TextMeshProUGUI EvidenceDesc;
 
     private bool _restoredThisScene;
     
@@ -166,8 +166,8 @@ public class OnboardingManager : MonoBehaviour
 
     IEnumerator NoraReady()
     {
-        yield return new WaitForSeconds(5);
-        GameMaster.Instance.DialogueManager.NewDialogue(readyMessage, 5);
+        yield return new WaitForSeconds(3);
+        GameMaster.Instance.DialogueManager.PlayThought(readyMessage);
     }
 
     public async void CollectTorch()
@@ -178,16 +178,8 @@ public class OnboardingManager : MonoBehaviour
         
         EventManager.SlideTickerIn();
         
-        // dialogueName, displayTimer, type, cutsceneDuration, cutscenePanTime, cutsceneTarget
-        await GameMaster.Instance.DialogueManager.PlayDialogue(
-            pickupTorchDialogue,
-            6f,
-            DialogueType.cutscene,
-            cutsceneTarget: torchPickup,
-            cutsceneDuration: 7f,
-            cutscenePanTime: 1f,
-            isZoomable: true,
-            holdUntilAdvance: true);
+
+        GameMaster.Instance.DialogueManager.PlayThought(pickupTorchThought);
         
         GameMaster.Instance.QuestManager.UpdateQuestObjectives(QuestName.GetReadyForWork, 3);
 
@@ -208,17 +200,8 @@ public class OnboardingManager : MonoBehaviour
         NOTEPADCOLLECTED = true;
 
         EventManager.SlideTickerIn();
-        
-        await GameMaster.Instance.DialogueManager.PlayDialogue(
-            pickupNotepadDialogue,
-            6f,
-            DialogueType.cutscene,
-            cutsceneTarget: notepadPickup,
-            cutsceneDuration: 7f,
-            cutscenePanTime: 1f,
-            isZoomable: true,
-            holdUntilAdvance: true
-        );
+
+        GameMaster.Instance.DialogueManager.PlayThought(pickupNotepadThought);
 
         GameMaster.Instance.QuestManager.UpdateQuestObjectives(QuestName.GetReadyForWork, 2);
         
@@ -242,16 +225,8 @@ public class OnboardingManager : MonoBehaviour
         
         
         PHONECOLLECTED = true;
-        await GameMaster.Instance.DialogueManager.PlayDialogue(
-            pickupPhoneDialogue,
-            6f,
-            DialogueType.cutscene,
-            cutsceneTarget: phonePickup,
-            cutsceneDuration: 7f,
-            cutscenePanTime: 1f,
-            isZoomable: true,
-            holdUntilAdvance: true
-        );
+
+        GameMaster.Instance.DialogueManager.PlayThought(pickupPhoneThought);
 
         GameMaster.Instance.QuestManager.UpdateQuestObjectives(QuestName.GetReadyForWork, 1);
         
@@ -297,14 +272,12 @@ public class OnboardingManager : MonoBehaviour
 
     public void EvidenceNotCollected()
     {
-        GameMaster.Instance.DialogueManager.NewDialogue(needTestEvidence, 5);
+        GameMaster.Instance.DialogueManager.PlayThought(needTestEvidence);
     }
 
     public void NotReadyYet()
     {
-        
-        GameMaster.Instance.DialogueManager.NewDialogue(needMyThings, 5);
-        
+        GameMaster.Instance.DialogueManager.PlayThought(needMyThings);
     }
 
 

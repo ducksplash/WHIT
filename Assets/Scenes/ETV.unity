@@ -8262,7 +8262,6 @@ MonoBehaviour:
   m_Script: {fileID: 662025646}
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.SceneObjectIDMapSceneAsset
-  m_Entries: []
 --- !u!4 &101176300
 Transform:
   m_ObjectHideFlags: 19
@@ -82716,16 +82715,14 @@ MonoBehaviour:
   notepadPickup: {fileID: 0}
   torchPickup: {fileID: 0}
   needMyThings: 103
-  pickupPhoneDialogue: 107
-  pickupTorchDialogue: 108
-  pickupNotepadDialogue: 106
+  pickupPhoneThought: 4
+  pickupTorchThought: 6
+  pickupNotepadThought: 5
   needTestEvidence: 104
   phoneTutorialGotPhone: 109
   phoneTutorialFirstEvidence: 110
   readyMessage: 105
   FirstOnboardingEvidence: 1000
-  MyFirstEvidence: {fileID: 0}
-  EvidenceDesc: {fileID: 0}
 --- !u!4 &1065065964
 Transform:
   m_ObjectHideFlags: 0
@@ -108072,7 +108069,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lightBeam: {fileID: 1420132373}
   theTorch: {fileID: 4895431323914189644}
-  SpotlightBeam: {fileID: 0}
   bulbRenderer: {fileID: 1902008519029151655}
   torchimg: {fileID: 263267959}
   litsprite: {fileID: 21300000, guid: 6645475fa4918ca4c88d7f6893bdc438, type: 3}
@@ -132584,18 +132580,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7617ce254f633bb488a4ce925cd9269b, type: 2}
   - {fileID: 11400000, guid: d15c0e8a43eb4d9438bdcaff1dc1ae19, type: 2}
   - {fileID: 11400000, guid: 5d70f00894be05c4aa43bebcee38052c, type: 2}
-  - {fileID: 11400000, guid: e844006e52f5a564b893efae87a7fb36, type: 2}
-  - {fileID: 11400000, guid: 1c76f7caa88eff74c892436577b2bc63, type: 2}
-  - {fileID: 11400000, guid: 4906f1c542a14f541873c8b554ba28d0, type: 2}
   - {fileID: 11400000, guid: 06019e3a3d679324da1e37110f306125, type: 2}
   - {fileID: 11400000, guid: 5a95d4e79117e0e4681110e113cfd2dd, type: 2}
   - {fileID: 11400000, guid: f307eabc004828a49b2a196ca364eede, type: 2}
   - {fileID: 11400000, guid: 2b436344b0eab39409cbbfccec554216, type: 2}
-  - {fileID: 11400000, guid: c0e1a8cc9e0d9154e898cb840c6e394f, type: 2}
-  - {fileID: 11400000, guid: 2c5ddab1c58f15b4e9e82ccdacbc759c, type: 2}
   - {fileID: 11400000, guid: 97fd1a628615ff54196dad2351b0fbb6, type: 2}
   - {fileID: 11400000, guid: 67c0fb1a965aab048845dd118e8b9d92, type: 2}
-  - {fileID: 11400000, guid: 1f1029706e4d28f43bef9d00e6125be3, type: 2}
   - {fileID: 11400000, guid: 3e8b5490a9a14dc4291f8db7bea14b4a, type: 2}
   - {fileID: 11400000, guid: 14dcd9de4ff2a8043bb2da8589bf7b20, type: 2}
   - {fileID: 11400000, guid: fe964543c52e80449951376459e3f7fd, type: 2}
@@ -132617,6 +132607,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 58072a6a708fc9048b17045f8504e7d5, type: 2}
   - {fileID: 11400000, guid: ddf2a1f811d22ac46a88b4c1b5bbbb43, type: 2}
   - {fileID: 11400000, guid: b215d628d8d72554abf409de4b84426e, type: 2}
+  - {fileID: 11400000, guid: 0813450a4567fa74da043e9230d2d9fb, type: 2}
+  - {fileID: 11400000, guid: c7ff68bdc7ca7454cb860051d64a543f, type: 2}
+  - {fileID: 11400000, guid: b5261d9fab476564fbe989365f3cc73d, type: 2}
+  - {fileID: 11400000, guid: 1f51660028fec684b924c02d7827af5d, type: 2}
+  - {fileID: 11400000, guid: c0a235be54febfb4e96df8cb43a83e61, type: 2}
+  - {fileID: 11400000, guid: 868a16247acae6b4fb439c6bc2286c10, type: 2}
   RepeatableDialogues: 
   DialogueSeen: 
   ThoughtsSeen: 
@@ -189249,7 +189245,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: 0.0032800091}
+  m_AnchoredPosition: {x: -0.0012638667, y: -0.003728745}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &6445594205184765108
@@ -189425,7 +189421,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0012638667, y: 0.0032800091}
+  m_AnchoredPosition: {x: -0.0012638667, y: -0.003728745}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6472477817453380253

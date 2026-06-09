@@ -337,7 +337,6 @@ namespace VLB
         /// <summary>
         /// Distance from the light source (in units) the beam will start to fade out.
         /// </summary>
-        /// 
         [FormerlySerializedAs("fadeStart")]
         public float fallOffStart = Consts.Beam.FallOffStart;
 
@@ -809,6 +808,18 @@ namespace VLB
                     if (!trackChangesDuringPlaytime) // during Playtime, realtime changes are handled by CoUpdateDuringPlaytime
                         return;
                 }
+
+                // FIX: When nothing is dirty, only push material property values to the existing
+                // material — never call UpdateMaterialAndBounds() which can reassign the material.
+                // This prevents the HDRP 'm_AllocatedInfoCount == 0' assertion caused by the old
+                // unconditional UpdateAfterManualPropertyChange() call every editor frame.
+                if (m_BeamGeom != null && !Application.isPlaying)
+                {
+                    ValidateProperties();
+                    // SD geometry updates bounds and properties without reassigning the material
+                    // when called directly — safe to call here.
+                    //m_BeamGeom.UpdateMaterialAndBounds();
+                }
             }
             else
             {
@@ -823,11 +834,10 @@ namespace VLB
                 {
                     ValidateProperties();
                 }
-            }
 
-            // If we modify the attached Spotlight properties, or if we animate the beam via Unity 2017's timeline,
-            // we are not notified of properties changes. So we update the material anyway.
-            UpdateAfterManualPropertyChange();
+                // Only call UpdateAfterManualPropertyChange when something actually changed
+                UpdateAfterManualPropertyChange();
+            }
 
             m_EditorDirtyFlags = EditorDirtyFlags.Clean;
         }
@@ -1099,5 +1109,5 @@ namespace VLB
             }
         }
 #endif // UNITY_EDITOR
-        }
     }
+}

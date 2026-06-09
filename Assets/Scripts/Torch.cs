@@ -10,7 +10,6 @@ public class Torch : MonoBehaviour
     [Header("Torch Objects")]
     public Light lightBeam;
     public GameObject theTorch;
-    public VolumetricLightBeamSD SpotlightBeam;
     public Renderer bulbRenderer;
     private Material[] mats;
 
@@ -81,10 +80,10 @@ public class Torch : MonoBehaviour
         torchToggle = !torchToggle;
 
         if (lightBeam != null) lightBeam.enabled = torchToggle;
-
-        if (SpotlightBeam != null) SpotlightBeam.enabled = torchToggle;
-
+        
         if (torchimg != null) torchimg.sprite = torchToggle ? litsprite : unlitsprite;
+        
+        if (lightBeam != null) lightBeam.gameObject.SetActive(torchToggle);
         
         SetEmissives(torchToggle);
 

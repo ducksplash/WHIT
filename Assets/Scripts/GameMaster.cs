@@ -280,8 +280,6 @@ public class GameMaster : MonoBehaviour
         Player.Instance.Spawn();
         //Player.Instance.Me.ToggleWorkOutfit(true);
         
-        
-        
         Player.Instance.Me.ToggleWorkOutfit(true);
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
@@ -290,6 +288,7 @@ public class GameMaster : MonoBehaviour
         
         // play first thought
         DialogueManager.PlayThought(ThoughtName.StartingWork);
+        
     }
 
     public void StartLevelNorasFlat()

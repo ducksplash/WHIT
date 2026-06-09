@@ -556,6 +556,17 @@ namespace VLB
                 {
                     return;
                 }
+
+                // FIX: When nothing is dirty, only push material property values to the existing
+                // material — never re-apply/reassign the material itself. This prevents the HDRP
+                // 'm_AllocatedInfoCount == 0' assertion caused by reassigning meshRenderer.material
+                // every frame via the old unconditional UpdateAfterManualPropertyChange() call.
+                if (m_BeamGeom != null)
+                {
+                    ValidateProperties();
+                    // Push all property values except flags that would trigger ApplyMaterial()
+                    m_BeamGeom.SetPropertyDirty(DirtyProps.All & ~DirtyProps.OnlyMaterialChangeOnly);
+                }
             }
             else
             {
@@ -570,11 +581,11 @@ namespace VLB
                 {
                     ValidateProperties();
                 }
-            }
 
-            // If we modify the attached Spotlight properties, or if we animate the beam via Unity 2017's timeline,
-            // we are not notified of properties changes. So we update the material anyway.
-            UpdateAfterManualPropertyChange();
+                // Only call UpdateAfterManualPropertyChange (which re-applies the material) when
+                // something has actually changed — not every frame.
+                UpdateAfterManualPropertyChange();
+            }
 
             m_EditorDirtyFlags = EditorDirtyFlags.Clean;
         }

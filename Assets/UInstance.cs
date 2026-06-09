@@ -1,8 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;   // ← Added for UniTask
 
 public class UInstance : Singleton<UInstance>
 {
@@ -13,65 +13,77 @@ public class UInstance : Singleton<UInstance>
     public CanvasGroup TipsCanvas;
     public TextMeshProUGUI tipsText;
     public TextMeshProUGUI tipsTextBG;
-
-
     public ControlPad controlPad;
-    
 
     public void Start()
     {
         cutsceneBarsCanvas.alpha = 0;
         ProceedCanvas.gameObject.SetActive(false);
-        
+
         EventManager.OnDebugCameraToggle += DebugDisableHUD;
         EventManager.OnDialogueCanProceed += ToggleDialogueCanProceed;
     }
 
-    
     private void ToggleDialogueCanProceed(bool toggleval)
-    {       
-        
-        Debug.Log("UInstance ProceedCanvas "+toggleval);
-
+    {
+        Debug.Log("UInstance ProceedCanvas " + toggleval);
         ProceedCanvas.gameObject.SetActive(toggleval);
-        advanceInputText.text = toggleval ? GameMaster.Instance.InputManager.ReturnInputName(InputName.Submit) : "";
+        advanceInputText.text = toggleval 
+            ? GameMaster.Instance.InputManager.ReturnInputName(InputName.Submit) 
+            : "";
     }
-
 
     void DebugDisableHUD(bool b)
     {
-        Debug.Log("set hud "+b);
+        Debug.Log("set hud " + b);
         HudCanvas.alpha = b ? 0 : 1;
     }
 
-    
-    // Coroutine to fade out the cutscene bars
-    public IEnumerator FadeInCutsceneBars(float panTime)
+    /// <summary>
+    /// Fade in cutscene bars and fade out HUD (UniTask version)
+    /// </summary>
+    public async UniTask FadeInCutsceneBars(float panTime)
     {
         float t = 0f;
+        float duration = panTime / 2f;
+
         while (t < 1f)
         {
-            t += Time.smoothDeltaTime /  (panTime / 2);
+            t += Time.smoothDeltaTime / duration;
+            t = Mathf.Clamp01(t); // prevent overshooting
+
             cutsceneBarsCanvas.alpha = Mathf.Lerp(0f, 1f, t);
             HudCanvas.alpha = Mathf.Lerp(1f, 0f, t);
-            yield return new WaitForEndOfFrame();
-            
+
+            await UniTask.Yield(PlayerLoopTiming.Update);
         }
 
+        // Ensure final values
+        cutsceneBarsCanvas.alpha = 1f;
+        HudCanvas.alpha = 0f;
     }
 
-    // Coroutine to fade out the cutscene bars
-    public IEnumerator FadeOutCutsceneBars()
+    /// <summary>
+    /// Fade out cutscene bars and fade in HUD (UniTask version)
+    /// </summary>
+    public async UniTask FadeOutCutsceneBars()
     {
         float t = 0f;
+
         while (t < 1f)
         {
             t += Time.smoothDeltaTime;
+            t = Mathf.Clamp01(t);
+
             cutsceneBarsCanvas.alpha = Mathf.Lerp(1f, 0f, t);
             HudCanvas.alpha = Mathf.Lerp(0f, 1f, t);
-            yield return new WaitForEndOfFrame();
-            
+
+            await UniTask.Yield(PlayerLoopTiming.Update);
         }
+
+        // Ensure final values
+        cutsceneBarsCanvas.alpha = 0f;
+        HudCanvas.alpha = 1f;
     }
 
     public void DisplayTip(string tipText, ControlPadButton selectedButton)
@@ -79,9 +91,5 @@ public class UInstance : Singleton<UInstance>
         tipsText.text = tipText;
         tipsTextBG.text = tipText;
         controlPad.HighlightButton(selectedButton);
-        
     }
-
-    
-    
 }

@@ -246,6 +246,8 @@ public class clickable : Singleton<clickable>
 
         if (layer == clickablelayer)
         {
+            
+            
             var switchComp = target.GetComponentInParent<LightSwitch>();
             if (switchComp != null)
             {
@@ -256,6 +258,7 @@ public class clickable : Singleton<clickable>
                 return;
             }
             SetCursor(clickablespritegreen);
+            
             return;
         }
 
@@ -379,6 +382,11 @@ public class clickable : Singleton<clickable>
         if (currentHit.transform.GetComponentInParent<Seat>() is Seat thisSeat)
         {
             thisSeat.NoraSit();
+        }
+        
+        if (currentHit.transform.GetComponentInParent<Taps>() is Taps thisTap)
+        {
+            thisTap.ToggleTaps();
         }
     }
 

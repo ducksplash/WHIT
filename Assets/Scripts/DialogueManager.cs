@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
-using Random = UnityEngine.Random; // ← Added
+using Random = UnityEngine.Random;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -27,8 +27,6 @@ public class DialogueManager : MonoBehaviour
     [Header("NoraThoughts")]
     public List<TextMeshProUGUI> ThoughtTexts = new List<TextMeshProUGUI>();
     public CanvasGroup ThoughtCanvas;
-
-
 
     [Header("Typewriters")]
     public TMPTypewriter SystemMessageWriter;
@@ -78,15 +76,18 @@ public class DialogueManager : MonoBehaviour
     bool _activeTimedIsRepeatable;
     bool _activeTimedWasShown;
 
+    // Thought cancellation
+    CancellationTokenSource _thoughtCts;
+
     // Cutscene internals
     float _elapsedCutsceneTime;
     bool _stopCutsceneRotation;
 
     // Advance-key state
     bool _advanceRequested;
-
-    // Removed old Coroutine fields (_fadeCo, _activeThoughtCo)
-
+    
+    public bool AwaitingFirstThoughts = true;
+    
     // ───────────────────────────────────────────────────────────────────────
     // Unity lifecycle
     // ───────────────────────────────────────────────────────────────────────
@@ -114,18 +115,35 @@ public class DialogueManager : MonoBehaviour
         timebar.fillAmount -= (1f / messagetimer) * Time.deltaTime;
     }
 
-    void OnDisable() => CancelActiveTimed(markSeen: true);
+    void OnDisable()
+    {
+        CancelActiveTimed(markSeen: true);
+        _thoughtCts?.Cancel();
+        _thoughtCts?.Dispose();
+        _thoughtCts = null;
+    }
 
     // ───────────────────────────────────────────────────────────────────────
-    // Thoughts (fully converted)
+    // Thoughts
     // ───────────────────────────────────────────────────────────────────────
     public async void PlayThought(ThoughtName thoughtName)
     {
+        // Wait until seen data is fully loaded before checking ThoughtsSeen.
+        // SeenLoaded is only set to true after LoadWhatYouSee() has completed,
+        // so this guard ensures we never miss a previously-seen thought.
         while (!SeenLoaded) await Task.Yield();
+
+        Debug.Log("Play thought " + thoughtName);
 
         if (ThoughtsSeen.Contains(thoughtName))
         {
             Debug.Log("Thought already seen: " + thoughtName);
+            
+            if (AwaitingFirstThoughts)
+            {
+                AwaitingFirstThoughts = false;
+            }
+            
             return;
         }
 
@@ -141,16 +159,39 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        List<string> lines = data.EregiReplace ? data.NoraThoughtString.ConvertAll(GetReplacedString) : new List<string>(data.NoraThoughtString);
+        // Always make a fully independent copy of the string list.
+        // Concatenating "" forces a new string allocation for each entry,
+        // breaking shared-reference issues from duplicated SO assets.
+        var lines = new List<string>(data.NoraThoughtString.Count);
+        foreach (var s in data.NoraThoughtString) lines.Add(data.EregiReplace ? GetReplacedString(s) : (s + ""));
 
         if (lines.Count == 0) return;
 
+        // Cancel any currently running thought sequence before starting a new one
+        _thoughtCts?.Cancel();
+        _thoughtCts?.Dispose();
+        _thoughtCts = new CancellationTokenSource();
+        var ct = _thoughtCts.Token;
+
         CleanThoughts();
 
-        await ThoughtSequence(lines, thoughtName, data.thoughtFinalFadeDuration, data.thoughtFadeDuration, data.thoughtFadeInDuration, data.thoughtStaggerDelay);
+        try
+        {
+            await ThoughtSequence(
+                lines, thoughtName,
+                data.thoughtFinalFadeDuration,
+                data.thoughtFadeDuration,
+                data.thoughtFadeInDuration,
+                data.thoughtStaggerDelay,
+                ct);
+        }
+        catch (OperationCanceledException)
+        {
+            // A newer thought preempted this one — exit silently
+        }
     }
 
-    async UniTask ThoughtSequence(List<string> lines, ThoughtName thoughtName, float thoughtFinalFadeDuration, float thoughtFadeDuration, float thoughtFadeInDuration, float thoughtStaggerDelay)
+    async UniTask ThoughtSequence(List<string> lines, ThoughtName thoughtName, float thoughtFinalFadeDuration, float thoughtFadeDuration, float thoughtFadeInDuration, float thoughtStaggerDelay, CancellationToken ct)
     {
         ThoughtCanvas.alpha = 1f;
 
@@ -174,41 +215,52 @@ public class DialogueManager : MonoBehaviour
 
         for (int i = 0; i < lines.Count; i++)
         {
+            ct.ThrowIfCancellationRequested();
+
             bool isFinal = i == lines.Count - 1;
             float fadeOut = isFinal ? thoughtFinalFadeDuration : thoughtFadeDuration;
             int boxIndex = PickNextIndex();
 
-            _ = ShowThought(ThoughtTexts[boxIndex], lines[i], thoughtFadeInDuration, fadeOut);
+            _ = ShowThought(ThoughtTexts[boxIndex], lines[i], thoughtFadeInDuration, fadeOut, ct);
 
             if (!isFinal)
-                await UniTask.Delay(TimeSpan.FromSeconds(thoughtStaggerDelay), ignoreTimeScale: false);
+                await UniTask.Delay(
+                    TimeSpan.FromSeconds(thoughtStaggerDelay),
+                    ignoreTimeScale: false,
+                    cancellationToken: ct);
             else
-                await UniTask.Delay(TimeSpan.FromSeconds(thoughtFadeInDuration + fadeOut), ignoreTimeScale: false);
+                await UniTask.Delay(
+                    TimeSpan.FromSeconds(thoughtFadeInDuration + fadeOut),
+                    ignoreTimeScale: false,
+                    cancellationToken: ct);
         }
 
         ThoughtCanvas.alpha = 0f;
         MarkThoughtSeen(thoughtName);
     }
 
-    async UniTask ShowThought(TextMeshProUGUI box, string text, float fadeInTime, float fadeOutTime)
+    async UniTask ShowThought(TextMeshProUGUI box, string text, float fadeInTime, float fadeOutTime, CancellationToken ct)
     {
         box.text = text;
         box.color = Color.clear;
 
-        await LerpColor(box, Color.clear, Color.white, fadeInTime);
+        await LerpColor(box, Color.clear, Color.white, fadeInTime, ct);
         box.color = Color.white;
 
-        await LerpColor(box, Color.white, Color.clear, fadeOutTime);
+        await LerpColor(box, Color.white, Color.clear, fadeOutTime, ct);
 
         box.color = Color.clear;
         box.text = "";
     }
 
-    async UniTask LerpColor(TextMeshProUGUI text, Color from, Color to, float duration)
+    async UniTask LerpColor(
+        TextMeshProUGUI text, Color from, Color to,
+        float duration, CancellationToken ct)
     {
         float t = 0f;
         while (t < 1f)
         {
+            ct.ThrowIfCancellationRequested();
             t += Time.deltaTime / Mathf.Max(duration, 0.0001f);
             text.color = Color.Lerp(from, to, Mathf.Clamp01(t));
             await UniTask.Yield(PlayerLoopTiming.Update);
@@ -216,16 +268,14 @@ public class DialogueManager : MonoBehaviour
         text.color = to;
     }
 
-    
-    /// <summary>
-    /// Legacy entry point used by Evidence, DialogueBeef, OnboardingManager, 
-    /// Player, Phone etc. Routes into the new queue/play pipeline.
-    /// </summary>
+    // ───────────────────────────────────────────────────────────────────────
+    // Legacy entry point
+    // ───────────────────────────────────────────────────────────────────────
     public Task NewDialogue(DialogueName name, float displayTimer, bool holdUntilAdvance = false, DialogueType type = DialogueType.normal)
     {
         return PlayDialogue(name, displayTimer, type, displayTimer, displayTimer, null, false, holdUntilAdvance);
     }
-    
+
     // ───────────────────────────────────────────────────────────────────────
     // Public entry points
     // ───────────────────────────────────────────────────────────────────────
@@ -403,7 +453,7 @@ public class DialogueManager : MonoBehaviour
     }
 
     // ───────────────────────────────────────────────────────────────────────
-    // Cutscene (fully converted)
+    // Cutscene
     // ───────────────────────────────────────────────────────────────────────
     async Task StartCutscene(DialogueName name, float dialogueTimer, GameObject target,
         float cutsceneDuration, float cutscenePanTime, bool isZoomable, bool hold)
@@ -412,7 +462,7 @@ public class DialogueManager : MonoBehaviour
 
         var tcs = new TaskCompletionSource<bool>();
         await CutsceneCoroutine(name, dialogueTimer, target, cutsceneDuration, cutscenePanTime, tcs, isZoomable, hold);
-        tcs.SetResult(true); // not strictly needed anymore but kept for compatibility
+        tcs.SetResult(true);
     }
 
     async UniTask CutsceneCoroutine(DialogueName name, float dialogueTimer, GameObject target,
@@ -540,7 +590,7 @@ public class DialogueManager : MonoBehaviour
     }
 
     // ───────────────────────────────────────────────────────────────────────
-    // Seen / Repeatable tracking, UI Clear, etc. (unchanged except minor cleanups)
+    // Seen / Repeatable tracking
     // ───────────────────────────────────────────────────────────────────────
     void MarkSeen(DialogueName dialogueName)
     {
@@ -550,8 +600,17 @@ public class DialogueManager : MonoBehaviour
 
     void MarkThoughtSeen(ThoughtName thoughtName)
     {
-        if (!ThoughtsSeen.Contains(thoughtName)) ThoughtsSeen.Add(thoughtName);
+        if (!ThoughtsSeen.Contains(thoughtName))
+        {
+            ThoughtsSeen.Add(thoughtName);
+        }
         SaveWhatYouThought();
+        
+        
+        if (AwaitingFirstThoughts)
+        {
+            AwaitingFirstThoughts = false;
+        }
     }
 
     void CancelActiveTimed(bool markSeen)
@@ -601,10 +660,10 @@ public class DialogueManager : MonoBehaviour
             textBox.text = "";
         }
     }
+
     // ───────────────────────────────────────────────────────────────────────
     // OSD
     // ───────────────────────────────────────────────────────────────────────
-
     public string RetrieveOSDText(OSDTextName name)
     {
         if (!_osdTextDict.TryGetValue(name, out var entry)) return ".";
@@ -615,21 +674,17 @@ public class DialogueManager : MonoBehaviour
     }
 
     // ───────────────────────────────────────────────────────────────────────
-    // NoraThoughtses
+    // NoraThoughts
     // ───────────────────────────────────────────────────────────────────────
-
     public List<string> RetrieveNoraThoughtText(ThoughtName name)
     {
         if (!_noraThoughtDict.TryGetValue(name, out var entry)) return new List<string> { "." };
-        
         return entry.NoraThoughtString;
-        
     }
 
     // ───────────────────────────────────────────────────────────────────────
     // Eregi replacement
     // ───────────────────────────────────────────────────────────────────────
-
     public string GetReplacedString(string message)
     {
         if (string.IsNullOrEmpty(message)) return message;
@@ -638,13 +693,9 @@ public class DialogueManager : MonoBehaviour
         return message;
     }
 
-    
-
     // ───────────────────────────────────────────────────────────────────────
     // Initialisation helpers
     // ───────────────────────────────────────────────────────────────────────
-
-    
     async Task InitSeenAsync()
     {
         try
@@ -661,8 +712,11 @@ public class DialogueManager : MonoBehaviour
         }
         finally
         {
+            // SeenLoaded must be true before notifying GameMaster so that any
+            // PlayThought call triggered by StartLevel() finds ThoughtsSeen
+            // already populated when it reaches its seen-check.
             SeenLoaded = true;
-            EventManager.PlayerDataLoaded();
+            GameMaster.Instance.NotifyDialogueManagerReady();
         }
     }
 
@@ -683,7 +737,6 @@ public class DialogueManager : MonoBehaviour
         foreach (var o in OSDTexts)
             _osdTextDict.TryAdd(o.OSDTextName, o);
     }
-
 
     void BuildNoraThoughtDictionary()
     {
@@ -706,13 +759,13 @@ public class DialogueManager : MonoBehaviour
     // ───────────────────────────────────────────────────────────────────────
     // Persistence
     // ───────────────────────────────────────────────────────────────────────
-
     public void SaveWhatYouSee()
     {
         if (StoredPrefs.Instance == null) return;
         StoredPrefs.Instance.SetCollection("DialogueSeen", DialogueSeen, CollectionType.list);
         StoredPrefs.Instance.Save();
     }
+
     public void SaveWhatYouThought()
     {
         if (StoredPrefs.Instance == null) return;

@@ -71,6 +71,8 @@ public class EvidenceManager : MonoBehaviour
         {
             Debug.Log("[EvidenceManager] No evidence directory found.");
             EvidenceLoaded = true;
+            
+            GameMaster.Instance.NotifyEvidenceManagerReady();
             return;
         }
 
@@ -114,6 +116,7 @@ public class EvidenceManager : MonoBehaviour
         EvidenceLoaded = true;
         
         EventManager.EvidenceLoaded();
+        GameMaster.Instance.NotifyEvidenceManagerReady();
         ApplyCollectedEvidence();
     }
     

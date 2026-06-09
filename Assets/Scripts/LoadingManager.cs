@@ -38,6 +38,7 @@ public class LoadingManager : MonoBehaviour
     // scene-load handshake
     private bool _sceneLoadedFlag;
 
+    
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -175,6 +176,15 @@ public class LoadingManager : MonoBehaviour
     {
         if (fadeCanvas == null) yield break;
 
+
+        
+        while (GameMaster.Instance.DialogueManager.AwaitingFirstThoughts)
+        {
+            yield return null;
+        }
+        
+        
+        
         float startAlpha = fadeCanvas.alpha;
 
         if (duration <= 0f || Mathf.Approximately(startAlpha, targetAlpha))
@@ -188,7 +198,7 @@ public class LoadingManager : MonoBehaviour
 
         while (t < duration)
         {
-            // ✅ Key fix: clamp dt so scene-load stalls don't "jump" the fade
+            
             float dt = Time.unscaledDeltaTime;
             if (maxFadeStepSeconds > 0f)
                 dt = Mathf.Min(dt, maxFadeStepSeconds);
@@ -204,6 +214,8 @@ public class LoadingManager : MonoBehaviour
 
         fadeCanvas.alpha = targetAlpha;
         _fadeCo = null;
+
+        GameMaster.Instance.PLAYERBUSY = false;
     }
 
     
@@ -234,6 +246,7 @@ public class LoadingManager : MonoBehaviour
 
         if (GameMaster.Instance != null)
         {
+            Debug.Log("scene loaded from LoadingManager");
             GameMaster.Instance.StartLevel(levelName);
         }
     }

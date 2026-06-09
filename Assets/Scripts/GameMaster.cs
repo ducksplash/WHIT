@@ -7,28 +7,28 @@ using System.Threading.Tasks;
 using Steamworks;
 using UnityEngine.Rendering;
 
-
 public class GameMaster : MonoBehaviour
 {
     private static GameMaster _instance;
     public static GameMaster Instance => _instance ??= FindObjectOfType<GameMaster>();
 
-    
     private const string TimeZoneId = "GMT Standard Time";
-    
+
     GameData saveData = new GameData();
-    
+
     // Debuggery
     [Header("Debug Mode Toggle")]
     public bool DEBUGGERY;
 
     public bool EnforceSteam = false;
-    
+
+    public bool InGame;
+
     public DevModeScene devModeScene = DevModeScene.NorasFlat;
+
     // components
     [Header("Global Components")]
     public DialogueManager DialogueManager;
-    // public CutsceneManager CutsceneManager;
     public TravelCompanion TravelCompanion;
     public OnboardingManager OnboardingManager;
     public TerminalEventManager TerminalEventManager;
@@ -44,35 +44,50 @@ public class GameMaster : MonoBehaviour
     public DebugCamera DebugCam;
     public int DefaultFOV;
 
-    
-
     public string NORASPCPASSWORD = "1629";
-    
-    public float MouseSensitivity = 0.2f;
-    
-    // Game Globals
 
+    public float MouseSensitivity = 0.2f;
+
+    // Game Globals
     public bool PLAYERBUSY;
     public bool INAMEETING;
     public bool POWER_SUPPLY_ENABLED;
     public bool INCINERATOR_ENABLED;
     public bool ONLADDER;
-    
+
     public GAMELEVEL THISLEVEL;
-    
+
     public Scene ThisScene;
     public CanvasGroup DevModeIcon;
 
-    // spawn points
+    [Header("Spawn Points")]
+    
+    [Header("ETV Studio")]
     public Vector3 SPAWNPOINTETV;
+    public Vector3 SPAWNROTETV;           // X = Pitch, Y = Yaw, Z = Roll
+
+    [Header("Nora's Flat")]
     public Vector3 SPAWNPOINTNORASFLAT;
+    public Vector3 SPAWNROTNORASFLAT;
+
+    [Header("Nora's Old Flat")]
     public Vector3 SPAWNPOINTNORASOLDFLAT;
+    public Vector3 SPAWNROTNORASOLDFLAT;
+
+    [Header("Tawley Meats")]
     public Vector3 SPAWNPOINTTAWLEYMEATS;
+    public Vector3 SPAWNROTTAWLEYMEATS;
+
+    [Header("Roark Outside")]
     public Vector3 SPAWNPOINTROARKOUTSIDE;
+    public Vector3 SPAWNROTROARKOUTSIDE;
+
+    [Header("Roark Inside")]
     public Vector3 SPAWNPOINTROARKINSIDE;
+    public Vector3 SPAWNROTROARKINSIDE;
 
     public Volume PostProcessingGlobalVolume;
-    
+
     public static bool GarbageRun;
 
     private bool SteamLoaded;
@@ -81,10 +96,64 @@ public class GameMaster : MonoBehaviour
 
     public int nightTimeStartsAt = 17;
     public int nightTimeEndsAt = 6;
-    
-    // steam init
+
     private bool m_bInitialized;
     public static bool Initialized => Instance.m_bInitialized;
+
+    // ─── Ready tracking ────────────────────────────────────────────────────
+    // Each system calls NotifyReady() when it is truly done loading.
+    // GetSetGo only fires once all required systems have reported in.
+    // This replaces the multi-source PlayerDataLoaded event firing which
+    // caused GetSetGo to run before DialogueSeen / ThoughtsSeen were loaded,
+    // producing a race where PlayThought would pass its seen-check too early.
+
+    private bool _dialogueManagerReady;
+    private bool _evidenceManagerReady;
+
+    public void NotifyDialogueManagerReady()
+    {
+        _dialogueManagerReady = true;
+        TryGetSetGo();
+    }
+
+    public void NotifyEvidenceManagerReady()
+    {
+        _evidenceManagerReady = true;
+        TryGetSetGo();
+    }
+
+    
+    
+    private void TryGetSetGo()
+    {
+        if (InGame) return;
+
+        SteamLoaded = SteamManager.Initialized;
+
+        bool steamOk = !EnforceSteam || SteamLoaded;
+
+        if (!steamOk)
+        {
+            Debug.Log("Could Not Start — Steam not ready");
+            return;
+        }
+
+        if (!_dialogueManagerReady)
+        {
+            Debug.Log("Could Not Start — DialogueManager not ready");
+            return;
+        }
+
+        if (!_evidenceManagerReady)
+        {
+            Debug.Log("Could Not Start — EvidenceManager not ready");
+            return;
+        }
+
+        InGame = true;
+        Debug.Log("GameMaster: all systems ready, starting level.");
+        StartLevel();
+    }
 
     void Awake()
     {
@@ -97,146 +166,25 @@ public class GameMaster : MonoBehaviour
         _instance = this;
         DontDestroyOnLoad(gameObject);
         Application.targetFrameRate = 60;
-        
-        m_bInitialized = SteamAPI.Init();
-        
-        if (!m_bInitialized) 
-        {
-            Debug.LogError("[Steamworks.NET] SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.", this);
-        }
-        else
-        {
-            // GET Steam USER ID etc 
-            
-            // CSteamID steamId = SteamUser.GetSteamID();
-            // string username = SteamFriends.GetPersonaName();
-            //Debug.Log("Steam User: "+username);
-        }
-        
-        
-        //Debug.Log($"This script is active in scene: {SceneManager.GetActiveScene().name}");
 
-        // SPAWNPOINTETV = new Vector3(36, -8, 473);
-        // SPAWNPOINTNORASFLAT = new Vector3(65, 2, 486);
-        // SPAWNPOINTTAWLEYMEATS = new Vector3(71.50f, 12, 282);
-        // SPAWNPOINTROARKOUTSIDE = new Vector3(90, 5, 252);
-        // SPAWNPOINTROARKINSIDE = new Vector3(69, 16, 310);
-        
+        m_bInitialized = SteamAPI.Init();
+
+        if (!m_bInitialized)
+        {
+            Debug.LogError("[Steamworks.NET] SteamAPI_Init() failed.", this);
+        }
 
         if (DEBUGGERY)
         {
             DevModeIcon.alpha = 1;
         }
-
-        EventManager.OnPlayerDataLoaded += GetSetGo;
-        EventManager.OnEvidenceLoaded += GetSetGo;
     }
 
-
-    
-    //// Level orchestration
-    //// Here is where I will author the level during it's 'lifetime'
-    ////
-    //// LEVEL ONE - NORA'S FLAT
-    
-    //// BEGIN ONBOARDING IF NOT YET ONBOARDED
-    ////
-    //// 
-    ////
-
-
-
-
-    public void GetSetGo()
-    {
-        // ensure steam loaded.
-        SteamLoaded = SteamManager.Initialized;
-
-        DialoguesLoaded = DialogueManager.SeenLoaded;
-
-        EvidenceLoaded = EvidenceManager.EvidenceLoaded;
-        
-        // force steam?
-
-        if (EnforceSteam)
-        {
-            if (SteamLoaded && DialoguesLoaded && EvidenceLoaded)
-            {
-                StartGame();
-            }
-            else
-            {
-                Debug.Log("Could Not Start");
-                Debug.Log("SteamLoaded " + SteamLoaded);
-                Debug.Log("DialoguesLoaded " + DialoguesLoaded);
-                Debug.Log("EvidenceLoaded " + EvidenceLoaded);
-            }
-        }
-        else
-        {
-            if (DialoguesLoaded && EvidenceLoaded)
-            {
-                StartGame();
-            }
-            else
-            {
-                Debug.Log("Could Not Start");
-                Debug.Log("DialoguesLoaded " + DialoguesLoaded);
-                Debug.Log("EvidenceLoaded " + EvidenceLoaded);
-            }
-        }
-
-
-
-
-    }
-    
-    
-    
-    
-
-    public void StartGame()
-    {
-        // here we can maybe retrieve last level player was on and spawn it in accordingly
-        
-        if (THISLEVEL == GAMELEVEL.MainMenu)
-        {
-            Debug.Log("Start Main Menu");
-        }
-
-        
-        switch (THISLEVEL)
-        {
-            
-            case GAMELEVEL.ETVStudio:
-                StartLevelETV();
-                break;
-            case GAMELEVEL.MainMenu:
-                StartLevelNorasFlat();
-                break;
-            case GAMELEVEL.NorasFlat:
-                StartLevelNorasFlat();
-                break;
-            case GAMELEVEL.RoarkOutside:
-                StartLevelNorasFlat();
-                break;
-            case GAMELEVEL.TawleyMeats:
-                StartLevelNorasFlat();
-                //THISLEVEL = GAMELEVEL.RoarkOutside;
-                break;
-            case GAMELEVEL.RoarkInside:
-                StartLevelNorasFlat();
-
-                //THISLEVEL = GAMELEVEL.RoarkInside;
-                break;
-
-        }
-
-    }
     // ====================== MAIN LEVEL ROUTER ======================
-    public void StartLevel(GAMELEVEL level)
+    public void StartLevel(GAMELEVEL level = GAMELEVEL.ETVStudio)
     {
         THISLEVEL = level;
+
 
         switch (level)
         {
@@ -262,7 +210,6 @@ public class GameMaster : MonoBehaviour
                 break;
 
             case GAMELEVEL.SecretLevel:
-                // TODO: Add when ready
                 StartLevelNorasFlat();
                 break;
 
@@ -278,56 +225,35 @@ public class GameMaster : MonoBehaviour
     {
         THISLEVEL = GAMELEVEL.ETVStudio;
         Player.Instance.Spawn();
-        //Player.Instance.Me.ToggleWorkOutfit(true);
-        
         Player.Instance.Me.ToggleWorkOutfit(true);
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
         LoadingManager.SceneFadeIn();
-        
-        // play first thought
         DialogueManager.PlayThought(ThoughtName.StartingWork);
-        
     }
 
     public void StartLevelNorasFlat()
     {
         THISLEVEL = GAMELEVEL.NorasFlat;
         Player.Instance.Spawn();
-        
+
         DateTime utcNow = DateTime.UtcNow;
-
         TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
-
         DateTime now = TimeZoneInfo.ConvertTimeFromUtc(utcNow, timeZone);
-
         int hour = now.Hour;
-        
-        bool isNight;
 
+        bool isNight;
         if (nightTimeStartsAt < nightTimeEndsAt)
-        {
-            // normal range (e.g. 18 → 22)
             isNight = hour >= nightTimeStartsAt && hour < nightTimeEndsAt;
-        }
         else
-        {
-            // crosses midnight (e.g. 22 → 6)
             isNight = hour >= nightTimeStartsAt || hour < nightTimeEndsAt;
-        }
-        
-        
+
         if (isNight)
-        {
             Player.Instance.Me.TogglePyjamasOutfit(true);
-        }
         else
-        {
             Player.Instance.Me.ToggleCasualOutfit(true);
-        }
-        
-        
+
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
@@ -367,12 +293,8 @@ public class GameMaster : MonoBehaviour
         LoadingManager.SceneFadeIn();
     }
 
-    /// <summary>
-    /// Legacy dictionary accessed by cutscene.cs.
-    /// Kept as a public field; persistence was removed (it was never populated)
-    /// but the field exists so external reads/writes don't break.
-    /// </summary>
     public Dictionary<string, string> CutSceneSeen = new();
+
     public void StartAudio(AudioProfile selectedAudioProfile)
     {
         AudioSlave.StopBGA();
@@ -385,21 +307,9 @@ public class GameMaster : MonoBehaviour
             case AudioProfile.MainMenu:
             case AudioProfile.NorasFlat:
                 AudioSlave.PlayBGA(BGAResource.Rain);
-                // AudioSlave.PlayBGM(BGMResource.SongOne);   // uncomment when ready
                 break;
-
-            // Add other cases as you expand
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
 
 public enum GAMELEVEL
@@ -414,7 +324,6 @@ public enum GAMELEVEL
     SecretLevel
 }
 
-
 public enum DevModeScene
 {
     ETV,
@@ -423,7 +332,7 @@ public enum DevModeScene
     NorasOldFlat,
     TawleyMeats,
     RoarkOutside,
-    RoarkInside 
+    RoarkInside
 }
 
 public enum AudioProfile

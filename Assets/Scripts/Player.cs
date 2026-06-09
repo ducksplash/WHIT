@@ -307,33 +307,59 @@ public class Player : Singleton<Player>
 
     public void Spawn()
     {
-        Vector3 spawnPoint;
+        Vector3 spawnPoint = Vector3.zero;
+        Vector3 spawnRotation = Vector3.zero;
 
         switch (GameMaster.Instance.THISLEVEL)
         {
-            case GAMELEVEL.ETVStudio:    spawnPoint = GameMaster.Instance.SPAWNPOINTETV;          break;
-            case GAMELEVEL.NorasFlat:    spawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;    break;
-            case GAMELEVEL.TawleyMeats:  spawnPoint = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS; break;
-            case GAMELEVEL.RoarkOutside: spawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE; break;
-            case GAMELEVEL.RoarkInside:  spawnPoint = GameMaster.Instance.SPAWNPOINTROARKINSIDE;          break;
-            default:                     spawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;    break;
+            case GAMELEVEL.ETVStudio:
+                spawnPoint = GameMaster.Instance.SPAWNPOINTETV;
+                spawnRotation = GameMaster.Instance.SPAWNROTETV;
+                break;
+
+            case GAMELEVEL.NorasFlat:
+                spawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;
+                spawnRotation = GameMaster.Instance.SPAWNROTNORASFLAT;
+                break;
+
+            case GAMELEVEL.TawleyMeats:
+                spawnPoint = GameMaster.Instance.SPAWNPOINTTAWLEYMEATS;
+                spawnRotation = GameMaster.Instance.SPAWNROTTAWLEYMEATS;
+                break;
+
+            case GAMELEVEL.RoarkOutside:
+                spawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
+                spawnRotation = GameMaster.Instance.SPAWNROTROARKOUTSIDE;
+                break;
+
+            case GAMELEVEL.RoarkInside:
+                spawnPoint = GameMaster.Instance.SPAWNPOINTROARKINSIDE;
+                spawnRotation = GameMaster.Instance.SPAWNROTROARKINSIDE;
+                break;
+
+            default:
+                spawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;
+                spawnRotation = GameMaster.Instance.SPAWNROTNORASFLAT;
+                break;
         }
 
-        // Disable the CC first so it doesn't fight the teleport
+        // Disable CharacterController before moving
         bool ccWasEnabled = thisCharController != null && thisCharController.enabled;
         if (thisCharController != null) thisCharController.enabled = false;
 
-        // Move the CC's transform (the parent), not the Player child
-        Transform rootTransform = thisCharController != null
-            ? thisCharController.transform
+        Transform rootTransform = thisCharController != null 
+            ? thisCharController.transform 
             : transform;
 
+        // Apply Position + Rotation
         rootTransform.position = spawnPoint;
-        Physics.SyncTransforms(); // tell the physics engine immediately
+        rootTransform.rotation = Quaternion.Euler(spawnRotation);   // ← New line
+
+        Physics.SyncTransforms();
 
         if (thisCharController != null) thisCharController.enabled = ccWasEnabled;
 
-        Debug.Log("Spawn point: " + spawnPoint + " | Root landed at: " + rootTransform.position);
+        Debug.Log($"Spawned at {spawnPoint} with rotation {spawnRotation}");
     }
 
     // ────────────────────────────────────────────────────────────────────────

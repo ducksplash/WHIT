@@ -123,6 +123,7 @@ public static class EventManager
         //Debug.Log("OnPaused");
         OnPaused.Invoke(GamePaused);
     }
+    
     public static void PlayerDataLoaded()
     {
         ////Debug.Log("PlayerDataLoaded");

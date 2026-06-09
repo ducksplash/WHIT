@@ -24,9 +24,17 @@ public class Me : MonoBehaviour
     public Color lipsColorForWorkTwo = new Color(0.95f, 0.6f, 0.7f);
     public Color nailsColorForWorkTwo = new Color(0.9f, 0.7f, 0.8f);
     public bool JiggleForWorkTwo;
-    
-    
-    
+
+
+
+    [Header("Work Three")]
+    public List<SkinnedMeshRenderer> OutfitForWorkThree;
+    public Color lipsColorForWorkThree = new Color(0.95f, 0.6f, 0.7f);
+    public Color nailsColorForWorkThree = new Color(0.9f, 0.7f, 0.8f);
+    public bool JiggleForWorkThree;
+
+
+
     
     [Header("\nCasual\n")]
     // Casual Outfits
@@ -257,6 +265,7 @@ public class Me : MonoBehaviour
         {
             case OutfitType.Work:         ToggleWorkOutfit(true);          break;
             case OutfitType.WorkTwo:      ToggleWorkTwoOutfit(true);       break;
+            case OutfitType.WorkThree:      ToggleWorkThreeOutfit(true);       break;
             case OutfitType.Casual:       ToggleCasualOutfit(true);        break;
             case OutfitType.CuteTwo:      ToggleCuteTwoOutfit(true);     break;
             case OutfitType.Casual3:      ToggleCasualThreeOutfit(true);   break;
@@ -283,6 +292,7 @@ public class Me : MonoBehaviour
     // ====================== TOGGLE METHODS ======================
     public void ToggleWorkOutfit(bool? forceOn = null) { JiggleToggle(JiggleForWork); ToggleMainOutfit(OutfitType.Work, forceOn); }
     public void ToggleWorkTwoOutfit(bool? forceOn = null) { JiggleToggle(JiggleForWorkTwo); ToggleMainOutfit(OutfitType.WorkTwo, forceOn); }
+    public void ToggleWorkThreeOutfit(bool? forceOn = null) { JiggleToggle(JiggleForWorkThree); ToggleMainOutfit(OutfitType.WorkThree, forceOn); }
     public void ToggleCasualOutfit(bool? forceOn = null) { JiggleToggle(JiggleCasually); ToggleMainOutfit(OutfitType.Casual, forceOn); }
     public void ToggleCuteTwoOutfit(bool? forceOn = null) { JiggleToggle(JiggleCasuallyTwo); ToggleMainOutfit(OutfitType.CuteTwo, forceOn); }
     public void ToggleCasualThreeOutfit(bool? forceOn = null) { JiggleToggle(JiggleCasuallyThree); ToggleMainOutfit(OutfitType.Casual3, forceOn); }
@@ -294,7 +304,6 @@ public class Me : MonoBehaviour
     public void ToggleEssieOutfit(bool? forceOn = null) { JiggleToggle(JiggleEssie); ToggleMainOutfit(OutfitType.Essie, forceOn); }
     public void ToggleCuteThreeOutfit(bool? forceOn = null) { JiggleToggle(JiggleCuteThree); ToggleMainOutfit(OutfitType.CuteThree, forceOn); }
     public void ToggleCuteFiveOutfit(bool? forceOn = null) { JiggleToggle(JiggleCuteFive); ToggleMainOutfit(OutfitType.CuteFive, forceOn); }
-
     public void ToggleFirstDateOutfit(bool? forceOn = null) { JiggleToggle(JiggleOnAFirstDate); ToggleMainOutfit(OutfitType.CuteSix, forceOn); }
     public void ToggleCuteSixOutfit(bool? forceOn = null) { JiggleToggle(JiggleOnACuteSix); ToggleMainOutfit(OutfitType.Date2, forceOn); }
     public void ToggleThirdDateOutfit(bool? forceOn = null) { JiggleToggle(JiggleOnAThirdDate); ToggleMainOutfit(OutfitType.Date3, forceOn); }
@@ -340,6 +349,7 @@ public class Me : MonoBehaviour
         {
             case OutfitType.Work:         SetListEnabled(OutfitForWork, true); break;
             case OutfitType.WorkTwo:      SetListEnabled(OutfitForWorkTwo, true); break;
+            case OutfitType.WorkThree:      SetListEnabled(OutfitForWorkThree, true); break;
             case OutfitType.Casual:       SetListEnabled(OutfitForCasual, true); break;
             case OutfitType.CuteTwo:      SetListEnabled(OutfitForCuteTwo, true); break;
             case OutfitType.Casual3:      SetListEnabled(OutfitForCasualThree, true); break;
@@ -381,7 +391,7 @@ public class Me : MonoBehaviour
     /// </summary>
     public void SetRandomWorkOutfit()
     {
-        OutfitType[] workOutfits = { OutfitType.Work, OutfitType.WorkTwo };
+        OutfitType[] workOutfits = { OutfitType.Work, OutfitType.WorkTwo, OutfitType.WorkThree };
         SwitchToOutfit(workOutfits[Random.Range(0, workOutfits.Length)]);
     }
 
@@ -440,7 +450,7 @@ public class Me : MonoBehaviour
     {
         OutfitType[] nightOutOutfits =
         {
-            OutfitType.Date3,       // Third Date
+            OutfitType.Date3,       
             OutfitType.Casual3,
             OutfitType.Essie
         };
@@ -487,6 +497,7 @@ public class Me : MonoBehaviour
         {
             case OutfitType.Work:         return lipsColorForWork;
             case OutfitType.WorkTwo:      return lipsColorForWorkTwo;
+            case OutfitType.WorkThree:      return lipsColorForWorkThree;
             case OutfitType.Casual:       return lipsColorForCasual;
             case OutfitType.CuteTwo:      return lipsColorForCuteTwo;
             case OutfitType.Casual3:      return lipsColorForCasualThree;
@@ -516,6 +527,7 @@ public class Me : MonoBehaviour
         {
             case OutfitType.Work:         return nailsColorForWork;
             case OutfitType.WorkTwo:      return nailsColorForWorkTwo;
+            case OutfitType.WorkThree:      return nailsColorForWorkThree;
             case OutfitType.Casual:       return nailsColorForCasual;
             case OutfitType.CuteTwo:      return nailsColorForCuteTwo;
             case OutfitType.Casual3:      return nailsColorForCasualThree;
@@ -543,6 +555,7 @@ public class Me : MonoBehaviour
     {
         SetListEnabled(OutfitForWork, false);
         SetListEnabled(OutfitForWorkTwo, false);
+        SetListEnabled(OutfitForWorkThree, false);
         SetListEnabled(OutfitForCasual, false);
         SetListEnabled(OutfitForCuteTwo, false);
         SetListEnabled(OutfitForCasualThree, false);
@@ -582,6 +595,7 @@ public enum OutfitType
     None,
     Work,
     WorkTwo,
+    WorkThree,
     Casual,
     CuteTwo,
     Casual3,
@@ -621,6 +635,7 @@ public class MeEditor : Editor
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Work", GUILayout.Height(35))) { me.ToggleWorkOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Work Two", GUILayout.Height(35))) { me.ToggleWorkTwoOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Work Three", GUILayout.Height(35))) { me.ToggleWorkThreeOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space();

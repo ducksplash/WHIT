@@ -100,12 +100,6 @@ public class GameMaster : MonoBehaviour
     private bool m_bInitialized;
     public static bool Initialized => Instance.m_bInitialized;
 
-    // ─── Ready tracking ────────────────────────────────────────────────────
-    // Each system calls NotifyReady() when it is truly done loading.
-    // GetSetGo only fires once all required systems have reported in.
-    // This replaces the multi-source PlayerDataLoaded event firing which
-    // caused GetSetGo to run before DialogueSeen / ThoughtsSeen were loaded,
-    // producing a race where PlayThought would pass its seen-check too early.
 
     private bool _dialogueManagerReady;
     private bool _evidenceManagerReady;

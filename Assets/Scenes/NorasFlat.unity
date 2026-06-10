@@ -12657,7 +12657,7 @@ Transform:
   m_GameObject: {fileID: 546663110}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 3.36}
+  m_LocalPosition: {x: -0.469, y: 0, z: -5.14}
   m_LocalScale: {x: 3.141882, y: 4.028561, z: 0.055792347}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12688,7 +12688,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 14c1771e2417dfd459e349867f8c48e7, type: 2}
+  - {fileID: 2100000, guid: f00f0c6183758704a9ef4cf5ce9a68ce, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -22761,8 +22761,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 990157390}
-  - component: {fileID: 990157392}
   - component: {fileID: 990157393}
+  - component: {fileID: 990157394}
   m_Layer: 18
   m_Name: LookingAtConBoard
   m_TagString: Untagged
@@ -22786,24 +22786,6 @@ Transform:
   - {fileID: 546663111}
   m_Father: {fileID: 1102673894}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!114 &990157392
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 990157389}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42bc311e32d59584aa97159580deac54, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panTime: 4
-  duration: 4
-  ContactName: 0
-  selectedMessage: 102
-  targetObject: {fileID: 919132147862447011}
-  ColliderCube: {fileID: 546663110}
 --- !u!65 &990157393
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -22823,8 +22805,22 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 3.141882, y: 4.028561, z: 2.2117}
-  m_Center: {x: 0, y: 0, z: -0.0000019073486}
+  m_Size: {x: 3.141882, y: 4.028561, z: 6.147911}
+  m_Center: {x: 1.0757749e-14, y: 0, z: -7.1361666}
+--- !u!114 &990157394
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 990157389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a613a280f9975724daaa7a4adc5df5aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThoughtTrigger
+  ColliderCube: {fileID: 546663110}
+  SelectedThoughtBubble: 10
 --- !u!1 &992435103
 GameObject:
   m_ObjectHideFlags: 0
@@ -24643,7 +24639,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1102673894}
   m_Layer: 18
-  m_Name: CUTSCENE TRIGGERS
+  m_Name: THOUGHT TRIGGERS
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

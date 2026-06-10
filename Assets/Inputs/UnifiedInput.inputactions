@@ -437,6 +437,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "OnToggleGarments",
+                    "type": "Button",
+                    "id": "eddcf38c-11a5-454e-a979-b225e2967e99",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "OnToggleGarmentsAll",
+                    "type": "Button",
+                    "id": "ba9cd5f4-6bb9-4754-b6bc-d967da3a03a4",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1900,6 +1918,50 @@
                     "processors": "",
                     "groups": "",
                     "action": "nextOutFit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1ce1e209-ae92-4133-a709-e2c5db11be78",
+                    "path": "<Gamepad>/rightStickPress",
+                    "interactions": "Hold(duration=5)",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "OnToggleGarments",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "362177b0-7102-4c50-abbe-5ce68af50d92",
+                    "path": "<Keyboard>/u",
+                    "interactions": "Hold(duration=5)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OnToggleGarments",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c66a815d-da46-4094-b0f7-a9f33239c50c",
+                    "path": "<Gamepad>/leftStickPress",
+                    "interactions": "Hold(duration=5)",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "OnToggleGarmentsAll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "aed759f3-52d2-40f1-b4de-fde50fbc35be",
+                    "path": "<Keyboard>/n",
+                    "interactions": "Hold(duration=5)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OnToggleGarmentsAll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

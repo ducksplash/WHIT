@@ -14,6 +14,9 @@ public class Me : MonoBehaviour
     public SkinnedMeshRenderer ButterflyWings;
     public SkinnedMeshRenderer Overall;
     public SkinnedMeshRenderer Hat;
+    
+    [Header("\nDefault Hair\n")]
+    public SkinnedMeshRenderer DefaultHair;
 
     [Header("\nOutfits\n")]
 
@@ -238,6 +241,24 @@ public class Me : MonoBehaviour
     public bool AccessoryOverallEnabledForNightOutFour;
     public bool AccessoryHatEnabledForNightOutFour;
 
+    [Header("Elegant Dress")]
+    public List<SkinnedMeshRenderer> OutfitForElegantDress;
+    public Color lipsColorForElegantDress = new Color(0.78f, 0.08f, 0.18f);
+    public Color nailsColorForElegantDress = new Color(0.92f, 0.76f, 0.82f);
+    public bool JiggleElegantDress;
+    public bool AccessoryWingsEnabledForElegantDress;
+    public bool AccessoryOverallEnabledForElegantDress;
+    public bool AccessoryHatEnabledForElegantDress;
+
+    [Header("\nUndergarments\n")]
+    public List<SkinnedMeshRenderer> OutfitForUndergarments;
+    public Color lipsColorForUndergarments = new Color(0.82f, 0.12f, 0.22f);
+    public Color nailsColorForUndergarments = new Color(0.91f, 0.72f, 0.78f);
+    public bool JiggleUndergarments;
+    public bool AccessoryWingsEnabledForUndergarments;
+    public bool AccessoryOverallEnabledForUndergarments;
+    public bool AccessoryHatEnabledForUndergarments;
+
     [Header("Jigglers")]
     public GameObject JiggleLeftBoob;
     public GameObject JiggleRightBoob;
@@ -247,6 +268,8 @@ public class Me : MonoBehaviour
     [Header("Input")]
     public InputActionReference nextOutfit;
     public InputActionReference previousOutfit;
+    public InputActionReference holdToUnlock;
+    public InputActionReference holdToUnlockAll;
 
     [Header("Settings")]
     public bool UnressedOnLoad;
@@ -258,10 +281,6 @@ public class Me : MonoBehaviour
     [Header("Current Outfit")]
     public OutfitType currentOutfit = OutfitType.Work;
 
-    // ─── Accessory state — independent of outfit ────────────────────────
-    // These track whether each accessory is currently forced on by the user
-    // (via ToggleWings / ToggleOverall / ToggleHat) independently of what
-    // the active outfit's default accessory bools say.
     private bool _wingsOverride = false;
     private bool _overallOverride = false;
     private bool _hatOverride = false;
@@ -287,10 +306,14 @@ public class Me : MonoBehaviour
 
     private void SetupInput()
     {
+        if (holdToUnlock != null) holdToUnlock.action.performed += OnToggleUndergarments;
+        if (holdToUnlockAll != null) holdToUnlockAll.action.performed += OnToggleNothinatall;
         if (nextOutfit != null) nextOutfit.action.performed += OnNextOutfit;
         if (previousOutfit != null) previousOutfit.action.performed += OnPreviousOutfit;
     }
 
+    private void OnToggleUndergarments(InputAction.CallbackContext ctx) => ToggleUndergarments();
+    private void OnToggleNothinatall(InputAction.CallbackContext ctx) => Undress();
     private void OnNextOutfit(InputAction.CallbackContext ctx) => NextOutfit();
     private void OnPreviousOutfit(InputAction.CallbackContext ctx) => PreviousOutfit();
 
@@ -300,13 +323,12 @@ public class Me : MonoBehaviour
         {
             if (nextOutfit != null) nextOutfit.action.performed -= OnNextOutfit;
             if (previousOutfit != null) previousOutfit.action.performed -= OnPreviousOutfit;
+            if (holdToUnlock != null) holdToUnlock.action.performed -= OnToggleUndergarments;
+            if (holdToUnlockAll != null) holdToUnlockAll.action.performed -= OnToggleNothinatall;
         }
     }
 
     // ====================== ACCESSORY TOGGLES ======================
-    // Each accessory is independent — toggling one never affects outfit or other accessories.
-    // Calling with no argument flips the current state.
-
     public void ToggleWings(bool? forceOn = null)
     {
         _wingsOverride = forceOn.HasValue ? forceOn.Value : !_wingsOverride;
@@ -325,70 +347,79 @@ public class Me : MonoBehaviour
         ApplyAccessories();
     }
 
-    // Applies the combined state of outfit defaults + user overrides.
-    // Called after every outfit switch and every accessory toggle.
     private void ApplyAccessories()
     {
-        GetOutfitAccessoryDefaults(currentOutfit,
-            out bool wingsDefault, out bool overallDefault, out bool hatDefault);
-
+        GetOutfitAccessoryDefaults(currentOutfit, out bool wingsDefault, out bool overallDefault, out bool hatDefault);
         if (ButterflyWings != null) ButterflyWings.enabled = wingsDefault  || _wingsOverride;
         if (Overall        != null) Overall.enabled        = overallDefault || _overallOverride;
         if (Hat            != null) Hat.enabled            = hatDefault     || _hatOverride;
     }
 
-    private void GetOutfitAccessoryDefaults(OutfitType outfit,
-        out bool wings, out bool overall, out bool hat)
+    private void GetOutfitAccessoryDefaults(OutfitType outfit, out bool wings, out bool overall, out bool hat)
     {
         switch (outfit)
         {
-            case OutfitType.Work:         wings = AccessoryWingsEnabledForWork;         overall = AccessoryOverallEnabledForWork;         hat = AccessoryHatEnabledForWork;         break;
-            case OutfitType.WorkTwo:      wings = AccessoryWingsEnabledForWorkTwo;      overall = AccessoryOverallEnabledForWorkTwo;      hat = AccessoryHatEnabledForWorkTwo;      break;
-            case OutfitType.WorkThree:    wings = AccessoryWingsEnabledForWorkThree;    overall = AccessoryOverallEnabledForWorkThree;    hat = AccessoryHatEnabledForWorkThree;    break;
-            case OutfitType.WorkFour:     wings = AccessoryWingsEnabledForWorkFour;     overall = AccessoryOverallEnabledForWorkFour;     hat = AccessoryHatEnabledForWorkFour;     break;
-            case OutfitType.Casual:       wings = AccessoryWingsEnabledForCasual;       overall = AccessoryOverallEnabledForCasual;       hat = AccessoryHatEnabledForCasual;       break;
-            case OutfitType.Fitness:      wings = AccessoryWingsEnabledForFitness;      overall = AccessoryOverallEnabledForFitness;      hat = AccessoryHatEnabledForFitness;      break;
-            case OutfitType.CuteSix:      wings = AccessoryWingsEnabledForFirstDate;    overall = AccessoryOverallEnabledForFirstDate;    hat = AccessoryHatEnabledForFirstDate;    break;
-            case OutfitType.Pyjamas:      wings = AccessoryWingsEnabledForPyjamas;      overall = AccessoryOverallEnabledForPyjamas;      hat = AccessoryHatEnabledForPyjamas;      break;
-            case OutfitType.CuteOne:      wings = AccessoryWingsEnabledForCuteOne;      overall = AccessoryOverallEnabledForCuteOne;      hat = AccessoryHatEnabledForCuteOne;      break;
-            case OutfitType.CuteTwo:      wings = AccessoryWingsEnabledForCuteTwo;      overall = AccessoryOverallEnabledForCuteTwo;      hat = AccessoryHatEnabledForCuteTwo;      break;
-            case OutfitType.CuteThree:    wings = AccessoryWingsEnabledForCuteThree;    overall = AccessoryOverallEnabledForCuteThree;    hat = AccessoryHatEnabledForCuteThree;    break;
-            case OutfitType.CuteFour:     wings = AccessoryWingsEnabledForCuteFour;     overall = AccessoryOverallEnabledForCuteFour;     hat = AccessoryHatEnabledForCuteFour;     break;
-            case OutfitType.CuteFive:     wings = AccessoryWingsEnabledForCuteFive;     overall = AccessoryOverallEnabledForCuteFive;     hat = AccessoryHatEnabledForCuteFive;     break;
-            case OutfitType.Date2:        wings = AccessoryWingsEnabledForCuteSix;      overall = AccessoryOverallEnabledForCuteSix;      hat = AccessoryHatEnabledForCuteSix;      break;
-            case OutfitType.CuteSeven:    wings = AccessoryWingsEnabledForCuteSeven;    overall = AccessoryOverallEnabledForCuteSeven;    hat = AccessoryHatEnabledForCuteSeven;    break;
-            case OutfitType.CuteEight:    wings = AccessoryWingsEnabledForCuteEight;    overall = AccessoryOverallEnabledForCuteEight;    hat = AccessoryHatEnabledForCuteEight;    break;
-            case OutfitType.Edea:         wings = AccessoryWingsEnabledForEdea;         overall = AccessoryOverallEnabledForEdea;         hat = AccessoryHatEnabledForEdea;         break;
-            case OutfitType.Casual3:      wings = AccessoryWingsEnabledForCasualThree;  overall = AccessoryOverallEnabledForCasualThree;  hat = AccessoryHatEnabledForCasualThree;  break;
-            case OutfitType.Wedding:      wings = AccessoryWingsEnabledForWedding;      overall = AccessoryOverallEnabledForWedding;      hat = AccessoryHatEnabledForWedding;      break;
-            case OutfitType.Funeral:      wings = AccessoryWingsEnabledForFuneral;      overall = AccessoryOverallEnabledForFuneral;      hat = AccessoryHatEnabledForFuneral;      break;
-            case OutfitType.Homelessness: wings = AccessoryWingsEnabledForHomelessness; overall = AccessoryOverallEnabledForHomelessness; hat = AccessoryHatEnabledForHomelessness; break;
-            case OutfitType.Date3:        wings = AccessoryWingsEnabledForThirdDate;    overall = AccessoryOverallEnabledForThirdDate;    hat = AccessoryHatEnabledForThirdDate;    break;
-            case OutfitType.Essie:        wings = AccessoryWingsEnabledForEssie;        overall = AccessoryOverallEnabledForEssie;        hat = AccessoryHatEnabledForEssie;        break;
-            case OutfitType.NightOutFour: wings = AccessoryWingsEnabledForNightOutFour; overall = AccessoryOverallEnabledForNightOutFour; hat = AccessoryHatEnabledForNightOutFour; break;
+            case OutfitType.Work:         wings = AccessoryWingsEnabledForWork;             overall = AccessoryOverallEnabledForWork;             hat = AccessoryHatEnabledForWork;             break;
+            case OutfitType.WorkTwo:      wings = AccessoryWingsEnabledForWorkTwo;          overall = AccessoryOverallEnabledForWorkTwo;          hat = AccessoryHatEnabledForWorkTwo;          break;
+            case OutfitType.WorkThree:    wings = AccessoryWingsEnabledForWorkThree;        overall = AccessoryOverallEnabledForWorkThree;        hat = AccessoryHatEnabledForWorkThree;        break;
+            case OutfitType.WorkFour:     wings = AccessoryWingsEnabledForWorkFour;         overall = AccessoryOverallEnabledForWorkFour;         hat = AccessoryHatEnabledForWorkFour;         break;
+            case OutfitType.Casual:       wings = AccessoryWingsEnabledForCasual;           overall = AccessoryOverallEnabledForCasual;           hat = AccessoryHatEnabledForCasual;           break;
+            case OutfitType.Fitness:      wings = AccessoryWingsEnabledForFitness;          overall = AccessoryOverallEnabledForFitness;          hat = AccessoryHatEnabledForFitness;          break;
+            case OutfitType.CuteSix:      wings = AccessoryWingsEnabledForFirstDate;        overall = AccessoryOverallEnabledForFirstDate;        hat = AccessoryHatEnabledForFirstDate;        break;
+            case OutfitType.Pyjamas:      wings = AccessoryWingsEnabledForPyjamas;          overall = AccessoryOverallEnabledForPyjamas;          hat = AccessoryHatEnabledForPyjamas;          break;
+            case OutfitType.CuteOne:      wings = AccessoryWingsEnabledForCuteOne;          overall = AccessoryOverallEnabledForCuteOne;          hat = AccessoryHatEnabledForCuteOne;          break;
+            case OutfitType.CuteTwo:      wings = AccessoryWingsEnabledForCuteTwo;          overall = AccessoryOverallEnabledForCuteTwo;          hat = AccessoryHatEnabledForCuteTwo;          break;
+            case OutfitType.CuteThree:    wings = AccessoryWingsEnabledForCuteThree;        overall = AccessoryOverallEnabledForCuteThree;        hat = AccessoryHatEnabledForCuteThree;        break;
+            case OutfitType.CuteFour:     wings = AccessoryWingsEnabledForCuteFour;         overall = AccessoryOverallEnabledForCuteFour;         hat = AccessoryHatEnabledForCuteFour;         break;
+            case OutfitType.CuteFive:     wings = AccessoryWingsEnabledForCuteFive;         overall = AccessoryOverallEnabledForCuteFive;         hat = AccessoryHatEnabledForCuteFive;         break;
+            case OutfitType.Date2:        wings = AccessoryWingsEnabledForCuteSix;          overall = AccessoryOverallEnabledForCuteSix;          hat = AccessoryHatEnabledForCuteSix;          break;
+            case OutfitType.CuteSeven:    wings = AccessoryWingsEnabledForCuteSeven;        overall = AccessoryOverallEnabledForCuteSeven;        hat = AccessoryHatEnabledForCuteSeven;        break;
+            case OutfitType.CuteEight:    wings = AccessoryWingsEnabledForCuteEight;        overall = AccessoryOverallEnabledForCuteEight;        hat = AccessoryHatEnabledForCuteEight;        break;
+            case OutfitType.Edea:         wings = AccessoryWingsEnabledForEdea;             overall = AccessoryOverallEnabledForEdea;             hat = AccessoryHatEnabledForEdea;             break;
+            case OutfitType.Casual3:      wings = AccessoryWingsEnabledForCasualThree;      overall = AccessoryOverallEnabledForCasualThree;      hat = AccessoryHatEnabledForCasualThree;      break;
+            case OutfitType.Wedding:      wings = AccessoryWingsEnabledForWedding;          overall = AccessoryOverallEnabledForWedding;          hat = AccessoryHatEnabledForWedding;          break;
+            case OutfitType.Funeral:      wings = AccessoryWingsEnabledForFuneral;          overall = AccessoryOverallEnabledForFuneral;          hat = AccessoryHatEnabledForFuneral;          break;
+            case OutfitType.Homelessness: wings = AccessoryWingsEnabledForHomelessness;     overall = AccessoryOverallEnabledForHomelessness;     hat = AccessoryHatEnabledForHomelessness;     break;
+            case OutfitType.Date3:        wings = AccessoryWingsEnabledForThirdDate;        overall = AccessoryOverallEnabledForThirdDate;        hat = AccessoryHatEnabledForThirdDate;        break;
+            case OutfitType.Essie:        wings = AccessoryWingsEnabledForEssie;            overall = AccessoryOverallEnabledForEssie;            hat = AccessoryHatEnabledForEssie;            break;
+            case OutfitType.NightOutFour: wings = AccessoryWingsEnabledForNightOutFour;     overall = AccessoryOverallEnabledForNightOutFour;     hat = AccessoryHatEnabledForNightOutFour;     break;
+            case OutfitType.ElegantDress: wings = AccessoryWingsEnabledForElegantDress;     overall = AccessoryOverallEnabledForElegantDress;     hat = AccessoryHatEnabledForElegantDress;     break;
+            case OutfitType.Undergarments:wings = AccessoryWingsEnabledForUndergarments;    overall = AccessoryOverallEnabledForUndergarments;    hat = AccessoryHatEnabledForUndergarments;    break;
             default:                      wings = false; overall = false; hat = false; break;
         }
     }
 
-    // ====================== CYCLICAL NEXT / PREV ======================
     public void NextOutfit()
     {
         if (GameMaster.Instance.PLAYERBUSY) return;
-        int currentIndex = (int)currentOutfit;
-        int nextIndex = (currentIndex + 1) % System.Enum.GetValues(typeof(OutfitType)).Length;
-        if (nextIndex == 0) nextIndex = 1;
-        SwitchToOutfit((OutfitType)nextIndex);
+
+        int total = System.Enum.GetValues(typeof(OutfitType)).Length;
+        int index = (int)currentOutfit;
+
+        do
+        {
+            index = (index + 1) % total;
+        }
+        while (index == (int)OutfitType.None || index == (int)OutfitType.Undergarments);
+
+        SwitchToOutfit((OutfitType)index);
     }
 
     public void PreviousOutfit()
     {
         if (GameMaster.Instance.PLAYERBUSY) return;
-        int currentIndex = (int)currentOutfit;
-        int prevIndex = currentIndex - 1;
-        if (prevIndex < 1) prevIndex = System.Enum.GetValues(typeof(OutfitType)).Length - 1;
-        SwitchToOutfit((OutfitType)prevIndex);
-    }
 
+        int total = System.Enum.GetValues(typeof(OutfitType)).Length;
+        int index = (int)currentOutfit;
+
+        do
+        {
+            index = (index - 1 + total) % total;
+        }
+        while (index == (int)OutfitType.None || index == (int)OutfitType.Undergarments);
+
+        SwitchToOutfit((OutfitType)index);
+    }
     private void SwitchToOutfit(OutfitType outfit)
     {
         switch (outfit)
@@ -407,6 +438,7 @@ public class Me : MonoBehaviour
             case OutfitType.CuteFour:     ToggleCuteFourOutfit(true);     break;
             case OutfitType.Essie:        ToggleEssieOutfit(true);        break;
             case OutfitType.NightOutFour: ToggleNightOutFourOutfit(true); break;
+            case OutfitType.ElegantDress: ToggleElegantDressOutfit(true); break;
             case OutfitType.CuteThree:    ToggleCuteThreeOutfit(true);    break;
             case OutfitType.CuteFive:     ToggleCuteFiveOutfit(true);     break;
             case OutfitType.CuteSix:      ToggleFirstDateOutfit(true);    break;
@@ -422,35 +454,37 @@ public class Me : MonoBehaviour
     }
 
     // ====================== TOGGLE METHODS ======================
-    public void ToggleWorkOutfit(bool? forceOn = null)         { JiggleToggle(JiggleForWork);       ToggleMainOutfit(OutfitType.Work, forceOn); }
-    public void ToggleWorkTwoOutfit(bool? forceOn = null)      { JiggleToggle(JiggleForWorkTwo);    ToggleMainOutfit(OutfitType.WorkTwo, forceOn); }
-    public void ToggleWorkThreeOutfit(bool? forceOn = null)    { JiggleToggle(JiggleForWorkThree);  ToggleMainOutfit(OutfitType.WorkThree, forceOn); }
-    public void ToggleWorkFourOutfit(bool? forceOn = null)     { JiggleToggle(JiggleForWorkFour);   ToggleMainOutfit(OutfitType.WorkFour, forceOn); }
-    public void ToggleCasualOutfit(bool? forceOn = null)       { JiggleToggle(JiggleCasually);      ToggleMainOutfit(OutfitType.Casual, forceOn); }
-    public void ToggleCuteTwoOutfit(bool? forceOn = null)      { JiggleToggle(JiggleCasuallyTwo);   ToggleMainOutfit(OutfitType.CuteTwo, forceOn); }
-    public void ToggleCasualThreeOutfit(bool? forceOn = null)  { JiggleToggle(JiggleCasuallyThree); ToggleMainOutfit(OutfitType.Casual3, forceOn); }
-    public void ToggleEdeaOutfit(bool? forceOn = null)         { JiggleToggle(JiggleCasuallyFour);  ToggleMainOutfit(OutfitType.Edea, forceOn); }
-    public void ToggleCuteSevenOutfit(bool? forceOn = null)    { JiggleToggle(JiggleCuteSeven);     ToggleMainOutfit(OutfitType.CuteSeven, forceOn); }
-    public void ToggleFitnessOutfit(bool? forceOn = null)      { JiggleToggle(JiggleFitness);       ToggleMainOutfit(OutfitType.Fitness, forceOn); }
-    public void ToggleCuteEightOutfit(bool? forceOn = null)    { JiggleToggle(JiggleCuteEight);     ToggleMainOutfit(OutfitType.CuteEight, forceOn); }
-    public void ToggleCuteFourOutfit(bool? forceOn = null)     { JiggleToggle(JiggleCuteFour);      ToggleMainOutfit(OutfitType.CuteFour, forceOn); }
-    public void ToggleEssieOutfit(bool? forceOn = null)        { JiggleToggle(JiggleEssie);         ToggleMainOutfit(OutfitType.Essie, forceOn); }
-    public void ToggleNightOutFourOutfit(bool? forceOn = null) { JiggleToggle(JiggleNightOutFour);  ToggleMainOutfit(OutfitType.NightOutFour, forceOn); }
-    public void ToggleCuteThreeOutfit(bool? forceOn = null)    { JiggleToggle(JiggleCuteThree);     ToggleMainOutfit(OutfitType.CuteThree, forceOn); }
-    public void ToggleCuteFiveOutfit(bool? forceOn = null)     { JiggleToggle(JiggleCuteFive);      ToggleMainOutfit(OutfitType.CuteFive, forceOn); }
-    public void ToggleFirstDateOutfit(bool? forceOn = null)    { JiggleToggle(JiggleOnAFirstDate);  ToggleMainOutfit(OutfitType.CuteSix, forceOn); }
-    public void ToggleCuteSixOutfit(bool? forceOn = null)      { JiggleToggle(JiggleOnACuteSix);    ToggleMainOutfit(OutfitType.Date2, forceOn); }
-    public void ToggleThirdDateOutfit(bool? forceOn = null)    { JiggleToggle(JiggleOnAThirdDate);  ToggleMainOutfit(OutfitType.Date3, forceOn); }
-    public void ToggleCuteOneOutfit(bool? forceOn = null)      { JiggleToggle(JiggleOnACuteOne);    ToggleMainOutfit(OutfitType.CuteOne, forceOn); }
-    public void TogglePyjamasOutfit(bool? forceOn = null)      { JiggleToggle(JiggleInPyjamas);     ToggleMainOutfit(OutfitType.Pyjamas, forceOn); }
-    public void ToggleHomelessnessOutfit(bool? forceOn = null) { JiggleToggle(JiggleWhileHomeless); ToggleMainOutfit(OutfitType.Homelessness, forceOn); }
-    public void ToggleWeddingOutfit(bool? forceOn = null)      { JiggleToggle(JiggleAtAWedding);    ToggleMainOutfit(OutfitType.Wedding, forceOn); }
-    public void ToggleFuneralOutfit(bool? forceOn = null)      { JiggleToggle(JiggleAtAFuneral);    ToggleMainOutfit(OutfitType.Funeral, forceOn); }
+    public void ToggleWorkOutfit(bool? forceOn = null)         { JiggleToggle(JiggleForWork);        ToggleMainOutfit(OutfitType.Work, forceOn); }
+    public void ToggleWorkTwoOutfit(bool? forceOn = null)      { JiggleToggle(JiggleForWorkTwo);     ToggleMainOutfit(OutfitType.WorkTwo, forceOn); }
+    public void ToggleWorkThreeOutfit(bool? forceOn = null)    { JiggleToggle(JiggleForWorkThree);   ToggleMainOutfit(OutfitType.WorkThree, forceOn); }
+    public void ToggleWorkFourOutfit(bool? forceOn = null)     { JiggleToggle(JiggleForWorkFour);    ToggleMainOutfit(OutfitType.WorkFour, forceOn); }
+    public void ToggleCasualOutfit(bool? forceOn = null)       { JiggleToggle(JiggleCasually);       ToggleMainOutfit(OutfitType.Casual, forceOn); }
+    public void ToggleCuteTwoOutfit(bool? forceOn = null)      { JiggleToggle(JiggleCasuallyTwo);    ToggleMainOutfit(OutfitType.CuteTwo, forceOn); }
+    public void ToggleCasualThreeOutfit(bool? forceOn = null)  { JiggleToggle(JiggleCasuallyThree);  ToggleMainOutfit(OutfitType.Casual3, forceOn); }
+    public void ToggleEdeaOutfit(bool? forceOn = null)         { JiggleToggle(JiggleCasuallyFour);   ToggleMainOutfit(OutfitType.Edea, forceOn); }
+    public void ToggleCuteSevenOutfit(bool? forceOn = null)    { JiggleToggle(JiggleCuteSeven);      ToggleMainOutfit(OutfitType.CuteSeven, forceOn); }
+    public void ToggleFitnessOutfit(bool? forceOn = null)      { JiggleToggle(JiggleFitness);        ToggleMainOutfit(OutfitType.Fitness, forceOn); }
+    public void ToggleCuteEightOutfit(bool? forceOn = null)    { JiggleToggle(JiggleCuteEight);      ToggleMainOutfit(OutfitType.CuteEight, forceOn); }
+    public void ToggleCuteFourOutfit(bool? forceOn = null)     { JiggleToggle(JiggleCuteFour);       ToggleMainOutfit(OutfitType.CuteFour, forceOn); }
+    public void ToggleEssieOutfit(bool? forceOn = null)        { JiggleToggle(JiggleEssie);          ToggleMainOutfit(OutfitType.Essie, forceOn); }
+    public void ToggleNightOutFourOutfit(bool? forceOn = null) { JiggleToggle(JiggleNightOutFour);   ToggleMainOutfit(OutfitType.NightOutFour, forceOn); }
+    public void ToggleElegantDressOutfit(bool? forceOn = null) { JiggleToggle(JiggleElegantDress);   ToggleMainOutfit(OutfitType.ElegantDress, forceOn); }
+    public void ToggleUndergarments(bool? forceOn = null)      { JiggleToggle(JiggleUndergarments);  ToggleMainOutfit(OutfitType.Undergarments, forceOn); }
+    public void ToggleCuteThreeOutfit(bool? forceOn = null)    { JiggleToggle(JiggleCuteThree);      ToggleMainOutfit(OutfitType.CuteThree, forceOn); }
+    public void ToggleCuteFiveOutfit(bool? forceOn = null)     { JiggleToggle(JiggleCuteFive);       ToggleMainOutfit(OutfitType.CuteFive, forceOn); }
+    public void ToggleFirstDateOutfit(bool? forceOn = null)    { JiggleToggle(JiggleOnAFirstDate);   ToggleMainOutfit(OutfitType.CuteSix, forceOn); }
+    public void ToggleCuteSixOutfit(bool? forceOn = null)      { JiggleToggle(JiggleOnACuteSix);     ToggleMainOutfit(OutfitType.Date2, forceOn); }
+    public void ToggleThirdDateOutfit(bool? forceOn = null)    { JiggleToggle(JiggleOnAThirdDate);   ToggleMainOutfit(OutfitType.Date3, forceOn); }
+    public void ToggleCuteOneOutfit(bool? forceOn = null)      { JiggleToggle(JiggleOnACuteOne);     ToggleMainOutfit(OutfitType.CuteOne, forceOn); }
+    public void TogglePyjamasOutfit(bool? forceOn = null)      { JiggleToggle(JiggleInPyjamas);      ToggleMainOutfit(OutfitType.Pyjamas, forceOn); }
+    public void ToggleHomelessnessOutfit(bool? forceOn = null) { JiggleToggle(JiggleWhileHomeless);  ToggleMainOutfit(OutfitType.Homelessness, forceOn); }
+    public void ToggleWeddingOutfit(bool? forceOn = null)      { JiggleToggle(JiggleAtAWedding);     ToggleMainOutfit(OutfitType.Wedding, forceOn); }
+    public void ToggleFuneralOutfit(bool? forceOn = null)      { JiggleToggle(JiggleAtAFuneral);     ToggleMainOutfit(OutfitType.Funeral, forceOn); }
 
     private void JiggleToggle(bool isJiggly = false)
     {
-        if (JiggleLeftBoob     != null) JiggleLeftBoob.SetActive(isJiggly);
-        if (JiggleRightBoob    != null) JiggleRightBoob.SetActive(isJiggly);
+        if (JiggleLeftBoob       != null) JiggleLeftBoob.SetActive(isJiggly);
+        if (JiggleRightBoob      != null) JiggleRightBoob.SetActive(isJiggly);
         if (JiggleLeftButtcheek  != null) JiggleLeftButtcheek.SetActive(isJiggly);
         if (JiggleRightButtcheek != null) JiggleRightButtcheek.SetActive(isJiggly);
     }
@@ -472,39 +506,40 @@ public class Me : MonoBehaviour
     public void SetMainOutfit(OutfitType outfit)
     {
         DisableAllMainOutfits();
+        if (DefaultHair != null) DefaultHair.enabled = false;
         currentOutfit = outfit;
 
         switch (outfit)
         {
-            case OutfitType.Work:         SetListEnabled(OutfitForWork, true);         break;
-            case OutfitType.WorkTwo:      SetListEnabled(OutfitForWorkTwo, true);      break;
-            case OutfitType.WorkThree:    SetListEnabled(OutfitForWorkThree, true);    break;
-            case OutfitType.WorkFour:     SetListEnabled(OutfitForWorkFour, true);     break;
-            case OutfitType.Casual:       SetListEnabled(OutfitForCasual, true);       break;
-            case OutfitType.CuteTwo:      SetListEnabled(OutfitForCuteTwo, true);      break;
-            case OutfitType.Casual3:      SetListEnabled(OutfitForCasualThree, true);  break;
-            case OutfitType.Edea:         SetListEnabled(OutfitForEdea, true);         break;
-            case OutfitType.CuteSeven:    SetListEnabled(OutfitForCuteSeven, true);    break;
-            case OutfitType.Fitness:      SetListEnabled(OutfitForFitness, true);      break;
-            case OutfitType.CuteEight:    SetListEnabled(OutfitForCuteEight, true);    break;
-            case OutfitType.CuteFour:     SetListEnabled(OutfitForCuteFour, true);     break;
-            case OutfitType.Essie:        SetListEnabled(OutfitForEssie, true);        break;
-            case OutfitType.NightOutFour: SetListEnabled(OutfitForNightOutFour, true); break;
-            case OutfitType.CuteThree:    SetListEnabled(OutfitForCuteThree, true);    break;
-            case OutfitType.CuteFive:     SetListEnabled(OutfitForCuteFive, true);     break;
-            case OutfitType.CuteSix:      SetListEnabled(OutfitForFirstDate, true);    break;
-            case OutfitType.Date2:        SetListEnabled(OutfitForCuteSix, true);      break;
-            case OutfitType.Date3:        SetListEnabled(OutfitForThirdDate, true);    break;
-            case OutfitType.CuteOne:      SetListEnabled(OutfitForCuteOne, true);      break;
-            case OutfitType.Pyjamas:      SetListEnabled(OutfitForPyjamas, true);      break;
-            case OutfitType.Homelessness: SetListEnabled(OutfitForHomelessness, true); break;
-            case OutfitType.Wedding:      SetListEnabled(OutfitForWedding, true);      break;
-            case OutfitType.Funeral:      SetListEnabled(OutfitForFuneral, true);      break;
+            case OutfitType.Work:         SetListEnabled(OutfitForWork, true);          break;
+            case OutfitType.WorkTwo:      SetListEnabled(OutfitForWorkTwo, true);       break;
+            case OutfitType.WorkThree:    SetListEnabled(OutfitForWorkThree, true);     break;
+            case OutfitType.WorkFour:     SetListEnabled(OutfitForWorkFour, true);      break;
+            case OutfitType.Casual:       SetListEnabled(OutfitForCasual, true);        break;
+            case OutfitType.CuteTwo:      SetListEnabled(OutfitForCuteTwo, true);       break;
+            case OutfitType.Casual3:      SetListEnabled(OutfitForCasualThree, true);   break;
+            case OutfitType.Edea:         SetListEnabled(OutfitForEdea, true);          break;
+            case OutfitType.CuteSeven:    SetListEnabled(OutfitForCuteSeven, true);     break;
+            case OutfitType.Fitness:      SetListEnabled(OutfitForFitness, true);       break;
+            case OutfitType.CuteEight:    SetListEnabled(OutfitForCuteEight, true);     break;
+            case OutfitType.CuteFour:     SetListEnabled(OutfitForCuteFour, true);      break;
+            case OutfitType.Essie:        SetListEnabled(OutfitForEssie, true);         break;
+            case OutfitType.NightOutFour: SetListEnabled(OutfitForNightOutFour, true);  break;
+            case OutfitType.ElegantDress: SetListEnabled(OutfitForElegantDress, true);  break;
+            case OutfitType.Undergarments:SetListEnabled(OutfitForUndergarments, true); break;
+            case OutfitType.CuteThree:    SetListEnabled(OutfitForCuteThree, true);     break;
+            case OutfitType.CuteFive:     SetListEnabled(OutfitForCuteFive, true);      break;
+            case OutfitType.CuteSix:      SetListEnabled(OutfitForFirstDate, true);     break;
+            case OutfitType.Date2:        SetListEnabled(OutfitForCuteSix, true);       break;
+            case OutfitType.Date3:        SetListEnabled(OutfitForThirdDate, true);     break;
+            case OutfitType.CuteOne:      SetListEnabled(OutfitForCuteOne, true);       break;
+            case OutfitType.Pyjamas:      SetListEnabled(OutfitForPyjamas, true);       break;
+            case OutfitType.Homelessness: SetListEnabled(OutfitForHomelessness, true);  break;
+            case OutfitType.Wedding:      SetListEnabled(OutfitForWedding, true);       break;
+            case OutfitType.Funeral:      SetListEnabled(OutfitForFuneral, true);       break;
         }
 
         ApplyBodyColors(outfit);
-
-        // Apply accessories for the new outfit, preserving any user overrides
         ApplyAccessories();
     }
 
@@ -545,7 +580,7 @@ public class Me : MonoBehaviour
 
     public void SetRandomNightOutOutfit()
     {
-        OutfitType[] nightOutOutfits = { OutfitType.Date3, OutfitType.Casual3, OutfitType.Essie, OutfitType.NightOutFour };
+        OutfitType[] nightOutOutfits = { OutfitType.Date3, OutfitType.Casual3, OutfitType.Essie, OutfitType.NightOutFour, OutfitType.ElegantDress };
         SwitchToOutfit(nightOutOutfits[Random.Range(0, nightOutOutfits.Length)]);
     }
 
@@ -553,12 +588,9 @@ public class Me : MonoBehaviour
     private void ApplyBodyColors(OutfitType outfit)
     {
         if (Body == null) return;
-
         Color lipColor  = GetLipColorForOutfit(outfit);
         Color nailColor = GetNailColorForOutfit(outfit);
-
         Material[] materials = Application.isPlaying ? Body.materials : Body.sharedMaterials;
-
         for (int i = 0; i < materials.Length; i++)
         {
             if (materials[i] == null) continue;
@@ -568,9 +600,7 @@ public class Me : MonoBehaviour
             else if (matName.Contains("fingernail") || matName.Contains("nail"))
                 materials[i].color = nailColor;
         }
-
-        if (Application.isPlaying)
-            Body.materials = materials;
+        if (Application.isPlaying) Body.materials = materials;
     }
 
     private Color GetLipColorForOutfit(OutfitType outfit)
@@ -591,6 +621,8 @@ public class Me : MonoBehaviour
             case OutfitType.CuteFour:     return lipsColorForCuteFour;
             case OutfitType.Essie:        return lipsColorForEssie;
             case OutfitType.NightOutFour: return lipsColorForNightOutFour;
+            case OutfitType.ElegantDress: return lipsColorForElegantDress;
+            case OutfitType.Undergarments:return lipsColorForUndergarments;
             case OutfitType.CuteThree:    return lipsColorForCuteThree;
             case OutfitType.CuteFive:     return lipsColorForCuteFive;
             case OutfitType.CuteSix:      return lipsColorForFirstDate;
@@ -623,6 +655,8 @@ public class Me : MonoBehaviour
             case OutfitType.CuteFour:     return nailsColorForCuteFour;
             case OutfitType.Essie:        return nailsColorForEssie;
             case OutfitType.NightOutFour: return nailsColorForNightOutFour;
+            case OutfitType.ElegantDress: return nailsColorForElegantDress;
+            case OutfitType.Undergarments:return nailsColorForUndergarments;
             case OutfitType.CuteThree:    return nailsColorForCuteThree;
             case OutfitType.CuteFive:     return nailsColorForCuteFive;
             case OutfitType.CuteSix:      return nailsColorForFirstDate;
@@ -653,6 +687,8 @@ public class Me : MonoBehaviour
         SetListEnabled(OutfitForCuteFour, false);
         SetListEnabled(OutfitForEssie, false);
         SetListEnabled(OutfitForNightOutFour, false);
+        SetListEnabled(OutfitForElegantDress, false);
+        SetListEnabled(OutfitForUndergarments, false);
         SetListEnabled(OutfitForCuteThree, false);
         SetListEnabled(OutfitForCuteFive, false);
         SetListEnabled(OutfitForFirstDate, false);
@@ -663,8 +699,8 @@ public class Me : MonoBehaviour
         SetListEnabled(OutfitForHomelessness, false);
         SetListEnabled(OutfitForWedding, false);
         SetListEnabled(OutfitForFuneral, false);
-
         currentOutfit = OutfitType.None;
+        if (DefaultHair != null) DefaultHair.enabled = true;
     }
 
     private void SetListEnabled(List<SkinnedMeshRenderer> list, bool enabled)
@@ -673,6 +709,11 @@ public class Me : MonoBehaviour
         foreach (var renderer in list)
             if (renderer != null)
                 renderer.enabled = enabled;
+    }
+
+    public void Undress()
+    {
+        DisableAllMainOutfits();
     }
 }
 
@@ -702,7 +743,9 @@ public enum OutfitType
     Homelessness,
     Wedding,
     Funeral,
-    NightOutFour
+    NightOutFour,
+    ElegantDress,
+    Undergarments
 }
 
 // ====================== EDITOR ======================
@@ -731,10 +774,10 @@ public class MeEditor : Editor
         // Casual
         EditorGUILayout.LabelField("Casual Outfits", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Casual One", GUILayout.Height(35))) { me.ToggleCasualOutfit();     EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("First Date", GUILayout.Height(35))) { me.ToggleFirstDateOutfit();  EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Fitness",    GUILayout.Height(35))) { me.ToggleFitnessOutfit();    EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Pyjamas",    GUILayout.Height(35))) { me.TogglePyjamasOutfit();    EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Casual One", GUILayout.Height(35))) { me.ToggleCasualOutfit();    EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("First Date", GUILayout.Height(35))) { me.ToggleFirstDateOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Fitness",    GUILayout.Height(35))) { me.ToggleFitnessOutfit();   EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Pyjamas",    GUILayout.Height(35))) { me.TogglePyjamasOutfit();   EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space();
@@ -762,8 +805,8 @@ public class MeEditor : Editor
         // Storyline
         EditorGUILayout.LabelField("Storyline Outfits", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Wedding",  GUILayout.Height(35))) { me.ToggleWeddingOutfit();     EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Funeral",  GUILayout.Height(35))) { me.ToggleFuneralOutfit();     EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Wedding",  GUILayout.Height(35))) { me.ToggleWeddingOutfit();      EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Funeral",  GUILayout.Height(35))) { me.ToggleFuneralOutfit();      EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Skid Row", GUILayout.Height(35))) { me.ToggleHomelessnessOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
@@ -776,6 +819,9 @@ public class MeEditor : Editor
         if (GUILayout.Button("Third Date",     GUILayout.Height(35))) { me.ToggleThirdDateOutfit();    EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Casual Three",   GUILayout.Height(35))) { me.ToggleCasualThreeOutfit();  EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Night Out Four", GUILayout.Height(35))) { me.ToggleNightOutFourOutfit(); EditorUtility.SetDirty(me); }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Elegant Dress",  GUILayout.Height(35))) { me.ToggleElegantDressOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space();
@@ -794,6 +840,17 @@ public class MeEditor : Editor
         EditorGUILayout.LabelField("────────────────────────────────────────────────────────────", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
+        // Undergarments
+        EditorGUILayout.LabelField("Undergarments", EditorStyles.boldLabel);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Toggle Underwear", GUILayout.Height(35))) { me.ToggleUndergarments(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Nothin' At All",   GUILayout.Height(35))) { me.Undress();             EditorUtility.SetDirty(me); }
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("────────────────────────────────────────────────────────────", EditorStyles.boldLabel);
+        EditorGUILayout.Space();
+
         // Random
         EditorGUILayout.LabelField("Random Outfits", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
@@ -801,12 +858,12 @@ public class MeEditor : Editor
         if (GUILayout.Button("Random Work", GUILayout.Height(40))) { me.SetRandomWorkOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Random Casual",    GUILayout.Height(40))) { me.SetRandomCasualOutfit();   EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Random Cute",      GUILayout.Height(40))) { me.SetRandomCuteOutfit();     EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Random Casual",    GUILayout.Height(40))) { me.SetRandomCasualOutfit();    EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Random Cute",      GUILayout.Height(40))) { me.SetRandomCuteOutfit();      EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Random Storyline", GUILayout.Height(40))) { me.SetRandomStorylineOutfit();  EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Random Night Out", GUILayout.Height(40))) { me.SetRandomNightOutOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Random Storyline", GUILayout.Height(40))) { me.SetRandomStorylineOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Random Night Out", GUILayout.Height(40))) { me.SetRandomNightOutOutfit();  EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space();

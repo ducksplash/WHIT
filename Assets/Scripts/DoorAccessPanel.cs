@@ -88,14 +88,12 @@ public class DoorAccessPanel : MonoBehaviour
 
     private void CacheOriginalLightIntensity()
     {
-        if (lockLight != null)
-            originalLightIntensity = lockLight.intensity;
+        if (lockLight != null) originalLightIntensity = lockLight.intensity;
     }
 
     private void Update()
     {
-        if (isBroken)
-            HandleBrokenFlicker();
+        if (isBroken) HandleBrokenFlicker();
     }
 
     public void SetState(DoorLockState newState)

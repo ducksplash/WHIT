@@ -101,8 +101,7 @@ public class ConcentricCircleDriver : MonoBehaviour
 
     void Update()
     {
-        if (!_isPlaying)
-            PushEditorValues();
+        if (!_isPlaying) PushEditorValues();
     }
 
     void OnDisable() => ForceStop();

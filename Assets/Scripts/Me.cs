@@ -124,14 +124,14 @@ public class Me : MonoBehaviour
     public bool AccessoryHatEnabledForRuffleBlousseAndSkirt;
 
     [Header("New Outfit Two")]
-    public bool NewOutfitTwoEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForNewOutfitTwo;
-    public Color lipsColorForNewOutfitTwo = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForNewOutfitTwo = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleNewOutfitTwo;
-    public bool AccessoryWingsEnabledForNewOutfitTwo;
-    public bool AccessoryOverallEnabledForNewOutfitTwo;
-    public bool AccessoryHatEnabledForNewOutfitTwo;
+    public bool NightOutRuffleEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForNightOutRuffle;
+    public Color lipsColorForNightOutRuffle = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForNightOutRuffle = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleNightOutRuffle;
+    public bool AccessoryWingsEnabledForNightOutRuffle;
+    public bool AccessoryOverallEnabledForNightOutRuffle;
+    public bool AccessoryHatEnabledForNightOutRuffle;
 
     [Header("New Outfit Three")]
     public bool NewOutfitThreeEnabled = true;
@@ -477,7 +477,7 @@ public class Me : MonoBehaviour
             case OutfitType.Pyjamas:        return PyjamasOutfitEnabled;
             case OutfitType.Housecoat:      return HousecoatOutfitEnabled;
             case OutfitType.RuffleBlousseAndSkirt:   return RuffleBlousseAndSkirtEnabled;
-            case OutfitType.NewOutfitTwo:   return NewOutfitTwoEnabled;
+            case OutfitType.NightOutRuffle:   return NightOutRuffleEnabled;
             case OutfitType.NewOutfitThree: return NewOutfitThreeEnabled;
             case OutfitType.NewOutfitFour:  return NewOutfitFourEnabled;
             case OutfitType.NewOutfitFive:  return NewOutfitFiveEnabled;
@@ -548,7 +548,7 @@ public class Me : MonoBehaviour
             case OutfitType.Pyjamas:          wings = AccessoryWingsEnabledForPyjamas;          overall = AccessoryOverallEnabledForPyjamas;          hat = AccessoryHatEnabledForPyjamas;          break;
             case OutfitType.Housecoat:        wings = AccessoryWingsEnabledForHousecoat;        overall = AccessoryOverallEnabledForHousecoat;        hat = AccessoryHatEnabledForHousecoat;        break;
             case OutfitType.RuffleBlousseAndSkirt:     wings = AccessoryWingsEnabledForRuffleBlousseAndSkirt;     overall = AccessoryOverallEnabledForRuffleBlousseAndSkirt;     hat = AccessoryHatEnabledForRuffleBlousseAndSkirt;     break;
-            case OutfitType.NewOutfitTwo:     wings = AccessoryWingsEnabledForNewOutfitTwo;     overall = AccessoryOverallEnabledForNewOutfitTwo;     hat = AccessoryHatEnabledForNewOutfitTwo;     break;
+            case OutfitType.NightOutRuffle:     wings = AccessoryWingsEnabledForNightOutRuffle;     overall = AccessoryOverallEnabledForNightOutRuffle;     hat = AccessoryHatEnabledForNightOutRuffle;     break;
             case OutfitType.NewOutfitThree:   wings = AccessoryWingsEnabledForNewOutfitThree;   overall = AccessoryOverallEnabledForNewOutfitThree;   hat = AccessoryHatEnabledForNewOutfitThree;   break;
             case OutfitType.NewOutfitFour:    wings = AccessoryWingsEnabledForNewOutfitFour;    overall = AccessoryOverallEnabledForNewOutfitFour;    hat = AccessoryHatEnabledForNewOutfitFour;    break;
             case OutfitType.NewOutfitFive:    wings = AccessoryWingsEnabledForNewOutfitFive;    overall = AccessoryOverallEnabledForNewOutfitFive;    hat = AccessoryHatEnabledForNewOutfitFive;    break;
@@ -643,7 +643,7 @@ public class Me : MonoBehaviour
             case OutfitType.Pyjamas:        TogglePyjamasOutfit(true);        break;
             case OutfitType.Housecoat:      ToggleHousecoatOutfit(true);      break;
             case OutfitType.RuffleBlousseAndSkirt:   ToggleRuffleBlousseAndSkirtOutfit(true);   break;
-            case OutfitType.NewOutfitTwo:   ToggleNewOutfitTwoOutfit(true);   break;
+            case OutfitType.NightOutRuffle:   ToggleNightOutRuffleOutfit(true);   break;
             case OutfitType.NewOutfitThree: ToggleNewOutfitThreeOutfit(true); break;
             case OutfitType.NewOutfitFour:  ToggleNewOutfitFourOutfit(true);  break;
             case OutfitType.NewOutfitFive:  ToggleNewOutfitFiveOutfit(true);  break;
@@ -685,7 +685,7 @@ public class Me : MonoBehaviour
     public void TogglePyjamasOutfit(bool? forceOn = null)        { JiggleToggle(JiggleInPyjamas);        ToggleMainOutfit(OutfitType.Pyjamas, forceOn); }
     public void ToggleHousecoatOutfit(bool? forceOn = null)      { JiggleToggle(JiggleInHousecoat);      ToggleMainOutfit(OutfitType.Housecoat, forceOn); }
     public void ToggleRuffleBlousseAndSkirtOutfit(bool? forceOn = null)   { JiggleToggle(JiggleRuffleBlousseAndSkirt);     ToggleMainOutfit(OutfitType.RuffleBlousseAndSkirt, forceOn); }
-    public void ToggleNewOutfitTwoOutfit(bool? forceOn = null)   { JiggleToggle(JiggleNewOutfitTwo);     ToggleMainOutfit(OutfitType.NewOutfitTwo, forceOn); }
+    public void ToggleNightOutRuffleOutfit(bool? forceOn = null)   { JiggleToggle(JiggleNightOutRuffle);     ToggleMainOutfit(OutfitType.NightOutRuffle, forceOn); }
     public void ToggleNewOutfitThreeOutfit(bool? forceOn = null) { JiggleToggle(JiggleNewOutfitThree);   ToggleMainOutfit(OutfitType.NewOutfitThree, forceOn); }
     public void ToggleNewOutfitFourOutfit(bool? forceOn = null)  { JiggleToggle(JiggleNewOutfitFour);    ToggleMainOutfit(OutfitType.NewOutfitFour, forceOn); }
     public void ToggleNewOutfitFiveOutfit(bool? forceOn = null)  { JiggleToggle(JiggleNewOutfitFive);    ToggleMainOutfit(OutfitType.NewOutfitFive, forceOn); }
@@ -753,7 +753,7 @@ public class Me : MonoBehaviour
             case OutfitType.Pyjamas:        SetListEnabled(OutfitForPyjamas, true);        break;
             case OutfitType.Housecoat:      SetListEnabled(OutfitForHousecoat, true);      break;
             case OutfitType.RuffleBlousseAndSkirt:   SetListEnabled(OutfitForRuffleBlousseAndSkirt, true);   break;
-            case OutfitType.NewOutfitTwo:   SetListEnabled(OutfitForNewOutfitTwo, true);   break;
+            case OutfitType.NightOutRuffle:   SetListEnabled(OutfitForNightOutRuffle, true);   break;
             case OutfitType.NewOutfitThree: SetListEnabled(OutfitForNewOutfitThree, true); break;
             case OutfitType.NewOutfitFour:  SetListEnabled(OutfitForNewOutfitFour, true);  break;
             case OutfitType.NewOutfitFive:  SetListEnabled(OutfitForNewOutfitFive, true);  break;
@@ -800,7 +800,7 @@ public class Me : MonoBehaviour
         {
             OutfitType.Casual, OutfitType.Fitness, OutfitType.CuteSix, OutfitType.Pyjamas,
             OutfitType.Housecoat,
-            OutfitType.RuffleBlousseAndSkirt, OutfitType.NewOutfitTwo, OutfitType.NewOutfitThree,
+            OutfitType.RuffleBlousseAndSkirt, OutfitType.NightOutRuffle, OutfitType.NewOutfitThree,
             OutfitType.NewOutfitFour, OutfitType.NewOutfitFive, OutfitType.NewOutfitSix,
             OutfitType.NewOutfitSeven, OutfitType.NewOutfitEight, OutfitType.NewOutfitNine,
             OutfitType.NewOutfitTen
@@ -878,7 +878,7 @@ public class Me : MonoBehaviour
             case OutfitType.Pyjamas:        return lipsColorForPyjamas;
             case OutfitType.Housecoat:      return lipsColorForHousecoat;
             case OutfitType.RuffleBlousseAndSkirt:   return lipsColorForRuffleBlousseAndSkirt;
-            case OutfitType.NewOutfitTwo:   return lipsColorForNewOutfitTwo;
+            case OutfitType.NightOutRuffle:   return lipsColorForNightOutRuffle;
             case OutfitType.NewOutfitThree: return lipsColorForNewOutfitThree;
             case OutfitType.NewOutfitFour:  return lipsColorForNewOutfitFour;
             case OutfitType.NewOutfitFive:  return lipsColorForNewOutfitFive;
@@ -923,7 +923,7 @@ public class Me : MonoBehaviour
             case OutfitType.Pyjamas:        return nailsColorForPyjamas;
             case OutfitType.Housecoat:      return nailsColorForHousecoat;
             case OutfitType.RuffleBlousseAndSkirt:   return nailsColorForRuffleBlousseAndSkirt;
-            case OutfitType.NewOutfitTwo:   return nailsColorForNewOutfitTwo;
+            case OutfitType.NightOutRuffle:   return nailsColorForNightOutRuffle;
             case OutfitType.NewOutfitThree: return nailsColorForNewOutfitThree;
             case OutfitType.NewOutfitFour:  return nailsColorForNewOutfitFour;
             case OutfitType.NewOutfitFive:  return nailsColorForNewOutfitFive;
@@ -966,7 +966,7 @@ public class Me : MonoBehaviour
         SetListEnabled(OutfitForPyjamas, false);
         SetListEnabled(OutfitForHousecoat, false);
         SetListEnabled(OutfitForRuffleBlousseAndSkirt, false);
-        SetListEnabled(OutfitForNewOutfitTwo, false);
+        SetListEnabled(OutfitForNightOutRuffle, false);
         SetListEnabled(OutfitForNewOutfitThree, false);
         SetListEnabled(OutfitForNewOutfitFour, false);
         SetListEnabled(OutfitForNewOutfitFive, false);
@@ -1021,7 +1021,7 @@ public enum OutfitType
     Pyjamas,
     Housecoat,
     RuffleBlousseAndSkirt,
-    NewOutfitTwo,
+    NightOutRuffle,
     NewOutfitThree,
     NewOutfitFour,
     NewOutfitFive,
@@ -1071,8 +1071,8 @@ public class MeEditor : Editor
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Housecoat",        GUILayout.Height(35))) { me.ToggleHousecoatOutfit();      EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("New Outfit One",   GUILayout.Height(35))) { me.ToggleRuffleBlousseAndSkirtOutfit();   EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("New Outfit Two",   GUILayout.Height(35))) { me.ToggleNewOutfitTwoOutfit();   EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Ruffle Blousse & Skirt",   GUILayout.Height(35))) { me.ToggleRuffleBlousseAndSkirtOutfit();   EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Night Out Ruffle Dress",   GUILayout.Height(35))) { me.ToggleNightOutRuffleOutfit();   EditorUtility.SetDirty(me); }
         if (GUILayout.Button("New Outfit Three", GUILayout.Height(35))) { me.ToggleNewOutfitThreeOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();

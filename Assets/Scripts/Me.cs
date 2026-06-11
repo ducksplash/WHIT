@@ -22,7 +22,7 @@ public class Me : MonoBehaviour
     [Header("\nOutfits\n")]
 
     [Header("\nWork\n")]
-    [Header("Work")]
+    [Header("Classic Nora Dress")]
     public bool WorkOutfitEnabled = true;
     public List<SkinnedMeshRenderer> OutfitForWork;
     public Color lipsColorForWork = new Color(0.9f, 0.2f, 0.3f);
@@ -32,7 +32,7 @@ public class Me : MonoBehaviour
     public bool AccessoryOverallEnabledForWork;
     public bool AccessoryHatEnabledForWork;
 
-    [Header("Work Two")]
+    [Header("Black Skirt & Cream Shirt")]
     public bool WorkTwoOutfitEnabled = true;
     public List<SkinnedMeshRenderer> OutfitForWorkTwo;
     public Color lipsColorForWorkTwo = new Color(0.95f, 0.6f, 0.7f);
@@ -42,7 +42,7 @@ public class Me : MonoBehaviour
     public bool AccessoryOverallEnabledForWorkTwo;
     public bool AccessoryHatEnabledForWorkTwo;
 
-    [Header("Work Three")]
+    [Header("Tartan & Grey Dress")]
     public bool WorkThreeOutfitEnabled = true;
     public List<SkinnedMeshRenderer> OutfitForWorkThree;
     public Color lipsColorForWorkThree = new Color(0.95f, 0.6f, 0.7f);
@@ -52,7 +52,7 @@ public class Me : MonoBehaviour
     public bool AccessoryOverallEnabledForWorkThree;
     public bool AccessoryHatEnabledForWorkThree;
 
-    [Header("Work Four")]
+    [Header("Black Suit & White Shirt")]
     public bool WorkFourOutfitEnabled = true;
     public List<SkinnedMeshRenderer> OutfitForWorkFour;
     public Color lipsColorForWorkFour = new Color(0.95f, 0.6f, 0.7f);
@@ -62,8 +62,31 @@ public class Me : MonoBehaviour
     public bool AccessoryOverallEnabledForWorkFour;
     public bool AccessoryHatEnabledForWorkFour;
 
-    [Header("\nCasual\n")]
-    [Header("Casual One")]
+    
+    [Header("Ruffle Blousse & Skirt")]
+    public bool RuffleBlousseAndSkirtEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForRuffleBlousseAndSkirt;
+    public Color lipsColorForRuffleBlousseAndSkirt = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForRuffleBlousseAndSkirt = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleRuffleBlousseAndSkirt;
+    public bool AccessoryWingsEnabledForRuffleBlousseAndSkirt;
+    public bool AccessoryOverallEnabledForRuffleBlousseAndSkirt;
+    public bool AccessoryHatEnabledForRuffleBlousseAndSkirt;
+
+    
+    
+    /// ///////////
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    [Header("\nCasual Stuff\n")]
+    [Header("Uni Sweater & Jeans")]
     public bool CasualOutfitEnabled = true;
     public List<SkinnedMeshRenderer> OutfitForCasual;
     public Color lipsColorForCasual = new Color(0.85f, 0.25f, 0.35f);
@@ -73,6 +96,8 @@ public class Me : MonoBehaviour
     public bool AccessoryOverallEnabledForCasual;
     public bool AccessoryHatEnabledForCasual;
 
+    
+    
     [Header("Fitness")]
     public bool FitnessOutfitEnabled = true;
     public List<SkinnedMeshRenderer> OutfitForFitness;
@@ -83,16 +108,12 @@ public class Me : MonoBehaviour
     public bool AccessoryOverallEnabledForFitness;
     public bool AccessoryHatEnabledForFitness;
 
-    [Header("First Date")]
-    public bool FirstDateOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForFirstDate;
-    public Color lipsColorForFirstDate = new Color(0.96f, 0.4f, 0.5f);
-    public Color nailsColorForFirstDate = new Color(0.97f, 0.88f, 0.9f);
-    public bool JiggleOnAFirstDate;
-    public bool AccessoryWingsEnabledForFirstDate;
-    public bool AccessoryOverallEnabledForFirstDate;
-    public bool AccessoryHatEnabledForFirstDate;
-
+    
+    
+    [Header("\nPyjamas\n")]
+    
+    
+    
     [Header("Pyjamas")]
     public bool PyjamasOutfitEnabled = true;
     public List<SkinnedMeshRenderer> OutfitForPyjamas;
@@ -113,17 +134,174 @@ public class Me : MonoBehaviour
     public bool AccessoryOverallEnabledForHousecoat;
     public bool AccessoryHatEnabledForHousecoat;
 
-    [Header("New Outfit One")]
-    public bool RuffleBlousseAndSkirtEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForRuffleBlousseAndSkirt;
-    public Color lipsColorForRuffleBlousseAndSkirt = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForRuffleBlousseAndSkirt = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleRuffleBlousseAndSkirt;
-    public bool AccessoryWingsEnabledForRuffleBlousseAndSkirt;
-    public bool AccessoryOverallEnabledForRuffleBlousseAndSkirt;
-    public bool AccessoryHatEnabledForRuffleBlousseAndSkirt;
+    
+    
+    [Header("\nCute\n")]
+    [Header("Cute One")]
+    public bool CuteOneOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForCuteOne;
+    public Color lipsColorForCuteOne = new Color(0.98f, 0.45f, 0.55f);
+    public Color nailsColorForCuteOne = new Color(0.98f, 0.9f, 0.92f);
+    public bool JiggleOnACuteOne;
+    public bool AccessoryWingsEnabledForCuteOne;
+    public bool AccessoryOverallEnabledForCuteOne;
+    public bool AccessoryHatEnabledForCuteOne;
 
-    [Header("New Outfit Two")]
+    [Header("Cute Two")]
+    public bool CuteTwoOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForCuteTwo;
+    public Color lipsColorForCuteTwo = new Color(0.8f, 0.15f, 0.25f);
+    public Color nailsColorForCuteTwo = new Color(0.88f, 0.65f, 0.75f);
+    public bool JiggleCasuallyTwo;
+    public bool AccessoryWingsEnabledForCuteTwo;
+    public bool AccessoryOverallEnabledForCuteTwo;
+    public bool AccessoryHatEnabledForCuteTwo;
+
+    [Header("Cute Three")]
+    public bool CuteThreeOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForCuteThree;
+    public Color lipsColorForCuteThree = new Color(0.95f, 0.35f, 0.45f);
+    public Color nailsColorForCuteThree = new Color(0.96f, 0.85f, 0.88f);
+    public bool JiggleCuteThree;
+    public bool AccessoryWingsEnabledForCuteThree;
+    public bool AccessoryOverallEnabledForCuteThree;
+    public bool AccessoryHatEnabledForCuteThree;
+
+    [Header("Cute Four")]
+    public bool CuteFourOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForCuteFour;
+    public Color lipsColorForCuteFour = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForCuteFour = new Color(0.94f, 0.8f, 0.85f);
+    public bool JiggleCuteFour;
+    public bool AccessoryWingsEnabledForCuteFour;
+    public bool AccessoryOverallEnabledForCuteFour;
+    public bool AccessoryHatEnabledForCuteFour;
+
+    [Header("Cute Five")]
+    public bool CuteFiveOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForCuteFive;
+    public Color lipsColorForCuteFive = new Color(0.88f, 0.2f, 0.3f);
+    public Color nailsColorForCuteFive = new Color(0.93f, 0.78f, 0.83f);
+    public bool JiggleCuteFive;
+    public bool AccessoryWingsEnabledForCuteFive;
+    public bool AccessoryOverallEnabledForCuteFive;
+    public bool AccessoryHatEnabledForCuteFive;
+
+    [Header("Cute Seven")]
+    public bool CuteSevenOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForCuteSeven;
+    public Color lipsColorForCuteSeven = new Color(0.88f, 0.22f, 0.32f);
+    public Color nailsColorForCuteSeven = new Color(0.95f, 0.82f, 0.85f);
+    public bool JiggleCuteSeven;
+    public bool AccessoryWingsEnabledForCuteSeven;
+    public bool AccessoryOverallEnabledForCuteSeven;
+    public bool AccessoryHatEnabledForCuteSeven;
+
+    [Header("Cute Eight")]
+    public bool CuteEightOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForCuteEight;
+    public Color lipsColorForCuteEight = new Color(0.85f, 0.18f, 0.28f);
+    public Color nailsColorForCuteEight = new Color(0.88f, 0.68f, 0.73f);
+    public bool JiggleCuteEight;
+    public bool AccessoryWingsEnabledForCuteEight;
+    public bool AccessoryOverallEnabledForCuteEight;
+    public bool AccessoryHatEnabledForCuteEight;
+
+
+    [Header("Edea")]
+    public bool EdeaOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForEdea;
+    public Color lipsColorForEdea = new Color(0.75f, 0.1f, 0.2f);
+    public Color nailsColorForEdea = new Color(0.9f, 0.7f, 0.75f);
+    public bool JiggleCasuallyFour;
+    public bool AccessoryWingsEnabledForEdea;
+    public bool AccessoryOverallEnabledForEdea;
+    public bool AccessoryHatEnabledForEdea;
+
+    
+    
+    [Header("\nDating Outfits\n")]
+    
+        
+    [Header("First Date")]
+    public bool FirstDateOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForFirstDate;
+    public Color lipsColorForFirstDate = new Color(0.96f, 0.4f, 0.5f);
+    public Color nailsColorForFirstDate = new Color(0.97f, 0.88f, 0.9f);
+    public bool JiggleOnAFirstDate;
+    public bool AccessoryWingsEnabledForFirstDate;
+    public bool AccessoryOverallEnabledForFirstDate;
+    public bool AccessoryHatEnabledForFirstDate;
+    
+    
+    [Header("Third Date")]
+    public bool ThirdDateOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForThirdDate;
+    public Color lipsColorForThirdDate = new Color(0.85f, 0.22f, 0.32f);
+    public Color nailsColorForThirdDate = new Color(0.94f, 0.8f, 0.85f);
+    public bool JiggleOnAThirdDate;
+    public bool AccessoryWingsEnabledForThirdDate;
+    public bool AccessoryOverallEnabledForThirdDate;
+    public bool AccessoryHatEnabledForThirdDate;
+    
+    
+    [Header("Second Date")]
+    public bool SecondDateOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForSecondDate;
+    public Color lipsColorForSecondDate = new Color(0.9f, 0.3f, 0.4f);
+    public Color nailsColorForSecondDate = new Color(0.95f, 0.82f, 0.87f);
+    public bool JiggleOnASecondDate;
+    public bool AccessoryWingsEnabledForSecondDate;
+    public bool AccessoryOverallEnabledForSecondDate;
+    public bool AccessoryHatEnabledForSecondDate;
+
+    
+    
+    [Header("\nNight Out\n")]
+
+
+    [Header("Casual Three")]
+    public bool CasualThreeOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForCasualThree;
+    public Color lipsColorForCasualThree = new Color(0.9f, 0.3f, 0.4f);
+    public Color nailsColorForCasualThree = new Color(0.93f, 0.78f, 0.82f);
+    public bool JiggleCasuallyThree;
+    public bool AccessoryWingsEnabledForCasualThree;
+    public bool AccessoryOverallEnabledForCasualThree;
+    public bool AccessoryHatEnabledForCasualThree;
+
+    [Header("Essie")]
+    public bool EssieOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForEssie;
+    public Color lipsColorForEssie = new Color(0.82f, 0.12f, 0.22f);
+    public Color nailsColorForEssie = new Color(0.91f, 0.72f, 0.78f);
+    public bool JiggleEssie;
+    public bool AccessoryWingsEnabledForEssie;
+    public bool AccessoryOverallEnabledForEssie;
+    public bool AccessoryHatEnabledForEssie;
+
+    [Header("Night Out Four")]
+    public bool NightOutFourOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForNightOutFour;
+    public Color lipsColorForNightOutFour = new Color(0.82f, 0.12f, 0.22f);
+    public Color nailsColorForNightOutFour = new Color(0.91f, 0.72f, 0.78f);
+    public bool JiggleNightOutFour;
+    public bool AccessoryWingsEnabledForNightOutFour;
+    public bool AccessoryOverallEnabledForNightOutFour;
+    public bool AccessoryHatEnabledForNightOutFour;
+
+    [Header("Elegant Dress")]
+    public bool ElegantDressOutfitEnabled = true;
+    public List<SkinnedMeshRenderer> OutfitForElegantDress;
+    public Color lipsColorForElegantDress = new Color(0.78f, 0.08f, 0.18f);
+    public Color nailsColorForElegantDress = new Color(0.92f, 0.76f, 0.82f);
+    public bool JiggleElegantDress;
+    public bool AccessoryWingsEnabledForElegantDress;
+    public bool AccessoryOverallEnabledForElegantDress;
+    public bool AccessoryHatEnabledForElegantDress;
+
+
+    [Header("Layered Ruffle Dress")]
     public bool NightOutRuffleEnabled = true;
     public List<SkinnedMeshRenderer> OutfitForNightOutRuffle;
     public Color lipsColorForNightOutRuffle = new Color(0.9f, 0.25f, 0.35f);
@@ -132,6 +310,15 @@ public class Me : MonoBehaviour
     public bool AccessoryWingsEnabledForNightOutRuffle;
     public bool AccessoryOverallEnabledForNightOutRuffle;
     public bool AccessoryHatEnabledForNightOutRuffle;
+
+
+    
+    
+    
+    
+    
+    
+    [Header("\nNew Outfits\n")]
 
     [Header("New Outfit Three")]
     public bool NewOutfitThreeEnabled = true;
@@ -212,99 +399,14 @@ public class Me : MonoBehaviour
     public bool AccessoryWingsEnabledForNewOutfitTen;
     public bool AccessoryOverallEnabledForNewOutfitTen;
     public bool AccessoryHatEnabledForNewOutfitTen;
-
-    [Header("\nCute\n")]
-    [Header("Cute One")]
-    public bool CuteOneOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForCuteOne;
-    public Color lipsColorForCuteOne = new Color(0.98f, 0.45f, 0.55f);
-    public Color nailsColorForCuteOne = new Color(0.98f, 0.9f, 0.92f);
-    public bool JiggleOnACuteOne;
-    public bool AccessoryWingsEnabledForCuteOne;
-    public bool AccessoryOverallEnabledForCuteOne;
-    public bool AccessoryHatEnabledForCuteOne;
-
-    [Header("Cute Two")]
-    public bool CuteTwoOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForCuteTwo;
-    public Color lipsColorForCuteTwo = new Color(0.8f, 0.15f, 0.25f);
-    public Color nailsColorForCuteTwo = new Color(0.88f, 0.65f, 0.75f);
-    public bool JiggleCasuallyTwo;
-    public bool AccessoryWingsEnabledForCuteTwo;
-    public bool AccessoryOverallEnabledForCuteTwo;
-    public bool AccessoryHatEnabledForCuteTwo;
-
-    [Header("Cute Three")]
-    public bool CuteThreeOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForCuteThree;
-    public Color lipsColorForCuteThree = new Color(0.95f, 0.35f, 0.45f);
-    public Color nailsColorForCuteThree = new Color(0.96f, 0.85f, 0.88f);
-    public bool JiggleCuteThree;
-    public bool AccessoryWingsEnabledForCuteThree;
-    public bool AccessoryOverallEnabledForCuteThree;
-    public bool AccessoryHatEnabledForCuteThree;
-
-    [Header("Cute Four")]
-    public bool CuteFourOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForCuteFour;
-    public Color lipsColorForCuteFour = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForCuteFour = new Color(0.94f, 0.8f, 0.85f);
-    public bool JiggleCuteFour;
-    public bool AccessoryWingsEnabledForCuteFour;
-    public bool AccessoryOverallEnabledForCuteFour;
-    public bool AccessoryHatEnabledForCuteFour;
-
-    [Header("Cute Five")]
-    public bool CuteFiveOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForCuteFive;
-    public Color lipsColorForCuteFive = new Color(0.88f, 0.2f, 0.3f);
-    public Color nailsColorForCuteFive = new Color(0.93f, 0.78f, 0.83f);
-    public bool JiggleCuteFive;
-    public bool AccessoryWingsEnabledForCuteFive;
-    public bool AccessoryOverallEnabledForCuteFive;
-    public bool AccessoryHatEnabledForCuteFive;
-
-    [Header("Cute Six")]
-    public bool CuteSixOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForCuteSix;
-    public Color lipsColorForCuteSix = new Color(0.9f, 0.3f, 0.4f);
-    public Color nailsColorForCuteSix = new Color(0.95f, 0.82f, 0.87f);
-    public bool JiggleOnACuteSix;
-    public bool AccessoryWingsEnabledForCuteSix;
-    public bool AccessoryOverallEnabledForCuteSix;
-    public bool AccessoryHatEnabledForCuteSix;
-
-    [Header("Cute Seven")]
-    public bool CuteSevenOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForCuteSeven;
-    public Color lipsColorForCuteSeven = new Color(0.88f, 0.22f, 0.32f);
-    public Color nailsColorForCuteSeven = new Color(0.95f, 0.82f, 0.85f);
-    public bool JiggleCuteSeven;
-    public bool AccessoryWingsEnabledForCuteSeven;
-    public bool AccessoryOverallEnabledForCuteSeven;
-    public bool AccessoryHatEnabledForCuteSeven;
-
-    [Header("Cute Eight")]
-    public bool CuteEightOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForCuteEight;
-    public Color lipsColorForCuteEight = new Color(0.85f, 0.18f, 0.28f);
-    public Color nailsColorForCuteEight = new Color(0.88f, 0.68f, 0.73f);
-    public bool JiggleCuteEight;
-    public bool AccessoryWingsEnabledForCuteEight;
-    public bool AccessoryOverallEnabledForCuteEight;
-    public bool AccessoryHatEnabledForCuteEight;
-
-    [Header("Edea")]
-    public bool EdeaOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForEdea;
-    public Color lipsColorForEdea = new Color(0.75f, 0.1f, 0.2f);
-    public Color nailsColorForEdea = new Color(0.9f, 0.7f, 0.75f);
-    public bool JiggleCasuallyFour;
-    public bool AccessoryWingsEnabledForEdea;
-    public bool AccessoryOverallEnabledForEdea;
-    public bool AccessoryHatEnabledForEdea;
-
+    
+    
+    
+    
+    
+    
     [Header("\nStoryline\n")]
+    
     [Header("Wedding")]
     public bool WeddingOutfitEnabled = true;
     public List<SkinnedMeshRenderer> OutfitForWedding;
@@ -335,57 +437,11 @@ public class Me : MonoBehaviour
     public bool AccessoryOverallEnabledForHomelessness;
     public bool AccessoryHatEnabledForHomelessness;
 
-    [Header("\nNight Out\n")]
-    [Header("Third Date")]
-    public bool ThirdDateOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForThirdDate;
-    public Color lipsColorForThirdDate = new Color(0.85f, 0.22f, 0.32f);
-    public Color nailsColorForThirdDate = new Color(0.94f, 0.8f, 0.85f);
-    public bool JiggleOnAThirdDate;
-    public bool AccessoryWingsEnabledForThirdDate;
-    public bool AccessoryOverallEnabledForThirdDate;
-    public bool AccessoryHatEnabledForThirdDate;
 
-    [Header("Casual Three")]
-    public bool CasualThreeOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForCasualThree;
-    public Color lipsColorForCasualThree = new Color(0.9f, 0.3f, 0.4f);
-    public Color nailsColorForCasualThree = new Color(0.93f, 0.78f, 0.82f);
-    public bool JiggleCasuallyThree;
-    public bool AccessoryWingsEnabledForCasualThree;
-    public bool AccessoryOverallEnabledForCasualThree;
-    public bool AccessoryHatEnabledForCasualThree;
 
-    [Header("Essie")]
-    public bool EssieOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForEssie;
-    public Color lipsColorForEssie = new Color(0.82f, 0.12f, 0.22f);
-    public Color nailsColorForEssie = new Color(0.91f, 0.72f, 0.78f);
-    public bool JiggleEssie;
-    public bool AccessoryWingsEnabledForEssie;
-    public bool AccessoryOverallEnabledForEssie;
-    public bool AccessoryHatEnabledForEssie;
 
-    [Header("Night Out Four")]
-    public bool NightOutFourOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForNightOutFour;
-    public Color lipsColorForNightOutFour = new Color(0.82f, 0.12f, 0.22f);
-    public Color nailsColorForNightOutFour = new Color(0.91f, 0.72f, 0.78f);
-    public bool JiggleNightOutFour;
-    public bool AccessoryWingsEnabledForNightOutFour;
-    public bool AccessoryOverallEnabledForNightOutFour;
-    public bool AccessoryHatEnabledForNightOutFour;
-
-    [Header("Elegant Dress")]
-    public bool ElegantDressOutfitEnabled = true;
-    public List<SkinnedMeshRenderer> OutfitForElegantDress;
-    public Color lipsColorForElegantDress = new Color(0.78f, 0.08f, 0.18f);
-    public Color nailsColorForElegantDress = new Color(0.92f, 0.76f, 0.82f);
-    public bool JiggleElegantDress;
-    public bool AccessoryWingsEnabledForElegantDress;
-    public bool AccessoryOverallEnabledForElegantDress;
-    public bool AccessoryHatEnabledForElegantDress;
-
+    
+    
     [Header("\nUndergarments\n")]
     public List<SkinnedMeshRenderer> OutfitForUndergarments;
     public Color lipsColorForUndergarments = new Color(0.82f, 0.12f, 0.22f);
@@ -395,6 +451,8 @@ public class Me : MonoBehaviour
     public bool AccessoryOverallEnabledForUndergarments;
     public bool AccessoryHatEnabledForUndergarments;
 
+
+    
     [Header("Jigglers")]
     public GameObject JiggleLeftBoob;
     public GameObject JiggleRightBoob;
@@ -473,7 +531,7 @@ public class Me : MonoBehaviour
             case OutfitType.WorkFour:       return WorkFourOutfitEnabled;
             case OutfitType.Casual:         return CasualOutfitEnabled;
             case OutfitType.Fitness:        return FitnessOutfitEnabled;
-            case OutfitType.CuteSix:        return FirstDateOutfitEnabled;
+            case OutfitType.Date1:        return FirstDateOutfitEnabled;
             case OutfitType.Pyjamas:        return PyjamasOutfitEnabled;
             case OutfitType.Housecoat:      return HousecoatOutfitEnabled;
             case OutfitType.RuffleBlousseAndSkirt:   return RuffleBlousseAndSkirtEnabled;
@@ -491,7 +549,7 @@ public class Me : MonoBehaviour
             case OutfitType.CuteThree:      return CuteThreeOutfitEnabled;
             case OutfitType.CuteFour:       return CuteFourOutfitEnabled;
             case OutfitType.CuteFive:       return CuteFiveOutfitEnabled;
-            case OutfitType.Date2:          return CuteSixOutfitEnabled;
+            case OutfitType.Date2:          return SecondDateOutfitEnabled;
             case OutfitType.CuteSeven:      return CuteSevenOutfitEnabled;
             case OutfitType.CuteEight:      return CuteEightOutfitEnabled;
             case OutfitType.Edea:           return EdeaOutfitEnabled;
@@ -544,7 +602,7 @@ public class Me : MonoBehaviour
             case OutfitType.WorkFour:         wings = AccessoryWingsEnabledForWorkFour;         overall = AccessoryOverallEnabledForWorkFour;         hat = AccessoryHatEnabledForWorkFour;         break;
             case OutfitType.Casual:           wings = AccessoryWingsEnabledForCasual;           overall = AccessoryOverallEnabledForCasual;           hat = AccessoryHatEnabledForCasual;           break;
             case OutfitType.Fitness:          wings = AccessoryWingsEnabledForFitness;          overall = AccessoryOverallEnabledForFitness;          hat = AccessoryHatEnabledForFitness;          break;
-            case OutfitType.CuteSix:          wings = AccessoryWingsEnabledForFirstDate;        overall = AccessoryOverallEnabledForFirstDate;        hat = AccessoryHatEnabledForFirstDate;        break;
+            case OutfitType.Date1:          wings = AccessoryWingsEnabledForFirstDate;        overall = AccessoryOverallEnabledForFirstDate;        hat = AccessoryHatEnabledForFirstDate;        break;
             case OutfitType.Pyjamas:          wings = AccessoryWingsEnabledForPyjamas;          overall = AccessoryOverallEnabledForPyjamas;          hat = AccessoryHatEnabledForPyjamas;          break;
             case OutfitType.Housecoat:        wings = AccessoryWingsEnabledForHousecoat;        overall = AccessoryOverallEnabledForHousecoat;        hat = AccessoryHatEnabledForHousecoat;        break;
             case OutfitType.RuffleBlousseAndSkirt:     wings = AccessoryWingsEnabledForRuffleBlousseAndSkirt;     overall = AccessoryOverallEnabledForRuffleBlousseAndSkirt;     hat = AccessoryHatEnabledForRuffleBlousseAndSkirt;     break;
@@ -562,7 +620,7 @@ public class Me : MonoBehaviour
             case OutfitType.CuteThree:        wings = AccessoryWingsEnabledForCuteThree;        overall = AccessoryOverallEnabledForCuteThree;        hat = AccessoryHatEnabledForCuteThree;        break;
             case OutfitType.CuteFour:         wings = AccessoryWingsEnabledForCuteFour;         overall = AccessoryOverallEnabledForCuteFour;         hat = AccessoryHatEnabledForCuteFour;         break;
             case OutfitType.CuteFive:         wings = AccessoryWingsEnabledForCuteFive;         overall = AccessoryOverallEnabledForCuteFive;         hat = AccessoryHatEnabledForCuteFive;         break;
-            case OutfitType.Date2:            wings = AccessoryWingsEnabledForCuteSix;          overall = AccessoryOverallEnabledForCuteSix;          hat = AccessoryHatEnabledForCuteSix;          break;
+            case OutfitType.Date2:            wings = AccessoryWingsEnabledForSecondDate;          overall = AccessoryOverallEnabledForSecondDate;          hat = AccessoryHatEnabledForSecondDate;          break;
             case OutfitType.CuteSeven:        wings = AccessoryWingsEnabledForCuteSeven;        overall = AccessoryOverallEnabledForCuteSeven;        hat = AccessoryHatEnabledForCuteSeven;        break;
             case OutfitType.CuteEight:        wings = AccessoryWingsEnabledForCuteEight;        overall = AccessoryOverallEnabledForCuteEight;        hat = AccessoryHatEnabledForCuteEight;        break;
             case OutfitType.Edea:             wings = AccessoryWingsEnabledForEdea;             overall = AccessoryOverallEnabledForEdea;             hat = AccessoryHatEnabledForEdea;             break;
@@ -636,8 +694,8 @@ public class Me : MonoBehaviour
             case OutfitType.ElegantDress:   ToggleElegantDressOutfit(true);   break;
             case OutfitType.CuteThree:      ToggleCuteThreeOutfit(true);      break;
             case OutfitType.CuteFive:       ToggleCuteFiveOutfit(true);       break;
-            case OutfitType.CuteSix:        ToggleFirstDateOutfit(true);      break;
-            case OutfitType.Date2:          ToggleCuteSixOutfit(true);        break;
+            case OutfitType.Date1:        ToggleFirstDateOutfit(true);      break;
+            case OutfitType.Date2:          ToggleSecondDateOutfit(true);        break;
             case OutfitType.Date3:          ToggleThirdDateOutfit(true);      break;
             case OutfitType.CuteOne:        ToggleCuteOneOutfit(true);        break;
             case OutfitType.Pyjamas:        TogglePyjamasOutfit(true);        break;
@@ -678,8 +736,8 @@ public class Me : MonoBehaviour
     public void ToggleUndergarments(bool? forceOn = null)        { JiggleToggle(JiggleUndergarments);    ToggleMainOutfit(OutfitType.Undergarments, forceOn); }
     public void ToggleCuteThreeOutfit(bool? forceOn = null)      { JiggleToggle(JiggleCuteThree);        ToggleMainOutfit(OutfitType.CuteThree, forceOn); }
     public void ToggleCuteFiveOutfit(bool? forceOn = null)       { JiggleToggle(JiggleCuteFive);         ToggleMainOutfit(OutfitType.CuteFive, forceOn); }
-    public void ToggleFirstDateOutfit(bool? forceOn = null)      { JiggleToggle(JiggleOnAFirstDate);     ToggleMainOutfit(OutfitType.CuteSix, forceOn); }
-    public void ToggleCuteSixOutfit(bool? forceOn = null)        { JiggleToggle(JiggleOnACuteSix);       ToggleMainOutfit(OutfitType.Date2, forceOn); }
+    public void ToggleFirstDateOutfit(bool? forceOn = null)      { JiggleToggle(JiggleOnAFirstDate);     ToggleMainOutfit(OutfitType.Date1, forceOn); }
+    public void ToggleSecondDateOutfit(bool? forceOn = null)        { JiggleToggle(JiggleOnASecondDate);       ToggleMainOutfit(OutfitType.Date2, forceOn); }
     public void ToggleThirdDateOutfit(bool? forceOn = null)      { JiggleToggle(JiggleOnAThirdDate);     ToggleMainOutfit(OutfitType.Date3, forceOn); }
     public void ToggleCuteOneOutfit(bool? forceOn = null)        { JiggleToggle(JiggleOnACuteOne);       ToggleMainOutfit(OutfitType.CuteOne, forceOn); }
     public void TogglePyjamasOutfit(bool? forceOn = null)        { JiggleToggle(JiggleInPyjamas);        ToggleMainOutfit(OutfitType.Pyjamas, forceOn); }
@@ -746,8 +804,8 @@ public class Me : MonoBehaviour
             case OutfitType.Undergarments:  SetListEnabled(OutfitForUndergarments, true);  break;
             case OutfitType.CuteThree:      SetListEnabled(OutfitForCuteThree, true);      break;
             case OutfitType.CuteFive:       SetListEnabled(OutfitForCuteFive, true);       break;
-            case OutfitType.CuteSix:        SetListEnabled(OutfitForFirstDate, true);      break;
-            case OutfitType.Date2:          SetListEnabled(OutfitForCuteSix, true);        break;
+            case OutfitType.Date1:        SetListEnabled(OutfitForFirstDate, true);      break;
+            case OutfitType.Date2:          SetListEnabled(OutfitForSecondDate, true);        break;
             case OutfitType.Date3:          SetListEnabled(OutfitForThirdDate, true);      break;
             case OutfitType.CuteOne:        SetListEnabled(OutfitForCuteOne, true);        break;
             case OutfitType.Pyjamas:        SetListEnabled(OutfitForPyjamas, true);        break;
@@ -798,7 +856,7 @@ public class Me : MonoBehaviour
     {
         OutfitType[] pool =
         {
-            OutfitType.Casual, OutfitType.Fitness, OutfitType.CuteSix, OutfitType.Pyjamas,
+            OutfitType.Casual, OutfitType.Fitness, OutfitType.Date1, OutfitType.Pyjamas,
             OutfitType.Housecoat,
             OutfitType.RuffleBlousseAndSkirt, OutfitType.NightOutRuffle, OutfitType.NewOutfitThree,
             OutfitType.NewOutfitFour, OutfitType.NewOutfitFive, OutfitType.NewOutfitSix,
@@ -871,8 +929,8 @@ public class Me : MonoBehaviour
             case OutfitType.Undergarments:  return lipsColorForUndergarments;
             case OutfitType.CuteThree:      return lipsColorForCuteThree;
             case OutfitType.CuteFive:       return lipsColorForCuteFive;
-            case OutfitType.CuteSix:        return lipsColorForFirstDate;
-            case OutfitType.Date2:          return lipsColorForCuteSix;
+            case OutfitType.Date1:        return lipsColorForFirstDate;
+            case OutfitType.Date2:          return lipsColorForSecondDate;
             case OutfitType.Date3:          return lipsColorForThirdDate;
             case OutfitType.CuteOne:        return lipsColorForCuteOne;
             case OutfitType.Pyjamas:        return lipsColorForPyjamas;
@@ -916,8 +974,8 @@ public class Me : MonoBehaviour
             case OutfitType.Undergarments:  return nailsColorForUndergarments;
             case OutfitType.CuteThree:      return nailsColorForCuteThree;
             case OutfitType.CuteFive:       return nailsColorForCuteFive;
-            case OutfitType.CuteSix:        return nailsColorForFirstDate;
-            case OutfitType.Date2:          return nailsColorForCuteSix;
+            case OutfitType.Date1:        return nailsColorForFirstDate;
+            case OutfitType.Date2:          return nailsColorForSecondDate;
             case OutfitType.Date3:          return nailsColorForThirdDate;
             case OutfitType.CuteOne:        return nailsColorForCuteOne;
             case OutfitType.Pyjamas:        return nailsColorForPyjamas;
@@ -960,7 +1018,7 @@ public class Me : MonoBehaviour
         SetListEnabled(OutfitForCuteThree, false);
         SetListEnabled(OutfitForCuteFive, false);
         SetListEnabled(OutfitForFirstDate, false);
-        SetListEnabled(OutfitForCuteSix, false);
+        SetListEnabled(OutfitForSecondDate, false);
         SetListEnabled(OutfitForThirdDate, false);
         SetListEnabled(OutfitForCuteOne, false);
         SetListEnabled(OutfitForPyjamas, false);
@@ -1014,7 +1072,7 @@ public enum OutfitType
     Essie,
     CuteThree,
     CuteFive,
-    CuteSix,
+    Date1,
     Date2,
     Date3,
     CuteOne,
@@ -1099,7 +1157,7 @@ public class MeEditor : Editor
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Cute Five",  GUILayout.Height(35))) { me.ToggleCuteFiveOutfit();  EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Cute Six",   GUILayout.Height(35))) { me.ToggleCuteSixOutfit();   EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Cute Six",   GUILayout.Height(35))) { me.ToggleSecondDateOutfit();   EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Cute Seven", GUILayout.Height(35))) { me.ToggleCuteSevenOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Cute Eight", GUILayout.Height(35))) { me.ToggleCuteEightOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();

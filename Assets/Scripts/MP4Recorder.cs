@@ -1,16 +1,17 @@
-#if UNITY_EDITOR
-
+using UnityEngine;
 using System.Collections;
 using System.IO;
-using Steamworks;
+
+#if UNITY_EDITOR
 using UnityEditor.Recorder;
 using UnityEditor.Recorder.Input;
 using UnityEditor.Recorder.Encoder;
-using UnityEngine;
+#endif
 using UnityEngine.InputSystem;
-
 public class MP4Recorder : MonoBehaviour
 {
+    
+#if UNITY_EDITOR
     [Header("Recording")]
     public bool recordOnStart = false;
 
@@ -151,5 +152,6 @@ public class MP4Recorder : MonoBehaviour
             Debug.Log("MP4 Recording Stopped");
         }
     }
-}
+    
 #endif
+}

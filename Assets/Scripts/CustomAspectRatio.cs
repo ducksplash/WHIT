@@ -60,7 +60,7 @@ public class CustomAspectRatio : MonoBehaviour
 
     void HandleTracking()
     {
-        if (!player) return;
+        if (player == null) return;
 
         float distance = Vector3.Distance(player.position, baseWorldPos);
 
@@ -79,6 +79,7 @@ public class CustomAspectRatio : MonoBehaviour
     void ApplySettings()
     {
         if (!cam) return;
+        //if (player == null) return;
 
         cam.aspect           = aspectWidth / aspectHeight;
         cam.orthographic     = true;

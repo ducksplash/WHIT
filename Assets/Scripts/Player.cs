@@ -34,7 +34,6 @@ public class Player : Singleton<Player>
     public ConcentricCircleDriver concentricCircleDriver;
     
     public float RayCastDistance = 4f;
-
     
     
     [Header("Animation")]

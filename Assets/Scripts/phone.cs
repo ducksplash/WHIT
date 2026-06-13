@@ -144,7 +144,8 @@ public class Phone : MonoBehaviour
     [SerializeField] private float photoInputLockDuration = 0.15f;
     private bool _photoInputLocked;
     
-    
+    public CapturingSelfieWithFriends CapturingSelfieWithFriends;
+
     
     private void Awake()
     {
@@ -1535,13 +1536,31 @@ public class Phone : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
 
+        Debug.Log($"Photo camera: {cam.name}");
+
+        List<GameObject> detectedObjects = new List<GameObject>();
+
+        GameObject[] boys = GameObject.FindGameObjectsWithTag("TheBoys");
+
+        Debug.Log($"Found {boys.Length} objects with tag TheBoys");
+
+        foreach (GameObject target in boys)
+        {
+            Debug.Log($"Checking {target.name}");
+
+            if (IsInCameraFrame(cam, target))
+            {
+                detectedObjects.Add(target);
+                Debug.Log($"IN FRAME: {target.name}");
+            }
+        }
+
         string photosDir = Path.Combine(Application.persistentDataPath, "Phone/0/Photos");
         Directory.CreateDirectory(photosDir);
 
         string fileName = DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".png";
         string fullPath = Path.Combine(photosDir, fileName);
 
-        // Save whatever RenderTexture the phone camera was already pointing at
         RenderTexture originalTarget = cam.targetTexture;
 
         RenderTexture rt = new RenderTexture(resWidth, resHeight, 24);
@@ -1549,20 +1568,48 @@ public class Phone : MonoBehaviour
         cam.Render();
 
         RenderTexture.active = rt;
+
         Texture2D photo = new Texture2D(resWidth, resHeight, TextureFormat.RGB24, false);
         photo.ReadPixels(new Rect(0, 0, resWidth, resHeight), 0, 0);
         photo.Apply();
 
-        // Restore the original target BEFORE destroying rt
         cam.targetTexture = originalTarget;
         RenderTexture.active = null;
+
         Destroy(rt);
 
         byte[] bytes = photo.EncodeToPNG();
+        File.WriteAllBytes(fullPath, bytes);
+
         Destroy(photo);
 
-        File.WriteAllBytes(fullPath, bytes);
+        Debug.Log($"Detected {detectedObjects.Count} objects in frame");
+
+        foreach (GameObject detected in detectedObjects)
+        {
+            Debug.Log($"PHOTO CONTAINS: {detected.name}");
+            Debug.Log("TAKE A PICTURE AM WITH THE BOYS");
+        }
     }
+    
+    private bool IsInCameraFrame(Camera cam, GameObject obj)
+    {
+        Renderer rend = obj.GetComponentInChildren<Renderer>();
+
+        if (rend == null)
+            return false;
+
+        Vector3 center = rend.bounds.center;
+        Vector3 viewport = cam.WorldToViewportPoint(center);
+
+        // Must be in front of camera and inside screen bounds
+        return viewport.z > 0 &&
+               viewport.x >= 0 && viewport.x <= 1 &&
+               viewport.y >= 0 && viewport.y <= 1;
+    }
+    
+    
+    
     private void LoadGallery()
     {
         galleryItems.Clear();
@@ -1626,6 +1673,11 @@ public class Phone : MonoBehaviour
         
         CameraSavedText.text = feedbackText;
         CameraSavedTextBG.text = feedbackText;
+        
+        
+        
+        
+        
 
         if (cameraSavedTextGroup != null) cameraSavedTextGroup.alpha = 1;
         if (cameraSavedTextBgGroup != null)cameraSavedTextBgGroup.alpha = 1;

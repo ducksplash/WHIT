@@ -271,7 +271,7 @@ public class Player : Singleton<Player>
         if (Noranimator != null)
         {
             _animT = Noranimator.transform;
-            Noranimator.applyRootMotion = false;
+            //Noranimator.applyRootMotion = false;
             Noranimator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
 
             Noranimator.SetBool(AnimCrouching, crouching);

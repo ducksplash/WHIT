@@ -524,16 +524,24 @@ public class MeTwo : MonoBehaviour
         }
     }
 
-    private void InstantiatePrefabs(List<GameObject> prefabs)
-    {
-        if (prefabs == null || SkinnedMeshRendererParent == null) return;
-        foreach (var prefab in prefabs)
-        {
-            if (prefab == null) continue;
-            Instantiate(prefab, SkinnedMeshRendererParent.transform);
-        }
-    }
 
+    
+    // private void RebindAllSkinnedMeshes(Transform parent)
+    // {
+    //     if (Body == null) return;
+    //
+    //     Transform rootBone = Body.rootBone;
+    //     Transform[] bones = Body.bones;
+    //
+    //     foreach (var smr in parent.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+    //     {
+    //         smr.rootBone = rootBone;
+    //         smr.bones = bones;
+    //         smr.updateWhenOffscreen = true;
+    //     }
+    // }
+    
+    
     // ====================== ENABLED CHECK ======================
     public bool IsOutfitEnabled(OutfitType outfit)
     {
@@ -852,8 +860,62 @@ public class MeTwo : MonoBehaviour
 
         ApplyBodyColors(outfit);
         ApplyAccessories();
+
+        // Rebind after everything is instantiated
+        RebindAllSkinnedMeshes(SkinnedMeshRendererParent.transform);
     }
 
+    private void RebindAllSkinnedMeshes(Transform parent)
+    {
+        if (Body == null) return;
+
+        Transform rootBone = Body.rootBone;
+        Transform[] bones = Body.bones;
+
+        foreach (var smr in parent.GetComponentsInChildren<SkinnedMeshRenderer>(false))
+        {
+            if (smr == null) continue;
+        
+            smr.rootBone = rootBone;
+            smr.bones = bones;
+            smr.updateWhenOffscreen = true;
+            smr.enabled = true;           // Force enable
+        }
+    }
+    private void InstantiatePrefabs(List<GameObject> prefabs)
+    {
+        if (prefabs == null || SkinnedMeshRendererParent == null) return;
+
+        if (Body == null)
+        {
+            Debug.LogError("Body SkinnedMeshRenderer is not assigned on MeTwo!");
+            return;
+        }
+
+        Transform rootBone = Body.rootBone;
+        Transform[] bones = Body.bones;
+
+        foreach (var prefab in prefabs)
+        {
+            if (prefab == null) continue;
+
+            GameObject instance = Instantiate(prefab, SkinnedMeshRendererParent.transform);
+
+            // Rebind ONLY active SkinnedMeshRenderers (or ones that should be visible)
+            foreach (var smr in instance.GetComponentsInChildren<SkinnedMeshRenderer>(false))
+            {
+                if (smr == null) continue;
+
+                smr.rootBone = rootBone;
+                smr.bones = bones;
+                smr.updateWhenOffscreen = true;
+
+                // Ensure the renderer is enabled (this fixes the disabling issue)
+                smr.enabled = true;
+            }
+        }
+    }
+    
     public void DisableAllMainOutfits()
     {
         ClearOutfitMeshes();

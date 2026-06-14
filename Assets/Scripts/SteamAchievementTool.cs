@@ -1,6 +1,5 @@
 using UnityEngine;
 using System;
-using System.Reflection;
 
 #if STEAMWORKS_NET
 using Steamworks;
@@ -10,7 +9,7 @@ using Steamworks;
 using UnityEditor;
 #endif
 
-public class SteamAchievementTester : MonoBehaviour
+public class SteamAchievementTool : MonoBehaviour
 {
     [Header("Achievement to test")]
     public SteamAchievements achievement = SteamAchievements.NewsHound;
@@ -20,33 +19,37 @@ public class SteamAchievementTester : MonoBehaviour
 
 #if STEAMWORKS_NET
     private bool _statsReady;
-
     private Callback<UserStatsReceived_t> _cbUserStatsReceived;
-    private MethodInfo _miRequestCurrentStats;
 #endif
 
     private void Awake()
     {
 #if STEAMWORKS_NET
-        // Bind callback so we know for sure when stats are usable.
         _cbUserStatsReceived = Callback<UserStatsReceived_t>.Create(OnUserStatsReceived);
-
-        // Bind RequestCurrentStats() only if it exists in your Steamworks.NET build.
-        _miRequestCurrentStats = typeof(SteamUserStats).GetMethod(
-            "RequestCurrentStats",
-            BindingFlags.Public | BindingFlags.Static
-        );
 #endif
     }
 
     private void Start()
     {
 #if STEAMWORKS_NET
-        if (!IsSteamReady()) return;
-
+        if (IsSteamReady())
+        {
+            // In modern Steamworks.NET, stats are fetched automatically on init.
+            // Mark ready immediately; OnUserStatsReceived will also set this if the
+            // callback fires, but we don't need to wait for it.
+            _statsReady = true;
+            Log("Steam is ready. Stats assumed available.");
+        }
 #else
-        Debug.LogWarning("SteamAchievementTester: STEAMWORKS_NET symbol not defined. Add it in Player Settings > Scripting Define Symbols.");
+        Debug.LogWarning("SteamAchievementTool: STEAMWORKS_NET symbol not defined. Add it in Player Settings > Scripting Define Symbols.");
 #endif
+
+        EventManager.OnUnlockAchievement += UnlockAchievement;
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.OnUnlockAchievement -= UnlockAchievement;
     }
 
 #if STEAMWORKS_NET
@@ -61,13 +64,24 @@ public class SteamAchievementTester : MonoBehaviour
 
         bool stored = SteamUserStats.StoreStats();
         Log($"StoreStats() => {stored}");
-        
+    }
+
+    public void UnlockAchievement(SteamAchievements unlockableCheevo)
+    {
+        if (!EnsureStatsReady()) return;
+
+        string cheevo = unlockableCheevo.ToString();
+
+        bool ok = SteamUserStats.SetAchievement(cheevo);
+        Log($"SetAchievement('{cheevo}') => {ok}");
+
+        bool stored = SteamUserStats.StoreStats();
+        Log($"StoreStats() => {stored}");
     }
 
     public void ClearSelected()
     {
-        if (!EnsureStatsReady())
-            return;
+        if (!EnsureStatsReady()) return;
 
         string apiName = achievement.ToString();
 
@@ -80,10 +94,8 @@ public class SteamAchievementTester : MonoBehaviour
 
     public void ClearAll()
     {
-        if (!EnsureStatsReady())
-            return;
+        if (!EnsureStatsReady()) return;
 
-        // Steamworks.NET uses uint for these
         uint count = SteamUserStats.GetNumAchievements();
         Log($"GetNumAchievements() => {count}");
 
@@ -92,8 +104,7 @@ public class SteamAchievementTester : MonoBehaviour
         for (uint i = 0; i < count; i++)
         {
             string name = SteamUserStats.GetAchievementName(i);
-            if (string.IsNullOrEmpty(name))
-                continue;
+            if (string.IsNullOrEmpty(name)) continue;
 
             if (SteamUserStats.ClearAchievement(name))
                 cleared++;
@@ -107,26 +118,21 @@ public class SteamAchievementTester : MonoBehaviour
 
     public void PrintSelectedState()
     {
-        if (!EnsureStatsReady())
-            return;
+        if (!EnsureStatsReady()) return;
 
         string apiName = achievement.ToString();
 
-        bool achieved;
-        bool ok = SteamUserStats.GetAchievement(apiName, out achieved);
-
+        bool ok = SteamUserStats.GetAchievement(apiName, out bool achieved);
         Log($"GetAchievement('{apiName}') ok={ok} achieved={achieved}");
     }
 
     private bool EnsureStatsReady()
     {
-        if (!IsSteamReady())
-            return false;
-        
-        // If still not ready, ask user to try again after callbacks.
+        if (!IsSteamReady()) return false;
+
         if (!_statsReady)
         {
-            Debug.LogWarning("SteamAchievementTester: Stats not ready yet. Try again in a moment.");
+            Debug.LogWarning("SteamAchievementTool: Stats not ready yet. Try again in a moment.");
             return false;
         }
 
@@ -135,27 +141,18 @@ public class SteamAchievementTester : MonoBehaviour
 
     private void OnUserStatsReceived(UserStatsReceived_t data)
     {
-        // Only accept stats for this user + this app
-        if (data.m_nGameID != (ulong)SteamUtils.GetAppID())
-            return;
+        if (data.m_nGameID != (ulong)SteamUtils.GetAppID()) return;
+        if ((ulong)SteamUser.GetSteamID() != data.m_steamIDUser.m_SteamID) return;
 
-        if ((ulong)SteamUser.GetSteamID() != data.m_steamIDUser.m_SteamID)
-            return;
-
-        // Success is 1 (k_EResultOK), but we avoid enum dependency and just check non-zero OK-ish
-        // Steamworks.NET normally provides EResult; use it if you like.
-        // If you want strict: if ((EResult)data.m_eResult != EResult.k_EResultOK) return;
         _statsReady = true;
-
-        Log("UserStatsReceived: stats are ready.");
+        Log("UserStatsReceived callback fired: stats confirmed ready.");
     }
 
     private bool IsSteamReady()
     {
-        // Steamworks.NET example typically uses SteamManager.Initialized
         if (!SteamManager.Initialized)
         {
-            Debug.LogWarning("SteamAchievementTester: Steam is not initialized. Run through Steam or ensure steam_appid.txt is present for local testing.");
+            Debug.LogWarning("SteamAchievementTool: Steam is not initialized. Run through Steam or ensure steam_appid.txt is present for local testing.");
             return false;
         }
         return true;
@@ -163,20 +160,20 @@ public class SteamAchievementTester : MonoBehaviour
 
     private void Log(string msg)
     {
-        if (verboseLogs) Debug.Log($"[SteamAchievementTester] {msg}");
+        if (verboseLogs) Debug.Log($"[SteamAchievementTool] {msg}");
     }
 #endif
 }
 
 #if UNITY_EDITOR
-[CustomEditor(typeof(SteamAchievementTester))]
-public class SteamAchievementTesterEditor : Editor
+[CustomEditor(typeof(SteamAchievementTool))]
+public class SteamAchievementToolEditor : Editor
 {
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
 
-        var t = (SteamAchievementTester)target;
+        var t = (SteamAchievementTool)target;
 
         GUILayout.Space(10);
         EditorGUILayout.LabelField("Steam Achievement Test Actions", EditorStyles.boldLabel);
@@ -211,13 +208,13 @@ public class SteamAchievementTesterEditor : Editor
         }
     }
 
-    private static void CallSafe(SteamAchievementTester t, string methodName)
+    private static void CallSafe(SteamAchievementTool t, string methodName)
     {
         if (t == null) return;
 
         var m = t.GetType().GetMethod(methodName);
         if (m != null) m.Invoke(t, null);
-        else Debug.LogError($"SteamAchievementTesterEditor: Method not found: {methodName}");
+        else Debug.LogError($"SteamAchievementToolEditor: Method not found: {methodName}");
     }
 }
 #endif
@@ -225,5 +222,6 @@ public class SteamAchievementTesterEditor : Editor
 public enum SteamAchievements
 {
     NewsHound,
-    WorkMeating
+    WorkMeating,
+    Primadonna
 }

@@ -119,6 +119,7 @@ public class LoadingManager : MonoBehaviour
             fadeCanvas.alpha = 1f;
         }
 
+        
         // 5) Hide loading UI
         ShowLoadingUI(false);
         
@@ -196,6 +197,8 @@ public class LoadingManager : MonoBehaviour
 
         float t = 0f;
 
+        GameMaster.Instance.PLAYERBUSY = false;
+        
         while (t < duration)
         {
             
@@ -215,7 +218,6 @@ public class LoadingManager : MonoBehaviour
         fadeCanvas.alpha = targetAlpha;
         _fadeCo = null;
 
-        GameMaster.Instance.PLAYERBUSY = false;
     }
 
     
@@ -244,6 +246,9 @@ public class LoadingManager : MonoBehaviour
 
         Time.timeScale = 1f;
 
+        if (GameMaster.Instance != null) GameMaster.Instance.PLAYERBUSY = false;
+        
+        
         if (GameMaster.Instance != null)
         {
             Debug.Log("scene loaded from LoadingManager");
@@ -254,10 +259,6 @@ public class LoadingManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         _sceneLoadedFlag = true;
-
-        if (GameMaster.Instance != null) GameMaster.Instance.PLAYERBUSY = false;
-        
-        
     }
 
     // ---------------------------------------------------------------------

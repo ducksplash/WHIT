@@ -257,11 +257,12 @@ public class OnboardingManager : MonoBehaviour
 
     public void CollectTestEvidence()
     {
-        //Debug.Log("CollectTestEvidence");
-        TESTEVIDENCECOLLECTED = true;
         GameMaster.Instance.DialogueManager.NewDialogue(phoneTutorialFirstEvidence, 5);
         
-        StoredPrefs.Instance.SetInt("TESTEVIDENCECOLLECTED", TESTEVIDENCECOLLECTED ? 1 : 0); StoredPrefs.Instance.Save();
+        StoredPrefs.Instance.SetInt("TESTEVIDENCECOLLECTED", 1); 
+        StoredPrefs.Instance.Save();
+        
+        EventManager.UnlockAchievement(SteamAchievements.NewsHound);
         
         CheckOnboardingStatus();
     }

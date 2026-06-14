@@ -267,6 +267,9 @@ public class GameMaster : MonoBehaviour
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
         LoadingManager.SceneFadeIn();
+        
+        
+        EventManager.UnlockAchievement(SteamAchievements.WorkMeating);
     }
 
     public void StartLevelRoarkOutside()

@@ -54,6 +54,20 @@ public static class EventManager
     public static event Action OnSlideTickerOut = () => { };
 
     
+    // cheev
+    
+    
+    public static event Action<SteamAchievements> OnUnlockAchievement = (SteamAchievements) => { };
+    
+    
+    public static void UnlockAchievement(SteamAchievements thisCheevo)
+    {
+        OnUnlockAchievement.Invoke(thisCheevo);
+    }
+    
+    
+    
+    
     
     public static void SpawnPlayer()
     {

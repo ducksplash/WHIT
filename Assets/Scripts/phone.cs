@@ -1538,22 +1538,21 @@ public class Phone : MonoBehaviour
 
         Debug.Log($"Photo camera: {cam.name}");
 
-        List<GameObject> detectedObjects = new List<GameObject>();
 
-        GameObject[] boys = GameObject.FindGameObjectsWithTag("TheBoys");
-
-        Debug.Log($"Found {boys.Length} objects with tag TheBoys");
-
-        foreach (GameObject target in boys)
+        if (TakingSelfie)
         {
-            Debug.Log($"Checking {target.name}");
-
-            if (IsInCameraFrame(cam, target))
+            GameObject[] boys = GameObject.FindGameObjectsWithTag("TheBoys");
+            
+            
+            foreach (GameObject target in boys)
             {
-                detectedObjects.Add(target);
-                Debug.Log($"IN FRAME: {target.name}");
+                if (IsInCameraFrame(cam, target))
+                {
+                    EventManager.UnlockAchievement(SteamAchievements.Primadonna);
+                }
             }
         }
+
 
         string photosDir = Path.Combine(Application.persistentDataPath, "Phone/0/Photos");
         Directory.CreateDirectory(photosDir);
@@ -1582,30 +1581,57 @@ public class Phone : MonoBehaviour
         File.WriteAllBytes(fullPath, bytes);
 
         Destroy(photo);
-
-        Debug.Log($"Detected {detectedObjects.Count} objects in frame");
-
-        foreach (GameObject detected in detectedObjects)
-        {
-            Debug.Log($"PHOTO CONTAINS: {detected.name}");
-            Debug.Log("TAKE A PICTURE AM WITH THE BOYS");
-        }
     }
     
     private bool IsInCameraFrame(Camera cam, GameObject obj)
     {
         Renderer rend = obj.GetComponentInChildren<Renderer>();
+        if (rend == null) return false;
 
-        if (rend == null)
-            return false;
+        // Sample multiple points on the bounds, not just center
+        Bounds bounds = rend.bounds;
+        Vector3[] samplePoints = new Vector3[]
+        {
+            bounds.center,
+            bounds.center + Vector3.up   * bounds.extents.y * 0.8f,
+            bounds.center + Vector3.down * bounds.extents.y * 0.8f,
+            bounds.center + Vector3.left * bounds.extents.x * 0.8f,
+            bounds.center + Vector3.right* bounds.extents.x * 0.8f,
+        };
 
-        Vector3 center = rend.bounds.center;
-        Vector3 viewport = cam.WorldToViewportPoint(center);
+        // Exclude the player AND the target object itself from blocking the ray
+        int mask = ~LayerMask.GetMask("player");
 
-        // Must be in front of camera and inside screen bounds
-        return viewport.z > 0 &&
-               viewport.x >= 0 && viewport.x <= 1 &&
-               viewport.y >= 0 && viewport.y <= 1;
+        foreach (Vector3 point in samplePoints)
+        {
+            Vector3 viewport = cam.WorldToViewportPoint(point);
+
+            // Must be in front of and within the camera frame
+            if (viewport.z <= 0 || viewport.x < 0.05f || viewport.x > 0.95f
+                || viewport.y < 0.05f || viewport.y > 0.95f)
+                continue;
+
+            // Check line of sight from camera to this point
+            Vector3 direction = point - cam.transform.position;
+            float distance = direction.magnitude;
+
+            bool blocked = false;
+
+            if (Physics.Raycast(cam.transform.position, direction.normalized, out RaycastHit hit, distance - 0.1f, mask))
+            {
+                // Blocked if the hit object is NOT part of our target
+                if (hit.transform != obj.transform && !hit.transform.IsChildOf(obj.transform))
+                {
+                    blocked = true;
+                }
+            }
+
+            // At least one visible, unblocked point on the target is enough
+            if (!blocked)
+                return true;
+        }
+
+        return false;
     }
     
     

@@ -1593,10 +1593,10 @@ public class Phone : MonoBehaviour
         Vector3[] samplePoints = new Vector3[]
         {
             bounds.center,
-            bounds.center + Vector3.up   * bounds.extents.y * 0.8f,
-            bounds.center + Vector3.down * bounds.extents.y * 0.8f,
-            bounds.center + Vector3.left * bounds.extents.x * 0.8f,
-            bounds.center + Vector3.right* bounds.extents.x * 0.8f,
+            bounds.center + Vector3.up * (bounds.extents.y * 0.8f),
+            bounds.center + Vector3.down * (bounds.extents.y * 0.8f),
+            bounds.center + Vector3.left * (bounds.extents.x * 0.8f),
+            bounds.center + Vector3.right * (bounds.extents.x * 0.8f),
         };
 
         // Exclude the player AND the target object itself from blocking the ray
@@ -1626,9 +1626,7 @@ public class Phone : MonoBehaviour
                 }
             }
 
-            // At least one visible, unblocked point on the target is enough
-            if (!blocked)
-                return true;
+            if (!blocked) return true;
         }
 
         return false;

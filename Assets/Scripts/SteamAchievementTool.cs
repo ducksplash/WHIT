@@ -80,6 +80,10 @@ public class SteamAchievementTool : MonoBehaviour
         SteamUserStats.StoreStats();
     }
 
+    
+    
+    #if UNITY_EDITOR
+    
     // Removed "For All Players" — impossible via Steam API
     public void ResetAllAchievementsCurrentUser()
     {
@@ -101,6 +105,10 @@ public class SteamAchievementTool : MonoBehaviour
         Log($"[{apiName}] Achieved = {achieved}");
     }
 
+    #endif
+    
+    
+    
     private bool EnsureStatsReady()
     {
         if (!IsSteamReady()) return false;

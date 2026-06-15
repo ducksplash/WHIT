@@ -66,7 +66,7 @@ public class UIPulsatingGlowUniTask : MonoBehaviour
 
     private void OnDestroy()
     {
-        Dispose();
+        //Dispose();
     }
 
     private void Dispose()

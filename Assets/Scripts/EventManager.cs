@@ -56,16 +56,21 @@ public static class EventManager
     
     // cheev
     
-    
     public static event Action<SteamAchievements> OnUnlockAchievement = (SteamAchievements) => { };
     
+    public static event Action<OutfitType> OnOutfitChanged = (OutfitType) => { };
     
     public static void UnlockAchievement(SteamAchievements thisCheevo)
     {
         OnUnlockAchievement.Invoke(thisCheevo);
     }
-    
-    
+
+
+
+    public static void OutfitChanged(OutfitType OutfitType)
+    {
+        OnOutfitChanged.Invoke(OutfitType);
+    }
     
     
     

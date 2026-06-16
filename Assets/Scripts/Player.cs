@@ -16,10 +16,21 @@ public class Player : Singleton<Player>
     
     [Header("Movement & State")]
     public float walkspeed = 0.1f;
-    public float sprintspeed = 0.2f;
-    public float jumpForce = 2f;
 
-    private float speed;
+    
+    public float jumpForce = 9f;                    
+    public float jumpForwardSpeed = 6.5f;         
+    public float jumpCooldown = 0.55f;             
+    private float _jumpCooldownUntil;
+
+    private bool _isJumping;
+    private Vector3 _jumpForwardDirection;
+    private Coroutine _jumpRoutine;
+    
+    public float jumpControllerHeightBoost = 1.4f;      // How much extra height the capsule gets
+    public float jumpControllerBlendTime = 0.18f;       // Blend speed (match your jump takeoff)
+    private Coroutine _controllerJumpBlendRoutine;
+    
     private Vector2 moveInput;
 
     public Me Me;
@@ -91,6 +102,12 @@ public class Player : Singleton<Player>
     [Header("Jump Tuning")]
     public float groundedFalseAfterJumpSeconds = 0.12f;
     private float _forceUngroundedUntil;
+
+    // ── Jump horizontal lock ─────────────────────────────────────────────────
+    // Horizontal direction captured at the moment of jumping. Applied instead
+    // of fresh input while the character is airborne, preventing mid-air glide.
+    private Vector3 _jumpHorizontalVelocity;
+    // ────────────────────────────────────────────────────────────────────────
 
     // ── Melee ───────────────────────────────────────────────────────────────
     [Header("Melee")] 
@@ -263,8 +280,7 @@ public class Player : Singleton<Player>
 
         thisCharController = GetComponentInParent<CharacterController>();
         if (thisCharController == null) thisCharController = GetComponent<CharacterController>();
-
-        speed = sprintspeed;
+        
 
         if (Noranimator == null) Noranimator = GetComponentInChildren<Animator>(true);
 
@@ -350,7 +366,7 @@ public class Player : Singleton<Player>
 
         // Apply Position + Rotation
         rootTransform.position = spawnPoint;
-        rootTransform.rotation = Quaternion.Euler(spawnRotation);   // ← New line
+        rootTransform.rotation = Quaternion.Euler(spawnRotation);
 
         Physics.SyncTransforms();
 
@@ -463,8 +479,6 @@ public class Player : Singleton<Player>
             DebugCam.gameObject.SetActive(false);
         }
 
-        
-
         // Restore previous gameplay camera
         if (_previousGameplayCamera != null)
         {
@@ -528,11 +542,9 @@ public class Player : Singleton<Player>
     {
         if (thisCharController == null || _controllerBaselineCaptured) return;
 
-        _standHeight  = thisCharController.height;
-        _standCenter  = thisCharController.center;
-
+        _standHeight = thisCharController.height;
+        _standCenter = thisCharController.center;
         if (standheight <= 0f) standheight = _standHeight;
-
         _bottomLocalOffset = _standCenter.y - (_standHeight * 0.5f);
         _controllerBaselineCaptured = true;
 
@@ -605,7 +617,7 @@ public class Player : Singleton<Player>
         HandleMovement();
     }
 
-public void NoraSit(Seat seat)
+    public void NoraSit(Seat seat)
     {
         if (seat == null || seat.seatTransform == null) return;
         if (IsSeated) return;
@@ -625,7 +637,6 @@ public void NoraSit(Seat seat)
     {
         var token = _sitCts.Token;
 
-        // Fixed: No .WithY()
         Vector3 seatForward = seatTf.forward;
         seatForward.y = 0f;
         if (seatForward.sqrMagnitude < 0.0001f)
@@ -752,7 +763,6 @@ public void NoraSit(Seat seat)
             transform.rotation = Quaternion.Slerp(transform.rotation, faceRot, 
                 Time.deltaTime * sitRotateSpeed * 2f);
 
-            // Fixed: Replaced .WithY(0) with manual Y = 0
             Vector3 dir = backstepTarget - transform.position;
             dir.y = 0f;
             dir.Normalize();
@@ -764,6 +774,7 @@ public void NoraSit(Seat seat)
             await UniTask.Yield(PlayerLoopTiming.Update, token);
         }
     }
+
     private void AbortSit()
     {
         Debug.LogWarning("[Player] SitSequence aborted (seat transform was destroyed).");
@@ -822,81 +833,62 @@ public void NoraSit(Seat seat)
         IsSeated = false;
     }
     
-
-    
     // ────────────────────────────────────────────────────────────────────────
     // Movement
     // ────────────────────────────────────────────────────────────────────────
     private void HandleMovement()
     {
-        if (lockMovementDuringMelee && Time.time < _moveLockedUntil)
-        {
-            UpdateAnimator(isGrounded: thisCharController != null && thisCharController.isGrounded);
-            return;
-        }
+        if (CurrentCamera == DebugCam) return;
+        if (GameMaster.Instance?.PauseManager?.IsPaused == true) return;
+        if (MoveOverride && moveAction != null && !moveAction.action.enabled)
+            moveAction.action.Enable();
 
-        moveInput = moveAction != null ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
-
-        Transform moveBasis = FirstPersonLook != null && FirstPersonLook.character != null ? FirstPersonLook.character : transform;
-
-        Vector3 moveForward = moveBasis.forward;
-        Vector3 moveRight   = moveBasis.right;
-
-        moveForward.y = 0f;
-        moveRight.y   = 0f;
-
-        moveForward.Normalize();
-        moveRight.Normalize();
-
-        Vector3 desiredMove = (moveForward * moveInput.y) + (moveRight * moveInput.x);
-        desiredMove.Normalize();
-
-        speed = crouching ? walkspeed : (walking ? walkspeed : sprintspeed);
+        if (GameMaster.Instance?.PLAYERBUSY == true && !MoveOverride) return;
 
         if (climbing)
         {
             Vector3 climbMove = Vector3.zero;
+            if (climbUpAction != null && climbUpAction.action.ReadValue<float>() > 0f)
+                climbMove += Vector3.up * walkspeed;
+            if (climbDownAction != null && climbDownAction.action.ReadValue<float>() > 0f)
+                climbMove -= Vector3.up * walkspeed;
 
-            if (climbUpAction   != null && climbUpAction.action.ReadValue<float>()   > 0f) climbMove += Vector3.up * speed;
-            if (climbDownAction != null && climbDownAction.action.ReadValue<float>() > 0f) climbMove -= Vector3.up * speed;
-
-            if (thisCharController != null)
-                thisCharController.Move(climbMove * Time.deltaTime);
-
-            UpdateAnimator(isGrounded: false);
+            thisCharController.Move(climbMove * Time.deltaTime);
+            UpdateAnimator(false);
             return;
         }
 
-        if (thisCharController == null)
+        moveInput = moveAction?.action.ReadValue<Vector2>() ?? Vector2.zero;
+
+        Transform moveBasis = FirstPersonLook?.character ?? transform;
+        Vector3 moveForward = moveBasis.forward;
+        Vector3 moveRight = moveBasis.right;
+        moveForward.y = 0f;
+        moveRight.y = 0f;
+        moveForward.Normalize();
+        moveRight.Normalize();
+
+        Vector3 desiredMove = (moveForward * moveInput.y) + (moveRight * moveInput.x);
+        if (desiredMove.sqrMagnitude > 1f) desiredMove.Normalize();
+
+        bool isGrounded = thisCharController.isGrounded;
+
+        // ── Horizontal Movement ─────────────────────────────────────
+        Vector3 horizontalMove = Vector3.zero;
+
+        if (!_isJumping && Time.time >= _jumpCooldownUntil)
         {
-            UpdateAnimator(isGrounded: true);
-            return;
+            horizontalMove = desiredMove;
         }
+        // During jump: Do NOT apply normal input here — the coroutine handles forward boost
 
-        bool groundedBefore = thisCharController.isGrounded;
+        thisCharController.Move(horizontalMove * walkspeed * Time.deltaTime);
 
-        if (groundedBefore)
-        {
-            if (moveDirection.y < 0f) moveDirection.y = -2f;
-
-            if (jumpRequested)
-            {
-                moveDirection.y     = jumpForce;
-                jumpRequested       = false;
-                _forceUngroundedUntil = Time.time + groundedFalseAfterJumpSeconds;
-            }
-        }
-
-        thisCharController.Move(desiredMove * speed * Time.deltaTime);
-
+        // Gravity
         moveDirection.y += Physics.gravity.y * Time.deltaTime;
         thisCharController.Move(moveDirection * Time.deltaTime);
 
-        bool groundedAfter = thisCharController.isGrounded;
-        bool animGrounded  = groundedAfter;
-        if (Time.time < _forceUngroundedUntil) animGrounded = false;
-
-        UpdateAnimator(isGrounded: animGrounded);
+        UpdateAnimator(isGrounded: isGrounded && !_isJumping);
         UpdatePeripheryFromAnimator();
     }
 
@@ -906,31 +898,26 @@ public void NoraSit(Seat seat)
 
         float dt = Time.deltaTime;
 
-        // Calculate manual velocity (already smoothed externally if you applied that tip)
         ComputeManualVelocityXZ();
 
         Vector3 vel = _manualVelocityXZ;
         float speed = vel.magnitude;
 
-        // Movement threshold to prevent idle jitter
         float moveThreshold = 1.5f;
         bool isMoving = speed > moveThreshold;
 
-        // Convert velocity to local space for blend tree
         Vector3 localDir = Vector3.zero;
         if (isMoving && _animT != null) localDir = _animT.InverseTransformDirection(vel.normalized);
 
         float targetX = isMoving ? Mathf.Clamp(localDir.x, -1f, 1f) : 0f;
         float targetY = isMoving ? Mathf.Clamp(localDir.z, -1f, 1f) : 0f;
 
-        // Set animator states
         Noranimator.SetBool(AnimCrouching, crouching);
         Noranimator.SetBool(AnimGrounded, isGrounded);
 
         Noranimator.SetFloat(AnimMoveX, targetX, animDampTime, dt);
         Noranimator.SetFloat(AnimMoveY, targetY, animDampTime, dt);
 
-        // Speed blending (idle / walk / run)
         float targetSpeed01 = 0f;
         if (isMoving)
         {
@@ -1014,7 +1001,6 @@ public void NoraSit(Seat seat)
 
         BlendUpperBodyWeight(current, target, shouldBeOn ? upperBodyBlendIn : upperBodyBlendOut, _upperBodyCts.Token).Forget();
     }
-
 
     // ────────────────────────────────────────────────────────────────────────
     // Torch suppression (crawl)
@@ -1153,33 +1139,108 @@ public void NoraSit(Seat seat)
         else         Noranimator.SetBool(AnimNotepadOut, true);
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // Jump / Crouch
-    // ────────────────────────────────────────────────────────────────────────
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride)
-        {
-            jumpRequested = false;
-            return;
-        }
-
-        if (climbing) return;
-        if (crouching) return;
-        if (thisCharController == null) return;
+        if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
+        if (climbing || crouching || thisCharController == null) return;
         if (!thisCharController.isGrounded) return;
+        if (Time.time < _jumpCooldownUntil) return;
 
-        // if (Me.currentOutfit is OutfitType.Wedding or OutfitType.Funeral)
-        // {
-        //     if (!GameMaster.Instance.DialogueManager.DialogInProgress) GameMaster.Instance.DialogueManager.NewDialogue(DialogueName.NoraNotJumpingInThis, 5);
-        //     return;
-        // }
-        
-
+        StartJump();
+    }
+    private void StartJump()
+    {
+        if (_isJumping) return;
+        _isJumping = true;
         Noranimator?.SetTrigger(AnimJump);
-        jumpRequested = true;
     }
 
+    public void OnJumpTakeoff() // Called from Animation Event
+    {
+        Transform moveBasis = FirstPersonLook?.character ?? transform;
+        _jumpForwardDirection = moveBasis.forward;
+        _jumpForwardDirection.y = 0f;
+        _jumpForwardDirection.Normalize();
+
+        moveDirection.y = jumpForce;
+
+        // Start controller blend UP
+        if (_controllerJumpBlendRoutine != null) StopCoroutine(_controllerJumpBlendRoutine);
+        _controllerJumpBlendRoutine = StartCoroutine(BlendControllerForJump(true));
+
+        // Start monitoring landing
+        if (_jumpRoutine != null) StopCoroutine(_jumpRoutine);
+        _jumpRoutine = StartCoroutine(JumpSequence());
+    }
+
+    private IEnumerator JumpSequence()
+    {
+        // Wait one frame to ensure takeoff has happened
+        yield return null;
+
+        // Apply forward momentum while airborne
+        while (!thisCharController.isGrounded)
+        {
+            Vector3 airBoost = _jumpForwardDirection * jumpForwardSpeed * Time.deltaTime;
+            thisCharController.Move(airBoost);
+            yield return null;
+        }
+
+        // === LANDED ===
+        _isJumping = false;
+
+        // Blend controller height back down
+        if (_controllerJumpBlendRoutine != null) 
+            StopCoroutine(_controllerJumpBlendRoutine);
+        _controllerJumpBlendRoutine = StartCoroutine(BlendControllerForJump(false));
+
+        // Kill residual momentum
+        moveDirection.x = 0f;
+        moveDirection.z = 0f;
+        moveDirection.y = -8f;
+
+        // Cooldown after landing
+        _jumpCooldownUntil = Time.time + jumpCooldown;
+
+        _jumpRoutine = null;
+    }
+    
+    
+    
+    private IEnumerator BlendControllerForJump(bool isJumpingUp)
+    {
+        if (thisCharController == null) yield break;
+
+        float startHeight = thisCharController.height;
+        Vector3 startCenter = thisCharController.center;
+
+        float targetHeight = isJumpingUp 
+            ? _standHeight + jumpControllerHeightBoost 
+            : _standHeight;
+
+        Vector3 targetCenter = isJumpingUp 
+            ? new Vector3(startCenter.x, startCenter.y + (jumpControllerHeightBoost * 0.5f), startCenter.z) 
+            : _standCenter;
+
+        float t = 0f;
+        float duration = jumpControllerBlendTime;
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float a = Mathf.Clamp01(t / duration);
+
+            thisCharController.height = Mathf.Lerp(startHeight, targetHeight, a);
+            thisCharController.center = Vector3.Lerp(startCenter, targetCenter, a);
+
+            yield return null;
+        }
+
+        // Final snap
+        thisCharController.height = targetHeight;
+        thisCharController.center = targetCenter;
+    }
+    
     private void OnCrouchToggle(InputAction.CallbackContext ctx)
     {
         if (climbing) return;
@@ -1201,7 +1262,6 @@ public void NoraSit(Seat seat)
     public void Crouch()
     {
         crouching = true;
-        speed     = walkspeed;
 
         if (stanceimg != null) stanceimg.sprite = crouchsprite;
 

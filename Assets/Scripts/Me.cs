@@ -942,6 +942,8 @@ public class Me : MonoBehaviour
         }
         ApplyBodyColors(outfit);
         ApplyAccessories();
+        
+        EventManager.OutfitChanged(outfit);
     }
 
     public void DisableAllMainOutfits()

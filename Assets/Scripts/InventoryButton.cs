@@ -5,5 +5,8 @@ public class InventoryButton : MonoBehaviour
 {
     public GameObject AppOutline;
     public InputName ThisInputName;
+    
+    
+    
 
 }

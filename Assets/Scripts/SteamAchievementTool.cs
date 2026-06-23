@@ -169,21 +169,32 @@ public class SteamAchievementToolEditor : Editor
                 if (GUILayout.Button("Unlock", GUILayout.Width(70)))
                     CallSafe(t, nameof(t.UnlockAchievement), ach);
 
-                if (GUILayout.Button("Clear", GUILayout.Width(70)))
-                    CallSafe(t, nameof(t.ClearAchievement), ach);
+                if (GUILayout.Button("Clear", GUILayout.Width(70))) CallSafe(t, nameof(t.ClearAchievement), ach);
 
                 EditorGUILayout.EndHorizontal();
             }
 
             GUILayout.Space(10);
 
-            if (GUILayout.Button("Clear ALL Achievements", GUILayout.Height(30))) CallSafe(t, nameof(t.ClearAll));
-            
-        }
+            var oldColor = GUI.backgroundColor;
 
-        if (!Application.isPlaying)
-        {
-            EditorGUILayout.HelpBox("Enter Play Mode to use the buttons.", MessageType.Info);
+            GUI.backgroundColor = Color.red;
+
+            var clearAllStyle = new GUIStyle(GUI.skin.button)
+            {
+                fontStyle = FontStyle.Bold,
+                normal =
+                {
+                    textColor = Color.white
+                }
+            };
+
+            if (GUILayout.Button("CLEAR ALL ACHIEVEMENTS", clearAllStyle, GUILayout.Height(30)))
+            {
+                CallSafe(t, nameof(t.ClearAll));
+            }
+
+            GUI.backgroundColor = oldColor;            
         }
     }
 

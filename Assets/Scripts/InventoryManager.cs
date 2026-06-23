@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class InventoryManager : MonoBehaviour
     private float _cachedLookSensitivity;
     private bool _hasCachedSensitivity;
 
+    
     private void OnEnable()
     {
         if (InventoryToggle != null)
@@ -77,7 +79,7 @@ public class InventoryManager : MonoBehaviour
         if (InventoryCanvas == null)
             return;
 
-        InventoryCanvas.alpha = InventoryActive ? 0.85f : 0f;
+        InventoryCanvas.alpha = InventoryActive ? 1 : 0f;
         InventoryCanvas.blocksRaycasts = InventoryActive;
         InventoryCanvas.interactable = InventoryActive;
     }

@@ -71,7 +71,7 @@ public class Me : MonoBehaviour
     public bool ChokerEnabledForWorkTwo;
     public OutfitHair hairForWorkTwo = OutfitHair.DefaultHair;
 
-    [Header("Tartan & Grey Dress")]
+    [Header("Tartan Dress")]
     public bool WorkThreeOutfitEnabled = true;
     public List<GameObject> OutfitForWorkOneThree;
     public Color lipsColorForWorkThree = new Color(0.95f, 0.6f, 0.7f);
@@ -475,8 +475,55 @@ public class Me : MonoBehaviour
     public OutfitHair hairForStrappyTopAndSkirt = OutfitHair.DefaultHair;
 
     
+    [Header("Shortie")]
+    public bool ShortieEnabled = true;
+    public List<GameObject> OutfitForShortie;
+    public Color lipsColorForShortie = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForShortie = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleShortie;
+    public bool WingsEnabledForShortie;
+    public bool ApronEnabledForShortie;
+    public bool HatEnabledForShortie;
+    public bool ChokerEnabledForShortie;
+    public OutfitHair hairForShortie = OutfitHair.DefaultHair;
+
     
-    
+    [Header("Top With Skirt")]
+    public bool TopWithSkirtEnabled = true;
+    public List<GameObject> OutfitForTopWithSkirt;
+    public Color lipsColorForTopWithSkirt = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForTopWithSkirt = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleTopWithSkirt;
+    public bool WingsEnabledForTopWithSkirt;
+    public bool ApronEnabledForTopWithSkirt;
+    public bool HatEnabledForTopWithSkirt;
+    public bool ChokerEnabledForTopWithSkirt;
+    public OutfitHair hairForTopWithSkirt = OutfitHair.DefaultHair;
+
+    [Header("WoolyModesty")]
+    public bool WoolyModestyEnabled = true;
+    public List<GameObject> OutfitForWoolyModesty;
+    public Color lipsColorForWoolyModesty = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForWoolyModesty = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleWoolyModesty;
+    public bool WingsEnabledForWoolyModesty;
+    public bool ApronEnabledForWoolyModesty;
+    public bool HatEnabledForWoolyModesty;
+    public bool ChokerEnabledForWoolyModesty;
+    public OutfitHair hairForWoolyModesty = OutfitHair.DefaultHair;
+
+    [Header("Froot Cardi & Dress")]
+    public bool FrootCardiganTopEnabled = true;
+    public List<GameObject> OutfitForFrootCardiganTop;
+    public Color lipsColorForFrootCardiganTop = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForFrootCardiganTop = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleFrootCardiganTop;
+    public bool WingsEnabledForFrootCardiganTop;
+    public bool ApronEnabledForFrootCardiganTop;
+    public bool HatEnabledForFrootCardiganTop;
+    public bool ChokerEnabledForFrootCardiganTop;
+    public OutfitHair hairForFrootCardiganTop = OutfitHair.DefaultHair;
+
     [Header("Night Out")]
     [Header("Froot Dress")]
     public bool FrootDressOutfitEnabled = true;
@@ -660,54 +707,6 @@ public class Me : MonoBehaviour
     public OutfitHair hairForKnottedAndShorts = OutfitHair.DefaultHair;
 
     
-    [Header("Placeholders")]
-    [Header("Placeholder 007")]
-    public bool Placeholder007Enabled = true;
-    public List<GameObject> OutfitForPlaceholder007;
-    public Color lipsColorForPlaceholder007 = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForPlaceholder007 = new Color(0.93f, 0.75f, 0.8f);
-    public bool JigglePlaceholder007;
-    public bool WingsEnabledForPlaceholder007;
-    public bool ApronEnabledForPlaceholder007;
-    public bool HatEnabledForPlaceholder007;
-    public bool ChokerEnabledForPlaceholder007;
-    public OutfitHair hairForPlaceholder007 = OutfitHair.DefaultHair;
-
-    [Header("Placeholder 008")]
-    public bool Placeholder008Enabled = true;
-    public List<GameObject> OutfitForPlaceholder008;
-    public Color lipsColorForPlaceholder008 = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForPlaceholder008 = new Color(0.93f, 0.75f, 0.8f);
-    public bool JigglePlaceholder008;
-    public bool WingsEnabledForPlaceholder008;
-    public bool ApronEnabledForPlaceholder008;
-    public bool HatEnabledForPlaceholder008;
-    public bool ChokerEnabledForPlaceholder008;
-    public OutfitHair hairForPlaceholder008 = OutfitHair.DefaultHair;
-
-    [Header("Placeholder 009")]
-    public bool Placeholder009Enabled = true;
-    public List<GameObject> OutfitForPlaceholder009;
-    public Color lipsColorForPlaceholder009 = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForPlaceholder009 = new Color(0.93f, 0.75f, 0.8f);
-    public bool JigglePlaceholder009;
-    public bool WingsEnabledForPlaceholder009;
-    public bool ApronEnabledForPlaceholder009;
-    public bool HatEnabledForPlaceholder009;
-    public bool ChokerEnabledForPlaceholder009;
-    public OutfitHair hairForPlaceholder009 = OutfitHair.DefaultHair;
-
-    [Header("Placeholder 010")]
-    public bool Placeholder010Enabled = true;
-    public List<GameObject> OutfitForPlaceholder010;
-    public Color lipsColorForPlaceholder010 = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForPlaceholder010 = new Color(0.93f, 0.75f, 0.8f);
-    public bool JigglePlaceholder010;
-    public bool WingsEnabledForPlaceholder010;
-    public bool ApronEnabledForPlaceholder010;
-    public bool HatEnabledForPlaceholder010;
-    public bool ChokerEnabledForPlaceholder010;
-    public OutfitHair hairForPlaceholder010 = OutfitHair.DefaultHair;
 
     [Header("Jigglers")]
     public GameObject JiggleLeftBoob;
@@ -913,10 +912,10 @@ public class Me : MonoBehaviour
             case OutfitType.KnottedAndShorts:           return hairForKnottedAndShorts;
             case OutfitType.Modest:           return hairForModest;
             case OutfitType.StrappyTopAndSkirt:           return hairForStrappyTopAndSkirt;
-            case OutfitType.Placeholder007:           return hairForPlaceholder007;
-            case OutfitType.Placeholder008:           return hairForPlaceholder008;
-            case OutfitType.Placeholder009:           return hairForPlaceholder009;
-            case OutfitType.Placeholder010:           return hairForPlaceholder010;
+            case OutfitType.Shortie:           return hairForShortie;
+            case OutfitType.TopWithSkirt:           return hairForTopWithSkirt;
+            case OutfitType.WoolyModesty:           return hairForWoolyModesty;
+            case OutfitType.FrootCardiganTop:           return hairForFrootCardiganTop;
             default:                                  return OutfitHair.DefaultHair;
         }
     }
@@ -996,10 +995,10 @@ public class Me : MonoBehaviour
             case OutfitType.KnottedAndShorts:           return KnottedAndShortsEnabled;
             case OutfitType.Modest:           return ModestEnabled;
             case OutfitType.StrappyTopAndSkirt:           return StrappyTopAndSkirtEnabled;
-            case OutfitType.Placeholder007:           return Placeholder007Enabled;
-            case OutfitType.Placeholder008:           return Placeholder008Enabled;
-            case OutfitType.Placeholder009:           return Placeholder009Enabled;
-            case OutfitType.Placeholder010:           return Placeholder010Enabled;
+            case OutfitType.Shortie:           return ShortieEnabled;
+            case OutfitType.TopWithSkirt:           return TopWithSkirtEnabled;
+            case OutfitType.WoolyModesty:           return WoolyModestyEnabled;
+            case OutfitType.FrootCardiganTop:           return FrootCardiganTopEnabled;
             default:                                  return true;
         }
     }
@@ -1107,10 +1106,10 @@ public class Me : MonoBehaviour
             case OutfitType.KnottedAndShorts:           wings = WingsEnabledForKnottedAndShorts;           overall = ApronEnabledForKnottedAndShorts;           hat = HatEnabledForKnottedAndShorts;           choker = ChokerEnabledForKnottedAndShorts;           break;
             case OutfitType.Modest:           wings = WingsEnabledForModest;           overall = ApronEnabledForModest;           hat = HatEnabledForModest;           choker = ChokerEnabledForModest;           break;
             case OutfitType.StrappyTopAndSkirt:           wings = WingsEnabledForStrappyTopAndSkirt;           overall = ApronEnabledForStrappyTopAndSkirt;           hat = HatEnabledForStrappyTopAndSkirt;           choker = ChokerEnabledForStrappyTopAndSkirt;           break;
-            case OutfitType.Placeholder007:           wings = WingsEnabledForPlaceholder007;           overall = ApronEnabledForPlaceholder007;           hat = HatEnabledForPlaceholder007;           choker = ChokerEnabledForPlaceholder007;           break;
-            case OutfitType.Placeholder008:           wings = WingsEnabledForPlaceholder008;           overall = ApronEnabledForPlaceholder008;           hat = HatEnabledForPlaceholder008;           choker = ChokerEnabledForPlaceholder008;           break;
-            case OutfitType.Placeholder009:           wings = WingsEnabledForPlaceholder009;           overall = ApronEnabledForPlaceholder009;           hat = HatEnabledForPlaceholder009;           choker = ChokerEnabledForPlaceholder009;           break;
-            case OutfitType.Placeholder010:           wings = WingsEnabledForPlaceholder010;           overall = ApronEnabledForPlaceholder010;           hat = HatEnabledForPlaceholder010;           choker = ChokerEnabledForPlaceholder010;           break;
+            case OutfitType.Shortie:           wings = WingsEnabledForShortie;           overall = ApronEnabledForShortie;           hat = HatEnabledForShortie;           choker = ChokerEnabledForShortie;           break;
+            case OutfitType.TopWithSkirt:           wings = WingsEnabledForTopWithSkirt;           overall = ApronEnabledForTopWithSkirt;           hat = HatEnabledForTopWithSkirt;           choker = ChokerEnabledForTopWithSkirt;           break;
+            case OutfitType.WoolyModesty:           wings = WingsEnabledForWoolyModesty;           overall = ApronEnabledForWoolyModesty;           hat = HatEnabledForWoolyModesty;           choker = ChokerEnabledForWoolyModesty;           break;
+            case OutfitType.FrootCardiganTop:           wings = WingsEnabledForFrootCardiganTop;           overall = ApronEnabledForFrootCardiganTop;           hat = HatEnabledForFrootCardiganTop;           choker = ChokerEnabledForFrootCardiganTop;           break;
             default:                                  wings = false; overall = false; hat = false;      choker = false;                                                                                  break;
         }
     }
@@ -1198,10 +1197,10 @@ public class Me : MonoBehaviour
             case OutfitType.KnottedAndShorts:           ToggleKnottedAndShortsOutfit(true);           break;
             case OutfitType.Modest:           ToggleModestOutfit(true);           break;
             case OutfitType.StrappyTopAndSkirt:           ToggleStrappyTopAndSkirtOutfit(true);           break;
-            case OutfitType.Placeholder007:           TogglePlaceholder007Outfit(true);           break;
-            case OutfitType.Placeholder008:           TogglePlaceholder008Outfit(true);           break;
-            case OutfitType.Placeholder009:           TogglePlaceholder009Outfit(true);           break;
-            case OutfitType.Placeholder010:           TogglePlaceholder010Outfit(true);           break;
+            case OutfitType.Shortie:           ToggleShortieOutfit(true);           break;
+            case OutfitType.TopWithSkirt:           ToggleTopWithSkirtOutfit(true);           break;
+            case OutfitType.WoolyModesty:           ToggleWoolyModestyOutfit(true);           break;
+            case OutfitType.FrootCardiganTop:           ToggleFrootCardiganTopOutfit(true);           break;
             default:                                  DisableAllMainOutfits();                    break;
         }
     }
@@ -1256,10 +1255,10 @@ public class Me : MonoBehaviour
     public void ToggleKnottedAndShortsOutfit(bool? forceOn = null)           { JiggleToggle(JiggleKnottedAndShorts);           ToggleMainOutfit(OutfitType.KnottedAndShorts,           forceOn); }
     public void ToggleModestOutfit(bool? forceOn = null)           { JiggleToggle(JiggleModest);           ToggleMainOutfit(OutfitType.Modest,           forceOn); }
     public void ToggleStrappyTopAndSkirtOutfit(bool? forceOn = null)           { JiggleToggle(JiggleStrappyTopAndSkirt);           ToggleMainOutfit(OutfitType.StrappyTopAndSkirt,           forceOn); }
-    public void TogglePlaceholder007Outfit(bool? forceOn = null)           { JiggleToggle(JigglePlaceholder007);           ToggleMainOutfit(OutfitType.Placeholder007,           forceOn); }
-    public void TogglePlaceholder008Outfit(bool? forceOn = null)           { JiggleToggle(JigglePlaceholder008);           ToggleMainOutfit(OutfitType.Placeholder008,           forceOn); }
-    public void TogglePlaceholder009Outfit(bool? forceOn = null)           { JiggleToggle(JigglePlaceholder009);           ToggleMainOutfit(OutfitType.Placeholder009,           forceOn); }
-    public void TogglePlaceholder010Outfit(bool? forceOn = null)           { JiggleToggle(JigglePlaceholder010);           ToggleMainOutfit(OutfitType.Placeholder010,           forceOn); }
+    public void ToggleShortieOutfit(bool? forceOn = null)           { JiggleToggle(JiggleShortie);           ToggleMainOutfit(OutfitType.Shortie,           forceOn); }
+    public void ToggleTopWithSkirtOutfit(bool? forceOn = null)           { JiggleToggle(JiggleTopWithSkirt);           ToggleMainOutfit(OutfitType.TopWithSkirt,           forceOn); }
+    public void ToggleWoolyModestyOutfit(bool? forceOn = null)           { JiggleToggle(JiggleWoolyModesty);           ToggleMainOutfit(OutfitType.WoolyModesty,           forceOn); }
+    public void ToggleFrootCardiganTopOutfit(bool? forceOn = null)           { JiggleToggle(JiggleFrootCardiganTop);           ToggleMainOutfit(OutfitType.FrootCardiganTop,           forceOn); }
 
     private void JiggleToggle(bool isJiggly = false)
     {
@@ -1340,10 +1339,10 @@ public class Me : MonoBehaviour
             case OutfitType.KnottedAndShorts:           InstantiatePrefabs(OutfitForKnottedAndShorts);           break;
             case OutfitType.Modest:           InstantiatePrefabs(OutfitForModest);           break;
             case OutfitType.StrappyTopAndSkirt:           InstantiatePrefabs(OutfitForStrappyTopAndSkirt);           break;
-            case OutfitType.Placeholder007:           InstantiatePrefabs(OutfitForPlaceholder007);           break;
-            case OutfitType.Placeholder008:           InstantiatePrefabs(OutfitForPlaceholder008);           break;
-            case OutfitType.Placeholder009:           InstantiatePrefabs(OutfitForPlaceholder009);           break;
-            case OutfitType.Placeholder010:           InstantiatePrefabs(OutfitForPlaceholder010);           break;
+            case OutfitType.Shortie:           InstantiatePrefabs(OutfitForShortie);           break;
+            case OutfitType.TopWithSkirt:           InstantiatePrefabs(OutfitForTopWithSkirt);           break;
+            case OutfitType.WoolyModesty:           InstantiatePrefabs(OutfitForWoolyModesty);           break;
+            case OutfitType.FrootCardiganTop:           InstantiatePrefabs(OutfitForFrootCardiganTop);           break;
         }
         ApplyBodyColors(outfit);
         ApplyAccessories();
@@ -1400,7 +1399,8 @@ public class Me : MonoBehaviour
             OutfitType.GreyCheckHalterDress,  OutfitType.SweaterAndSkirt,       OutfitType.TurtleneckAndSkirt,      OutfitType.CheckTopAndJeans,
             OutfitType.KnottedBlousseAndSkirt, OutfitType.RuffleBlousseAndSkirt, OutfitType.LooseTopAndLongSkirt,    OutfitType.TurtleneckAndMediumSkirt,
             OutfitType.WoolenJumper,           OutfitType.Edea,                  OutfitType.DitzyDress,              OutfitType.LittleBlackDress,
-            OutfitType.Conservative,           OutfitType.CasualPantSuit,           OutfitType.ButtonDress,           OutfitType.Traditional,          OutfitType.Modest,          OutfitType.StrappyTopAndSkirt
+            OutfitType.Conservative,           OutfitType.CasualPantSuit,           OutfitType.ButtonDress,           OutfitType.Traditional,          OutfitType.Modest,          OutfitType.StrappyTopAndSkirt, OutfitType.Shortie, OutfitType.TopWithSkirt, 
+            OutfitType.WoolyModesty, OutfitType.FrootCardiganTop
         };
         SwitchToOutfit(PickRandom(pool));
     }
@@ -1493,10 +1493,10 @@ public class Me : MonoBehaviour
             case OutfitType.KnottedAndShorts:           return lipsColorForKnottedAndShorts;
             case OutfitType.Modest:           return lipsColorForModest;
             case OutfitType.StrappyTopAndSkirt:           return lipsColorForStrappyTopAndSkirt;
-            case OutfitType.Placeholder007:           return lipsColorForPlaceholder007;
-            case OutfitType.Placeholder008:           return lipsColorForPlaceholder008;
-            case OutfitType.Placeholder009:           return lipsColorForPlaceholder009;
-            case OutfitType.Placeholder010:           return lipsColorForPlaceholder010;
+            case OutfitType.Shortie:           return lipsColorForShortie;
+            case OutfitType.TopWithSkirt:           return lipsColorForTopWithSkirt;
+            case OutfitType.WoolyModesty:           return lipsColorForWoolyModesty;
+            case OutfitType.FrootCardiganTop:           return lipsColorForFrootCardiganTop;
             default:                                  return Color.white;
         }
     }
@@ -1555,10 +1555,10 @@ public class Me : MonoBehaviour
             case OutfitType.KnottedAndShorts:         return nailsColorForKnottedAndShorts;
             case OutfitType.Modest:                   return nailsColorForModest;
             case OutfitType.StrappyTopAndSkirt:       return nailsColorForStrappyTopAndSkirt;
-            case OutfitType.Placeholder007:           return nailsColorForPlaceholder007;
-            case OutfitType.Placeholder008:           return nailsColorForPlaceholder008;
-            case OutfitType.Placeholder009:           return nailsColorForPlaceholder009;
-            case OutfitType.Placeholder010:           return nailsColorForPlaceholder010;
+            case OutfitType.Shortie:           return nailsColorForShortie;
+            case OutfitType.TopWithSkirt:           return nailsColorForTopWithSkirt;
+            case OutfitType.WoolyModesty:           return nailsColorForWoolyModesty;
+            case OutfitType.FrootCardiganTop:           return nailsColorForFrootCardiganTop;
             default:                                  return Color.white;
         }
     }
@@ -1597,7 +1597,7 @@ public class MeEditor : Editor
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Classic Nora Dress",        clearAllStyle, GUILayout.Height(28))) { me.ToggleWorkOutfit();          EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Black Skirt & Cream Shirt", clearAllStyle, GUILayout.Height(28))) { me.ToggleWorkThreeOutfit();     EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Tartan & Grey Dress",       clearAllStyle, GUILayout.Height(28))) { me.ToggleWorkTwoOutfit();       EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Tartan Dress",       clearAllStyle, GUILayout.Height(28))) { me.ToggleWorkTwoOutfit();       EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Black Suit & Shirt",        clearAllStyle, GUILayout.Height(28))) { me.ToggleWorkFourOutfit();      EditorUtility.SetDirty(me); }
@@ -1673,6 +1673,12 @@ public class MeEditor : Editor
         if (GUILayout.Button("Strappy Top & Skirt", clearAllStyle, GUILayout.Height(28))) { me.ToggleStrappyTopAndSkirtOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Shortie", clearAllStyle, GUILayout.Height(28))) { me.ToggleShortieOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Top With Skirt", clearAllStyle, GUILayout.Height(28))) { me.ToggleTopWithSkirtOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Wooly Modesty", clearAllStyle, GUILayout.Height(28))) { me.ToggleWoolyModestyOutfit(); EditorUtility.SetDirty(me); }        
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Froot Cardi & Dress", clearAllStyle, GUILayout.Height(28))) { me.ToggleFrootCardiganTopOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Edea's Dress",                clearAllStyle, GUILayout.Height(28))) { me.ToggleEdeaOutfit();           EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
@@ -1717,17 +1723,6 @@ public class MeEditor : Editor
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Nothin' At All", clearAllStyle, GUILayout.Height(28))) { me.Undress(); EditorUtility.SetDirty(me); }
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.Space();
-        GUI.backgroundColor = new Color(0.5f, 0.5f, 0.5f);
-
-        EditorGUILayout.LabelField("Placeholders", EditorStyles.boldLabel);
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Placeholder 007", clearAllStyle, GUILayout.Height(28))) { me.TogglePlaceholder007Outfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Placeholder 008", clearAllStyle, GUILayout.Height(28))) { me.TogglePlaceholder008Outfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Placeholder 009", clearAllStyle, GUILayout.Height(28))) { me.TogglePlaceholder009Outfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Placeholder 010", clearAllStyle, GUILayout.Height(28))) { me.TogglePlaceholder010Outfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space();
@@ -1868,8 +1863,8 @@ public enum OutfitType
     KnottedAndShorts,
     Modest,
     StrappyTopAndSkirt,
-    Placeholder007,
-    Placeholder008,
-    Placeholder009,
-    Placeholder010
+    Shortie,
+    TopWithSkirt,
+    WoolyModesty,
+    FrootCardiganTop
 }

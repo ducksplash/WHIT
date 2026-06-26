@@ -59,7 +59,7 @@ public class Me : MonoBehaviour
     public bool ChokerEnabledForWorkOne;
     public OutfitHair hairForWorkOne = OutfitHair.DefaultHair;
 
-    [Header("Black Skirt & Cream Shirt")]
+    [Header("Tartan Dress")]
     public bool WorkTwoOutfitEnabled = true;
     public List<GameObject> OutfitForWorkOneTwo;
     public Color lipsColorForWorkTwo = new Color(0.95f, 0.6f, 0.7f);
@@ -71,7 +71,7 @@ public class Me : MonoBehaviour
     public bool ChokerEnabledForWorkTwo;
     public OutfitHair hairForWorkTwo = OutfitHair.DefaultHair;
 
-    [Header("Tartan Dress")]
+    [Header("Black Skirt & Cream Shirt")]
     public bool WorkThreeOutfitEnabled = true;
     public List<GameObject> OutfitForWorkOneThree;
     public Color lipsColorForWorkThree = new Color(0.95f, 0.6f, 0.7f);
@@ -106,8 +106,13 @@ public class Me : MonoBehaviour
     public bool HatEnabledForWorkSuitThree;
     public bool ChokerEnabledForWorkSuitThree;
     public OutfitHair hairForWorkSuitThree = OutfitHair.DefaultHair;
-
-    [Header("Casual Stuff")]
+    
+    
+    /// <summary>
+    /// Main outfits
+    /// </summary>
+    [Header("Main")]
+    
     [Header("Uni Sweater & Jeans")]
     public bool CasualOutfitEnabled = true;
     public List<GameObject> OutfitForCasual;
@@ -119,6 +124,150 @@ public class Me : MonoBehaviour
     public bool HatEnabledForCasual;
     public bool ChokerEnabledForCasual;
     public OutfitHair hairForCasual = OutfitHair.DefaultHair;
+    
+    [Header("First Date")]
+    public bool FirstDateOutfitEnabled = true;
+    public List<GameObject> OutfitForFirstDate;
+    public Color lipsColorForFirstDate = new Color(0.9f, 0.3f, 0.4f);
+    public Color nailsColorForFirstDate = new Color(0.95f, 0.82f, 0.87f);
+    public bool JiggleOnAFirstDate;
+    public bool WingsEnabledForFirstDate;
+    public bool ApronEnabledForFirstDate;
+    public bool HatEnabledForFirstDate;
+    public bool ChokerEnabledForFirstDate;
+    public OutfitHair hairForFirstDate = OutfitHair.DefaultHair;
+    
+    [Header("Second Date")]
+    public bool SecondDateOutfitEnabled = true;
+    public List<GameObject> OutfitForSecondDate;
+    public Color lipsColorForSecondDate = new Color(0.96f, 0.4f, 0.5f);
+    public Color nailsColorForSecondDate = new Color(0.97f, 0.88f, 0.9f);
+    public bool JiggleOnASecondDate;
+    public bool WingsEnabledForSecondDate;
+    public bool ApronEnabledForSecondDate;
+    public bool HatEnabledForSecondDate;
+    public bool ChokerEnabledForSecondDate;
+    public OutfitHair hairForSecondDate = OutfitHair.DefaultHair;
+
+    [Header("Grey Check Halter Dress")]
+    public bool GreyCheckHalterDressOutfitEnabled = true;
+    public List<GameObject> OutfitForGreyCheckHalterDress;
+    public Color lipsColorForGreyCheckHalterDress = new Color(0.98f, 0.45f, 0.55f);
+    public Color nailsColorForGreyCheckHalterDress = new Color(0.98f, 0.9f, 0.92f);
+    public bool JiggleOnAGreyCheckHalterDress;
+    public bool WingsEnabledForGreyCheckHalterDress;
+    public bool ApronEnabledForGreyCheckHalterDress;
+    public bool HatEnabledForGreyCheckHalterDress;
+    public bool ChokerEnabledForGreyCheckHalterDress;
+    public OutfitHair hairForGreyCheckHalterDress = OutfitHair.DefaultHair;
+
+    [Header("Sweater & Skirt")]
+    public bool SweaterAndSkirtOutfitEnabled = true;
+    public List<GameObject> OutfitForSweaterAndSkirt;
+    public Color lipsColorForSweaterAndSkirt = new Color(0.8f, 0.15f, 0.25f);
+    public Color nailsColorForSweaterAndSkirt = new Color(0.88f, 0.65f, 0.75f);
+    public bool JiggleSweaterAndSkirt;
+    public bool WingsEnabledForSweaterAndSkirt;
+    public bool ApronEnabledForSweaterAndSkirt;
+    public bool HatEnabledForSweaterAndSkirt;
+    public bool ChokerEnabledForSweaterAndSkirt;
+    public OutfitHair hairForSweaterAndSkirt = OutfitHair.DefaultHair;
+    
+    [Header("Turtleneck & Skirt")]
+    public bool TurtleneckAndSkirtOutfitEnabled = true;
+    public List<GameObject> OutfitForTurtleneckAndSkirt;
+    public Color lipsColorForTurtleneckAndSkirt = new Color(0.95f, 0.35f, 0.45f);
+    public Color nailsColorForTurtleneckAndSkirt = new Color(0.96f, 0.85f, 0.88f);
+    public bool JiggleTurtleneckAndSkirt;
+    public bool WingsEnabledForTurtleneckAndSkirt;
+    public bool ApronEnabledForTurtleneckAndSkirt;
+    public bool HatEnabledForTurtleneckAndSkirt;
+    public bool ChokerEnabledForTurtleneckAndSkirt;
+    public OutfitHair hairForTurtleneckAndSkirt = OutfitHair.DefaultHair;
+
+    [Header("Check Top & Jeans")]
+    public bool CheckTopAndJeansOutfitEnabled = true;
+    public List<GameObject> OutfitForCheckTopAndJeans;
+    public Color lipsColorForCheckTopAndJeans = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForCheckTopAndJeans = new Color(0.94f, 0.8f, 0.85f);
+    public bool JiggleCheckTopAndJeans;
+    public bool WingsEnabledForCheckTopAndJeans;
+    public bool ApronEnabledForCheckTopAndJeans;
+    public bool HatEnabledForCheckTopAndJeans;
+    public bool ChokerEnabledForCheckTopAndJeans;
+    public OutfitHair hairForCheckTopAndJeans = OutfitHair.DefaultHair;
+    
+    [Header("Knotted Blousse & Skirt")]
+    public bool KnottedBlousseAndSkirtOutfitEnabled = true;
+    public List<GameObject> OutfitForKnottedBlousseAndSkirt;
+    public Color lipsColorForKnottedBlousseAndSkirt = new Color(0.88f, 0.2f, 0.3f);
+    public Color nailsColorForKnottedBlousseAndSkirt = new Color(0.93f, 0.78f, 0.83f);
+    public bool JiggleKnottedBlousseAndSkirt;
+    public bool WingsEnabledForKnottedBlousseAndSkirt;
+    public bool ApronEnabledForKnottedBlousseAndSkirt;
+    public bool HatEnabledForKnottedBlousseAndSkirt;
+    public bool ChokerEnabledForKnottedBlousseAndSkirt;
+    public OutfitHair hairForKnottedBlousseAndSkirt = OutfitHair.DefaultHair;
+    
+    [Header("Ruffle Blousse & Skirt")]
+    public bool RuffleBlousseAndSkirtEnabled = true;
+    public List<GameObject> OutfitForRuffleBlousseAndSkirt;
+    public Color lipsColorForRuffleBlousseAndSkirt = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForRuffleBlousseAndSkirt = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleRuffleBlousseAndSkirt;
+    public bool WingsEnabledForRuffleBlousseAndSkirt;
+    public bool ApronEnabledForRuffleBlousseAndSkirt;
+    public bool HatEnabledForRuffleBlousseAndSkirt;
+    public bool ChokerEnabledForRuffleBlousseAndSkirt;
+    public OutfitHair hairForRuffleBlousseAndSkirt = OutfitHair.DefaultHair;
+    
+    [Header("Loose Top & Long Skirt")]
+    public bool LooseTopAndLongSkirtOutfitEnabled = true;
+    public List<GameObject> OutfitForLooseTopAndLongSkirt;
+    public Color lipsColorForLooseTopAndLongSkirt = new Color(0.88f, 0.22f, 0.32f);
+    public Color nailsColorForLooseTopAndLongSkirt = new Color(0.95f, 0.82f, 0.85f);
+    public bool JiggleLooseTopAndLongSkirt;
+    public bool WingsEnabledForLooseTopAndLongSkirt;
+    public bool ApronEnabledForLooseTopAndLongSkirt;
+    public bool HatEnabledForLooseTopAndLongSkirt;
+    public bool ChokerEnabledForLooseTopAndLongSkirt;
+    public OutfitHair hairForLooseTopAndLongSkirt = OutfitHair.DefaultHair;
+    
+    [Header("Turtleneck & Medium Skirt")]
+    public bool TurtleneckAndMediumSkirtOutfitEnabled = true;
+    public List<GameObject> OutfitForTurtleneckAndMediumSkirt;
+    public Color lipsColorForTurtleneckAndMediumSkirt = new Color(0.85f, 0.18f, 0.28f);
+    public Color nailsColorForTurtleneckAndMediumSkirt = new Color(0.88f, 0.68f, 0.73f);
+    public bool JiggleTurtleneckAndMediumSkirt;
+    public bool WingsEnabledForTurtleneckAndMediumSkirt;
+    public bool ApronEnabledForTurtleneckAndMediumSkirt;
+    public bool HatEnabledForTurtleneckAndMediumSkirt;
+    public bool ChokerEnabledForTurtleneckAndMediumSkirt;
+    public OutfitHair hairForTurtleneckAndMediumSkirt = OutfitHair.DefaultHair;
+    
+    [Header("Wooly Jumper & Tights")]
+    public bool WoolenJumperEnabled = true;
+    public List<GameObject> OutfitForWoolenJumper;
+    public Color lipsColorForWoolenJumper = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForWoolenJumper = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleWoolenJumper;
+    public bool WingsEnabledForWoolenJumper;
+    public bool ApronEnabledForWoolenJumper;
+    public bool HatEnabledForWoolenJumper;
+    public bool ChokerEnabledForWoolenJumper;
+    public OutfitHair hairForWoolenJumper = OutfitHair.DefaultHair;
+    
+    [Header("Casual Pantsuit")]
+    public bool CasualPantsuitEnabled = true;
+    public List<GameObject> OutfitCasualPantsuit;
+    public Color lipsColorForCasualPantsuit = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForCasualPantsuit = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleCasualPantsuit;
+    public bool WingsEnabledForCasualPantsuit;
+    public bool ApronEnabledForCasualPantsuit;
+    public bool HatEnabledForCasualPantsuit;
+    public bool ChokerEnabledForCasualPantsuit;
+    public OutfitHair hairForCasualPantsuit = OutfitHair.DefaultHair;
 
     [Header("Shorts & Tights")]
     public bool ShortsAndTightsEnabled = true;
@@ -132,6 +281,8 @@ public class Me : MonoBehaviour
     public bool ChokerEnabledForShortsAndTights;
     public OutfitHair hairForShortsAndTights = OutfitHair.DefaultHair;
 
+    
+
     [Header("Clean Bandit")]
     public bool CleanBanditEnabled = true;
     public List<GameObject> OutfitForCleanBandit;
@@ -144,6 +295,181 @@ public class Me : MonoBehaviour
     public bool ChokerEnabledForCleanBandit;
     public OutfitHair hairForCleanBandit = OutfitHair.DefaultHair;
 
+    
+    [Header("Conservative Jumper & Skirt")]
+    public bool ConservativeEnabled = true;
+    public List<GameObject> OutfitConservative;
+    public Color lipsColorForConservative = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForConservative = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleConservative;
+    public bool WingsEnabledForConservative;
+    public bool ApronEnabledForConservative;
+    public bool HatEnabledForConservative;
+    public bool ChokerEnabledForConservative;
+    public OutfitHair hairForConservative = OutfitHair.DefaultHair;
+
+    [Header("Button Dress")]
+    public bool ButtonDressEnabled = true;
+    public List<GameObject> OutfitForButtonDress;
+    public Color lipsColorForButtonDress = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForButtonDress = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleButtonDress;
+    public bool WingsEnabledForButtonDress;
+    public bool ApronEnabledForButtonDress;
+    public bool HatEnabledForButtonDress;
+    public bool ChokerEnabledForButtonDress;
+    public OutfitHair hairForButtonDress = OutfitHair.DefaultHair;
+
+
+    [Header("Wooly Jumper & Jeans")]
+    public bool WoolyAndJeansEnabled = true;
+    public List<GameObject> OutfitForWoolyAndJeans;
+    public Color lipsColorForWoolyAndJeans = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForWoolyAndJeans = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleWoolyAndJeans;
+    public bool WingsEnabledForWoolyAndJeans;
+    public bool ApronEnabledForWoolyAndJeans;
+    public bool HatEnabledForWoolyAndJeans;
+    public bool ChokerEnabledForWoolyAndJeans;
+    public OutfitHair hairForWoolyAndJeans = OutfitHair.DefaultHair;
+
+    [Header("Modest Top & Skirt")]
+    public bool ModestEnabled = true;
+    public List<GameObject> OutfitForModest;
+    public Color lipsColorForModest = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForModest = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleModest;
+    public bool WingsEnabledForModest;
+    public bool ApronEnabledForModest;
+    public bool HatEnabledForModest;
+    public bool ChokerEnabledForModest;
+    public OutfitHair hairForModest = OutfitHair.DefaultHair;
+
+
+
+    [Header("Strappy Top & Skirt")]
+    public bool StrappyTopAndSkirtEnabled = true;
+    public List<GameObject> OutfitForStrappyTopAndSkirt;
+    public Color lipsColorForStrappyTopAndSkirt = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForStrappyTopAndSkirt = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleStrappyTopAndSkirt;
+    public bool WingsEnabledForStrappyTopAndSkirt;
+    public bool ApronEnabledForStrappyTopAndSkirt;
+    public bool HatEnabledForStrappyTopAndSkirt;
+    public bool ChokerEnabledForStrappyTopAndSkirt;
+    public OutfitHair hairForStrappyTopAndSkirt = OutfitHair.DefaultHair;
+
+    [Header("Shortie")]
+    public bool ShortieEnabled = true;
+    public List<GameObject> OutfitForShortie;
+    public Color lipsColorForShortie = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForShortie = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleShortie;
+    public bool WingsEnabledForShortie;
+    public bool ApronEnabledForShortie;
+    public bool HatEnabledForShortie;
+    public bool ChokerEnabledForShortie;
+    public OutfitHair hairForShortie = OutfitHair.DefaultHair;
+
+    [Header("Top With Skirt")]
+    public bool TopWithSkirtEnabled = true;
+    public List<GameObject> OutfitForTopWithSkirt;
+    public Color lipsColorForTopWithSkirt = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForTopWithSkirt = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleTopWithSkirt;
+    public bool WingsEnabledForTopWithSkirt;
+    public bool ApronEnabledForTopWithSkirt;
+    public bool HatEnabledForTopWithSkirt;
+    public bool ChokerEnabledForTopWithSkirt;
+    public OutfitHair hairForTopWithSkirt = OutfitHair.DefaultHair;
+    
+
+    [Header("WoolyModesty")]
+    public bool WoolyModestyEnabled = true;
+    public List<GameObject> OutfitForWoolyModesty;
+    public Color lipsColorForWoolyModesty = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForWoolyModesty = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleWoolyModesty;
+    public bool WingsEnabledForWoolyModesty;
+    public bool ApronEnabledForWoolyModesty;
+    public bool HatEnabledForWoolyModesty;
+    public bool ChokerEnabledForWoolyModesty;
+    public OutfitHair hairForWoolyModesty = OutfitHair.DefaultHair;
+
+    
+    [Header("Storyline")]
+    [Header("Wedding")]
+    public bool WeddingOutfitEnabled = true;
+    public List<GameObject> OutfitForWedding;
+    public Color lipsColorForWedding = new Color(0.95f, 0.55f, 0.6f);
+    public Color nailsColorForWedding = new Color(0.96f, 0.88f, 0.9f);
+    public bool JiggleAtAWedding;
+    public bool WingsEnabledForWedding;
+    public bool ApronEnabledForWedding;
+    public bool HatEnabledForWedding;
+    public bool ChokerEnabledForWedding;
+    public OutfitHair hairForWedding = OutfitHair.DefaultHair;
+
+    [Header("Funeral")]
+    public bool FuneralOutfitEnabled = true;
+    public List<GameObject> OutfitForFuneral;
+    public Color lipsColorForFuneral = new Color(0.65f, 0.08f, 0.15f);
+    public Color nailsColorForFuneral = new Color(0.7f, 0.5f, 0.55f);
+    public bool JiggleAtAFuneral;
+    public bool WingsEnabledForFuneral;
+    public bool ApronEnabledForFuneral;
+    public bool HatEnabledForFuneral;
+    public bool ChokerEnabledForFuneral;
+    public OutfitHair hairForFuneral = OutfitHair.DefaultHair;
+
+    [Header("On Skid Row")]
+    public bool HomelessnessOutfitEnabled = true;
+    public List<GameObject> OutfitForHomelessness;
+    public Color lipsColorForHomelessness = new Color(0.7f, 0.1f, 0.2f);
+    public Color nailsColorForHomelessness = new Color(0.75f, 0.55f, 0.6f);
+    public bool JiggleWhileHomeless;
+    public bool WingsEnabledForHomelessness;
+    public bool ApronEnabledForHomelessness;
+    public bool HatEnabledForHomelessness;
+    public bool ChokerEnabledForHomelessness;
+    public OutfitHair hairForHomelessness = OutfitHair.DefaultHair;
+
+    [Header("Stealth Suit")]
+    public bool StealthSuitEnabled = true;
+    public List<GameObject> OutfitForStealthSuit;
+    public Color lipsColorForStealthSuit = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorStealthSuit = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleStealthSuit;
+    public bool WingsEnabledForStealthSuit;
+    public bool ApronEnabledForStealthSuit;
+    public bool HatEnabledForStealthSuit;
+    public bool ChokerEnabledForStealthSuit;
+    public OutfitHair hairForStealthSuit = OutfitHair.DefaultHair;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    [Header("Special")]
+    
+    
+    [Header("Traditional")]
+    public bool TraditionalEnabled = true;
+    public List<GameObject> OutfitForTraditional;
+    public Color lipsColorForTraditional = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForTraditional = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleTraditional;
+    public bool WingsEnabledForTraditional;
+    public bool ApronEnabledForTraditional;
+    public bool HatEnabledForTraditional;
+    public bool ChokerEnabledForTraditional;
+    public OutfitHair hairForTraditional = OutfitHair.DefaultHair;
+    
     [Header("Church Dress")]
     public bool ChurchDressEnabled = true;
     public List<GameObject> OutfitForChurchDress;
@@ -168,19 +494,35 @@ public class Me : MonoBehaviour
     public bool ChokerEnabledForFitness;
     public OutfitHair hairForFitness = OutfitHair.DefaultHair;
 
-    [Header("Wooly Jumper & Jeans")]
-    public bool WoolyAndJeansEnabled = true;
-    public List<GameObject> OutfitForWoolyAndJeans;
-    public Color lipsColorForWoolyAndJeans = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForWoolyAndJeans = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleWoolyAndJeans;
-    public bool WingsEnabledForWoolyAndJeans;
-    public bool ApronEnabledForWoolyAndJeans;
-    public bool HatEnabledForWoolyAndJeans;
-    public bool ChokerEnabledForWoolyAndJeans;
-    public OutfitHair hairForWoolyAndJeans = OutfitHair.DefaultHair;
+    [Header("Froot Cardi & Dress")]
+    public bool FrootCardiganTopEnabled = true;
+    public List<GameObject> OutfitForFrootCardiganTop;
+    public Color lipsColorForFrootCardiganTop = new Color(0.9f, 0.25f, 0.35f);
+    public Color nailsColorForFrootCardiganTop = new Color(0.93f, 0.75f, 0.8f);
+    public bool JiggleFrootCardiganTop;
+    public bool WingsEnabledForFrootCardiganTop;
+    public bool ApronEnabledForFrootCardiganTop;
+    public bool HatEnabledForFrootCardiganTop;
+    public bool ChokerEnabledForFrootCardiganTop;
+    public OutfitHair hairForFrootCardiganTop = OutfitHair.DefaultHair;
+    
+    [Header("Edea's Dress")]
+    public bool EdeaOutfitEnabled = true;
+    public List<GameObject> OutfitForEdea;
+    public Color lipsColorForEdea = new Color(0.75f, 0.1f, 0.2f);
+    public Color nailsColorForEdea = new Color(0.9f, 0.7f, 0.75f);
+    public bool JiggleCasuallyFour;
+    public bool WingsEnabledForEdea;
+    public bool ApronEnabledForEdea;
+    public bool HatEnabledForEdea;
+    public bool ChokerEnabledForEdea;
+    public OutfitHair hairForEdea = OutfitHair.DefaultHair;
 
+
+    
+    
     [Header("Pyjamas")]
+    
     [Header("Flannels")]
     public bool PyjamasOutfitEnabled = true;
     public List<GameObject> OutfitForPyjamas;
@@ -217,164 +559,11 @@ public class Me : MonoBehaviour
     public bool ChokerEnabledForNightie;
     public OutfitHair hairForNightie = OutfitHair.DefaultHair;
 
-    [Header("Dating")]
-    [Header("First Date")]
-    public bool FirstDateOutfitEnabled = true;
-    public List<GameObject> OutfitForFirstDate;
-    public Color lipsColorForFirstDate = new Color(0.9f, 0.3f, 0.4f);
-    public Color nailsColorForFirstDate = new Color(0.95f, 0.82f, 0.87f);
-    public bool JiggleOnAFirstDate;
-    public bool WingsEnabledForFirstDate;
-    public bool ApronEnabledForFirstDate;
-    public bool HatEnabledForFirstDate;
-    public bool ChokerEnabledForFirstDate;
-    public OutfitHair hairForFirstDate = OutfitHair.DefaultHair;
-
-    [Header("Second Date")]
-    public bool SecondDateOutfitEnabled = true;
-    public List<GameObject> OutfitForSecondDate;
-    public Color lipsColorForSecondDate = new Color(0.96f, 0.4f, 0.5f);
-    public Color nailsColorForSecondDate = new Color(0.97f, 0.88f, 0.9f);
-    public bool JiggleOnASecondDate;
-    public bool WingsEnabledForSecondDate;
-    public bool ApronEnabledForSecondDate;
-    public bool HatEnabledForSecondDate;
-    public bool ChokerEnabledForSecondDate;
-    public OutfitHair hairForSecondDate = OutfitHair.DefaultHair;
-
-    [Header("Third Date")]
-    public bool ThirdDateOutfitEnabled = true;
-    public List<GameObject> OutfitForThirdDate;
-    public Color lipsColorForThirdDate = new Color(0.85f, 0.22f, 0.32f);
-    public Color nailsColorForThirdDate = new Color(0.94f, 0.8f, 0.85f);
-    public bool JiggleOnAThirdDate;
-    public bool WingsEnabledForThirdDate;
-    public bool ApronEnabledForThirdDate;
-    public bool HatEnabledForThirdDate;
-    public bool ChokerEnabledForThirdDate;
-    public OutfitHair hairForThirdDate = OutfitHair.DefaultHair;
-
-    [Header("Cute")]
-    [Header("Grey Check Halter Dress")]
-    public bool GreyCheckHalterDressOutfitEnabled = true;
-    public List<GameObject> OutfitForGreyCheckHalterDress;
-    public Color lipsColorForGreyCheckHalterDress = new Color(0.98f, 0.45f, 0.55f);
-    public Color nailsColorForGreyCheckHalterDress = new Color(0.98f, 0.9f, 0.92f);
-    public bool JiggleOnAGreyCheckHalterDress;
-    public bool WingsEnabledForGreyCheckHalterDress;
-    public bool ApronEnabledForGreyCheckHalterDress;
-    public bool HatEnabledForGreyCheckHalterDress;
-    public bool ChokerEnabledForGreyCheckHalterDress;
-    public OutfitHair hairForGreyCheckHalterDress = OutfitHair.DefaultHair;
-
-    [Header("Sweater & Skirt")]
-    public bool SweaterAndSkirtOutfitEnabled = true;
-    public List<GameObject> OutfitForSweaterAndSkirt;
-    public Color lipsColorForSweaterAndSkirt = new Color(0.8f, 0.15f, 0.25f);
-    public Color nailsColorForSweaterAndSkirt = new Color(0.88f, 0.65f, 0.75f);
-    public bool JiggleSweaterAndSkirt;
-    public bool WingsEnabledForSweaterAndSkirt;
-    public bool ApronEnabledForSweaterAndSkirt;
-    public bool HatEnabledForSweaterAndSkirt;
-    public bool ChokerEnabledForSweaterAndSkirt;
-    public OutfitHair hairForSweaterAndSkirt = OutfitHair.DefaultHair;
-
-    [Header("Turtleneck & Skirt")]
-    public bool TurtleneckAndSkirtOutfitEnabled = true;
-    public List<GameObject> OutfitForTurtleneckAndSkirt;
-    public Color lipsColorForTurtleneckAndSkirt = new Color(0.95f, 0.35f, 0.45f);
-    public Color nailsColorForTurtleneckAndSkirt = new Color(0.96f, 0.85f, 0.88f);
-    public bool JiggleTurtleneckAndSkirt;
-    public bool WingsEnabledForTurtleneckAndSkirt;
-    public bool ApronEnabledForTurtleneckAndSkirt;
-    public bool HatEnabledForTurtleneckAndSkirt;
-    public bool ChokerEnabledForTurtleneckAndSkirt;
-    public OutfitHair hairForTurtleneckAndSkirt = OutfitHair.DefaultHair;
-
-    [Header("Check Top & Jeans")]
-    public bool CheckTopAndJeansOutfitEnabled = true;
-    public List<GameObject> OutfitForCheckTopAndJeans;
-    public Color lipsColorForCheckTopAndJeans = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForCheckTopAndJeans = new Color(0.94f, 0.8f, 0.85f);
-    public bool JiggleCheckTopAndJeans;
-    public bool WingsEnabledForCheckTopAndJeans;
-    public bool ApronEnabledForCheckTopAndJeans;
-    public bool HatEnabledForCheckTopAndJeans;
-    public bool ChokerEnabledForCheckTopAndJeans;
-    public OutfitHair hairForCheckTopAndJeans = OutfitHair.DefaultHair;
-
-    [Header("Knotted Blousse & Skirt")]
-    public bool KnottedBlousseAndSkirtOutfitEnabled = true;
-    public List<GameObject> OutfitForKnottedBlousseAndSkirt;
-    public Color lipsColorForKnottedBlousseAndSkirt = new Color(0.88f, 0.2f, 0.3f);
-    public Color nailsColorForKnottedBlousseAndSkirt = new Color(0.93f, 0.78f, 0.83f);
-    public bool JiggleKnottedBlousseAndSkirt;
-    public bool WingsEnabledForKnottedBlousseAndSkirt;
-    public bool ApronEnabledForKnottedBlousseAndSkirt;
-    public bool HatEnabledForKnottedBlousseAndSkirt;
-    public bool ChokerEnabledForKnottedBlousseAndSkirt;
-    public OutfitHair hairForKnottedBlousseAndSkirt = OutfitHair.DefaultHair;
-
-    [Header("Ruffle Blousse & Skirt")]
-    public bool RuffleBlousseAndSkirtEnabled = true;
-    public List<GameObject> OutfitForRuffleBlousseAndSkirt;
-    public Color lipsColorForRuffleBlousseAndSkirt = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForRuffleBlousseAndSkirt = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleRuffleBlousseAndSkirt;
-    public bool WingsEnabledForRuffleBlousseAndSkirt;
-    public bool ApronEnabledForRuffleBlousseAndSkirt;
-    public bool HatEnabledForRuffleBlousseAndSkirt;
-    public bool ChokerEnabledForRuffleBlousseAndSkirt;
-    public OutfitHair hairForRuffleBlousseAndSkirt = OutfitHair.DefaultHair;
-
-    [Header("Loose Top & Long Skirt")]
-    public bool LooseTopAndLongSkirtOutfitEnabled = true;
-    public List<GameObject> OutfitForLooseTopAndLongSkirt;
-    public Color lipsColorForLooseTopAndLongSkirt = new Color(0.88f, 0.22f, 0.32f);
-    public Color nailsColorForLooseTopAndLongSkirt = new Color(0.95f, 0.82f, 0.85f);
-    public bool JiggleLooseTopAndLongSkirt;
-    public bool WingsEnabledForLooseTopAndLongSkirt;
-    public bool ApronEnabledForLooseTopAndLongSkirt;
-    public bool HatEnabledForLooseTopAndLongSkirt;
-    public bool ChokerEnabledForLooseTopAndLongSkirt;
-    public OutfitHair hairForLooseTopAndLongSkirt = OutfitHair.DefaultHair;
-
-    [Header("Turtleneck & Medium Skirt")]
-    public bool TurtleneckAndMediumSkirtOutfitEnabled = true;
-    public List<GameObject> OutfitForTurtleneckAndMediumSkirt;
-    public Color lipsColorForTurtleneckAndMediumSkirt = new Color(0.85f, 0.18f, 0.28f);
-    public Color nailsColorForTurtleneckAndMediumSkirt = new Color(0.88f, 0.68f, 0.73f);
-    public bool JiggleTurtleneckAndMediumSkirt;
-    public bool WingsEnabledForTurtleneckAndMediumSkirt;
-    public bool ApronEnabledForTurtleneckAndMediumSkirt;
-    public bool HatEnabledForTurtleneckAndMediumSkirt;
-    public bool ChokerEnabledForTurtleneckAndMediumSkirt;
-    public OutfitHair hairForTurtleneckAndMediumSkirt = OutfitHair.DefaultHair;
-
-    [Header("Wooly Jumper & Tights")]
-    public bool WoolenJumperEnabled = true;
-    public List<GameObject> OutfitForWoolenJumper;
-    public Color lipsColorForWoolenJumper = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForWoolenJumper = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleWoolenJumper;
-    public bool WingsEnabledForWoolenJumper;
-    public bool ApronEnabledForWoolenJumper;
-    public bool HatEnabledForWoolenJumper;
-    public bool ChokerEnabledForWoolenJumper;
-    public OutfitHair hairForWoolenJumper = OutfitHair.DefaultHair;
-
-    [Header("Edea's Dress")]
-    public bool EdeaOutfitEnabled = true;
-    public List<GameObject> OutfitForEdea;
-    public Color lipsColorForEdea = new Color(0.75f, 0.1f, 0.2f);
-    public Color nailsColorForEdea = new Color(0.9f, 0.7f, 0.75f);
-    public bool JiggleCasuallyFour;
-    public bool WingsEnabledForEdea;
-    public bool ApronEnabledForEdea;
-    public bool HatEnabledForEdea;
-    public bool ChokerEnabledForEdea;
-    public OutfitHair hairForEdea = OutfitHair.DefaultHair;
-
+    
+    
+    
+    
+    [Header("Night Out")]
     [Header("Ditzy Dress")]
     public bool DitzyDressEnabled = true;
     public List<GameObject> OutfitForDitzyDress;
@@ -399,132 +588,7 @@ public class Me : MonoBehaviour
     public bool ChokerEnabledForLittleBlackDress;
     public OutfitHair hairForLittleBlackDress = OutfitHair.DefaultHair;
 
-    [Header("Casual Pantsuit")]
-    public bool CasualPantsuitEnabled = true;
-    public List<GameObject> OutfitCasualPantsuit;
-    public Color lipsColorForCasualPantsuit = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForCasualPantsuit = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleCasualPantsuit;
-    public bool WingsEnabledForCasualPantsuit;
-    public bool ApronEnabledForCasualPantsuit;
-    public bool HatEnabledForCasualPantsuit;
-    public bool ChokerEnabledForCasualPantsuit;
-    public OutfitHair hairForCasualPantsuit = OutfitHair.DefaultHair;
 
-    [Header("Conservative Jumper & Skirt")]
-    public bool ConservativeEnabled = true;
-    public List<GameObject> OutfitConservative;
-    public Color lipsColorForConservative = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForConservative = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleConservative;
-    public bool WingsEnabledForConservative;
-    public bool ApronEnabledForConservative;
-    public bool HatEnabledForConservative;
-    public bool ChokerEnabledForConservative;
-    public OutfitHair hairForConservative = OutfitHair.DefaultHair;
-
-    [Header("Button Dress")]
-    public bool ButtonDressEnabled = true;
-    public List<GameObject> OutfitForButtonDress;
-    public Color lipsColorForButtonDress = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForButtonDress = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleButtonDress;
-    public bool WingsEnabledForButtonDress;
-    public bool ApronEnabledForButtonDress;
-    public bool HatEnabledForButtonDress;
-    public bool ChokerEnabledForButtonDress;
-    public OutfitHair hairForButtonDress = OutfitHair.DefaultHair;
-    
-
-    [Header("Traditional")]
-    public bool TraditionalEnabled = true;
-    public List<GameObject> OutfitForTraditional;
-    public Color lipsColorForTraditional = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForTraditional = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleTraditional;
-    public bool WingsEnabledForTraditional;
-    public bool ApronEnabledForTraditional;
-    public bool HatEnabledForTraditional;
-    public bool ChokerEnabledForTraditional;
-    public OutfitHair hairForTraditional = OutfitHair.DefaultHair;
-
-    [Header("Modest Top & Skirt")]
-    public bool ModestEnabled = true;
-    public List<GameObject> OutfitForModest;
-    public Color lipsColorForModest = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForModest = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleModest;
-    public bool WingsEnabledForModest;
-    public bool ApronEnabledForModest;
-    public bool HatEnabledForModest;
-    public bool ChokerEnabledForModest;
-    public OutfitHair hairForModest = OutfitHair.DefaultHair;
-    
-    
-
-    [Header("Strappy Top & Skirt")]
-    public bool StrappyTopAndSkirtEnabled = true;
-    public List<GameObject> OutfitForStrappyTopAndSkirt;
-    public Color lipsColorForStrappyTopAndSkirt = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForStrappyTopAndSkirt = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleStrappyTopAndSkirt;
-    public bool WingsEnabledForStrappyTopAndSkirt;
-    public bool ApronEnabledForStrappyTopAndSkirt;
-    public bool HatEnabledForStrappyTopAndSkirt;
-    public bool ChokerEnabledForStrappyTopAndSkirt;
-    public OutfitHair hairForStrappyTopAndSkirt = OutfitHair.DefaultHair;
-
-    
-    [Header("Shortie")]
-    public bool ShortieEnabled = true;
-    public List<GameObject> OutfitForShortie;
-    public Color lipsColorForShortie = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForShortie = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleShortie;
-    public bool WingsEnabledForShortie;
-    public bool ApronEnabledForShortie;
-    public bool HatEnabledForShortie;
-    public bool ChokerEnabledForShortie;
-    public OutfitHair hairForShortie = OutfitHair.DefaultHair;
-
-    
-    [Header("Top With Skirt")]
-    public bool TopWithSkirtEnabled = true;
-    public List<GameObject> OutfitForTopWithSkirt;
-    public Color lipsColorForTopWithSkirt = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForTopWithSkirt = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleTopWithSkirt;
-    public bool WingsEnabledForTopWithSkirt;
-    public bool ApronEnabledForTopWithSkirt;
-    public bool HatEnabledForTopWithSkirt;
-    public bool ChokerEnabledForTopWithSkirt;
-    public OutfitHair hairForTopWithSkirt = OutfitHair.DefaultHair;
-
-    [Header("WoolyModesty")]
-    public bool WoolyModestyEnabled = true;
-    public List<GameObject> OutfitForWoolyModesty;
-    public Color lipsColorForWoolyModesty = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForWoolyModesty = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleWoolyModesty;
-    public bool WingsEnabledForWoolyModesty;
-    public bool ApronEnabledForWoolyModesty;
-    public bool HatEnabledForWoolyModesty;
-    public bool ChokerEnabledForWoolyModesty;
-    public OutfitHair hairForWoolyModesty = OutfitHair.DefaultHair;
-
-    [Header("Froot Cardi & Dress")]
-    public bool FrootCardiganTopEnabled = true;
-    public List<GameObject> OutfitForFrootCardiganTop;
-    public Color lipsColorForFrootCardiganTop = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorForFrootCardiganTop = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleFrootCardiganTop;
-    public bool WingsEnabledForFrootCardiganTop;
-    public bool ApronEnabledForFrootCardiganTop;
-    public bool HatEnabledForFrootCardiganTop;
-    public bool ChokerEnabledForFrootCardiganTop;
-    public OutfitHair hairForFrootCardiganTop = OutfitHair.DefaultHair;
-
-    [Header("Night Out")]
     [Header("Froot Dress")]
     public bool FrootDressOutfitEnabled = true;
     public List<GameObject> OutfitForFrootDress;
@@ -597,55 +661,9 @@ public class Me : MonoBehaviour
     public bool ChokerEnabledForHalterSkirter;
     public OutfitHair hairForHalterSkirter = OutfitHair.DefaultHair;
 
-    [Header("Storyline")]
-    [Header("Wedding")]
-    public bool WeddingOutfitEnabled = true;
-    public List<GameObject> OutfitForWedding;
-    public Color lipsColorForWedding = new Color(0.95f, 0.55f, 0.6f);
-    public Color nailsColorForWedding = new Color(0.96f, 0.88f, 0.9f);
-    public bool JiggleAtAWedding;
-    public bool WingsEnabledForWedding;
-    public bool ApronEnabledForWedding;
-    public bool HatEnabledForWedding;
-    public bool ChokerEnabledForWedding;
-    public OutfitHair hairForWedding = OutfitHair.DefaultHair;
-
-    [Header("Funeral")]
-    public bool FuneralOutfitEnabled = true;
-    public List<GameObject> OutfitForFuneral;
-    public Color lipsColorForFuneral = new Color(0.65f, 0.08f, 0.15f);
-    public Color nailsColorForFuneral = new Color(0.7f, 0.5f, 0.55f);
-    public bool JiggleAtAFuneral;
-    public bool WingsEnabledForFuneral;
-    public bool ApronEnabledForFuneral;
-    public bool HatEnabledForFuneral;
-    public bool ChokerEnabledForFuneral;
-    public OutfitHair hairForFuneral = OutfitHair.DefaultHair;
-
-    [Header("On Skid Row")]
-    public bool HomelessnessOutfitEnabled = true;
-    public List<GameObject> OutfitForHomelessness;
-    public Color lipsColorForHomelessness = new Color(0.7f, 0.1f, 0.2f);
-    public Color nailsColorForHomelessness = new Color(0.75f, 0.55f, 0.6f);
-    public bool JiggleWhileHomeless;
-    public bool WingsEnabledForHomelessness;
-    public bool ApronEnabledForHomelessness;
-    public bool HatEnabledForHomelessness;
-    public bool ChokerEnabledForHomelessness;
-    public OutfitHair hairForHomelessness = OutfitHair.DefaultHair;
-
-    [Header("Stealth Suit")]
-    public bool StealthSuitEnabled = true;
-    public List<GameObject> OutfitForStealthSuit;
-    public Color lipsColorForStealthSuit = new Color(0.9f, 0.25f, 0.35f);
-    public Color nailsColorStealthSuit = new Color(0.93f, 0.75f, 0.8f);
-    public bool JiggleStealthSuit;
-    public bool WingsEnabledForStealthSuit;
-    public bool ApronEnabledForStealthSuit;
-    public bool HatEnabledForStealthSuit;
-    public bool ChokerEnabledForStealthSuit;
-    public OutfitHair hairForStealthSuit = OutfitHair.DefaultHair;
-
+    
+    
+    
     [Header("Underwear")]
     [Header("Undergarments")]
     public List<GameObject> OutfitForUndergarments;
@@ -706,6 +724,22 @@ public class Me : MonoBehaviour
     public bool ChokerEnabledForKnottedAndShorts;
     public OutfitHair hairForKnottedAndShorts = OutfitHair.DefaultHair;
 
+    
+    [Header("Domme")]
+    public bool DommeOutfitEnabled = true;
+    public List<GameObject> OutfitForDomme;
+    public Color lipsColorForDomme = new Color(0.85f, 0.22f, 0.32f);
+    public Color nailsColorForDomme = new Color(0.94f, 0.8f, 0.85f);
+    public bool JiggleDomme;
+    public bool WingsEnabledForDomme;
+    public bool ApronEnabledForDomme;
+    public bool HatEnabledForDomme;
+    public bool ChokerEnabledForDomme;
+    public OutfitHair hairForDomme = OutfitHair.DefaultHair;
+
+    
+    
+    
     
 
     [Header("Jigglers")]
@@ -879,7 +913,7 @@ public class Me : MonoBehaviour
             case OutfitType.StealthSuit:              return hairForStealthSuit;
             case OutfitType.Date1:                    return hairForFirstDate;
             case OutfitType.Date2:                    return hairForSecondDate;
-            case OutfitType.Date3:                    return hairForThirdDate;
+            case OutfitType.Domme:                    return hairForDomme;
             case OutfitType.GreyCheckHalterDress:     return hairForGreyCheckHalterDress;
             case OutfitType.SweaterAndSkirt:          return hairForSweaterAndSkirt;
             case OutfitType.TurtleneckAndSkirt:       return hairForTurtleneckAndSkirt;
@@ -963,7 +997,7 @@ public class Me : MonoBehaviour
             case OutfitType.StealthSuit:              return StealthSuitEnabled;
             case OutfitType.Date1:                    return FirstDateOutfitEnabled;
             case OutfitType.Date2:                    return SecondDateOutfitEnabled;
-            case OutfitType.Date3:                    return ThirdDateOutfitEnabled;
+            case OutfitType.Domme:                    return DommeOutfitEnabled;
             case OutfitType.GreyCheckHalterDress:     return GreyCheckHalterDressOutfitEnabled;
             case OutfitType.SweaterAndSkirt:          return SweaterAndSkirtOutfitEnabled;
             case OutfitType.TurtleneckAndSkirt:       return TurtleneckAndSkirtOutfitEnabled;
@@ -1073,7 +1107,7 @@ public class Me : MonoBehaviour
             case OutfitType.StealthSuit:              wings = WingsEnabledForStealthSuit;              overall = ApronEnabledForStealthSuit;              hat = HatEnabledForStealthSuit;              choker = ChokerEnabledForStealthSuit;              break;
             case OutfitType.Date1:                    wings = WingsEnabledForFirstDate;                overall = ApronEnabledForFirstDate;                hat = HatEnabledForFirstDate;                choker = ChokerEnabledForFirstDate;                break;
             case OutfitType.Date2:                    wings = WingsEnabledForSecondDate;               overall = ApronEnabledForSecondDate;               hat = HatEnabledForSecondDate;               choker = ChokerEnabledForSecondDate;               break;
-            case OutfitType.Date3:                    wings = WingsEnabledForThirdDate;                overall = ApronEnabledForThirdDate;                hat = HatEnabledForThirdDate;                choker = ChokerEnabledForThirdDate;                break;
+            case OutfitType.Domme:                    wings = WingsEnabledForDomme;                overall = ApronEnabledForDomme;                hat = HatEnabledForDomme;                choker = ChokerEnabledForDomme;                break;
             case OutfitType.GreyCheckHalterDress:     wings = WingsEnabledForGreyCheckHalterDress;     overall = ApronEnabledForGreyCheckHalterDress;     hat = HatEnabledForGreyCheckHalterDress;     choker = ChokerEnabledForGreyCheckHalterDress;     break;
             case OutfitType.SweaterAndSkirt:          wings = WingsEnabledForSweaterAndSkirt;          overall = ApronEnabledForSweaterAndSkirt;          hat = HatEnabledForSweaterAndSkirt;          choker = ChokerEnabledForSweaterAndSkirt;          break;
             case OutfitType.TurtleneckAndSkirt:       wings = WingsEnabledForTurtleneckAndSkirt;       overall = ApronEnabledForTurtleneckAndSkirt;       hat = HatEnabledForTurtleneckAndSkirt;       choker = ChokerEnabledForTurtleneckAndSkirt;       break;
@@ -1121,7 +1155,8 @@ public class Me : MonoBehaviour
             || index == (int)OutfitType.Lingerie
             || index == (int)OutfitType.Fae
             || index == (int)OutfitType.RisqueNightie
-            || index == (int)OutfitType.KnottedAndShorts;
+            || index == (int)OutfitType.KnottedAndShorts
+            || index == (int)OutfitType.Domme;
     }
 
     public void NextOutfit()
@@ -1165,7 +1200,7 @@ public class Me : MonoBehaviour
             case OutfitType.RisqueNightie:            ToggleRisqueNightie(true);                  break;
             case OutfitType.Date1:                    ToggleFirstDateOutfit(true);                break;
             case OutfitType.Date2:                    ToggleSecondDateOutfit(true);               break;
-            case OutfitType.Date3:                    ToggleThirdDateOutfit(true);                break;
+            case OutfitType.Domme:                    ToggleDommeOutfit(true);                break;
             case OutfitType.GreyCheckHalterDress:     ToggleGreyCheckHalterDressOutfit(true);     break;
             case OutfitType.SweaterAndSkirt:          ToggleSweaterAndSkirtOutfit(true);          break;
             case OutfitType.TurtleneckAndSkirt:       ToggleTurtleneckAndSkirtOutfit(true);       break;
@@ -1222,7 +1257,7 @@ public class Me : MonoBehaviour
     public void ToggleStealthSuit(bool? forceOn = null)                    { JiggleToggle(JiggleStealthSuit);              ToggleMainOutfit(OutfitType.StealthSuit,              forceOn); }
     public void ToggleFirstDateOutfit(bool? forceOn = null)                { JiggleToggle(JiggleOnAFirstDate);             ToggleMainOutfit(OutfitType.Date1,                    forceOn); }
     public void ToggleSecondDateOutfit(bool? forceOn = null)               { JiggleToggle(JiggleOnASecondDate);            ToggleMainOutfit(OutfitType.Date2,                    forceOn); }
-    public void ToggleThirdDateOutfit(bool? forceOn = null)                { JiggleToggle(JiggleOnAThirdDate);             ToggleMainOutfit(OutfitType.Date3,                    forceOn); }
+    public void ToggleDommeOutfit(bool? forceOn = null)                { JiggleToggle(JiggleDomme);             ToggleMainOutfit(OutfitType.Domme,                    forceOn); }
     public void ToggleGreyCheckHalterDressOutfit(bool? forceOn = null)     { JiggleToggle(JiggleOnAGreyCheckHalterDress);  ToggleMainOutfit(OutfitType.GreyCheckHalterDress,     forceOn); }
     public void ToggleSweaterAndSkirtOutfit(bool? forceOn = null)          { JiggleToggle(JiggleSweaterAndSkirt);          ToggleMainOutfit(OutfitType.SweaterAndSkirt,          forceOn); }
     public void ToggleTurtleneckAndSkirtOutfit(bool? forceOn = null)       { JiggleToggle(JiggleTurtleneckAndSkirt);       ToggleMainOutfit(OutfitType.TurtleneckAndSkirt,       forceOn); }
@@ -1306,7 +1341,7 @@ public class Me : MonoBehaviour
             case OutfitType.StealthSuit:              InstantiatePrefabs(OutfitForStealthSuit);              break;
             case OutfitType.Date1:                    InstantiatePrefabs(OutfitForFirstDate);                break;
             case OutfitType.Date2:                    InstantiatePrefabs(OutfitForSecondDate);               break;
-            case OutfitType.Date3:                    InstantiatePrefabs(OutfitForThirdDate);                break;
+            case OutfitType.Domme:                    InstantiatePrefabs(OutfitForDomme);                break;
             case OutfitType.GreyCheckHalterDress:     InstantiatePrefabs(OutfitForGreyCheckHalterDress);     break;
             case OutfitType.SweaterAndSkirt:          InstantiatePrefabs(OutfitForSweaterAndSkirt);          break;
             case OutfitType.TurtleneckAndSkirt:       InstantiatePrefabs(OutfitForTurtleneckAndSkirt);       break;
@@ -1359,67 +1394,129 @@ public class Me : MonoBehaviour
         SetHair(OutfitHair.DefaultHair);
         ApplyAccessories();
     }
-
     private OutfitType PickRandom(OutfitType[] pool)
     {
         OutfitType[] eligible = pool.Where(o => IsOutfitEnabled(o) && o != currentOutfit).ToArray();
-        if (eligible.Length == 0) { eligible = pool.Where(o => IsOutfitEnabled(o)).ToArray(); }
-        if (eligible.Length == 0) { return currentOutfit; }
+        if (eligible.Length == 0) 
+            eligible = pool.Where(o => IsOutfitEnabled(o)).ToArray();
+        
+        if (eligible.Length == 0) 
+            return currentOutfit;
+        
         return eligible[Random.Range(0, eligible.Length)];
     }
 
+    // ====================== RANDOM OUTFIT METHODS ======================
+
     public void SetRandomWorkOutfit()
     {
-        OutfitType[] pool = { OutfitType.Work, OutfitType.WorkTwo, OutfitType.WorkThree, OutfitType.WorkFour, OutfitType.WorkSuitThree };
+        OutfitType[] pool = 
+        { 
+            OutfitType.Work, 
+            OutfitType.WorkTwo, 
+            OutfitType.WorkThree, 
+            OutfitType.WorkFour, 
+            OutfitType.WorkSuitThree 
+        };
         SwitchToOutfit(PickRandom(pool));
     }
 
-    public void SetRandomCasualOutfit()
+    public void SetRandomMainOutfit()
     {
-        OutfitType[] pool = { OutfitType.Casual, OutfitType.ShortsAndTights, OutfitType.CleanBandit, OutfitType.ChurchDress, OutfitType.WoolyAndJeans };
-        SwitchToOutfit(PickRandom(pool));
-    }
-
-    public void SetRandomPyjamas()
-    {
-        OutfitType[] pool = { OutfitType.Pyjamas, OutfitType.Housecoat, OutfitType.Nightie };
-        SwitchToOutfit(PickRandom(pool));
-    }
-
-    public void SetRandomDatingOutfit()
-    {
-        OutfitType[] pool = { OutfitType.Date1, OutfitType.Date2, OutfitType.Date3 };
-        SwitchToOutfit(PickRandom(pool));
-    }
-
-    public void SetRandomCuteOutfit()
-    {
-        OutfitType[] pool =
+        OutfitType[] pool = 
         {
-            OutfitType.GreyCheckHalterDress,  OutfitType.SweaterAndSkirt,       OutfitType.TurtleneckAndSkirt,      OutfitType.CheckTopAndJeans,
-            OutfitType.KnottedBlousseAndSkirt, OutfitType.RuffleBlousseAndSkirt, OutfitType.LooseTopAndLongSkirt,    OutfitType.TurtleneckAndMediumSkirt,
-            OutfitType.WoolenJumper,           OutfitType.Edea,                  OutfitType.DitzyDress,              OutfitType.LittleBlackDress,
-            OutfitType.Conservative,           OutfitType.CasualPantSuit,           OutfitType.ButtonDress,           OutfitType.Traditional,          OutfitType.Modest,          OutfitType.StrappyTopAndSkirt, OutfitType.Shortie, OutfitType.TopWithSkirt, 
-            OutfitType.WoolyModesty, OutfitType.FrootCardiganTop
+            OutfitType.Casual,
+            OutfitType.ShortsAndTights,
+            OutfitType.GreyCheckHalterDress,
+            OutfitType.SweaterAndSkirt,
+            OutfitType.TurtleneckAndSkirt,
+            OutfitType.CheckTopAndJeans,
+            OutfitType.KnottedBlousseAndSkirt,
+            OutfitType.RuffleBlousseAndSkirt,
+            OutfitType.LooseTopAndLongSkirt,
+            OutfitType.TurtleneckAndMediumSkirt,
+            OutfitType.WoolenJumper,
+            OutfitType.CasualPantSuit,
+            OutfitType.Conservative,
+            OutfitType.ButtonDress,
+            OutfitType.WoolyAndJeans,
+            OutfitType.Modest,
+            OutfitType.StrappyTopAndSkirt,
+            OutfitType.TopWithSkirt,
+            OutfitType.WoolyModesty,
+            OutfitType.FrootCardiganTop,
+            OutfitType.Date1,
+            OutfitType.Date2
         };
         SwitchToOutfit(PickRandom(pool));
     }
 
     public void SetRandomNightOutOutfit()
     {
-        OutfitType[] pool = { OutfitType.Casual3, OutfitType.StraplessRuffleDress, OutfitType.CheckBodySuit, OutfitType.ElegantDress, OutfitType.NightOutRuffle, OutfitType.HalterSkirter };
+        OutfitType[] pool = 
+        {
+            OutfitType.HalterSkirter,
+            OutfitType.DitzyDress,
+            OutfitType.LittleBlackDress,
+            OutfitType.Casual3,
+            OutfitType.StraplessRuffleDress,
+            OutfitType.CheckBodySuit,
+            OutfitType.ElegantDress,
+            OutfitType.NightOutRuffle
+        };
         SwitchToOutfit(PickRandom(pool));
     }
 
+    public void SetRandomPyjamasOutfit()
+    {
+        OutfitType[] pool = 
+        { 
+            OutfitType.Pyjamas, 
+            OutfitType.Housecoat, 
+            OutfitType.Nightie, 
+            OutfitType.Shortie 
+        };
+        SwitchToOutfit(PickRandom(pool));
+    }
+
+    public void SetRandomSpecialOutfit()
+    {
+        OutfitType[] pool = 
+        { 
+            OutfitType.Fitness, 
+            OutfitType.Edea, 
+            OutfitType.Traditional,
+            OutfitType.FrootCardiganTop,
+            OutfitType.ChurchDress,            
+            OutfitType.CleanBandit
+            
+        };
+        SwitchToOutfit(PickRandom(pool));
+    }
+
+
     public void SetRandomRisqueOutfit()
     {
-        OutfitType[] pool = { OutfitType.Lingerie, OutfitType.Fae, OutfitType.RisqueNightie, OutfitType.KnottedAndShorts  };
+        OutfitType[] pool = 
+        { 
+            OutfitType.RisqueNightie, 
+            OutfitType.Domme, 
+            OutfitType.Lingerie, 
+            OutfitType.Fae, 
+            OutfitType.KnottedAndShorts 
+        };
         SwitchToOutfit(PickRandom(pool));
     }
 
     public void SetRandomStorylineOutfit()
     {
-        OutfitType[] pool = { OutfitType.Wedding, OutfitType.Funeral, OutfitType.Homelessness, OutfitType.StealthSuit };
+        OutfitType[] pool = 
+        { 
+            OutfitType.Wedding, 
+            OutfitType.Funeral, 
+            OutfitType.Homelessness, 
+            OutfitType.StealthSuit 
+        };
         SwitchToOutfit(PickRandom(pool));
     }
 
@@ -1460,7 +1557,7 @@ public class Me : MonoBehaviour
             case OutfitType.StealthSuit:              return lipsColorForStealthSuit;
             case OutfitType.Date1:                    return lipsColorForFirstDate;
             case OutfitType.Date2:                    return lipsColorForSecondDate;
-            case OutfitType.Date3:                    return lipsColorForThirdDate;
+            case OutfitType.Domme:                    return lipsColorForDomme;
             case OutfitType.GreyCheckHalterDress:     return lipsColorForGreyCheckHalterDress;
             case OutfitType.SweaterAndSkirt:          return lipsColorForSweaterAndSkirt;
             case OutfitType.TurtleneckAndSkirt:       return lipsColorForTurtleneckAndSkirt;
@@ -1522,7 +1619,7 @@ public class Me : MonoBehaviour
             case OutfitType.StealthSuit:              return nailsColorStealthSuit;
             case OutfitType.Date1:                    return nailsColorForFirstDate;
             case OutfitType.Date2:                    return nailsColorForSecondDate;
-            case OutfitType.Date3:                    return nailsColorForThirdDate;
+            case OutfitType.Domme:                    return nailsColorForDomme;
             case OutfitType.GreyCheckHalterDress:     return nailsColorForGreyCheckHalterDress;
             case OutfitType.SweaterAndSkirt:          return nailsColorForSweaterAndSkirt;
             case OutfitType.TurtleneckAndSkirt:       return nailsColorForTurtleneckAndSkirt;
@@ -1607,48 +1704,23 @@ public class MeEditor : Editor
         EditorGUILayout.Space();
         GUI.backgroundColor = Color.green;
 
-        EditorGUILayout.LabelField("Casual Outfits", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Main Outfits", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Uni Sweater & Jeans", clearAllStyle, GUILayout.Height(28))) { me.ToggleCasualOutfit();          EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Shorts & Tights",     clearAllStyle, GUILayout.Height(28))) { me.ToggleShortsAndTightsOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Fitness",             clearAllStyle, GUILayout.Height(28))) { me.ToggleFitnessOutfit();         EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Clean Bandit",        clearAllStyle, GUILayout.Height(28))) { me.ToggleCleanBanditOutfit();     EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Check Body Suit",        clearAllStyle, GUILayout.Height(28))) { me.ToggleCheckBodySuitOutfit();        EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Wooly Jumper & Jeans", clearAllStyle, GUILayout.Height(28))) { me.ToggleWoolyAndJeansOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Church Dress",        clearAllStyle, GUILayout.Height(28))) { me.ToggleChurchDressOutfit();     EditorUtility.SetDirty(me); }
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.Space();
-        GUI.backgroundColor = new Color(0.5f, 0.8f, 1f);
-
-        EditorGUILayout.LabelField("PJs", EditorStyles.boldLabel);
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Pyjamas",   clearAllStyle, GUILayout.Height(28))) { me.TogglePyjamasOutfit();   EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Housecoat", clearAllStyle, GUILayout.Height(28))) { me.ToggleHousecoatOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Nightie",   clearAllStyle, GUILayout.Height(28))) { me.ToggleNightie();         EditorUtility.SetDirty(me); }
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.Space();
-        GUI.backgroundColor = new Color(1f, 0.6f, 0.8f);
-
-        EditorGUILayout.LabelField("Dating", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("First Date",  clearAllStyle, GUILayout.Height(28))) { me.ToggleFirstDateOutfit();  EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Second Date", clearAllStyle, GUILayout.Height(28))) { me.ToggleSecondDateOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Third Date",  clearAllStyle, GUILayout.Height(28))) { me.ToggleThirdDateOutfit();  EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.Space();
-        GUI.backgroundColor = new Color(0.7f, 0.4f, 1f);
-
-        EditorGUILayout.LabelField("Cute Outfits", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Wooly Jumper & Jeans", clearAllStyle, GUILayout.Height(28))) { me.ToggleWoolyAndJeansOutfit(); EditorUtility.SetDirty(me); }        
         if (GUILayout.Button("Grey Check Halter Dress",  clearAllStyle, GUILayout.Height(28))) { me.ToggleGreyCheckHalterDressOutfit();   EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Sweater & Skirt",          clearAllStyle, GUILayout.Height(28))) { me.ToggleSweaterAndSkirtOutfit();        EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Turtleneck & Skirt",       clearAllStyle, GUILayout.Height(28))) { me.ToggleTurtleneckAndSkirtOutfit();     EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Turtleneck & Skirt",       clearAllStyle, GUILayout.Height(28))) { me.ToggleTurtleneckAndSkirtOutfit();     EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Check Top & Jeans",        clearAllStyle, GUILayout.Height(28))) { me.ToggleCheckTopAndJeansOutfit();       EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Knotted Blousse & Skirt",  clearAllStyle, GUILayout.Height(28))) { me.ToggleKnottedBlousseAndSkirtOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
@@ -1659,46 +1731,67 @@ public class MeEditor : Editor
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Wooly Jumper & Tights", clearAllStyle, GUILayout.Height(28))) { me.ToggleWoolenJumperOutfit();     EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Ditzy Dress",           clearAllStyle, GUILayout.Height(28))) { me.ToggleDitzyDressOutfit();       EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Little Black Dress",    clearAllStyle, GUILayout.Height(28))) { me.ToggleLittleBlackDressOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Top With Skirt", clearAllStyle, GUILayout.Height(28))) { me.ToggleTopWithSkirtOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Wooly Modesty", clearAllStyle, GUILayout.Height(28))) { me.ToggleWoolyModestyOutfit(); EditorUtility.SetDirty(me); }  
         EditorGUILayout.EndHorizontal();
-        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.BeginHorizontal();    
         if (GUILayout.Button("Casual Pantsuit",             clearAllStyle, GUILayout.Height(28))) { me.ToggleCasualPantsuitOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Conservative Jumper & Skirt", clearAllStyle, GUILayout.Height(28))) { me.ToggleConservativeOutfit();   EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Button Dress",                clearAllStyle, GUILayout.Height(28))) { me.ToggleButtonDressOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Traditional", clearAllStyle, GUILayout.Height(28))) { me.ToggleTraditionalOutfit(); EditorUtility.SetDirty(me); }
+        EditorGUILayout.BeginHorizontal();    
         if (GUILayout.Button("Modest Top & Skirt", clearAllStyle, GUILayout.Height(28))) { me.ToggleModestOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Strappy Top & Skirt", clearAllStyle, GUILayout.Height(28))) { me.ToggleStrappyTopAndSkirtOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+        GUI.backgroundColor = new Color(0.5f, 0.8f, 1f);
+        
+        EditorGUILayout.LabelField("PJs", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Shortie", clearAllStyle, GUILayout.Height(28))) { me.ToggleShortieOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Top With Skirt", clearAllStyle, GUILayout.Height(28))) { me.ToggleTopWithSkirtOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Wooly Modesty", clearAllStyle, GUILayout.Height(28))) { me.ToggleWoolyModestyOutfit(); EditorUtility.SetDirty(me); }        
+        if (GUILayout.Button("Pyjamas",   clearAllStyle, GUILayout.Height(28))) { me.TogglePyjamasOutfit();   EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Housecoat", clearAllStyle, GUILayout.Height(28))) { me.ToggleHousecoatOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Nightie",   clearAllStyle, GUILayout.Height(28))) { me.ToggleNightie();         EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Shortie", clearAllStyle, GUILayout.Height(28))) { me.ToggleShortieOutfit(); EditorUtility.SetDirty(me); }  
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+        GUI.backgroundColor = new Color(1f, 0.6f, 0.8f);
+
+        EditorGUILayout.LabelField("Night Out", EditorStyles.boldLabel);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Ditzy Dress",           clearAllStyle, GUILayout.Height(28))) { me.ToggleDitzyDressOutfit();       EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Little Black Dress",    clearAllStyle, GUILayout.Height(28))) { me.ToggleLittleBlackDressOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Strapless Ruffle Dress", clearAllStyle, GUILayout.Height(28))) { me.ToggleStraplessRuffleDressOutfit(); EditorUtility.SetDirty(me); }        
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Layered Ruffle Dress", clearAllStyle, GUILayout.Height(28))) { me.ToggleNightOutRuffleOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Elegant Dress",        clearAllStyle, GUILayout.Height(28))) { me.ToggleElegantDressOutfit();   EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Halter Top & Skirt",   clearAllStyle, GUILayout.Height(28))) { me.ToggleHalterSkirterOutfit();  EditorUtility.SetDirty(me); } 
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Froot Dress",            clearAllStyle, GUILayout.Height(28))) { me.ToggleFrootDressOutfit();           EditorUtility.SetDirty(me); }
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+        GUI.backgroundColor = new Color(0.7f, 0.4f, 1f);
+        
+        EditorGUILayout.LabelField("Special Outfits", EditorStyles.boldLabel);
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Traditional", clearAllStyle, GUILayout.Height(28))) { me.ToggleTraditionalOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Froot Cardi & Dress", clearAllStyle, GUILayout.Height(28))) { me.ToggleFrootCardiganTopOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Clean Bandit",        clearAllStyle, GUILayout.Height(28))) { me.ToggleCleanBanditOutfit();     EditorUtility.SetDirty(me); }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Church Dress",        clearAllStyle, GUILayout.Height(28))) { me.ToggleChurchDressOutfit();     EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Fitness",             clearAllStyle, GUILayout.Height(28))) { me.ToggleFitnessOutfit();         EditorUtility.SetDirty(me); }
+        GUI.backgroundColor = Color.gold;
         if (GUILayout.Button("Edea's Dress",                clearAllStyle, GUILayout.Height(28))) { me.ToggleEdeaOutfit();           EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space();
         GUI.backgroundColor = new Color(0.1f, 0.1f, 0.5f);
-
-        EditorGUILayout.LabelField("Night Out Outfits", EditorStyles.boldLabel);
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Froot Dress",            clearAllStyle, GUILayout.Height(28))) { me.ToggleFrootDressOutfit();           EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Strapless Ruffle Dress", clearAllStyle, GUILayout.Height(28))) { me.ToggleStraplessRuffleDressOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Check Body Suit",        clearAllStyle, GUILayout.Height(28))) { me.ToggleCheckBodySuitOutfit();        EditorUtility.SetDirty(me); }
-        EditorGUILayout.EndHorizontal();
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Elegant Dress",        clearAllStyle, GUILayout.Height(28))) { me.ToggleElegantDressOutfit();   EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Layered Ruffle Dress", clearAllStyle, GUILayout.Height(28))) { me.ToggleNightOutRuffleOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Halter Top & Skirt",   clearAllStyle, GUILayout.Height(28))) { me.ToggleHalterSkirterOutfit();  EditorUtility.SetDirty(me); }
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.Space();
-        GUI.backgroundColor = Color.black;
 
         EditorGUILayout.LabelField("Storyline Outfits", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
@@ -1720,6 +1813,7 @@ public class MeEditor : Editor
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Risque Nightie", clearAllStyle, GUILayout.Height(28))) { me.ToggleRisqueNightie();  EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Knotted Top & Shorts", clearAllStyle, GUILayout.Height(28))) { me.ToggleKnottedAndShortsOutfit(); EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Domme",  clearAllStyle, GUILayout.Height(28))) { me.ToggleDommeOutfit();  EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Nothin' At All", clearAllStyle, GUILayout.Height(28))) { me.Undress(); EditorUtility.SetDirty(me); }
@@ -1770,19 +1864,18 @@ public class MeEditor : Editor
         EditorGUILayout.LabelField("Random Outfits", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Random Work",   clearAllStyle, GUILayout.Height(28))) { me.SetRandomWorkOutfit();   EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Random Casual", clearAllStyle, GUILayout.Height(28))) { me.SetRandomCasualOutfit(); EditorUtility.SetDirty(me); }
-        EditorGUILayout.EndHorizontal();
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Random Dating", clearAllStyle, GUILayout.Height(28))) { me.SetRandomDatingOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Random Cute",   clearAllStyle, GUILayout.Height(28))) { me.SetRandomCuteOutfit();   EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Random Main", clearAllStyle, GUILayout.Height(28))) { me.SetRandomMainOutfit(); EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Random Night Out", clearAllStyle, GUILayout.Height(28))) { me.SetRandomNightOutOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Random Pyjamas",   clearAllStyle, GUILayout.Height(28))) { me.SetRandomPyjamas();        EditorUtility.SetDirty(me); }
+        if (GUILayout.Button("Random Pyjamas",   clearAllStyle, GUILayout.Height(28))) { me.SetRandomPyjamasOutfit();        EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Random Storyline",     clearAllStyle, GUILayout.Height(28))) { me.SetRandomStorylineOutfit(); EditorUtility.SetDirty(me); }
         if (GUILayout.Button("Random Risque Outfit", clearAllStyle, GUILayout.Height(28))) { me.SetRandomRisqueOutfit();    EditorUtility.SetDirty(me); }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Random Special Outfit", clearAllStyle, GUILayout.Height(28))) { me.SetRandomSpecialOutfit();    EditorUtility.SetDirty(me); }
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space();
@@ -1826,7 +1919,7 @@ public enum OutfitType
     RisqueNightie,
     Date1,
     Date2,
-    Date3,
+    Domme,
     HalterSkirter,
     GreyCheckHalterDress,
     SweaterAndSkirt,

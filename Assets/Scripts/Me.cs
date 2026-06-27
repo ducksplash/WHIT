@@ -1381,7 +1381,15 @@ public class Me : MonoBehaviour
         }
         ApplyBodyColors(outfit);
         ApplyAccessories();
-        SetHair(GetHairForOutfit(outfit));
+
+        OutfitHair selectedHair = GetHairForOutfit(outfit);
+        
+        Debug.Log("----------------------");
+        Debug.Log("hair request");
+        Debug.Log("enum passed: "+selectedHair);
+        Debug.Log("----------------------");
+        
+        SetHair(selectedHair);
 
         EventManager.OutfitChanged(outfit);
     }

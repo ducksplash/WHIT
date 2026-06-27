@@ -1,0 +1,816 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3404073455676214379
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1609241056601562294}
+  - component: {fileID: 4781958586756102219}
+  m_Layer: 3
+  m_Name: NorasOldWardrobe
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1609241056601562294
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3404073455676214379}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4781958586756102219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3404073455676214379}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ad1eb62f4fa24041a3f7307c9e1324a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MeTwo
+  UnressedOnLoad: 0
+  ThisCharacterName: Nora
+  npcController: {fileID: 0}
+  currentOutfit: 19
+  SkinnedMeshRendererParentOutfits: {fileID: 0}
+  SkinnedMeshRendererParentAccessories: {fileID: 0}
+  Body: {fileID: 0}
+  ButterflyWings: {fileID: 0}
+  Overall: {fileID: 0}
+  Hat: {fileID: 0}
+  Choker: {fileID: 0}
+  DefaultHair: {fileID: 0}
+  WorkHair: {fileID: 0}
+  WorkHairTwo: {fileID: 0}
+  CasualHair: {fileID: 0}
+  PyjamaHair: {fileID: 0}
+  DatingHair: {fileID: 0}
+  DatingHairTwo: {fileID: 0}
+  OutHair: {fileID: 0}
+  HomelessHair: {fileID: 0}
+  TwinTailsHair: {fileID: 0}
+  UpHair: {fileID: 0}
+  UpDo: {fileID: 0}
+  MessyHair: {fileID: 0}
+  WorkOneOutfitEnabled: 1
+  OutfitForWorkOne:
+  - {fileID: 5245026913130465668, guid: a26dee97393692b4ab1f089f97fa6231, type: 3}
+  - {fileID: 5219396385634948694, guid: 716a869302f71694faca3ba4803972c5, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: 1cae796357b279d42a71b798be4aea37, type: 3}
+  - {fileID: 6720421881602151433, guid: 5273da05d6d0f64418887bbb215c56d6, type: 3}
+  lipsColorForWorkOne: {r: 1, g: 0, b: 0, a: 1}
+  nailsColorForWorkOne: {r: 1, g: 0, b: 0, a: 1}
+  JiggleForWorkOne: 1
+  WingsEnabledForWorkOne: 0
+  ApronEnabledForWorkOne: 0
+  HatEnabledForWorkOne: 0
+  ChokerEnabledForWorkOne: 0
+  hairForWorkOne: 0
+  WorkTwoOutfitEnabled: 1
+  OutfitForWorkOneTwo:
+  - {fileID: 1301645286070762131, guid: 18183ce07e90d794b86552983ac55c6a, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: b56b175a6badb21409d1c0283cb01cd8, type: 3}
+  - {fileID: 6198400242922400080, guid: 98bbab6c0669528489ad5aa43b8d1c3e, type: 3}
+  lipsColorForWorkTwo: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
+  nailsColorForWorkTwo: {r: 0.7294118, g: 0, b: 0, a: 1}
+  JiggleForWorkTwo: 1
+  WingsEnabledForWorkTwo: 0
+  ApronEnabledForWorkTwo: 0
+  HatEnabledForWorkTwo: 0
+  ChokerEnabledForWorkTwo: 0
+  hairForWorkTwo: 2
+  WorkThreeOutfitEnabled: 1
+  OutfitForWorkOneThree:
+  - {fileID: 6884091956838307776, guid: 3c1ab7bee58bda944a4517b99b60b47e, type: 3}
+  - {fileID: 3479303858825384319, guid: a8042f8e3a179e24592fda90349498ea, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: b56b175a6badb21409d1c0283cb01cd8, type: 3}
+  lipsColorForWorkThree: {r: 1, g: 0, b: 0.28235295, a: 1}
+  nailsColorForWorkThree: {r: 1, g: 0, b: 0.28235295, a: 1}
+  JiggleForWorkThree: 1
+  WingsEnabledForWorkThree: 0
+  ApronEnabledForWorkThree: 0
+  HatEnabledForWorkThree: 0
+  ChokerEnabledForWorkThree: 0
+  hairForWorkThree: 2
+  WorkFourOutfitEnabled: 1
+  OutfitForWorkOneFour:
+  - {fileID: 2172800395029170867, guid: 7058f1927a49109479a7c211a5474bf6, type: 3}
+  - {fileID: 3759174075998327221, guid: 7fcb7e67e8f3dc84192104ca7a2205e4, type: 3}
+  - {fileID: 1834837494074611723, guid: 71c6c295118666e4da4d56a1a9789e73, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: e80809419ef39d54b87138f4ddd718fa, type: 3}
+  lipsColorForWorkFour: {r: 0.8862746, g: 0, b: 0.2509804, a: 1}
+  nailsColorForWorkFour: {r: 0.8862746, g: 0, b: 0.2509804, a: 1}
+  JiggleForWorkFour: 1
+  WingsEnabledForWorkFour: 0
+  ApronEnabledForWorkFour: 0
+  HatEnabledForWorkFour: 0
+  ChokerEnabledForWorkFour: 0
+  hairForWorkFour: 1
+  WorkSuitThreeEnabled: 1
+  OutfitForWorkSuitThree:
+  - {fileID: 5020070514110279640, guid: bf2406c576265ab4f9056a20fceca46e, type: 3}
+  - {fileID: 3369818172764916235, guid: 85f2895bd5533f548ab3e769a4ec3c72, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  lipsColorForWorkSuitThree: {r: 1, g: 1, b: 1, a: 1}
+  nailsColorForWorkSuitThree: {r: 1, g: 0, b: 0.28235295, a: 1}
+  JiggleWorkSuitThree: 1
+  WingsEnabledForWorkSuitThree: 0
+  ApronEnabledForWorkSuitThree: 0
+  HatEnabledForWorkSuitThree: 0
+  ChokerEnabledForWorkSuitThree: 0
+  hairForWorkSuitThree: 2
+  CasualOutfitEnabled: 1
+  OutfitForCasual:
+  - {fileID: 6308139140182021420, guid: 2575225504a2764468e919325e55cdca, type: 3}
+  - {fileID: 9167064618984101798, guid: 1eac27df3c62c4c4e9591c3743c71a88, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  lipsColorForCasual: {r: 1, g: 1, b: 1, a: 1}
+  nailsColorForCasual: {r: 1, g: 0, b: 0, a: 1}
+  JiggleCasually: 1
+  WingsEnabledForCasual: 0
+  ApronEnabledForCasual: 0
+  HatEnabledForCasual: 0
+  ChokerEnabledForCasual: 0
+  hairForCasual: 10
+  FirstDateOutfitEnabled: 1
+  OutfitForFirstDate:
+  - {fileID: 1478907789984066508, guid: 3a4693f875817734c8825efa26e9e28f, type: 3}
+  - {fileID: 7603706129927041433, guid: cc0dc43047be2d8468900ebedcdb92c7, type: 3}
+  - {fileID: 8118857510522869253, guid: 1201e4c6824798d4fb25744f2d231040, type: 3}
+  - {fileID: 925738156998972585, guid: baa5394174a60604c8f45c6389725f6d, type: 3}
+  - {fileID: 6720421881602151433, guid: 5273da05d6d0f64418887bbb215c56d6, type: 3}
+  - {fileID: 5219396385634948694, guid: 716a869302f71694faca3ba4803972c5, type: 3}
+  - {fileID: 8042191359520616514, guid: 8bb4426a5b20ddc4691f1b732eff2124, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  lipsColorForFirstDate: {r: 1, g: 1, b: 1, a: 1}
+  nailsColorForFirstDate: {r: 1, g: 0, b: 0, a: 1}
+  JiggleOnAFirstDate: 1
+  WingsEnabledForFirstDate: 0
+  ApronEnabledForFirstDate: 0
+  HatEnabledForFirstDate: 0
+  ChokerEnabledForFirstDate: 0
+  hairForFirstDate: 5
+  SecondDateOutfitEnabled: 1
+  OutfitForSecondDate:
+  - {fileID: 1566986214787635936, guid: cf7aba9f99e5eca4c85025ec55fd0b53, type: 3}
+  - {fileID: 3746910484819814620, guid: 6ad811ccb7f76c445835e750de21ef16, type: 3}
+  - {fileID: 1234856227619583284, guid: b95c926a79d54f146ae37ce5f7164c13, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: 53c6f260abe299240bc04c5fecbdf997, type: 3}
+  - {fileID: 5219396385634948694, guid: 716a869302f71694faca3ba4803972c5, type: 3}
+  lipsColorForSecondDate: {r: 1, g: 0.76792455, b: 0.81012017, a: 1}
+  nailsColorForSecondDate: {r: 0.97, g: 0.88, b: 0.9, a: 1}
+  JiggleOnASecondDate: 1
+  WingsEnabledForSecondDate: 0
+  ApronEnabledForSecondDate: 0
+  HatEnabledForSecondDate: 0
+  ChokerEnabledForSecondDate: 0
+  hairForSecondDate: 6
+  GreyCheckHalterDressOutfitEnabled: 1
+  OutfitForGreyCheckHalterDress:
+  - {fileID: 3989707002423607178, guid: 5775f2b427d4ab64dbfa6b98e007fb80, type: 3}
+  - {fileID: 8042191359520616514, guid: e80809419ef39d54b87138f4ddd718fa, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  lipsColorForGreyCheckHalterDress: {r: 1, g: 0, b: 0.18518496, a: 1}
+  nailsColorForGreyCheckHalterDress: {r: 1, g: 0, b: 0.25, a: 1}
+  JiggleOnAGreyCheckHalterDress: 1
+  WingsEnabledForGreyCheckHalterDress: 0
+  ApronEnabledForGreyCheckHalterDress: 0
+  HatEnabledForGreyCheckHalterDress: 0
+  ChokerEnabledForGreyCheckHalterDress: 0
+  hairForGreyCheckHalterDress: 1
+  SweaterAndSkirtOutfitEnabled: 1
+  OutfitForSweaterAndSkirt:
+  - {fileID: 6219460236971063151, guid: 02ccc34639440264f92a9968b279073f, type: 3}
+  - {fileID: 2654939656466901809, guid: b4cfeabd400d5ae45a702a4176d447c6, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: b56b175a6badb21409d1c0283cb01cd8, type: 3}
+  lipsColorForSweaterAndSkirt: {r: 1, g: 0.80566037, b: 0.8366895, a: 1}
+  nailsColorForSweaterAndSkirt: {r: 0.35089353, g: 0.46275118, b: 0.83396226, a: 1}
+  JiggleSweaterAndSkirt: 1
+  WingsEnabledForSweaterAndSkirt: 0
+  ApronEnabledForSweaterAndSkirt: 0
+  HatEnabledForSweaterAndSkirt: 0
+  ChokerEnabledForSweaterAndSkirt: 0
+  hairForSweaterAndSkirt: 3
+  TurtleneckAndSkirtOutfitEnabled: 1
+  OutfitForTurtleneckAndSkirt:
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 1844850346337078932, guid: 01b7a38dd77c4a249a977f59f5f48ff4, type: 3}
+  - {fileID: 626454621975070882, guid: 1cadabadc55e2944588fe718d4cf4d4e, type: 3}
+  - {fileID: 8042191359520616514, guid: ea60c9c13f700d341af4d7f89c1a6102, type: 3}
+  lipsColorForTurtleneckAndSkirt: {r: 1, g: 0.34505513, b: 0, a: 1}
+  nailsColorForTurtleneckAndSkirt: {r: 1, g: 0.34509805, b: 0, a: 1}
+  JiggleTurtleneckAndSkirt: 1
+  WingsEnabledForTurtleneckAndSkirt: 0
+  ApronEnabledForTurtleneckAndSkirt: 0
+  HatEnabledForTurtleneckAndSkirt: 0
+  ChokerEnabledForTurtleneckAndSkirt: 0
+  hairForTurtleneckAndSkirt: 3
+  CheckTopAndJeansOutfitEnabled: 1
+  OutfitForCheckTopAndJeans:
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 6535556645594502748, guid: b70131c9e49b29f4a9b0ae2fae2b337c, type: 3}
+  - {fileID: 1790807003833793464, guid: a5ab064db54d05346b66bd9452cfb5b0, type: 3}
+  lipsColorForCheckTopAndJeans: {r: 1, g: 0.4584905, b: 0.5400431, a: 1}
+  nailsColorForCheckTopAndJeans: {r: 1, g: 0, b: 0.36111116, a: 1}
+  JiggleCheckTopAndJeans: 1
+  WingsEnabledForCheckTopAndJeans: 0
+  ApronEnabledForCheckTopAndJeans: 0
+  HatEnabledForCheckTopAndJeans: 0
+  ChokerEnabledForCheckTopAndJeans: 0
+  hairForCheckTopAndJeans: 3
+  KnottedBlousseAndSkirtOutfitEnabled: 1
+  OutfitForKnottedBlousseAndSkirt:
+  - {fileID: 8463143090067504296, guid: 03dd1314a7f5fb14cb93683d3e2f8bdd, type: 3}
+  - {fileID: 3217794862240956393, guid: d5f486dc3f1bb8549b3379b755353cd8, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: e80809419ef39d54b87138f4ddd718fa, type: 3}
+  lipsColorForKnottedBlousseAndSkirt: {r: 1, g: 0, b: 0.14450884, a: 1}
+  nailsColorForKnottedBlousseAndSkirt: {r: 1, g: 0, b: 0.3421054, a: 1}
+  JiggleKnottedBlousseAndSkirt: 1
+  WingsEnabledForKnottedBlousseAndSkirt: 0
+  ApronEnabledForKnottedBlousseAndSkirt: 0
+  HatEnabledForKnottedBlousseAndSkirt: 0
+  ChokerEnabledForKnottedBlousseAndSkirt: 0
+  hairForKnottedBlousseAndSkirt: 4
+  RuffleBlousseAndSkirtEnabled: 1
+  OutfitForRuffleBlousseAndSkirt:
+  - {fileID: 8641512369458055068, guid: 6f1fbccd35ba1ca4f923291c8f8b3616, type: 3}
+  - {fileID: 7376156514830740404, guid: 46c3992013f9ef448b99585d2b1607cc, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: e80809419ef39d54b87138f4ddd718fa, type: 3}
+  lipsColorForRuffleBlousseAndSkirt: {r: 0, g: 0, b: 0, a: 1}
+  nailsColorForRuffleBlousseAndSkirt: {r: 1, g: 0, b: 0, a: 1}
+  JiggleRuffleBlousseAndSkirt: 1
+  WingsEnabledForRuffleBlousseAndSkirt: 0
+  ApronEnabledForRuffleBlousseAndSkirt: 0
+  HatEnabledForRuffleBlousseAndSkirt: 0
+  ChokerEnabledForRuffleBlousseAndSkirt: 0
+  hairForRuffleBlousseAndSkirt: 3
+  LooseTopAndLongSkirtOutfitEnabled: 1
+  OutfitForLooseTopAndLongSkirt:
+  - {fileID: 6089810614232578850, guid: b15391c2dc36f634eb22aadf04decd89, type: 3}
+  - {fileID: 2406771335610393145, guid: a121eb454d190504e8fd9d525a85e09a, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: 53c6f260abe299240bc04c5fecbdf997, type: 3}
+  lipsColorForLooseTopAndLongSkirt: {r: 1, g: 0, b: 0.15476227, a: 1}
+  nailsColorForLooseTopAndLongSkirt: {r: 1, g: 0, b: 0.24242401, a: 1}
+  JiggleLooseTopAndLongSkirt: 1
+  WingsEnabledForLooseTopAndLongSkirt: 0
+  ApronEnabledForLooseTopAndLongSkirt: 0
+  HatEnabledForLooseTopAndLongSkirt: 0
+  ChokerEnabledForLooseTopAndLongSkirt: 0
+  hairForLooseTopAndLongSkirt: 3
+  TurtleneckAndMediumSkirtOutfitEnabled: 1
+  OutfitForTurtleneckAndMediumSkirt:
+  - {fileID: 6800261193600662001, guid: 8a0210824eea27847acf1e87c0ffe31c, type: 3}
+  - {fileID: 5432906250226186227, guid: b738c8682667dbc4687b5b6f1ea9787d, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: b56b175a6badb21409d1c0283cb01cd8, type: 3}
+  lipsColorForTurtleneckAndMediumSkirt: {r: 0.7584905, g: 0, b: 0.110890724, a: 1}
+  nailsColorForTurtleneckAndMediumSkirt: {r: 0.81886786, g: 0, b: 0.20873097, a: 1}
+  JiggleTurtleneckAndMediumSkirt: 1
+  WingsEnabledForTurtleneckAndMediumSkirt: 0
+  ApronEnabledForTurtleneckAndMediumSkirt: 0
+  HatEnabledForTurtleneckAndMediumSkirt: 0
+  ChokerEnabledForTurtleneckAndMediumSkirt: 0
+  hairForTurtleneckAndMediumSkirt: 3
+  WoolenJumperEnabled: 1
+  OutfitForWoolenJumper:
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 2275598102526034604, guid: e82f43b994eeaf54aa0bab222ac6d3be, type: 3}
+  - {fileID: 1738059917749922914, guid: ffaaa0ea667bc3440821f6626434ac06, type: 3}
+  - {fileID: 8042191359520616514, guid: e80809419ef39d54b87138f4ddd718fa, type: 3}
+  lipsColorForWoolenJumper: {r: 0.9, g: 0.25, b: 0.35, a: 1}
+  nailsColorForWoolenJumper: {r: 0.93, g: 0.75, b: 0.8, a: 1}
+  JiggleWoolenJumper: 1
+  WingsEnabledForWoolenJumper: 0
+  ApronEnabledForWoolenJumper: 0
+  HatEnabledForWoolenJumper: 0
+  ChokerEnabledForWoolenJumper: 0
+  hairForWoolenJumper: 3
+  CasualPantsuitEnabled: 1
+  OutfitCasualPantsuit:
+  - {fileID: 2806029248165931603, guid: 3d4107cba86050644a1a404b27d11f1a, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  lipsColorForCasualPantsuit: {r: 0.7283019, g: 0, b: 0.10968397, a: 1}
+  nailsColorForCasualPantsuit: {r: 0.5622641, g: 0, b: 0.15890062, a: 1}
+  JiggleCasualPantsuit: 1
+  WingsEnabledForCasualPantsuit: 0
+  ApronEnabledForCasualPantsuit: 0
+  HatEnabledForCasualPantsuit: 0
+  ChokerEnabledForCasualPantsuit: 0
+  hairForCasualPantsuit: 3
+  ShortsAndTightsEnabled: 1
+  OutfitForShortsAndTights:
+  - {fileID: 8481628198455375423, guid: ebcf55ea8e75a4f4bab4199437093416, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 3389454909545557102, guid: 34f50ef5db07e3b46877b5ae02cf9e64, type: 3}
+  - {fileID: 233685797667789457, guid: ba5397052e748594486c8b6ae7529b1e, type: 3}
+  lipsColorForShortsAndTights: {r: 0.9, g: 0.25, b: 0.35, a: 1}
+  nailsColorForShortsAndTights: {r: 0, g: 0, b: 0, a: 1}
+  JiggleShortsAndTights: 1
+  WingsEnabledForShortsAndTights: 0
+  ApronEnabledForShortsAndTights: 0
+  HatEnabledForShortsAndTights: 0
+  ChokerEnabledForShortsAndTights: 0
+  hairForShortsAndTights: 3
+  CleanBanditEnabled: 1
+  OutfitForCleanBandit:
+  - {fileID: 8641512369458055068, guid: ba61fbbcd38b41b46a1e65ec0cfe8738, type: 3}
+  - {fileID: 8641512369458055068, guid: ab4e4e7de9b913a4f8b1eaad3ba86ebc, type: 3}
+  - {fileID: 8641512369458055068, guid: 474fc2f30675b9842b59311a109edd14, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  lipsColorForCleanBandit: {r: 1, g: 0.51886785, b: 0.5913275, a: 1}
+  nailsColorForCleanBandit: {r: 1, g: 0, b: 0.2826085, a: 1}
+  JiggleCleanBandit: 1
+  WingsEnabledForCleanBandit: 0
+  ApronEnabledForCleanBandit: 0
+  HatEnabledForCleanBandit: 0
+  ChokerEnabledForCleanBandit: 0
+  hairForCleanBandit: 9
+  ConservativeEnabled: 1
+  OutfitConservative:
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 1301645286070762131, guid: 5cfa8db66d6dc0943aa1fc409e64040b, type: 3}
+  - {fileID: 1301645286070762131, guid: 3f1e040a440232546aafc8f69d17150c, type: 3}
+  - {fileID: 8042191359520616514, guid: 53c6f260abe299240bc04c5fecbdf997, type: 3}
+  lipsColorForConservative: {r: 0.9, g: 0.25, b: 0.35, a: 1}
+  nailsColorForConservative: {r: 0.93, g: 0.75, b: 0.8, a: 1}
+  JiggleConservative: 1
+  WingsEnabledForConservative: 0
+  ApronEnabledForConservative: 0
+  HatEnabledForConservative: 0
+  ChokerEnabledForConservative: 0
+  hairForConservative: 3
+  ButtonDressEnabled: 1
+  OutfitForButtonDress:
+  - {fileID: 7603706129927041433, guid: 81992e6ff0688714da90d36354a2d623, type: 3}
+  - {fileID: 6198400242922400080, guid: 7a1391dbf96e0684aafe7416012b1d65, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: e80809419ef39d54b87138f4ddd718fa, type: 3}
+  lipsColorForButtonDress: {r: 1, g: 0, b: 0.15060234, a: 1}
+  nailsColorForButtonDress: {r: 1, g: 0, b: 0.2826085, a: 1}
+  JiggleButtonDress: 1
+  WingsEnabledForButtonDress: 0
+  ApronEnabledForButtonDress: 0
+  HatEnabledForButtonDress: 0
+  ChokerEnabledForButtonDress: 0
+  hairForButtonDress: 0
+  WoolyAndJeansEnabled: 1
+  OutfitForWoolyAndJeans:
+  - {fileID: 2910688560428780522, guid: 6339719199ce5e1498160404951bb0ee, type: 3}
+  - {fileID: 2910688560428780522, guid: 7a6667eb89e30584faa750785f890e3c, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  lipsColorForWoolyAndJeans: {r: 0.25471687, g: 0.9774861, b: 1, a: 1}
+  nailsColorForWoolyAndJeans: {r: 0.85660374, g: 0, b: 0.2420835, a: 1}
+  JiggleWoolyAndJeans: 1
+  WingsEnabledForWoolyAndJeans: 0
+  ApronEnabledForWoolyAndJeans: 0
+  HatEnabledForWoolyAndJeans: 0
+  ChokerEnabledForWoolyAndJeans: 0
+  hairForWoolyAndJeans: 0
+  ModestEnabled: 1
+  OutfitForModest:
+  - {fileID: 7603706129927041433, guid: f75cb004b907b374585d8d234ea5e439, type: 3}
+  - {fileID: 7603706129927041433, guid: c4550180e6d56b04380c3edc73ad54ca, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: 53c6f260abe299240bc04c5fecbdf997, type: 3}
+  lipsColorForModest: {r: 1, g: 0.4660377, b: 0.54645365, a: 1}
+  nailsColorForModest: {r: 0, g: 0, b: 0, a: 1}
+  JiggleModest: 1
+  WingsEnabledForModest: 0
+  ApronEnabledForModest: 0
+  HatEnabledForModest: 0
+  ChokerEnabledForModest: 0
+  hairForModest: 0
+  StrappyTopAndSkirtEnabled: 1
+  OutfitForStrappyTopAndSkirt:
+  - {fileID: 3479303858825384319, guid: 92efb55c608126c4caf2351fb7e89461, type: 3}
+  - {fileID: 3479303858825384319, guid: 6662644b776e8744782d00bcd1642631, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: b56b175a6badb21409d1c0283cb01cd8, type: 3}
+  lipsColorForStrappyTopAndSkirt: {r: 1, g: 0, b: 0.15060234, a: 1}
+  nailsColorForStrappyTopAndSkirt: {r: 1, g: 0, b: 0.2826085, a: 1}
+  JiggleStrappyTopAndSkirt: 1
+  WingsEnabledForStrappyTopAndSkirt: 0
+  ApronEnabledForStrappyTopAndSkirt: 0
+  HatEnabledForStrappyTopAndSkirt: 0
+  ChokerEnabledForStrappyTopAndSkirt: 0
+  hairForStrappyTopAndSkirt: 0
+  ShortieEnabled: 1
+  OutfitForShortie:
+  - {fileID: 3479303858825384319, guid: 34dc8688f9f6c9b41917490d660ca712, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 3479303858825384319, guid: cbd917473b1a0cd4a9f34f4b57784d1a, type: 3}
+  lipsColorForShortie: {r: 1, g: 0, b: 0.1484375, a: 1}
+  nailsColorForShortie: {r: 1, g: 0, b: 0.280303, a: 1}
+  JiggleShortie: 1
+  WingsEnabledForShortie: 0
+  ApronEnabledForShortie: 0
+  HatEnabledForShortie: 0
+  ChokerEnabledForShortie: 0
+  hairForShortie: 9
+  TopWithSkirtEnabled: 1
+  OutfitForTopWithSkirt:
+  - {fileID: 3479303858825384319, guid: eb0725fec5c0e084ab3489a78d497d25, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 3479303858825384319, guid: a7294f09adb293d4d8cd8889ca31da56, type: 3}
+  - {fileID: 369402548493657779, guid: 415846f5c65ae0747bf6610dbd847ffa, type: 3}
+  - {fileID: 8042191359520616514, guid: ea60c9c13f700d341af4d7f89c1a6102, type: 3}
+  lipsColorForTopWithSkirt: {r: 1, g: 0, b: 0.15060234, a: 1}
+  nailsColorForTopWithSkirt: {r: 0.1641509, g: 0.53926647, b: 1, a: 1}
+  JiggleTopWithSkirt: 1
+  WingsEnabledForTopWithSkirt: 0
+  ApronEnabledForTopWithSkirt: 0
+  HatEnabledForTopWithSkirt: 0
+  ChokerEnabledForTopWithSkirt: 0
+  hairForTopWithSkirt: 0
+  WoolyModestyEnabled: 1
+  OutfitForWoolyModesty:
+  - {fileID: 369402548493657779, guid: e332634c3c46e4148af0ddf83745cc50, type: 3}
+  - {fileID: 369402548493657779, guid: 6c650b6c67988e340a51a10e12e580fa, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: b56b175a6badb21409d1c0283cb01cd8, type: 3}
+  lipsColorForWoolyModesty: {r: 1, g: 1, b: 1, a: 1}
+  nailsColorForWoolyModesty: {r: 0.93, g: 0.75, b: 0.8, a: 1}
+  JiggleWoolyModesty: 1
+  WingsEnabledForWoolyModesty: 0
+  ApronEnabledForWoolyModesty: 0
+  HatEnabledForWoolyModesty: 0
+  ChokerEnabledForWoolyModesty: 0
+  hairForWoolyModesty: 0
+  WeddingOutfitEnabled: 1
+  OutfitForWedding:
+  - {fileID: 7724608326583790887, guid: aa136487e0770a646b3487daa0832fe4, type: 3}
+  - {fileID: 278129395648969639, guid: 7979e0e2867c49d49b0a867a85bf88d9, type: 3}
+  - {fileID: 5534269185879662319, guid: 219f9f057d6da4742bbdb473a68b0528, type: 3}
+  - {fileID: 2346744608001710293, guid: df9a7a922d87d8d44bd869fe879a1071, type: 3}
+  - {fileID: 4285726206765358223, guid: 301631c68e514634a9196a95f75ccf9e, type: 3}
+  - {fileID: 957791404739371847, guid: c5657c407e9103749bacf8d8fa095211, type: 3}
+  - {fileID: 8042191359520616514, guid: 53c6f260abe299240bc04c5fecbdf997, type: 3}
+  lipsColorForWedding: {r: 0.8352942, g: 0, b: 0.10588236, a: 1}
+  nailsColorForWedding: {r: 0.8352942, g: 0, b: 0.10588236, a: 1}
+  JiggleAtAWedding: 1
+  WingsEnabledForWedding: 0
+  ApronEnabledForWedding: 0
+  HatEnabledForWedding: 0
+  ChokerEnabledForWedding: 0
+  hairForWedding: 3
+  FuneralOutfitEnabled: 1
+  OutfitForFuneral:
+  - {fileID: 7469445365381777539, guid: 4bd4ff00d3c57ae49956b54b8e89bc64, type: 3}
+  - {fileID: 151178452901603753, guid: 4b36c34c265fa98429d156b515e15454, type: 3}
+  - {fileID: 4744991915766023075, guid: 2a0b3cc664d5087428715d41eb005e09, type: 3}
+  - {fileID: 116953611389883131, guid: 030e46bef8d0b6d4880d181a9e91d005, type: 3}
+  - {fileID: 6166430055325670911, guid: 693066f0ea6073c44bd487849cc132c9, type: 3}
+  - {fileID: 3465880456370680553, guid: 277ba724d4b643a4390f785f29c471d6, type: 3}
+  - {fileID: 8042191359520616514, guid: e80809419ef39d54b87138f4ddd718fa, type: 3}
+  lipsColorForFuneral: {r: 0, g: 0, b: 0, a: 1}
+  nailsColorForFuneral: {r: 0, g: 0, b: 0, a: 1}
+  JiggleAtAFuneral: 1
+  WingsEnabledForFuneral: 0
+  ApronEnabledForFuneral: 0
+  HatEnabledForFuneral: 0
+  ChokerEnabledForFuneral: 0
+  hairForFuneral: 3
+  HomelessnessOutfitEnabled: 1
+  OutfitForHomelessness:
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 7746434370764631215, guid: 00a34eeb0bd9b334f8f932aad9f90a46, type: 3}
+  - {fileID: 676606832707294988, guid: b9048aed1f24bc0428b812e50e6bc037, type: 3}
+  - {fileID: 3295148403504608816, guid: 5369ab0b5de6d30438807d13d8099d24, type: 3}
+  lipsColorForHomelessness: {r: 1, g: 1, b: 1, a: 1}
+  nailsColorForHomelessness: {r: 0, g: 0, b: 0, a: 1}
+  JiggleWhileHomeless: 1
+  WingsEnabledForHomelessness: 0
+  ApronEnabledForHomelessness: 0
+  HatEnabledForHomelessness: 0
+  ChokerEnabledForHomelessness: 0
+  hairForHomelessness: 8
+  StealthSuitEnabled: 1
+  OutfitForStealthSuit:
+  - {fileID: 7746434370764631215, guid: 91f2907119d9bff429c76fe6b43ccec2, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  lipsColorForStealthSuit: {r: 0, g: 0, b: 0, a: 1}
+  nailsColorStealthSuit: {r: 0, g: 0, b: 0, a: 1}
+  JiggleStealthSuit: 1
+  WingsEnabledForStealthSuit: 0
+  ApronEnabledForStealthSuit: 0
+  HatEnabledForStealthSuit: 0
+  ChokerEnabledForStealthSuit: 0
+  hairForStealthSuit: 9
+  TraditionalEnabled: 1
+  OutfitForTraditional:
+  - {fileID: 7603706129927041433, guid: e46f8015bc75c63478dd73dc7f3de8fe, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: b56b175a6badb21409d1c0283cb01cd8, type: 3}
+  lipsColorForTraditional: {r: 1, g: 0, b: 0.15060234, a: 1}
+  nailsColorForTraditional: {r: 1, g: 0, b: 0.2826085, a: 1}
+  JiggleTraditional: 1
+  WingsEnabledForTraditional: 0
+  ApronEnabledForTraditional: 0
+  HatEnabledForTraditional: 0
+  ChokerEnabledForTraditional: 0
+  hairForTraditional: 0
+  ChurchDressEnabled: 1
+  OutfitForChurchDress:
+  - {fileID: 7603706129927041433, guid: b1210d0348caa404fafdb1557f103651, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: 53c6f260abe299240bc04c5fecbdf997, type: 3}
+  lipsColorForChurchDress: {r: 1, g: 0, b: 0.15476227, a: 1}
+  nailsColorForChurchDress: {r: 1, g: 0, b: 0.2826085, a: 1}
+  JiggleChurchDress: 1
+  WingsEnabledForChurchDress: 0
+  ApronEnabledForChurchDress: 0
+  HatEnabledForChurchDress: 0
+  ChokerEnabledForChurchDress: 0
+  hairForChurchDress: 11
+  FitnessOutfitEnabled: 1
+  OutfitForFitness:
+  - {fileID: 2910688560428780522, guid: 528e1e2ceeb6cd149910bdc0a8374ec3, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  lipsColorForFitness: {r: 0.92, g: 0.28, b: 0.38, a: 1}
+  nailsColorForFitness: {r: 0.9, g: 0.75, b: 0.8, a: 1}
+  JiggleFitness: 1
+  WingsEnabledForFitness: 0
+  ApronEnabledForFitness: 0
+  HatEnabledForFitness: 0
+  ChokerEnabledForFitness: 0
+  hairForFitness: 3
+  FrootCardiganTopEnabled: 1
+  OutfitForFrootCardiganTop:
+  - {fileID: 369402548493657779, guid: a10b261a4c1df2c47b605c2b77226c0c, type: 3}
+  - {fileID: 369402548493657779, guid: 415e7f1e59daac64da8e148bb28270de, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: 1cae796357b279d42a71b798be4aea37, type: 3}
+  lipsColorForFrootCardiganTop: {r: 0.9, g: 0.25, b: 0.35, a: 1}
+  nailsColorForFrootCardiganTop: {r: 1, g: 0, b: 0.2826085, a: 1}
+  JiggleFrootCardiganTop: 1
+  WingsEnabledForFrootCardiganTop: 0
+  ApronEnabledForFrootCardiganTop: 0
+  HatEnabledForFrootCardiganTop: 0
+  ChokerEnabledForFrootCardiganTop: 0
+  hairForFrootCardiganTop: 4
+  EdeaOutfitEnabled: 1
+  OutfitForEdea:
+  - {fileID: 6191134108190362063, guid: b2974889d2ee25c408ed22302b2b3cf0, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: e80809419ef39d54b87138f4ddd718fa, type: 3}
+  lipsColorForEdea: {r: 0.7490196, g: 0.10196079, b: 0.2, a: 1}
+  nailsColorForEdea: {r: 0.454902, g: 0.49411768, b: 1, a: 1}
+  JiggleCasuallyFour: 1
+  WingsEnabledForEdea: 0
+  ApronEnabledForEdea: 0
+  HatEnabledForEdea: 0
+  ChokerEnabledForEdea: 0
+  hairForEdea: 3
+  PyjamasOutfitEnabled: 1
+  OutfitForPyjamas:
+  - {fileID: 6549265517782164827, guid: 253df95710a429f44805eda6cb4cc8c9, type: 3}
+  - {fileID: 8477229446802270830, guid: bc6fb6446af315947be055fa5843f0ae, type: 3}
+  lipsColorForPyjamas: {r: 1, g: 1, b: 1, a: 1}
+  nailsColorForPyjamas: {r: 1, g: 0, b: 0, a: 1}
+  JiggleInPyjamas: 1
+  WingsEnabledForPyjamas: 0
+  ApronEnabledForPyjamas: 0
+  HatEnabledForPyjamas: 0
+  ChokerEnabledForPyjamas: 0
+  hairForPyjamas: 2
+  HousecoatOutfitEnabled: 1
+  OutfitForHousecoat:
+  - {fileID: 1086225722454653101, guid: 47f4e1c8127ed1944940dea45cd14710, type: 3}
+  - {fileID: 8042191359520616514, guid: e80809419ef39d54b87138f4ddd718fa, type: 3}
+  lipsColorForHousecoat: {r: 0.82, g: 0.18, b: 0.28, a: 1}
+  nailsColorForHousecoat: {r: 0.88, g: 0.65, b: 0.72, a: 1}
+  JiggleInHousecoat: 1
+  WingsEnabledForHousecoat: 0
+  ApronEnabledForHousecoat: 0
+  HatEnabledForHousecoat: 0
+  ChokerEnabledForHousecoat: 0
+  hairForHousecoat: 3
+  NightieEnabled: 1
+  OutfitForNightie:
+  - {fileID: 3992424418799946870, guid: f1a63d6fff344984a9a9b74ccf7508fb, type: 3}
+  - {fileID: 8042191359520616514, guid: 1cae796357b279d42a71b798be4aea37, type: 3}
+  lipsColorForNightie: {r: 1, g: 1, b: 1, a: 1}
+  nailsColorForNightie: {r: 0.0049340692, g: 0.64467263, b: 0.87169814, a: 1}
+  JiggleNightie: 1
+  WingsEnabledForNightie: 0
+  ApronEnabledForNightie: 0
+  HatEnabledForNightie: 0
+  ChokerEnabledForNightie: 0
+  hairForNightie: 0
+  DitzyDressEnabled: 1
+  OutfitForDitzyDress:
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 6131622823004932743, guid: 25d4de95bf74534459cf25ad59c0dd33, type: 3}
+  - {fileID: 8042191359520616514, guid: e80809419ef39d54b87138f4ddd718fa, type: 3}
+  lipsColorForDitzyDress: {r: 0.56078434, g: 0, b: 0.08627451, a: 1}
+  nailsColorForDitzyDress: {r: 0.48235297, g: 0, b: 0.13725491, a: 1}
+  JiggleDitzyDress: 1
+  WingsEnabledForDitzyDress: 0
+  ApronEnabledForDitzyDress: 0
+  HatEnabledForDitzyDress: 0
+  ChokerEnabledForDitzyDress: 0
+  hairForDitzyDress: 3
+  LittleBlackDressEnabled: 1
+  OutfitForLittleBlackDress:
+  - {fileID: 6605521944943253942, guid: f4f11c4ad4fbc4e4ebd3b1105b009f51, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: 1d643ca37636c2c4fa41948a0819bd17, type: 3}
+  lipsColorForLittleBlackDress: {r: 1, g: 0, b: 0.15060234, a: 1}
+  nailsColorForLittleBlackDress: {r: 1, g: 0, b: 0.2826085, a: 1}
+  JiggleLittleBlackDress: 1
+  WingsEnabledForLittleBlackDress: 0
+  ApronEnabledForLittleBlackDress: 0
+  HatEnabledForLittleBlackDress: 0
+  ChokerEnabledForLittleBlackDress: 0
+  hairForLittleBlackDress: 3
+  FrootDressOutfitEnabled: 1
+  OutfitForFrootDress:
+  - {fileID: 8135725385411131276, guid: 42e5311cee08e9544bcce2fd06835984, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: 1cae796357b279d42a71b798be4aea37, type: 3}
+  lipsColorForFrootDress: {r: 1, g: 0, b: 0.16883087, a: 1}
+  nailsColorForFrootDress: {r: 1, g: 0, b: 0.26315784, a: 1}
+  JiggleCasuallyThree: 1
+  WingsEnabledForFrootDress: 0
+  ApronEnabledForFrootDress: 0
+  HatEnabledForFrootDress: 0
+  ChokerEnabledForFrootDress: 0
+  hairForFrootDress: 3
+  StraplessRuffleDressOutfitEnabled: 1
+  OutfitForStraplessRuffleDress:
+  - {fileID: 6654108671468834737, guid: 1087b2078968103449f8a420f4988982, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: e80809419ef39d54b87138f4ddd718fa, type: 3}
+  lipsColorForStraplessRuffleDress: {r: 0.82, g: 0.12, b: 0.22, a: 1}
+  nailsColorForStraplessRuffleDress: {r: 0.8196079, g: 0.121568635, b: 0.21960786,
+    a: 1}
+  JiggleStraplessRuffleDress: 1
+  WingsEnabledForStraplessRuffleDress: 0
+  ApronEnabledForStraplessRuffleDress: 0
+  HatEnabledForStraplessRuffleDress: 0
+  ChokerEnabledForStraplessRuffleDress: 0
+  hairForStraplessRuffleDress: 3
+  CheckBodySuitOutfitEnabled: 1
+  OutfitForCheckBodySuit:
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 7336391116807092350, guid: fdc46bb77011d1347b1a0795765c763b, type: 3}
+  - {fileID: 7841258815768152774, guid: 56a79b5edab1f7c49b1d4f34f5a846a7, type: 3}
+  lipsColorForCheckBodySuit: {r: 0.8196079, g: 0.121568635, b: 0.21960786, a: 1}
+  nailsColorForCheckBodySuit: {r: 0.8196079, g: 0.121568635, b: 0.21960786, a: 1}
+  JiggleCheckBodySuit: 1
+  WingsEnabledForCheckBodySuit: 0
+  ApronEnabledForCheckBodySuit: 0
+  HatEnabledForCheckBodySuit: 0
+  ChokerEnabledForCheckBodySuit: 0
+  hairForCheckBodySuit: 3
+  ElegantDressOutfitEnabled: 1
+  OutfitForElegantDress:
+  - {fileID: 6290627917934053961, guid: 94a7fd895a9cccc448f72719220b962d, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: e80809419ef39d54b87138f4ddd718fa, type: 3}
+  lipsColorForElegantDress: {r: 0, g: 0, b: 0, a: 1}
+  nailsColorForElegantDress: {r: 0, g: 0, b: 0, a: 1}
+  JiggleElegantDress: 1
+  WingsEnabledForElegantDress: 0
+  ApronEnabledForElegantDress: 0
+  HatEnabledForElegantDress: 0
+  ChokerEnabledForElegantDress: 0
+  hairForElegantDress: 3
+  NightOutRuffleEnabled: 1
+  OutfitForNightOutRuffle:
+  - {fileID: 8438017864282167185, guid: c750d4e5c234c93438f80f4c5b38b616, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: 53c6f260abe299240bc04c5fecbdf997, type: 3}
+  lipsColorForNightOutRuffle: {r: 1, g: 0, b: 0.14901961, a: 1}
+  nailsColorForNightOutRuffle: {r: 1, g: 0, b: 0.28235295, a: 1}
+  JiggleNightOutRuffle: 1
+  WingsEnabledForNightOutRuffle: 0
+  ApronEnabledForNightOutRuffle: 0
+  HatEnabledForNightOutRuffle: 0
+  ChokerEnabledForNightOutRuffle: 0
+  hairForNightOutRuffle: 3
+  HalterSkirterEnabled: 1
+  OutfitForHalterSkirter:
+  - {fileID: 7746434370764631215, guid: 41f430f15a430024c801d9ac87ef13d6, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  - {fileID: 8042191359520616514, guid: ea60c9c13f700d341af4d7f89c1a6102, type: 3}
+  lipsColorForHalterSkirter: {r: 0, g: 0, b: 0, a: 1}
+  nailsColorForHalterSkirter: {r: 0, g: 0, b: 0, a: 1}
+  JiggleHalterSkirter: 1
+  WingsEnabledForHalterSkirter: 0
+  ApronEnabledForHalterSkirter: 0
+  HatEnabledForHalterSkirter: 0
+  ChokerEnabledForHalterSkirter: 0
+  hairForHalterSkirter: 9
+  OutfitForUndergarments:
+  - {fileID: 5219396385634948694, guid: 716a869302f71694faca3ba4803972c5, type: 3}
+  - {fileID: 8042191359520616514, guid: 8bb4426a5b20ddc4691f1b732eff2124, type: 3}
+  - {fileID: 6720421881602151433, guid: 5273da05d6d0f64418887bbb215c56d6, type: 3}
+  lipsColorForUndergarments: {r: 0.7960785, g: 0, b: 0.1137255, a: 1}
+  nailsColorForUndergarments: {r: 0.7960785, g: 0, b: 0.1137255, a: 1}
+  JiggleUndergarments: 1
+  WingsEnabledForUndergarments: 0
+  ApronEnabledForUndergarments: 0
+  HatEnabledForUndergarments: 0
+  ChokerEnabledForUndergarments: 0
+  hairForUndergarments: 0
+  LingerieEnabled: 1
+  OutfitForLingerie:
+  - {fileID: 2230938238278489699, guid: a8f47d52c132c204d98d7a7a94a38781, type: 3}
+  lipsColorForLingerie: {r: 1, g: 0, b: 0.15060234, a: 1}
+  nailsColorForLingerie: {r: 1, g: 0, b: 0.2826085, a: 1}
+  JiggleLingerie: 1
+  WingsEnabledForLingerie: 0
+  ApronEnabledForLingerie: 0
+  HatEnabledForLingerie: 0
+  ChokerEnabledForLingerie: 0
+  hairForLingerie: 0
+  FaeEnabled: 1
+  OutfitForFae:
+  - {fileID: 7455303928003074391, guid: aff1c7c9e2a83db45a2c1e61d7dea631, type: 3}
+  lipsColorForFae: {r: 1, g: 0, b: 0.15060234, a: 1}
+  nailsColorForFae: {r: 1, g: 0, b: 0.2826085, a: 1}
+  JiggleFae: 1
+  WingsEnabledForFae: 0
+  ApronEnabledForFae: 0
+  HatEnabledForFae: 0
+  ChokerEnabledForFae: 0
+  hairForFae: 0
+  RisqueNightieEnabled: 1
+  OutfitForRisqueNightie:
+  - {fileID: 3992424418799946870, guid: 997861d22e125694695efc8d8bc433a9, type: 3}
+  - {fileID: 5219396385634948694, guid: 716a869302f71694faca3ba4803972c5, type: 3}
+  - {fileID: 8042191359520616514, guid: 8bb4426a5b20ddc4691f1b732eff2124, type: 3}
+  lipsColorForRisqueNightie: {r: 0, g: 0, b: 0, a: 1}
+  nailsColorForRisqueNightie: {r: 0, g: 0, b: 0, a: 1}
+  JiggleRisqueNightie: 1
+  WingsEnabledForRisqueNightie: 0
+  ApronEnabledForRisqueNightie: 0
+  HatEnabledForRisqueNightie: 0
+  ChokerEnabledForRisqueNightie: 0
+  hairForRisqueNightie: 0
+  KnottedAndShortsEnabled: 1
+  OutfitForKnottedAndShorts:
+  - {fileID: 7603706129927041433, guid: 399ad43bfef693d44b2b896af5b992ca, type: 3}
+  - {fileID: 7603706129927041433, guid: c622d5e5dc721524a8b45371e80be34c, type: 3}
+  - {fileID: 1906068078380454515, guid: ab9bb470d467f8a41a9fb3c80da85499, type: 3}
+  lipsColorForKnottedAndShorts: {r: 1, g: 0, b: 0.15060234, a: 1}
+  nailsColorForKnottedAndShorts: {r: 1, g: 0, b: 0.2826085, a: 1}
+  JiggleKnottedAndShorts: 1
+  WingsEnabledForKnottedAndShorts: 0
+  ApronEnabledForKnottedAndShorts: 0
+  HatEnabledForKnottedAndShorts: 0
+  ChokerEnabledForKnottedAndShorts: 0
+  hairForKnottedAndShorts: 0
+  DommeOutfitEnabled: 1
+  OutfitForDomme:
+  - {fileID: 369402548493657779, guid: 58370dbca098c424e99640f651118d6a, type: 3}
+  - {fileID: 710693568507865492, guid: cb9ef3bc5c791fc41840c70d0908eabe, type: 3}
+  - {fileID: 7835240434647910878, guid: cb6c61305cd2f4e47b22d30f3b7bd78e, type: 3}
+  - {fileID: 6198400242922400080, guid: 1e1fb712c8c570c4da8327e48b6c5ee2, type: 3}
+  - {fileID: 8042191359520616514, guid: 1d643ca37636c2c4fa41948a0819bd17, type: 3}
+  lipsColorForDomme: {r: 0, g: 0, b: 0, a: 1}
+  nailsColorForDomme: {r: 0, g: 0, b: 0, a: 1}
+  JiggleDomme: 1
+  WingsEnabledForDomme: 0
+  ApronEnabledForDomme: 0
+  HatEnabledForDomme: 0
+  ChokerEnabledForDomme: 0
+  hairForDomme: 0
+  JiggleLeftBoob: {fileID: 0}
+  JiggleRightBoob: {fileID: 0}
+  JiggleLeftButtcheek: {fileID: 0}
+  JiggleRightButtcheek: {fileID: 0}
+  nextOutfit: {fileID: -7412131332412054456, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  previousOutfit: {fileID: -4160870095582256919, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  holdToUnlock: {fileID: 3751258792288476767, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}
+  holdToUnlockAll: {fileID: 5933187224259480211, guid: 052faaac586de48259a63d0c4782560b,
+    type: 3}

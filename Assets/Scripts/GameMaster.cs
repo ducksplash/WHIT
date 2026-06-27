@@ -219,7 +219,7 @@ public class GameMaster : MonoBehaviour
     {
         THISLEVEL = GAMELEVEL.ETVStudio;
         Player.Instance.Spawn();
-        Player.Instance.Me.SetRandomWorkOutfit();
+        Player.Instance.NorasWardrobe.SetRandomWorkOutfit();
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
@@ -245,11 +245,11 @@ public class GameMaster : MonoBehaviour
 
         if (isNight)
         {
-            Player.Instance.Me.SetRandomPyjamasOutfit();
+            Player.Instance.NorasWardrobe.SetRandomPyjamasOutfit();
         }
         else
         {
-            Player.Instance.Me.SetRandomMainOutfit();
+            Player.Instance.NorasWardrobe.SetRandomMainOutfit();
         }
 
         StartAudio(AudioProfile.NorasFlat);
@@ -262,7 +262,7 @@ public class GameMaster : MonoBehaviour
     {
         THISLEVEL = GAMELEVEL.TawleyMeats;
         Player.Instance.Spawn();
-        Player.Instance.Me.SetRandomMainOutfit();
+        Player.Instance.NorasWardrobe.SetRandomMainOutfit();
         StartAudio(AudioProfile.TawleyMeats);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
@@ -276,7 +276,7 @@ public class GameMaster : MonoBehaviour
     {
         THISLEVEL = GAMELEVEL.RoarkOutside;
         Player.Instance.Spawn();
-        Player.Instance.Me.SetRandomMainOutfit();
+        Player.Instance.NorasWardrobe.SetRandomMainOutfit();
         StartAudio(AudioProfile.RoarkOutside);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
@@ -287,7 +287,7 @@ public class GameMaster : MonoBehaviour
     {
         THISLEVEL = GAMELEVEL.RoarkInside;
         Player.Instance.Spawn();
-        Player.Instance.Me.SetRandomMainOutfit();
+        Player.Instance.NorasWardrobe.SetRandomMainOutfit();
         StartAudio(AudioProfile.RoarkInside);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();

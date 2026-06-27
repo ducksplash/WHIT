@@ -33,7 +33,7 @@ public class Player : Singleton<Player>
     
     private Vector2 moveInput;
 
-    public Me Me;
+    public NorasWardrobe NorasWardrobe;
     
     private CharacterController thisCharController;
 

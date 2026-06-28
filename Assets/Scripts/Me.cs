@@ -1391,7 +1391,7 @@ public class Me : MonoBehaviour
         
         SetHair(selectedHair);
 
-        EventManager.OutfitChanged(outfit);
+        //EventManager.OutfitChanged(outfit);
     }
 
     public void DisableAllMainOutfits()

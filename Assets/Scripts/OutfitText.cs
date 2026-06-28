@@ -9,12 +9,12 @@ public class OutfitText : MonoBehaviour
 
     void Start()
     {
-        EventManager.OnOutfitChanged += SetOutfitText;
+        EventManager.OnOutfitWasChanged += SetOutfitText;
     }
 
 
 
-    private void SetOutfitText(OutfitType outfitType)
+    private void SetOutfitText(OutfitName outfitType)
     {
         outfitText.text = outfitType.ToString();
     }

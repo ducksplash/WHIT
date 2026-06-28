@@ -10,11 +10,7 @@ public class NorasWardrobe : MonoBehaviour
 {
     [Header("Settings")]
     public bool UnressedOnLoad;
-    public string ThisCharacterName;
-
-    [Header("Only applies to NPCs")]
-    public NPCController npcController;
-
+    
     [Header("Current Outfit")]
     public OutfitName currentOutfit = OutfitName.Work;
 
@@ -70,23 +66,14 @@ public class NorasWardrobe : MonoBehaviour
 
     private void Start()
     {
-        try
-        {
-            npcController = GetComponent<NPCController>();
-            ThisCharacterName = npcController.thisNPC.ToString().Replace("_", " ");
-        }
-        catch
-        {
-            ThisCharacterName = "Nora";
-        }
-
         SetupAccessories();
         SetupHair();
 
-        if (!UnressedOnLoad) { SwitchToOutfit(OutfitName.Work); }
+        if (!UnressedOnLoad) 
+        { SwitchToOutfit(OutfitName.Work); }
         else { DisableAllMainOutfits(); }
 
-        if (npcController == null) { SetupInput(); }
+        SetupInput(); 
     }
 
     private void OnValidate()
@@ -109,13 +96,10 @@ public class NorasWardrobe : MonoBehaviour
 
     private void OnDisable()
     {
-        if (npcController == null)
-        {
-            if (nextOutfit != null) { nextOutfit.action.performed -= OnNextOutfit; }
-            if (previousOutfit != null) { previousOutfit.action.performed -= OnPreviousOutfit; }
-            if (holdToUnlock != null) { holdToUnlock.action.performed -= OnToggleUndergarments; }
-            if (holdToUnlockAll != null) { holdToUnlockAll.action.performed -= OnToggleNothinatall; }
-        }
+        if (nextOutfit != null) { nextOutfit.action.performed -= OnNextOutfit; }
+        if (previousOutfit != null) { previousOutfit.action.performed -= OnPreviousOutfit; }
+        if (holdToUnlock != null) { holdToUnlock.action.performed -= OnToggleUndergarments; }
+        if (holdToUnlockAll != null) { holdToUnlockAll.action.performed -= OnToggleNothinatall; }
     }
 
     private void ClearOutfitMeshes()

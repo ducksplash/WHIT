@@ -3637,9 +3637,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Player
   PlayerStatus: {fileID: 0}
   walkspeed: 0.1
-  sprintspeed: 0.2
   jumpForce: 2
-  Me: {fileID: 0}
+  jumpForwardSpeed: 6.5
+  jumpCooldown: 0.55
+  jumpControllerHeightBoost: 1.4
+  jumpControllerBlendTime: 0.18
+  NorasWardrobe: {fileID: 0}
   FirstPersonCamera: {fileID: 0}
   ThirdPersonCamera: {fileID: 0}
   DebugCam: {fileID: 0}
@@ -16624,7 +16627,7 @@ MonoBehaviour:
   aspectHeight: 18.41
   orthoSize: 1.7
   letterboxAmount: 0
-  player: {fileID: 0}
+  player: {fileID: 151632535}
   maxTrackingDistance: 10
 --- !u!114 &712750892
 MonoBehaviour:

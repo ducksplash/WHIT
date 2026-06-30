@@ -1569,7 +1569,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5756745615701342739}
-  - component: {fileID: 3286014515185965290}
   - component: {fileID: 5758323045589499201}
   - component: {fileID: 7893991932760373765}
   - component: {fileID: 3563020154133636137}
@@ -1601,28 +1600,6 @@ Transform:
   - {fileID: 5275591773266832285}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3286014515185965290
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3923387550621196770}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ad585efbd547be4cb7a07627fcb8710, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MeNPC
-  npcRendererOutfitOne:
-  - {fileID: 3474761694544187268}
-  - {fileID: 4948329511945149803}
-  - {fileID: 1680782022262237424}
-  - {fileID: 309309576388700769}
-  npcRendererOutfitTwo: []
-  npcRendererOutfitThree: []
-  npcController: {fileID: 0}
-  UnressedOnLoad: 0
-  ThisNPCName: 
 --- !u!114 &5758323045589499201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1637,6 +1614,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   thisNPC: 500
   FindSeat: 0
+  PlayAnimation: 0
+  startupAnimationTrigger: 
   useStateMachine: 1
   currentTarget: {fileID: 0}
   activeRadius: 10
@@ -1737,8 +1716,8 @@ MonoBehaviour:
   patrolActionCooldownSeconds: 500
   patrolActionFailedRetrySeconds: 6
   autonomousTalkSearchRadius: 30
-  seatSearchRetryDelay: 3
-  bedSearchRetryDelay: 3
+  hasStartupActions: 0
+  startupActionsConcluded: 0
 --- !u!195 &7893991932760373765
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1897,6 +1876,7 @@ MonoBehaviour:
   isTalking: 0
   isGabbing: 0
   isDawdling: 0
+  isSitting: 0
 --- !u!114 &8386793911409645582
 MonoBehaviour:
   m_ObjectHideFlags: 0

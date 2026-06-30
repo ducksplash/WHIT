@@ -137,7 +137,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6310514322449123797}
-  - component: {fileID: 3723325845884365662}
   - component: {fileID: 8552949893367142270}
   - component: {fileID: 2545392805044006762}
   - component: {fileID: 4709256645482068549}
@@ -169,27 +168,6 @@ Transform:
   - {fileID: 7883192096952285635}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3723325845884365662
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 151235985972103515}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ad585efbd547be4cb7a07627fcb8710, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MeNPC
-  npcRendererOutfitOne:
-  - {fileID: 6891866468947451156}
-  - {fileID: 3946456997933534649}
-  - {fileID: 4952902555377725967}
-  npcRendererOutfitTwo: []
-  npcRendererOutfitThree: []
-  npcController: {fileID: 0}
-  UnressedOnLoad: 0
-  ThisNPCName: 
 --- !u!195 &8552949893367142270
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -226,6 +204,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   thisNPC: 101
   FindSeat: 0
+  PlayAnimation: 0
+  startupAnimationTrigger: 
   useStateMachine: 1
   currentTarget: {fileID: 0}
   activeRadius: 10

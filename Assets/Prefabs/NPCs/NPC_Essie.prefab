@@ -64,7 +64,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7283098188434857859}
-  - component: {fileID: 6092674871461217492}
   - component: {fileID: 1629573215091761699}
   - component: {fileID: 3855113847485426782}
   - component: {fileID: 373789574653265183}
@@ -96,27 +95,6 @@ Transform:
   - {fileID: 7785075333521069993}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6092674871461217492
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8788101554706669590}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ad585efbd547be4cb7a07627fcb8710, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MeNPC
-  npcRendererOutfitOne:
-  - {fileID: 1534393594342674059}
-  - {fileID: 3681307092436975859}
-  - {fileID: 6024444292483240774}
-  npcRendererOutfitTwo: []
-  npcRendererOutfitThree: []
-  npcController: {fileID: 3855113847485426782}
-  UnressedOnLoad: 0
-  ThisNPCName: 
 --- !u!195 &1629573215091761699
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -153,6 +131,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   thisNPC: 107
   FindSeat: 0
+  PlayAnimation: 0
+  startupAnimationTrigger: 
   useStateMachine: 1
   currentTarget: {fileID: 0}
   activeRadius: 10
@@ -234,7 +214,7 @@ MonoBehaviour:
   sidestepDuration: 0.7
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
-  npcMetaActions: {fileID: 6092674871461217492}
+  npcMetaActions: {fileID: 0}
   _ladder: {fileID: 1390865888228135317}
   _sitting: {fileID: 8704096870523531770}
   _lying: {fileID: 81417396654810806}
@@ -1293,12 +1273,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 8386384362298441400}
   m_PrefabAsset: {fileID: 0}
---- !u!137 &1534393594342674059 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 7001178760705634355, guid: 50379f708a012ab4a9cb7452c8101886,
-    type: 3}
-  m_PrefabInstance: {fileID: 8386384362298441400}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2503096529759055531 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -2963749891425349613, guid: 50379f708a012ab4a9cb7452c8101886,
@@ -1308,12 +1282,6 @@ Transform:
 --- !u!4 &2885175109384790249 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -2564695135738814895, guid: 50379f708a012ab4a9cb7452c8101886,
-    type: 3}
-  m_PrefabInstance: {fileID: 8386384362298441400}
-  m_PrefabAsset: {fileID: 0}
---- !u!137 &3681307092436975859 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 5148966149834505803, guid: 50379f708a012ab4a9cb7452c8101886,
     type: 3}
   m_PrefabInstance: {fileID: 8386384362298441400}
   m_PrefabAsset: {fileID: 0}
@@ -1332,12 +1300,6 @@ Transform:
 --- !u!4 &6015340662024553257 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -6406189792968589935, guid: 50379f708a012ab4a9cb7452c8101886,
-    type: 3}
-  m_PrefabInstance: {fileID: 8386384362298441400}
-  m_PrefabAsset: {fileID: 0}
---- !u!137 &6024444292483240774 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 2880417065165368830, guid: 50379f708a012ab4a9cb7452c8101886,
     type: 3}
   m_PrefabInstance: {fileID: 8386384362298441400}
   m_PrefabAsset: {fileID: 0}

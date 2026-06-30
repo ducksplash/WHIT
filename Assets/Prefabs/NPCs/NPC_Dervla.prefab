@@ -1464,7 +1464,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1228938930788456060}
-  - component: {fileID: 8194170178530980213}
   - component: {fileID: 113761557358475120}
   - component: {fileID: 5970343365827400479}
   - component: {fileID: 1420943503960905830}
@@ -1496,34 +1495,6 @@ Transform:
   - {fileID: 4999415055990345025}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8194170178530980213
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3792098181828645740}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ad585efbd547be4cb7a07627fcb8710, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MeNPC
-  OutfitForWork: []
-  OutfitForCasual: []
-  OutfitForFirstDate: []
-  OutfitForSecondDate: []
-  OutfitForThirdDate: []
-  OutfitForNightOut: []
-  OutfitForPyjamas: []
-  OutfitForHomelessness: []
-  OutfitForWedding: []
-  OutfitForFuneral: []
-  nextOutfit: {fileID: 0}
-  previousOutfit: {fileID: 0}
-  UnressedOnLoad: 0
-  ThisCharacterName: 
-  npcController: {fileID: 5970343365827400479}
-  currentOutfit: 1
 --- !u!195 &113761557358475120
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1560,6 +1531,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   thisNPC: 519
   FindSeat: 0
+  PlayAnimation: 0
+  startupAnimationTrigger: 
   useStateMachine: 1
   currentTarget: {fileID: 0}
   activeRadius: 10

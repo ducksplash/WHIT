@@ -3109,7 +3109,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6802506285441397347}
-  - component: {fileID: 8765044896259245741}
   - component: {fileID: 4448037757680532664}
   - component: {fileID: 8816361486986556551}
   - component: {fileID: 6539618651241047071}
@@ -3141,29 +3140,6 @@ Transform:
   - {fileID: 6688752640385304337}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8765044896259245741
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7007534499251124516}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ad585efbd547be4cb7a07627fcb8710, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MeNPC
-  npcRendererOutfitOne:
-  - {fileID: 6883165025747037652}
-  - {fileID: 6471819530189273303}
-  - {fileID: 3119142491121909199}
-  - {fileID: 8028471384652688281}
-  - {fileID: 6080597953346693442}
-  npcRendererOutfitTwo: []
-  npcRendererOutfitThree: []
-  npcController: {fileID: 0}
-  UnressedOnLoad: 0
-  ThisNPCName: 
 --- !u!195 &4448037757680532664
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -3200,6 +3176,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   thisNPC: 504
   FindSeat: 1
+  PlayAnimation: 0
+  startupAnimationTrigger: 
   useStateMachine: 1
   currentTarget: {fileID: 0}
   activeRadius: 10
@@ -3281,7 +3259,7 @@ MonoBehaviour:
   sidestepDuration: 0.7
   renegotiateCooldown: 0.8
   renegotiateCheckInterval: 0.15
-  npcMetaActions: {fileID: 8765044896259245741}
+  npcMetaActions: {fileID: 0}
   _ladder: {fileID: 2869906676205434344}
   _sitting: {fileID: 1695225703369581379}
   _lying: {fileID: 4368255688116060151}
@@ -3300,6 +3278,8 @@ MonoBehaviour:
   patrolActionCooldownSeconds: 500
   patrolActionFailedRetrySeconds: 6
   autonomousTalkSearchRadius: 30
+  hasStartupActions: 0
+  startupActionsConcluded: 0
 --- !u!136 &6539618651241047071
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3436,6 +3416,7 @@ MonoBehaviour:
   isTalking: 0
   isGabbing: 0
   isDawdling: 0
+  isSitting: 0
 --- !u!114 &7126228272542755447
 MonoBehaviour:
   m_ObjectHideFlags: 0

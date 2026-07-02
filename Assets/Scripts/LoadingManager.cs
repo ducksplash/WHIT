@@ -108,6 +108,8 @@ public class LoadingManager : MonoBehaviour
         // 3) Load scene (controlled activation)
         yield return ChangeSceneAsync(levelName);
         
+        
+        
 
 
         EventManager.UnDoLoadingSwirl();
@@ -254,6 +256,8 @@ public class LoadingManager : MonoBehaviour
             Debug.Log("scene loaded from LoadingManager");
             GameMaster.Instance.StartLevel(levelName);
         }
+        
+        
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

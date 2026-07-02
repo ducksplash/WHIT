@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
 using Steamworks;
+using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 
 public class GameMaster : MonoBehaviour
@@ -116,8 +117,18 @@ public class GameMaster : MonoBehaviour
         TryGetSetGo();
     }
 
-    
-    
+
+    private void Start()
+    {
+        InputManager.FullScreen.action.performed += toggleFullScreen;
+    }
+
+    void toggleFullScreen(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
+    {
+        // Toggle fullscreen
+        Screen.fullScreen = !Screen.fullScreen;
+    }
+
     private void TryGetSetGo()
     {
         if (InGame) return;
@@ -179,6 +190,8 @@ public class GameMaster : MonoBehaviour
     {
         THISLEVEL = level;
 
+        System.GC.Collect();
+        Resources.UnloadUnusedAssets();
 
         switch (level)
         {

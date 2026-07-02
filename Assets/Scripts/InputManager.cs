@@ -16,6 +16,9 @@ public class InputManager : MonoBehaviour
 
     [Header("Submit/Advance")]
     public InputActionReference SubmitAction;
+    
+    [Header("Screen Mode")]
+    public InputActionReference FullScreen;
 
     [Header("Input Definitions")]
     public List<InputSO> Inputs = new List<InputSO>();

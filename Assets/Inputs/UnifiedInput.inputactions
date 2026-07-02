@@ -455,6 +455,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleFullScreen",
+                    "type": "Button",
+                    "id": "76a74748-7b0d-4012-9a99-73a7a7a7f53c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1940,6 +1949,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "OnToggleGarmentsAll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b7c46fa1-c54f-413f-b95f-41b73a1e0d52",
+                    "path": "<Keyboard>/f11",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleFullScreen",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

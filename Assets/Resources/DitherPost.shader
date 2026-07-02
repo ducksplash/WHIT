@@ -1,5 +1,4 @@
-Shader "Hidden/Custom/DitherPost"
-{
+Shader "Hidden/Custom/DitherPost" {
     HLSLINCLUDE
     #pragma target 4.5
     #pragma vertex Vert
@@ -12,22 +11,21 @@ Shader "Hidden/Custom/DitherPost"
     TEXTURE2D_X(_BlitTexture);
 
     float4 _BlitScaleBias;
-    float _Intensity;
-    float _Steps;
-    float _PixelScale;
+    float  _Intensity;
+    float  _Steps;
+    float  _PixelScale;
 
+    // Pre-normalized to -0.5..0.5 so Frag never divides
     static const float bayer4x4[16] = {
-         0,  8,  2, 10,
-        12,  4, 14,  6,
-         3, 11,  1,  9,
-        15,  7, 13,  5
+         0.0/16.0-0.5,  8.0/16.0-0.5,  2.0/16.0-0.5, 10.0/16.0-0.5,
+        12.0/16.0-0.5,  4.0/16.0-0.5, 14.0/16.0-0.5,  6.0/16.0-0.5,
+         3.0/16.0-0.5, 11.0/16.0-0.5,  1.0/16.0-0.5,  9.0/16.0-0.5,
+        15.0/16.0-0.5,  7.0/16.0-0.5, 13.0/16.0-0.5,  5.0/16.0-0.5
     };
 
     float BayerThreshold4x4(int2 p)
     {
-        int x = p.x & 3;
-        int y = p.y & 3;
-        return (bayer4x4[y * 4 + x] / 16.0) - 0.5;
+        return bayer4x4[(p.y & 3) * 4 + (p.x & 3)];
     }
 
     struct Attributes { uint vertexID : SV_VertexID; };
@@ -41,32 +39,32 @@ Shader "Hidden/Custom/DitherPost"
         return o;
     }
 
-    float3 Quantize(float3 c, float steps)
-    {
-        steps = max(steps, 2.0);
-        return round(c * (steps - 1.0)) / (steps - 1.0);
-    }
-
     float4 Frag(Varyings i) : SV_Target
     {
         float2 uvFS = i.uv;
         if (_ProjectionParams.x < 0.0)
             uvFS.y = 1.0 - uvFS.y;
 
-        float2 uvSample = saturate(uvFS * _BlitScaleBias.xy + _BlitScaleBias.zw);
+        float  pixelScale = max(_PixelScale, 1.0);
+        float2 screenPixel = uvFS * _ScreenSize.xy;
 
-        // AfterPostProcess: this is already post-tonemap/exposure, so treat as LDR 0..1
-        float3 col = SAMPLE_TEXTURE2D_X(_BlitTexture, s_linear_clamp_sampler, uvSample).xyz;
+        // Snap to a chunky-pixel block grid (this is what actually creates the 8-bit look)
+        int2   blockIndex = int2(floor(screenPixel / pixelScale));
+        float2 blockCenterPx = (float2(blockIndex) + 0.5) * pixelScale;
+        float2 uvBlock = blockCenterPx * _ScreenSize.zw;
 
-        float2 pixel = uvFS * _ScreenSize.xy;
-        int2 p = int2(floor(pixel / max(_PixelScale, 1.0)));
-        float t = BayerThreshold4x4(p);
+        float2 uvSample = saturate(uvBlock * _BlitScaleBias.xy + _BlitScaleBias.zw);
+
+        // Point sample: no bilinear blur between blocks
+        float3 col = SAMPLE_TEXTURE2D_X(_BlitTexture, s_point_clamp_sampler, uvSample).xyz;
 
         float steps = max(_Steps, 2.0);
-        float stepSize = 1.0 / (steps - 1.0);
+        float invStepsMinus1 = 1.0 / (steps - 1.0);
 
-        float3 dither = (t * stepSize) * _Intensity;
-        float3 q = Quantize(saturate(col + dither), steps);
+        float t = BayerThreshold4x4(blockIndex);
+        float3 dithered = saturate(col + t * invStepsMinus1 * _Intensity);
+
+        float3 q = round(dithered * (steps - 1.0)) * invStepsMinus1;
 
         return float4(q, 1.0);
     }

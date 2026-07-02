@@ -4,10 +4,14 @@ Shader "Custom/OutsideTheWindowShader"
     {
         _CubeTex          ("Cubemap (6 Faces)", CUBE)          = "" {}
         _TintColor        ("Tint Color (RGBA)", Color)          = (1,1,1,1)
+
+        [Toggle] _OverlayEnabled ("Enable Overlay", Float)      = 1
         _OverlayTex       ("Overlay Texture (RGBA)", 2D)        = "white" {}
         _OverlayTint      ("Overlay Tint", Color)               = (1,1,1,1)
         _OverlayTiling    ("Overlay Tiling", Vector)            = (1,1,0,0)
         _OverlayStrength  ("Overlay Strength", Range(0,1))      = 1
+
+        [Toggle] _RainEnabled ("Enable Rain (Master)", Float)   = 1
         _RainTex          ("Rain Texture (RGBA)", 2D)           = "white" {}
         _RainTint         ("Rain Tint (Sides)", Color)          = (0.8, 0.9, 1.0, 1)
         _RainTiling       ("Rain Tiling (Sides)", Vector)       = (12, 8, 0, 0)
@@ -23,16 +27,24 @@ Shader "Custom/OutsideTheWindowShader"
         _TopRainSpeed     ("Top Rain Speed",            Range(0.5, 8))   = 3.2
         _TopRainSize      ("Top Rain Size",             Range(0.1, 4.0)) = 1.4
         _TopRainVariation ("Top Rain Size Variation",   Range(0, 1))     = 0.75
+
+        [Toggle] _GlowEnabled ("Enable Pulsing Glow", Float)    = 1
         _GlowColor        ("Glow Color", Color)                 = (1,1,1,1)
         _GlowStrength     ("Glow Strength",   Range(0,10))      = 1
         _GlowSpeed        ("Glow Speed",      Range(0,10))      = 1
+
+        [Toggle] _EmissionEnabled ("Enable Emission", Float)    = 1
         _EmissionColor    ("Emission Color",  Color)            = (1,1,1,1)
         _EmissionStrength ("Emission Strength", Range(0,10))    = 1
+
+        [Toggle] _FresnelEnabled ("Enable Fresnel Rim", Float)  = 1
         _Smoothness       ("Smoothness", Range(0,1))            = 0.5
         _Metallic         ("Metallic",   Range(0,1))            = 0.0
+
         _Alpha            ("Alpha",      Range(0,1))            = 1
         _RotationY        ("Horizontal Rotation", Range(0,360)) = 0
         _RotationX        ("Vertical Rotation", Range(-180,180))= 0
+
         [Toggle] _LightningEnabled    ("Enable Lightning",         Float)  = 1
         _LightningForeground          ("Lightning Foreground Color", Color) = (1,1,1,1)
         _LightningMinTime             ("Min Time Between Flashes", Range(0.1,10))  = 2
@@ -79,21 +91,35 @@ Shader "Custom/OutsideTheWindowShader"
             sampler2D   _RainTex;
             sampler2D   _LightningTex0, _LightningTex1, _LightningTex2, _LightningTex3;
 
-            float4 _TintColor, _OverlayTint, _OverlayTiling;
+            float4 _TintColor;
+
+            float  _OverlayEnabled;
+            float4 _OverlayTint, _OverlayTiling;
             float  _OverlayStrength;
+
+            float  _RainEnabled;
             float4 _RainTint, _RainTiling;
             float  _RainSpeed, _RainStrength;
             float  _RainFront, _RainBack, _RainLeft, _RainRight, _RainTop, _RainBottom;
             float  _TopRainDensity, _TopRainSpeed, _TopRainSize, _TopRainVariation;
+
+            float  _GlowEnabled;
             float4 _GlowColor;
             float  _GlowStrength, _GlowSpeed;
+
+            float  _EmissionEnabled;
             float4 _EmissionColor;
             float  _EmissionStrength;
+
+            float  _FresnelEnabled;
+            float  _Smoothness, _Metallic;
+
             float  _LightningEnabled;
             float4 _LightningForeground;
             float  _LightningMinTime, _LightningMaxTime, _LightningStrength;
             float4 _LightningTiling;
-            float  _Alpha, _RotationY, _RotationX, _Smoothness, _Metallic;
+
+            float  _Alpha, _RotationY, _RotationX;
 
             // ─── HELPERS ───────────────────────────────────────────────
 
@@ -107,7 +133,7 @@ Shader "Custom/OutsideTheWindowShader"
             float2 rotUV(float2 p, float a)
             {
                 float s, c;
-                sincos(a, s, c);          // single intrinsic instead of two calls
+                sincos(a, s, c);
                 p -= 0.5;
                 p = float2(p.x * c - p.y * s, p.x * s + p.y * c);
                 return p + 0.5;
@@ -158,42 +184,46 @@ Shader "Custom/OutsideTheWindowShader"
                 half4  tex = texCUBE(_CubeTex, dir) * _TintColor;
 
                 // ── Rain ──────────────────────────────────────────────
-                bool   isTopFace;
-                float2 rainUV;
-                int    faceIndex = GetFaceInfo(dir, rainUV, isTopFace);
-
-                // Per-face enable flag (no branching on uniform reads)
-                float enableFlags[6] = { _RainRight, _RainLeft, _RainFront,
-                                         _RainBack,  _RainTop,  _RainBottom };
-                bool  enable = enableFlags[faceIndex] > 0.5;
-
-                half4 rain = 0;
-                if (enable)
+                if (_RainEnabled > 0.5)
                 {
-                    if (isTopFace)
+                    bool   isTopFace;
+                    float2 rainUV;
+                    int    faceIndex = GetFaceInfo(dir, rainUV, isTopFace);
+
+                    float enableFlags[6] = { _RainRight, _RainLeft, _RainFront,
+                                             _RainBack,  _RainTop,  _RainBottom };
+                    bool  enable = enableFlags[faceIndex] > 0.5;
+
+                    if (enable)
                     {
-                        float2 topUV  = rainUV * _TopRainDensity;
-                        float2 cell   = floor(topUV);
-                        float2 local  = frac(topUV);
-                        float  h      = Hash21(cell);
-                        float  h2     = Hash21(cell * 1.37);
-                        float  fade   = smoothstep(0.2, 0.8,
-                                            sin(_Time.y * _TopRainSpeed + h * 6.28));
-                        float  size   = _TopRainSize * (1.0 - h2 * _TopRainVariation);
-                        float  drop   = smoothstep(size * 0.2, 0.0, length(local - 0.5));
-                        float  da     = drop * fade;
-                        rain.rgb = _RainTint.rgb * da;
-                        rain.a   = da;
-                    }
-                    else
-                    {
-                        rainUV  *= _RainTiling.xy;
-                        float2 cell = floor(rainUV);
-                        float  h    = Hash21(cell);
-                        float  speed = lerp(0.6, 1.6, h);
-                        rainUV.x += sin(h * 10 + _Time.y);
-                        rainUV.y += _Time.y * _RainSpeed * speed;
-                        rain = tex2D(_RainTex, rainUV) * _RainTint;
+                        half4 rain = 0;
+                        if (isTopFace)
+                        {
+                            float2 topUV  = rainUV * _TopRainDensity;
+                            float2 cell   = floor(topUV);
+                            float2 local  = frac(topUV);
+                            float  h      = Hash21(cell);
+                            float  h2     = Hash21(cell * 1.37);
+                            float  fade   = smoothstep(0.2, 0.8,
+                                                sin(_Time.y * _TopRainSpeed + h * 6.28));
+                            float  size   = _TopRainSize * (1.0 - h2 * _TopRainVariation);
+                            float  drop   = smoothstep(size * 0.2, 0.0, length(local - 0.5));
+                            float  da     = drop * fade;
+                            rain.rgb = _RainTint.rgb * da;
+                            rain.a   = da;
+                        }
+                        else
+                        {
+                            rainUV  *= _RainTiling.xy;
+                            float2 cell = floor(rainUV);
+                            float  h    = Hash21(cell);
+                            float  speed = lerp(0.6, 1.6, h);
+                            rainUV.x += sin(h * 10 + _Time.y);
+                            rainUV.y += _Time.y * _RainSpeed * speed;
+                            rain = tex2D(_RainTex, rainUV) * _RainTint;
+                        }
+
+                        tex.rgb = lerp(tex.rgb, rain.rgb, rain.a * _RainStrength);
                     }
                 }
 
@@ -209,44 +239,56 @@ Shader "Custom/OutsideTheWindowShader"
                     float flash     = step(localTime, interval)
                                     * step(interval - localTime, 0.15);
 
-                    tex.rgb += tex.rgb * _GlowColor.rgb * flash;
-
-                    // Skip 4 texture samples entirely when not flashing
                     if (flash > 0.0)
                     {
+                        tex.rgb += tex.rgb * _GlowColor.rgb * flash;
+
                         float2 baseUV = float2(
                             atan2(dir.z, dir.x) / 6.2831853 + 0.5,
                             asin(dir.y)          / 3.1415926 + 0.5);
 
-                        float2 tiledUV = baseUV * _LightningTiling.xy;   // compute once
+                        float2 tiledUV = baseUV * _LightningTiling.xy;
                         half4 c0 = tex2D(_LightningTex0, rotUV(tiledUV, seed *  6.28));
                         half4 c1 = tex2D(_LightningTex1, rotUV(tiledUV, seed * 12.13));
                         half4 c2 = tex2D(_LightningTex2, rotUV(tiledUV, seed * 21.37));
                         half4 c3 = tex2D(_LightningTex3, rotUV(tiledUV, seed * 33.91));
 
                         half4 lightningTex = (c0 + c1 + c2 + c3) * 0.25;
-                        float alpha = saturate(lightningTex.a);           // already averaged
+                        float alpha = saturate(lightningTex.a);
                         tex.rgb += lightningTex.rgb * _LightningForeground.rgb
                                  * alpha * flash * _LightningStrength;
                     }
                 }
 
                 // ── Overlay ───────────────────────────────────────────
-                tex.rgb = lerp(tex.rgb, rain.rgb, rain.a * _RainStrength);
+                if (_OverlayEnabled > 0.5)
+                {
+                    float2 overlayUV = i.uv * _OverlayTiling.xy;
+                    half4  overlay   = tex2D(_OverlayTex, overlayUV) * _OverlayTint;
+                    tex.rgb = lerp(tex.rgb, overlay.rgb, overlay.a * _OverlayStrength);
+                }
 
-                float2 overlayUV = i.uv * _OverlayTiling.xy;
-                half4  overlay   = tex2D(_OverlayTex, overlayUV) * _OverlayTint;
-                tex.rgb = lerp(tex.rgb, overlay.rgb, overlay.a * _OverlayStrength);
+                // ── Glow (pulsing) ────────────────────────────────────
+                if (_GlowEnabled > 0.5)
+                {
+                    float pulse = sin(_Time.y * _GlowSpeed) * 0.5 + 0.5;
+                    tex.rgb += tex.rgb * _GlowColor.rgb * pulse * _GlowStrength;
+                }
 
-                // ── Glow / Emission / Fresnel ─────────────────────────
-                float pulse = sin(_Time.y * _GlowSpeed) * 0.5 + 0.5;
-                tex.rgb += tex.rgb * _GlowColor.rgb * pulse * _GlowStrength;
-                tex.rgb += tex.rgb * _EmissionColor.rgb * _EmissionStrength;
+                // ── Emission ───────────────────────────────────────────
+                if (_EmissionEnabled > 0.5)
+                {
+                    tex.rgb += tex.rgb * _EmissionColor.rgb * _EmissionStrength;
+                }
 
-                float fresnel   = pow(1.0 - saturate(dot(dir,
-                                      normalize(_WorldSpaceCameraPos))), 4.0);
-                float smoothGlow = fresnel * _Smoothness * 2.0;
-                tex.rgb += smoothGlow * lerp(0.04, tex.rgb, _Metallic);
+                // ── Fresnel ────────────────────────────────────────────
+                if (_FresnelEnabled > 0.5)
+                {
+                    float fresnel   = pow(1.0 - saturate(dot(dir,
+                                          normalize(_WorldSpaceCameraPos))), 4.0);
+                    float smoothGlow = fresnel * _Smoothness * 2.0;
+                    tex.rgb += smoothGlow * lerp(0.04, tex.rgb, _Metallic);
+                }
 
                 return half4(tex.rgb, tex.a * _Alpha);
             }

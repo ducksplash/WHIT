@@ -291,11 +291,18 @@ public class StoredPrefs : MonoBehaviour
             await EnsureLoadedAsync();
             await SaveAsync();
         }
+        catch (Exception e)
+        {
+            Debug.Log("reset failed, dumping semaphores anyway.\n"+e);
+            _saveLock.Release();
+            _loadLock.Release();
+        }
         finally
         {
             _saveLock.Release();
             _loadLock.Release();
         }
+        
     }
 
     private static string Encrypt(string text)

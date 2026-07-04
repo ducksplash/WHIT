@@ -66,7 +66,7 @@ public class Phone : MonoBehaviour
     public Camera getCamera;
     private bool BigMessageOpen;
     private bool BigMessageCanOpen;
-    public GameObject MiniMapCam;
+    public Camera MiniMapCam;
     public bool gotfiles;
     public int currentpage;
     public int nextpage;
@@ -241,8 +241,12 @@ public class Phone : MonoBehaviour
 
         if (phoneCollider != null) phoneCollider.enabled = false;
 
-        if (phoneCameraComponent != null) phoneCameraComponent.enabled = false;
-        MiniMapCam.SetActive(false);
+        if (phoneCameraComponent != null)
+        {
+            phoneCameraComponent.enabled = false;
+        }
+        
+        MiniMapCam.enabled = false;
 
         LoadGallery();
         
@@ -426,7 +430,7 @@ public class Phone : MonoBehaviour
         
         if (useThisScreen != MapsScreen)
         {
-            MiniMapCam.SetActive(false);
+            MiniMapCam.enabled = false;
         }
 
         currentScreen = useThisScreen;
@@ -721,7 +725,7 @@ public class Phone : MonoBehaviour
     public void MapsButton()
     {
         changeScreen(MapsScreen);
-        MiniMapCam.SetActive(true);
+        MiniMapCam.enabled = true;
 
         Debug.Log("maps button");
     }

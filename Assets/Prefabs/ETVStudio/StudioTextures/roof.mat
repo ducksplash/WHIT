@@ -15,6 +15,7 @@ Material:
   - _DISABLE_DECALS
   - _DISABLE_SSR
   - _DISABLE_SSR_TRANSPARENT
+  - _DOUBLESIDED_ON
   - _EMISSIVE_COLOR_MAP
   - _MASKMAP
   - _NORMALMAP
@@ -28,9 +29,9 @@ Material:
   disabledShaderPasses:
   - TransparentDepthPrepass
   - TransparentDepthPostpass
-  - TransparentBackface
-  - RayTracingPrepass
   - MOTIONVECTORS
+  - RayTracingPrepass
+  - TransparentBackface
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -170,7 +171,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AORemapMax: 1
-    - _AORemapMin: 0
+    - _AORemapMin: 1
     - _ATDistance: 1
     - _AddPrecomputedVelocity: 0
     - _AlbedoAffectEmissive: 0
@@ -189,8 +190,8 @@ Material:
     - _BlendMode: 0
     - _BumpScale: 1.12
     - _CoatMask: 0
-    - _CullMode: 2
-    - _CullModeForward: 2
+    - _CullMode: 0
+    - _CullModeForward: 0
     - _Cutoff: 0.5
     - _DepthOffsetEnable: 0
     - _DetailAlbedoScale: 1
@@ -202,17 +203,17 @@ Material:
     - _DisplacementLockObjectScale: 1
     - _DisplacementLockTilingScale: 1
     - _DisplacementMode: 0
-    - _DoubleSidedEnable: 0
-    - _DoubleSidedGIMode: 0
-    - _DoubleSidedNormalMode: 1
+    - _DoubleSidedEnable: 1
+    - _DoubleSidedGIMode: 2
+    - _DoubleSidedNormalMode: 2
     - _DstBlend: 0
     - _DstBlend2: 0
     - _EmissiveColorMode: 1
     - _EmissiveExposureWeight: 1
-    - _EmissiveIntensity: 3.78
+    - _EmissiveIntensity: 4
     - _EmissiveIntensityUnit: 0
-    - _EnableBlendModePreserveSpecularLighting: 1
-    - _EnableFogOnTransparent: 1
+    - _EnableBlendModePreserveSpecularLighting: 0
+    - _EnableFogOnTransparent: 0
     - _EnableGeometricSpecularAA: 0
     - _EnergyConservingSpecularColor: 0
     - _GlossMapScale: 0.672
@@ -238,7 +239,7 @@ Material:
     - _MetallicRemapMin: 0
     - _Mode: 0
     - _NormalMapSpace: 0
-    - _NormalScale: 1
+    - _NormalScale: 0
     - _ObjectSpaceUVMapping: 0
     - _ObjectSpaceUVMappingEmissive: 0
     - _OcclusionStrength: 1
@@ -279,13 +280,13 @@ Material:
     - _Thickness: 1
     - _TransmissionEnable: 1
     - _TransmissionMask: 1
-    - _TransparentBackfaceEnable: 0
+    - _TransparentBackfaceEnable: 1
     - _TransparentCullMode: 2
     - _TransparentDepthPostpassEnable: 0
     - _TransparentDepthPrepassEnable: 0
     - _TransparentSortPriority: 0
     - _TransparentWritingMotionVec: 0
-    - _TransparentZWrite: 0
+    - _TransparentZWrite: 1
     - _UVBase: 0
     - _UVDetail: 0
     - _UVEmissive: 0
@@ -301,9 +302,9 @@ Material:
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 0.93962264, g: 0.93962264, b: 0.93962264, a: 1}
     - _DiffusionProfileAsset: {r: 0, g: 0, b: 0, a: 0}
-    - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
+    - _DoubleSidedConstants: {r: 1, g: 1, b: 1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissiveColor: {r: 3.78, g: 3.7463663, b: 3.2318723, a: 3.78}
+    - _EmissiveColor: {r: 4, g: 3.9644089, b: 3.4199708, a: 4}
     - _EmissiveColorLDR: {r: 1, g: 0.99607843, b: 0.93333334, a: 1}
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}

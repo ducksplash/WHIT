@@ -200,25 +200,25 @@ MonoBehaviour:
     m_Value: 1
   m_StepCount:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 6
   m_FullResolution:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   m_MaximumRadiusInPixels:
     m_OverrideState: 1
-    m_Value: 40
+    m_Value: 30
   m_BilateralUpsample:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   m_DirectionCount:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 6
   m_RayLength:
     m_OverrideState: 1
-    m_Value: 3
+    m_Value: 0.01
   m_SampleCount:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 46
   m_Denoise:
     m_OverrideState: 1
     m_Value: 1
@@ -269,13 +269,13 @@ MonoBehaviour:
   shader: {fileID: 4800000, guid: c3a272ce444b462458cc508df6717e87, type: 3}
   intensity:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   steps:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 18
   pixelScale:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 2
 --- !u!114 &-6324840612004860455
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -386,9 +386,7 @@ MonoBehaviour:
   active: 1
   diffusionProfiles:
     m_OverrideState: 1
-    m_Value:
-    - {fileID: 11400000, guid: 404820c4cf36ad944862fa59c56064f0, type: 2}
-    - {fileID: 11400000, guid: 2384dbf2c1c420f45a792fbc315fbfb1, type: 2}
+    m_Value: []
 --- !u!114 &-5675120798796674764
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -428,22 +426,22 @@ MonoBehaviour:
     m_Value: 20
   m_NearSampleCount:
     m_OverrideState: 1
-    m_Value: 3
+    m_Value: 5
   m_NearMaxBlur:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 4
   m_FarSampleCount:
     m_OverrideState: 1
-    m_Value: 3
+    m_Value: 7
   m_FarMaxBlur:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 8
   m_Resolution:
     m_OverrideState: 1
     m_Value: 2
   m_HighQualityFiltering:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   m_PhysicallyBased:
     m_OverrideState: 1
     m_Value: 0
@@ -4384,7 +4382,7 @@ MonoBehaviour:
     m_Value: 0
   m_RayMaxIterations:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 16
   rayMiss:
     m_OverrideState: 1
     m_Value: 3
@@ -5825,7 +5823,7 @@ MonoBehaviour:
     m_Value: 1
   m_SampleCount:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 8
 --- !u!114 &7533683466475930047
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -5892,7 +5890,7 @@ MonoBehaviour:
     m_Value: 1
   m_MaxRaySteps:
     m_OverrideState: 1
-    m_Value: 64
+    m_Value: 32
   m_DenoiseSS:
     m_OverrideState: 1
     m_Value: 1

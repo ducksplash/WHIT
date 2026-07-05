@@ -51,8 +51,8 @@ MonoBehaviour:
     supportTransparentDepthPrepass: 1
     supportTransparentDepthPostpass: 1
     colorBufferFormat: 74
-    depthBufferFormat: 0
-    supportCustomPass: 1
+    depthBufferFormat: 151
+    supportCustomPass: 0
     supportVariableRateShading: 1
     customBufferFormat: 8
     supportedLitShaderMode: 2
@@ -71,7 +71,7 @@ MonoBehaviour:
     supportHighQualityLineRendering: 0
     highQualityLineRenderingMemoryBudget: 128
     msaaSampleCount: 1
-    supportMotionVectors: 1
+    supportMotionVectors: 0
     supportScreenSpaceLensFlare: 0
     supportDataDrivenLensFlare: 0
     supportDitheringCrossFade: 0
@@ -100,7 +100,7 @@ MonoBehaviour:
       maxEnvLightsOnScreen: 0
       reflectionCacheCompressed: 0
       reflectionProbeFormat: 74
-      reflectionProbeTexCacheSize: 2048
+      reflectionProbeTexCacheSize: 1024
       reflectionProbeTexLastValidCubeMip: 3
       reflectionProbeTexLastValidPlanarMip: 0
       reflectionProbeDecreaseResToFit: 1
@@ -154,8 +154,8 @@ MonoBehaviour:
       maxScreenSpaceShadowSlots: 4
       screenSpaceShadowBufferFormat: 48
     decalSettings:
-      drawDistance: 500
-      atlasWidth: 2048
+      drawDistance: 100
+      atlasWidth: 1024
       atlasHeight: 2048
       transparentTextureResolution:
         m_Values: 800000000001000000020000
@@ -254,26 +254,26 @@ MonoBehaviour:
         m_Id: With3Levels
     lightingQualitySettings:
       AOStepCount: 060000000600000006000000
-      AOFullRes: 000101
+      AOFullRes: 000000
       AOMaximumRadiusPixels: 1e0000001e0000001e000000
-      AOBilateralUpsample: 000001
+      AOBilateralUpsample: 000000
       AODirectionCount: 060000000600000006000000
       ContactShadowSampleCount: 040000000400000004000000
       SSRMaxRaySteps: 080000001000000020000000
       SSGIRaySteps: 100000002000000040000000
-      SSGIDenoise: 010101
-      SSGIHalfResDenoise: 010000
+      SSGIDenoise: 000000
+      SSGIHalfResDenoise: 000000
       SSGIDenoiserRadius:
       - 0.75
       - 0.5
       - 0.5
-      SSGISecondDenoise: 010101
+      SSGISecondDenoise: 000000
       RTAORayLength:
       - 0.5
       - 0.01
       - 20
       RTAOSampleCount: 010000002e00000001000000
-      RTAODenoise: 010100
+      RTAODenoise: 000100
       RTAODenoiserRadius:
       - 0.001
       - 0.5
@@ -350,7 +350,7 @@ MonoBehaviour:
   availableMaterialQualityLevels: 1
   m_DefaultMaterialQualityLevel: 1
   diffusionProfileSettings: {fileID: 0}
-  m_VolumeProfile: {fileID: 0}
+  m_VolumeProfile: {fileID: 11400000, guid: a6a3a7870424e5a4f9fa8d09eee60792, type: 2}
   virtualTexturingSettings:
     streamingCpuCacheSizeInMegaBytes: 256
     streamingMipPreloadTexturesPerFrame: 0

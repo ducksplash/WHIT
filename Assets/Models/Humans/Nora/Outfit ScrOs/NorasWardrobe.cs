@@ -10,14 +10,42 @@ public class NorasWardrobe : MonoBehaviour
 {
     [Header("Settings")]
     public bool UnressedOnLoad;
-    
+    public bool PreviewEnabled;
+
     [Header("Current Outfit")]
     public OutfitName currentOutfit = OutfitName.Work;
+
+    [Header("Preview Character Root")]
+    public GameObject SkinnedMeshRendererParentOutfitsPreview;
+    public GameObject SkinnedMeshRendererParentAccessoriesPreview;
+
+    [Header("Preview Body")]
+    public SkinnedMeshRenderer BodyPreview;
+
+    [Header("Preview Accessories")]
+    public SkinnedMeshRenderer ButterflyWingsPreview;
+    public SkinnedMeshRenderer OverallPreview;
+    public SkinnedMeshRenderer HatPreview;
+    public SkinnedMeshRenderer ChokerPreview;
+
+    [Header("Preview Hair")]
+    public SkinnedMeshRenderer DefaultHairPreview;
+    public SkinnedMeshRenderer WorkHairPreview;
+    public SkinnedMeshRenderer WorkHairTwoPreview;
+    public SkinnedMeshRenderer CasualHairPreview;
+    public SkinnedMeshRenderer PyjamaHairPreview;
+    public SkinnedMeshRenderer DatingHairPreview;
+    public SkinnedMeshRenderer DatingHairTwoPreview;
+    public SkinnedMeshRenderer OutHairPreview;
+    public SkinnedMeshRenderer HomelessHairPreview;
+    public SkinnedMeshRenderer TwinTailsHairPreview;
+    public SkinnedMeshRenderer UpHairPreview;
+    public SkinnedMeshRenderer UpDoPreview;
 
     [Header("Character Root")]
     public GameObject SkinnedMeshRendererParentOutfits;
     public GameObject SkinnedMeshRendererParentAccessories;
-
+    
     [Header("Body")]
     public SkinnedMeshRenderer Body;
 
@@ -40,7 +68,6 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer TwinTailsHair;
     public SkinnedMeshRenderer UpHair;
     public SkinnedMeshRenderer UpDo;
-    public SkinnedMeshRenderer MessyHair;
 
     [Header("Outfits")]
     public List<Outfit> Outfits = new List<Outfit>();
@@ -68,6 +95,8 @@ public class NorasWardrobe : MonoBehaviour
     {
         SetupAccessories();
         SetupHair();
+        SetupAccessoriesPreview();
+        SetupHairPreview();
 
         if (!UnressedOnLoad) 
         { SwitchToOutfit(OutfitName.Work); }
@@ -116,12 +145,40 @@ public class NorasWardrobe : MonoBehaviour
         }
     }
 
+    private void ClearOutfitMeshesPreview()
+    {
+        if (SkinnedMeshRendererParentOutfitsPreview == null) { return; }
+        for (int i = SkinnedMeshRendererParentOutfitsPreview.transform.childCount - 1; i >= 0; i--)
+        {
+            Transform child = SkinnedMeshRendererParentOutfitsPreview.transform.GetChild(i);
+#if UNITY_EDITOR
+            DestroyImmediate(child.gameObject);
+#else
+            Destroy(child.gameObject);
+#endif
+        }
+    }
+
     private void SetupAccessories()
     {
         if (SkinnedMeshRendererParentAccessories == null) { return; }
         Transform rootBone = Body != null ? Body.rootBone : null;
         Transform[] bones = Body != null ? Body.bones : null;
         foreach (var smr in SkinnedMeshRendererParentAccessories.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+        {
+            if (smr == null) { continue; }
+            if (rootBone != null) { smr.rootBone = rootBone; }
+            if (bones != null) { smr.bones = bones; }
+            smr.updateWhenOffscreen = true;
+        }
+    }
+
+    private void SetupAccessoriesPreview()
+    {
+        if (SkinnedMeshRendererParentAccessoriesPreview == null) { return; }
+        Transform rootBone = BodyPreview != null ? BodyPreview.rootBone : null;
+        Transform[] bones = BodyPreview != null ? BodyPreview.bones : null;
+        foreach (var smr in SkinnedMeshRendererParentAccessoriesPreview.GetComponentsInChildren<SkinnedMeshRenderer>(true))
         {
             if (smr == null) { continue; }
             if (rootBone != null) { smr.rootBone = rootBone; }
@@ -138,10 +195,32 @@ public class NorasWardrobe : MonoBehaviour
         SkinnedMeshRenderer[] allHair =
         {
             DefaultHair, WorkHair, WorkHairTwo, CasualHair,
-            PyjamaHair, DatingHair, DatingHairTwo, OutHair, UpHair, HomelessHair, TwinTailsHair, MessyHair, UpDo
+            PyjamaHair, DatingHair, DatingHairTwo, OutHair, UpHair, HomelessHair, TwinTailsHair, UpDo
         };
 
         foreach (var smr in allHair)
+        {
+            if (smr == null) { continue; }
+            if (rootBone != null) { smr.rootBone = rootBone; }
+            if (bones != null) { smr.bones = bones; }
+            smr.updateWhenOffscreen = true;
+            smr.enabled = false;
+        }
+    }
+
+    private void SetupHairPreview()
+    {
+        Transform rootBone = BodyPreview != null ? BodyPreview.rootBone : null;
+        Transform[] bones = BodyPreview != null ? BodyPreview.bones : null;
+
+        SkinnedMeshRenderer[] allHairPreview =
+        {
+            DefaultHairPreview, WorkHairPreview, WorkHairTwoPreview, CasualHairPreview,
+            PyjamaHairPreview, DatingHairPreview, DatingHairTwoPreview, OutHairPreview,
+            UpHairPreview, HomelessHairPreview, TwinTailsHairPreview, UpDoPreview
+        };
+
+        foreach (var smr in allHairPreview)
         {
             if (smr == null) { continue; }
             if (rootBone != null) { smr.rootBone = rootBone; }
@@ -165,7 +244,22 @@ public class NorasWardrobe : MonoBehaviour
         if (TwinTailsHair != null) { TwinTailsHair.enabled = false; }
         if (UpHair != null) { UpHair.enabled = false; }
         if (UpDo != null) { UpDo.enabled = false; }
-        if (MessyHair != null) { MessyHair.enabled = false; }
+    }
+
+    private void HideAllHairPreview()
+    {
+        if (DefaultHairPreview != null) { DefaultHairPreview.enabled = false; }
+        if (WorkHairPreview != null) { WorkHairPreview.enabled = false; }
+        if (WorkHairTwoPreview != null) { WorkHairTwoPreview.enabled = false; }
+        if (CasualHairPreview != null) { CasualHairPreview.enabled = false; }
+        if (PyjamaHairPreview != null) { PyjamaHairPreview.enabled = false; }
+        if (DatingHairPreview != null) { DatingHairPreview.enabled = false; }
+        if (DatingHairTwoPreview != null) { DatingHairTwoPreview.enabled = false; }
+        if (OutHairPreview != null) { OutHairPreview.enabled = false; }
+        if (HomelessHairPreview != null) { HomelessHairPreview.enabled = false; }
+        if (TwinTailsHairPreview != null) { TwinTailsHairPreview.enabled = false; }
+        if (UpHairPreview != null) { UpHairPreview.enabled = false; }
+        if (UpDoPreview != null) { UpDoPreview.enabled = false; }
     }
 
     public void SetHair(HairName hair)
@@ -185,7 +279,26 @@ public class NorasWardrobe : MonoBehaviour
             case HairName.TwinTailsHair: if (TwinTailsHair != null) { TwinTailsHair.enabled = true; } break;
             case HairName.UpHair: if (UpHair != null) { UpHair.enabled = true; } break;
             case HairName.UpDo: if (UpDo != null) { UpDo.enabled = true; } break;
-            case HairName.MessyHair: if (MessyHair != null) { MessyHair.enabled = true; } break;
+        }
+    }
+
+    public void SetHairPreview(HairName hair)
+    {
+        HideAllHairPreview();
+        switch (hair)
+        {
+            case HairName.DefaultHair: if (DefaultHairPreview != null) { DefaultHairPreview.enabled = true; } break;
+            case HairName.WorkHair: if (WorkHairPreview != null) { WorkHairPreview.enabled = true; } break;
+            case HairName.WorkHairTwo: if (WorkHairTwoPreview != null) { WorkHairTwoPreview.enabled = true; } break;
+            case HairName.CasualHair: if (CasualHairPreview != null) { CasualHairPreview.enabled = true; } break;
+            case HairName.PyjamaHair: if (PyjamaHairPreview != null) { PyjamaHairPreview.enabled = true; } break;
+            case HairName.DatingHair: if (DatingHairPreview != null) { DatingHairPreview.enabled = true; } break;
+            case HairName.DatingHairTwo: if (DatingHairTwoPreview != null) { DatingHairTwoPreview.enabled = true; } break;
+            case HairName.OutHair: if (OutHairPreview != null) { OutHairPreview.enabled = true; } break;
+            case HairName.HomelessHair: if (HomelessHairPreview != null) { HomelessHairPreview.enabled = true; } break;
+            case HairName.TwinTailsHair: if (TwinTailsHairPreview != null) { TwinTailsHairPreview.enabled = true; } break;
+            case HairName.UpHair: if (UpHairPreview != null) { UpHairPreview.enabled = true; } break;
+            case HairName.UpDo: if (UpDoPreview != null) { UpDoPreview.enabled = true; } break;
         }
     }
 
@@ -221,6 +334,27 @@ public class NorasWardrobe : MonoBehaviour
         {
             if (prefab == null) { continue; }
             GameObject instance = Instantiate(prefab, SkinnedMeshRendererParentOutfits.transform);
+            foreach (var smr in instance.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            {
+                if (smr == null) { continue; }
+                smr.rootBone = rootBone;
+                smr.bones = bones;
+                smr.updateWhenOffscreen = true;
+                smr.enabled = true;
+            }
+        }
+    }
+
+    private void InstantiatePrefabsPreview(List<GameObject> prefabs)
+    {
+        if (prefabs == null || SkinnedMeshRendererParentOutfitsPreview == null) { return; }
+        if (BodyPreview == null) { Debug.LogError("BodyPreview SkinnedMeshRenderer is not assigned on NorasWardrobe!"); return; }
+        Transform rootBone = BodyPreview.rootBone;
+        Transform[] bones = BodyPreview.bones;
+        foreach (var prefab in prefabs)
+        {
+            if (prefab == null) { continue; }
+            GameObject instance = Instantiate(prefab, SkinnedMeshRendererParentOutfitsPreview.transform);
             foreach (var smr in instance.GetComponentsInChildren<SkinnedMeshRenderer>(true))
             {
                 if (smr == null) { continue; }
@@ -283,6 +417,19 @@ public class NorasWardrobe : MonoBehaviour
         if (Choker != null) { Choker.enabled = c || _chokerOverride; }
     }
 
+    private void ApplyAccessoriesPreview(OutfitName outfit)
+    {
+        var data = GetOutfit(outfit);
+        bool w = data != null && data.Wings;
+        bool o = data != null && data.Apron;
+        bool h = data != null && data.Hat;
+        bool c = data != null && data.Choker;
+        if (ButterflyWingsPreview != null) { ButterflyWingsPreview.enabled = w; }
+        if (OverallPreview != null) { OverallPreview.enabled = o; }
+        if (HatPreview != null) { HatPreview.enabled = h; }
+        if (ChokerPreview != null) { ChokerPreview.enabled = c; }
+    }
+
     private void HideAllAccessories()
     {
         if (ButterflyWings != null) { ButterflyWings.enabled = false; }
@@ -291,16 +438,17 @@ public class NorasWardrobe : MonoBehaviour
         if (Choker != null) { Choker.enabled = false; }
     }
 
+    private void HideAllAccessoriesPreview()
+    {
+        if (ButterflyWingsPreview != null) { ButterflyWingsPreview.enabled = false; }
+        if (OverallPreview != null) { OverallPreview.enabled = false; }
+        if (HatPreview != null) { HatPreview.enabled = false; }
+        if (ChokerPreview != null) { ChokerPreview.enabled = false; }
+    }
+
     private static bool IsUndergarmentOutfit(int index)
     {
-        return index == (int)OutfitName.None
-            // || index == (int)OutfitName.Undergarments
-            // || index == (int)OutfitName.Lingerie
-            // || index == (int)OutfitName.Fae
-            // || index == (int)OutfitName.RisqueNightie
-            // || index == (int)OutfitName.KnottedAndShorts
-            // || index == (int)OutfitName.Domme
-            ;
+        return index == (int)OutfitName.None;
     }
 
     public void NextOutfit()
@@ -334,60 +482,7 @@ public class NorasWardrobe : MonoBehaviour
         ToggleMainOutfit(outfit, forceOn);
     }
 
-    public void ToggleWorkOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Work, forceOn); }
-    public void ToggleWorkTwoOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.WorkTwo, forceOn); }
-    public void ToggleWorkThreeOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.WorkThree, forceOn); }
-    public void ToggleWorkFourOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.WorkFour, forceOn); }
-    public void ToggleWorkSuitThreeOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.WorkSuitThree, forceOn); }
-    public void ToggleCasualOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Casual, forceOn); }
-    public void ToggleShortsAndTightsOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.ShortsAndTights, forceOn); }
-    public void ToggleCleanBanditOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.CleanBandit, forceOn); }
-    public void ToggleChurchDressOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.ChurchDress, forceOn); }
-    public void ToggleFitnessOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Fitness, forceOn); }
-    public void TogglePyjamasOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Pyjamas, forceOn); }
-    public void ToggleHousecoatOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Housecoat, forceOn); }
-    public void ToggleNightie(bool? forceOn = null) { ToggleOutfit(OutfitName.Nightie, forceOn); }
-    public void ToggleRisqueNightie(bool? forceOn = null) { ToggleOutfit(OutfitName.RisqueNightie, forceOn); }
-    public void ToggleStealthSuit(bool? forceOn = null) { ToggleOutfit(OutfitName.StealthSuit, forceOn); }
-    public void ToggleFirstDateOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Date1, forceOn); }
-    public void ToggleSecondDateOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Date2, forceOn); }
-    public void ToggleDommeOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Domme, forceOn); }
-    public void ToggleGreyCheckHalterDressOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.GreyCheckHalterDress, forceOn); }
-    public void ToggleSweaterAndSkirtOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.SweaterAndSkirt, forceOn); }
-    public void ToggleTurtleneckAndSkirtOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.TurtleneckAndSkirt, forceOn); }
-    public void ToggleCheckTopAndJeansOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.CheckTopAndJeans, forceOn); }
-    public void ToggleKnottedBlousseAndSkirtOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.KnottedBlousseAndSkirt, forceOn); }
-    public void ToggleRuffleBlousseAndSkirtOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.RuffleBlousseAndSkirt, forceOn); }
-    public void ToggleLooseTopAndLongSkirtOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.LooseTopAndLongSkirt, forceOn); }
-    public void ToggleTurtleneckAndMediumSkirtOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.TurtleneckAndMediumSkirt, forceOn); }
-    public void ToggleWoolenJumperOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.WoolenJumper, forceOn); }
-    public void ToggleEdeaOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Edea, forceOn); }
-    public void ToggleDitzyDressOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.DitzyDress, forceOn); }
-    public void ToggleLittleBlackDressOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.LittleBlackDress, forceOn); }
-    public void ToggleCasualPantsuitOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.CasualPantSuit, forceOn); }
-    public void ToggleConservativeOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Conservative, forceOn); }
-    public void ToggleFrootDressOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Casual3, forceOn); }
-    public void ToggleStraplessRuffleDressOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.StraplessRuffleDress, forceOn); }
-    public void ToggleCheckBodySuitOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.CheckBodySuit, forceOn); }
-    public void ToggleElegantDressOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.ElegantDress, forceOn); }
-    public void ToggleNightOutRuffleOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.NightOutRuffle, forceOn); }
-    public void ToggleHalterSkirterOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.HalterSkirter, forceOn); }
-    public void ToggleWeddingOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Wedding, forceOn); }
-    public void ToggleFuneralOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Funeral, forceOn); }
-    public void ToggleHomelessnessOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Homelessness, forceOn); }
     public void ToggleUndergarments(bool? forceOn = null) { ToggleOutfit(OutfitName.Undergarments, forceOn); }
-    public void ToggleLingerieOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Lingerie, forceOn); }
-    public void ToggleFaeOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Fae, forceOn); }
-    public void ToggleButtonDressOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.ButtonDress, forceOn); }
-    public void ToggleTraditionalOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Traditional, forceOn); }
-    public void ToggleWoolyAndJeansOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.WoolyAndJeans, forceOn); }
-    public void ToggleKnottedAndShortsOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.KnottedAndShorts, forceOn); }
-    public void ToggleModestOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Modest, forceOn); }
-    public void ToggleStrappyTopAndSkirtOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.StrappyTopAndSkirt, forceOn); }
-    public void ToggleShortieOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.Shortie, forceOn); }
-    public void ToggleTopWithSkirtOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.TopWithSkirt, forceOn); }
-    public void ToggleWoolyModestyOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.WoolyModesty, forceOn); }
-    public void ToggleFrootCardiganTopOutfit(bool? forceOn = null) { ToggleOutfit(OutfitName.FrootCardiganTop, forceOn); }
 
     private void JiggleToggle(bool isJiggly = false)
     {
@@ -423,8 +518,38 @@ public class NorasWardrobe : MonoBehaviour
         ApplyBodyColors(outfit);
         ApplyAccessories();
         SetHair(GetHairForOutfit(outfit));
+        
+        EventManager.OutfitWasChanged(data.outfitTitle);
+    }
 
-        EventManager.OutfitWasChanged(outfit);
+    public void SetMainOutfitPreview(OutfitName outfit)
+    {
+        HideAllAccessoriesPreview();
+        ClearOutfitMeshesPreview();
+
+        var data = GetOutfit(outfit);
+        if (data != null) { InstantiatePrefabsPreview(data.OutfitPrefabs); }
+
+        ApplyAccessoriesPreview(outfit);
+        SetHairPreview(GetHairForOutfit(outfit));
+    }
+
+    public void ApplyPreviewOutfit(OutfitName outfit)
+    {
+        ToggleOutfit(outfit);
+        ClearPreview();
+    }
+
+    public void CancelPreviewOutfit()
+    {
+        ClearPreview();
+    }
+
+    public void ClearPreview()
+    {
+        // HideAllAccessoriesPreview();
+        // ClearOutfitMeshesPreview();
+        // HideAllHairPreview();
     }
 
     public void DisableAllMainOutfits()
@@ -448,113 +573,53 @@ public class NorasWardrobe : MonoBehaviour
         return eligible[Random.Range(0, eligible.Length)];
     }
 
-    public void SetRandomWorkOutfit()
+    private OutfitName[] GetOutfitsOfType(OutfitType type)
     {
-        OutfitName[] pool =
-        {
-            OutfitName.Work,
-            OutfitName.WorkTwo,
-            OutfitName.WorkThree,
-            OutfitName.WorkFour,
-            OutfitName.WorkSuitThree
-        };
-        SwitchToOutfit(PickRandom(pool));
+        if (Outfits == null) { return new OutfitName[0]; }
+        return Outfits
+            .Where(o => o != null && o.outfitType == type && o.thisOutfit != OutfitName.None)
+            .Select(o => o.thisOutfit)
+            .ToArray();
     }
 
-    public void SetRandomMainOutfit()
+    public void SetRandomOutfitOfType(OutfitType type)
     {
-        OutfitName[] pool =
-        {
-            OutfitName.Casual,
-            OutfitName.ShortsAndTights,
-            OutfitName.GreyCheckHalterDress,
-            OutfitName.SweaterAndSkirt,
-            OutfitName.TurtleneckAndSkirt,
-            OutfitName.CheckTopAndJeans,
-            OutfitName.KnottedBlousseAndSkirt,
-            OutfitName.RuffleBlousseAndSkirt,
-            OutfitName.LooseTopAndLongSkirt,
-            OutfitName.TurtleneckAndMediumSkirt,
-            OutfitName.WoolenJumper,
-            OutfitName.CasualPantSuit,
-            OutfitName.Conservative,
-            OutfitName.ButtonDress,
-            OutfitName.WoolyAndJeans,
-            OutfitName.Modest,
-            OutfitName.StrappyTopAndSkirt,
-            OutfitName.TopWithSkirt,
-            OutfitName.WoolyModesty,
-            OutfitName.FrootCardiganTop,
-            OutfitName.Date1,
-            OutfitName.Date2
-        };
-        SwitchToOutfit(PickRandom(pool));
-    }
+        OutfitName[] pool;
 
-    public void SetRandomNightOutOutfit()
-    {
-        OutfitName[] pool =
+        switch (type)
         {
-            OutfitName.HalterSkirter,
-            OutfitName.DitzyDress,
-            OutfitName.LittleBlackDress,
-            OutfitName.Casual3,
-            OutfitName.StraplessRuffleDress,
-            OutfitName.CheckBodySuit,
-            OutfitName.ElegantDress,
-            OutfitName.NightOutRuffle
-        };
-        SwitchToOutfit(PickRandom(pool));
-    }
+            case OutfitType.Work:
+                pool = GetOutfitsOfType(OutfitType.Work);
+                break;
+            case OutfitType.Main:
+                pool = GetOutfitsOfType(OutfitType.Main);
+                break;
+            case OutfitType.Pyjamas:
+                pool = GetOutfitsOfType(OutfitType.Pyjamas);
+                break;
+            case OutfitType.NightOut:
+                pool = GetOutfitsOfType(OutfitType.NightOut);
+                break;
+            case OutfitType.Special:
+                pool = GetOutfitsOfType(OutfitType.Special);
+                break;
+            case OutfitType.Storyline:
+                pool = GetOutfitsOfType(OutfitType.Storyline);
+                break;
+            case OutfitType.Undergarments:
+                pool = GetOutfitsOfType(OutfitType.Undergarments);
+                break;
+            default:
+                Debug.LogWarning($"NorasWardrobe: No outfit pool defined for type {type}");
+                return;
+        }
 
-    public void SetRandomPyjamasOutfit()
-    {
-        OutfitName[] pool =
+        if (pool.Length == 0)
         {
-            OutfitName.Pyjamas,
-            OutfitName.Housecoat,
-            OutfitName.Nightie,
-            OutfitName.Shortie
-        };
-        SwitchToOutfit(PickRandom(pool));
-    }
+            Debug.LogWarning($"NorasWardrobe: No outfits found for type {type}");
+            return;
+        }
 
-    public void SetRandomSpecialOutfit()
-    {
-        OutfitName[] pool =
-        {
-            OutfitName.Fitness,
-            OutfitName.Edea,
-            OutfitName.Traditional,
-            OutfitName.FrootCardiganTop,
-            OutfitName.ChurchDress,
-            OutfitName.CleanBandit
-        };
-        SwitchToOutfit(PickRandom(pool));
-    }
-
-    public void SetRandomRisqueOutfit()
-    {
-        OutfitName[] pool =
-        {
-            OutfitName.RisqueNightie,
-            OutfitName.Domme,
-            OutfitName.Lingerie,
-            OutfitName.Fae,
-            OutfitName.KnottedAndShorts
-        };
-        SwitchToOutfit(PickRandom(pool));
-    }
-
-    public void SetRandomStorylineOutfit()
-    {
-        OutfitName[] pool =
-        {
-            OutfitName.Wedding,
-            OutfitName.Funeral,
-            OutfitName.Homelessness,
-            OutfitName.StealthSuit
-        };
         SwitchToOutfit(PickRandom(pool));
     }
 
@@ -599,16 +664,32 @@ public class NorasWardrobeEditor : Editor
     private const float ButtonHeight = 28f;
     private const float ButtonSpacing = 4f;
     private const float SideMargin = 40f;
+    private const int DefaultColumns = 3;
+
+    private OutfitName? _pendingPreviewOutfit;
+
+    private void OnEnable()
+    {
+        _pendingPreviewOutfit = null;
+    }
 
     public override void OnInspectorGUI()
     {
         NorasWardrobe me = (NorasWardrobe)target;
+
+        if (!me.PreviewEnabled && _pendingPreviewOutfit.HasValue)
+        {
+            me.CancelPreviewOutfit();
+            _pendingPreviewOutfit = null;
+        }
 
         var clearAllStyle = new GUIStyle(GUI.skin.button)
         {
             fontStyle = FontStyle.Bold,
             normal = { textColor = Color.white }
         };
+
+        DrawOutfitStats(me);
 
         EditorGUILayout.LabelField("Outfit Controls", EditorStyles.boldLabel);
         EditorGUILayout.Space();
@@ -617,117 +698,27 @@ public class NorasWardrobeEditor : Editor
             ("Previous Outfit", () => me.PreviousOutfit()),
             ("Next Outfit", () => me.NextOutfit()));
 
-        GUI.backgroundColor = Color.cyan;
-
-        EditorGUILayout.LabelField("Work Outfits", EditorStyles.boldLabel);
-        DrawButtonRow(me, clearAllStyle,
-            ("Classic Nora Dress", () => me.ToggleWorkOutfit()),
-            ("Black Skirt & Cream Shirt", () => me.ToggleWorkThreeOutfit()),
-            ("Tartan Dress", () => me.ToggleWorkTwoOutfit()));
-        DrawButtonRow(me, clearAllStyle,
-            ("Black Suit & Shirt", () => me.ToggleWorkFourOutfit()),
-            ("Suit Jacket & Trousers", () => me.ToggleWorkSuitThreeOutfit()));
+        EditorGUILayout.Space();
+        DrawOutfitTypeSection(me, clearAllStyle, "Work Outfits", OutfitType.Work, Color.cyan);
 
         EditorGUILayout.Space();
-        GUI.backgroundColor = Color.green;
-
-        EditorGUILayout.LabelField("Main Outfits", EditorStyles.boldLabel);
-        DrawButtonRow(me, clearAllStyle,
-            ("Uni Sweater & Jeans", () => me.ToggleCasualOutfit()),
-            ("Shorts & Tights", () => me.ToggleShortsAndTightsOutfit()),
-            ("Check Body Suit", () => me.ToggleCheckBodySuitOutfit()));
-        DrawButtonRow(me, clearAllStyle,
-            ("First Date", () => me.ToggleFirstDateOutfit()),
-            ("Second Date", () => me.ToggleSecondDateOutfit()));
-        DrawButtonRow(me, clearAllStyle,
-            ("Wooly Jumper & Jeans", () => me.ToggleWoolyAndJeansOutfit()),
-            ("Grey Check Halter Dress", () => me.ToggleGreyCheckHalterDressOutfit()),
-            ("Sweater & Skirt", () => me.ToggleSweaterAndSkirtOutfit()));
-        DrawButtonRow(me, clearAllStyle,
-            ("Turtleneck & Skirt", () => me.ToggleTurtleneckAndSkirtOutfit()),
-            ("Check Top & Jeans", () => me.ToggleCheckTopAndJeansOutfit()),
-            ("Knotted Blousse & Skirt", () => me.ToggleKnottedBlousseAndSkirtOutfit()));
-        DrawButtonRow(me, clearAllStyle,
-            ("Ruffle Blousse & Skirt", () => me.ToggleRuffleBlousseAndSkirtOutfit()),
-            ("Loose Top & Long Skirt", () => me.ToggleLooseTopAndLongSkirtOutfit()),
-            ("Turtleneck & Medium Skirt", () => me.ToggleTurtleneckAndMediumSkirtOutfit()));
-        DrawButtonRow(me, clearAllStyle,
-            ("Wooly Jumper & Tights", () => me.ToggleWoolenJumperOutfit()),
-            ("Top With Skirt", () => me.ToggleTopWithSkirtOutfit()),
-            ("Wooly Modesty", () => me.ToggleWoolyModestyOutfit()));
-        DrawButtonRow(me, clearAllStyle,
-            ("Casual Pantsuit", () => me.ToggleCasualPantsuitOutfit()),
-            ("Conservative Jumper & Skirt", () => me.ToggleConservativeOutfit()),
-            ("Button Dress", () => me.ToggleButtonDressOutfit()));
-        DrawButtonRow(me, clearAllStyle,
-            ("Modest Top & Skirt", () => me.ToggleModestOutfit()),
-            ("Strappy Top & Skirt", () => me.ToggleStrappyTopAndSkirtOutfit()));
+        DrawOutfitTypeSection(me, clearAllStyle, "Main Outfits", OutfitType.Main, Color.green);
 
         EditorGUILayout.Space();
-        GUI.backgroundColor = new Color(0.5f, 0.8f, 1f);
-
-        EditorGUILayout.LabelField("PJs", EditorStyles.boldLabel);
-        DrawButtonRow(me, clearAllStyle,
-            ("Pyjamas", () => me.TogglePyjamasOutfit()),
-            ("Housecoat", () => me.ToggleHousecoatOutfit()),
-            ("Nightie", () => me.ToggleNightie()),
-            ("Shortie", () => me.ToggleShortieOutfit()));
+        DrawOutfitTypeSection(me, clearAllStyle, "PJs", OutfitType.Pyjamas, new Color(0.5f, 0.8f, 1f));
 
         EditorGUILayout.Space();
-        GUI.backgroundColor = new Color(1f, 0.6f, 0.8f);
-
-        EditorGUILayout.LabelField("Night Out", EditorStyles.boldLabel);
-        DrawButtonRow(me, clearAllStyle,
-            ("Ditzy Dress", () => me.ToggleDitzyDressOutfit()),
-            ("Little Black Dress", () => me.ToggleLittleBlackDressOutfit()),
-            ("Strapless Ruffle Dress", () => me.ToggleStraplessRuffleDressOutfit()));
-        DrawButtonRow(me, clearAllStyle,
-            ("Layered Ruffle Dress", () => me.ToggleNightOutRuffleOutfit()),
-            ("Elegant Dress", () => me.ToggleElegantDressOutfit()),
-            ("Halter Top & Skirt", () => me.ToggleHalterSkirterOutfit()));
-        DrawButtonRow(me, clearAllStyle,
-            ("Froot Dress", () => me.ToggleFrootDressOutfit()));
+        DrawOutfitTypeSection(me, clearAllStyle, "Night Out", OutfitType.NightOut, new Color(1f, 0.6f, 0.8f));
 
         EditorGUILayout.Space();
-        GUI.backgroundColor = new Color(0.7f, 0.4f, 1f);
-
-        EditorGUILayout.LabelField("Special Outfits", EditorStyles.boldLabel);
-
-        DrawButtonRow(me, clearAllStyle,
-            ("Traditional", () => me.ToggleTraditionalOutfit()),
-            ("Froot Cardi & Dress", () => me.ToggleFrootCardiganTopOutfit()),
-            ("Clean Bandit", () => me.ToggleCleanBanditOutfit()));
-
-        float specialRowWidth = GetButtonWidth(3);
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Church Dress", clearAllStyle, GUILayout.Height(ButtonHeight), GUILayout.Width(specialRowWidth))) { me.ToggleChurchDressOutfit(); EditorUtility.SetDirty(me); }
-        if (GUILayout.Button("Fitness", clearAllStyle, GUILayout.Height(ButtonHeight), GUILayout.Width(specialRowWidth))) { me.ToggleFitnessOutfit(); EditorUtility.SetDirty(me); }
-        GUI.backgroundColor = new Color(1f, 0.84f, 0f);
-        if (GUILayout.Button("Edea's Dress", clearAllStyle, GUILayout.Height(ButtonHeight), GUILayout.Width(specialRowWidth))) { me.ToggleEdeaOutfit(); EditorUtility.SetDirty(me); }
-        EditorGUILayout.EndHorizontal();
+        DrawOutfitTypeSection(me, clearAllStyle, "Special Outfits", OutfitType.Special, new Color(0.7f, 0.4f, 1f));
 
         EditorGUILayout.Space();
-        GUI.backgroundColor = new Color(0.1f, 0.1f, 0.5f);
-
-        EditorGUILayout.LabelField("Storyline Outfits", EditorStyles.boldLabel);
-        DrawButtonRow(me, clearAllStyle,
-            ("Wedding", () => me.ToggleWeddingOutfit()),
-            ("Funeral", () => me.ToggleFuneralOutfit()),
-            ("Skid Row", () => me.ToggleHomelessnessOutfit()),
-            ("Stealth Suit", () => me.ToggleStealthSuit()));
+        DrawOutfitTypeSection(me, clearAllStyle, "Storyline Outfits", OutfitType.Storyline, new Color(0.1f, 0.1f, 0.5f));
 
         EditorGUILayout.Space();
+        DrawOutfitTypeSection(me, clearAllStyle, "Undergarments", OutfitType.Undergarments, Color.red);
         GUI.backgroundColor = Color.red;
-
-        EditorGUILayout.LabelField("Undergarments", EditorStyles.boldLabel);
-        DrawButtonRow(me, clearAllStyle,
-            ("Lingerie", () => me.ToggleLingerieOutfit()),
-            ("Underwear", () => me.ToggleUndergarments()),
-            ("Fae", () => me.ToggleFaeOutfit()));
-        DrawButtonRow(me, clearAllStyle,
-            ("Risque Nightie", () => me.ToggleRisqueNightie()),
-            ("Knotted Top & Shorts", () => me.ToggleKnottedAndShortsOutfit()),
-            ("Domme", () => me.ToggleDommeOutfit()));
         DrawButtonRow(me, clearAllStyle,
             ("Nothin' At All", () => me.Undress()));
 
@@ -759,8 +750,7 @@ public class NorasWardrobeEditor : Editor
             ("Homeless Hair", () => me.SetHair(HairName.HomelessHair)));
         DrawButtonRow(me, clearAllStyle,
             ("Twin Tails Hair", () => me.SetHair(HairName.TwinTailsHair)),
-            ("Up Hair", () => me.SetHair(HairName.UpHair)),
-            ("Messy Hair", () => me.SetHair(HairName.MessyHair)));
+            ("Up Hair", () => me.SetHair(HairName.UpHair)));
         DrawButtonRow(me, clearAllStyle,
             ("Updo", () => me.SetHair(HairName.UpDo)));
 
@@ -769,21 +759,116 @@ public class NorasWardrobeEditor : Editor
 
         EditorGUILayout.LabelField("Random Outfits", EditorStyles.boldLabel);
         DrawButtonRow(me, clearAllStyle,
-            ("Random Work", () => me.SetRandomWorkOutfit()),
-            ("Random Main", () => me.SetRandomMainOutfit()));
+            ("Random Work", () => me.SetRandomOutfitOfType(OutfitType.Work)),
+            ("Random Main", () => me.SetRandomOutfitOfType(OutfitType.Main)));
         DrawButtonRow(me, clearAllStyle,
-            ("Random Night Out", () => me.SetRandomNightOutOutfit()),
-            ("Random Pyjamas", () => me.SetRandomPyjamasOutfit()));
+            ("Random Night Out", () => me.SetRandomOutfitOfType(OutfitType.NightOut)),
+            ("Random Pyjamas", () => me.SetRandomOutfitOfType(OutfitType.Pyjamas)));
         DrawButtonRow(me, clearAllStyle,
-            ("Random Storyline", () => me.SetRandomStorylineOutfit()),
-            ("Random Risque Outfit", () => me.SetRandomRisqueOutfit()));
+            ("Random Storyline", () => me.SetRandomOutfitOfType(OutfitType.Storyline)),
+            ("Random Undergarments", () => me.SetRandomOutfitOfType(OutfitType.Undergarments)));
         DrawButtonRow(me, clearAllStyle,
-            ("Random Special Outfit", () => me.SetRandomSpecialOutfit()));
+            ("Random Special Outfit", () => me.SetRandomOutfitOfType(OutfitType.Special)));
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("---------------------", EditorStyles.boldLabel);
         EditorGUILayout.Space();
+        GUI.backgroundColor = Color.white;
         DrawDefaultInspector();
+    }
+
+    private static void DrawOutfitStats(NorasWardrobe me)
+    {
+        var outfits = (me.Outfits ?? new List<Outfit>())
+            .Where(o => o != null && o.thisOutfit != OutfitName.None)
+            .ToList();
+
+        GUI.backgroundColor = Color.blueViolet;
+        EditorGUILayout.LabelField("Outfit Stats", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+        foreach (OutfitType type in System.Enum.GetValues(typeof(OutfitType)))
+        {
+            int count = outfits.Count(o => o.outfitType == type);
+            EditorGUILayout.LabelField($"{count} {type} Outfits", EditorStyles.boldLabel);
+        }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField($"Total {outfits.Count} Outfits", EditorStyles.boldLabel);
+
+        EditorGUILayout.EndVertical();
+        EditorGUILayout.Space();
+    }
+
+    private void DrawOutfitTypeSection(NorasWardrobe me, GUIStyle style, string sectionLabel, OutfitType type, Color color)
+    {
+        GUI.backgroundColor = color;
+        EditorGUILayout.LabelField(sectionLabel, EditorStyles.boldLabel);
+
+        var outfits = (me.Outfits ?? new List<Outfit>())
+            .Where(o => o != null && o.outfitType == type && o.thisOutfit != OutfitName.None)
+            .ToList();
+
+        if (outfits.Count == 0)
+        {
+            EditorGUILayout.LabelField("(No outfits assigned)", EditorStyles.miniLabel);
+            return;
+        }
+
+        for (int i = 0; i < outfits.Count; i += DefaultColumns)
+        {
+            var rowOutfits = outfits.Skip(i).Take(DefaultColumns).ToArray();
+            DrawOutfitButtonRow(me, style, rowOutfits);
+        }
+    }
+
+    private void DrawOutfitButtonRow(NorasWardrobe me, GUIStyle style, Outfit[] outfits)
+    {
+        if (outfits == null || outfits.Length == 0) { return; }
+
+        float slotWidth = GetButtonWidth(outfits.Length);
+
+        EditorGUILayout.BeginHorizontal();
+        foreach (var outfit in outfits)
+        {
+            string label = string.IsNullOrEmpty(outfit.outfitTitle) ? outfit.thisOutfit.ToString() : outfit.outfitTitle;
+            OutfitName outfitName = outfit.thisOutfit;
+
+            if (me.PreviewEnabled && _pendingPreviewOutfit.HasValue && _pendingPreviewOutfit.Value == outfitName)
+            {
+                float halfWidth = (slotWidth - ButtonSpacing) / 2f;
+
+                if (GUILayout.Button("Apply", style, GUILayout.Height(ButtonHeight), GUILayout.Width(halfWidth)))
+                {
+                    me.ApplyPreviewOutfit(outfitName);
+                    _pendingPreviewOutfit = null;
+                    EditorUtility.SetDirty(me);
+                }
+                if (GUILayout.Button("Cancel", style, GUILayout.Height(ButtonHeight), GUILayout.Width(halfWidth)))
+                {
+                    me.CancelPreviewOutfit();
+                    _pendingPreviewOutfit = null;
+                    EditorUtility.SetDirty(me);
+                }
+            }
+            else
+            {
+                if (GUILayout.Button(label, style, GUILayout.Height(ButtonHeight), GUILayout.Width(slotWidth)))
+                {
+                    if (me.PreviewEnabled)
+                    {
+                        me.SetMainOutfitPreview(outfitName);
+                        _pendingPreviewOutfit = outfitName;
+                    }
+                    else
+                    {
+                        me.ToggleOutfit(outfitName);
+                    }
+                    EditorUtility.SetDirty(me);
+                }
+            }
+        }
+        EditorGUILayout.EndHorizontal();
     }
 
     private static float GetButtonWidth(int columnCount)
@@ -860,7 +945,7 @@ public enum OutfitName
     Edea,
     DitzyDress,
     LittleBlackDress,
-    CasualPantSuit,
+    WorkPantSuit,
     Casual3,
     StraplessRuffleDress,
     CheckBodySuit,
@@ -886,5 +971,27 @@ public enum OutfitName
     Shortie,
     TopWithSkirt,
     WoolyModesty,
-    FrootCardiganTop
+    FrootCardiganTop,
+    CasualShortDress,
+    StrappyTopAndShorts,
+    StylishHalterTopAndPants,
+    LeatherTube,
+    CasualTeeAndPants,
+    BlazerAndSkirt,
+    StrappyDress,
+    HalterDressAndTights,
+    ShortSleeveDress,
+    CropTopAndSkirt,
+    StraplessAndPants
+}
+
+public enum OutfitType
+{
+    Work,
+    Main,
+    Pyjamas,
+    NightOut,
+    Special,
+    Storyline,
+    Undergarments
 }

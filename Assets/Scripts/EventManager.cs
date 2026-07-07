@@ -58,7 +58,7 @@ public static class EventManager
     
     public static event Action<SteamAchievements> OnUnlockAchievement = (SteamAchievements) => { };
     
-    public static event Action<OutfitName> OnOutfitWasChanged = (OutfitType) => { };
+    public static event Action<string> OnOutfitWasChanged = (OutfitName) => { };
     
     public static void UnlockAchievement(SteamAchievements thisCheevo)
     {
@@ -67,9 +67,9 @@ public static class EventManager
 
 
 
-    public static void OutfitWasChanged(OutfitName OutfitType)
+    public static void OutfitWasChanged(string OutfitName)
     {
-        OnOutfitWasChanged.Invoke(OutfitType);
+        OnOutfitWasChanged.Invoke(OutfitName);
     }
 
     

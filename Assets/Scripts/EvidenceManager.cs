@@ -33,8 +33,6 @@ public class EvidenceManager : MonoBehaviour
 
     private void Start()
     {
-        Application.targetFrameRate = 60;
-        
         if (GameMaster.Instance.THISLEVEL == GAMELEVEL.TawleyMeats) ExpectedEQThisLevel = ExpectedEQ_Level1;
         else if (GameMaster.Instance.THISLEVEL == GAMELEVEL.RoarkInside) ExpectedEQThisLevel = ExpectedEQ_Level2;
         else ExpectedEQThisLevel = ExpectedEQ_Level0;

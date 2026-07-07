@@ -14,8 +14,16 @@ public class OutfitText : MonoBehaviour
 
 
 
-    private void SetOutfitText(OutfitName outfitType)
+    private void SetOutfitText(string outfitName)
     {
-        outfitText.text = outfitType.ToString();
+
+        if (outfitName.Length > 0)
+        {
+            outfitText.text = outfitName;
+        }
+        else
+        {
+            outfitText.text = "not specified!";
+        }
     }
 }

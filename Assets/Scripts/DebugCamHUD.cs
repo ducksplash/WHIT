@@ -588,7 +588,7 @@ public class DebugCamHUD : MonoBehaviour
         if (_npc == null) return;
 
         Me me = _npc.gameObject.GetComponent<Me>();
-        if (me != null) me.ToggleFirstDateOutfit();
+        if (me != null) me.ToggleThirdOutfit();
 
         RefreshForTarget(_lastTarget);
     }

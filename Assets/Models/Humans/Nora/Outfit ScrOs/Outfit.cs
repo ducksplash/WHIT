@@ -8,6 +8,8 @@ using UnityEngine;
 public class Outfit : ScriptableObject
 {
     public OutfitName thisOutfit;
+    public OutfitType outfitType;
+    public string outfitTitle;
     public bool OutfitEnabled = true;
     public List<GameObject> OutfitPrefabs;
     public Color lipsColor = new Color(0.95f, 0.6f, 0.7f);

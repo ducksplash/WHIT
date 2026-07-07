@@ -903,7 +903,7 @@ public class Player : Singleton<Player>
         Vector3 vel = _manualVelocityXZ;
         float speed = vel.magnitude;
 
-        float moveThreshold = 1.5f;
+        float moveThreshold = 0.5f;
         bool isMoving = speed > moveThreshold;
 
         Vector3 localDir = Vector3.zero;

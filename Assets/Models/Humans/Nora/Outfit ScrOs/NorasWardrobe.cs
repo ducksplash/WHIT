@@ -982,7 +982,10 @@ public enum OutfitName
     HalterDressAndTights,
     ShortSleeveDress,
     CropTopAndSkirt,
-    StraplessAndPants
+    StraplessAndPants,
+    TurtleneckAndPants,
+    FloatyTopAndSkirt,
+    TubeDressAndTights
 }
 
 public enum OutfitType

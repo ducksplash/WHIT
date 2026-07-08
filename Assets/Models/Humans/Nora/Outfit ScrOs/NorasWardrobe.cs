@@ -985,7 +985,9 @@ public enum OutfitName
     StraplessAndPants,
     TurtleneckAndPants,
     FloatyTopAndSkirt,
-    TubeDressAndTights
+    TubeDressAndTights,
+    TankTopAndSkirt,
+    StraplessCardiAndSkirt
 }
 
 public enum OutfitType

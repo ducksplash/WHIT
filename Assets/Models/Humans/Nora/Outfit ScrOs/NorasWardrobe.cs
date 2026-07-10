@@ -1028,7 +1028,9 @@ public enum OutfitName
     StraplessTopAndSkirt,
     EveningDress,
     CasualTopAndPants,
-    TwilightDress
+    TwilightDress,
+    AllInOne,
+    ModestCardiAndSkirt
 }
 
 public enum OutfitType

@@ -716,67 +716,39 @@ public class NorasWardrobeEditor : Editor
 
         EditorGUILayout.LabelField("Outfit Controls", EditorStyles.boldLabel);
         EditorGUILayout.Space();
-
-        DrawButtonRow(me, clearAllStyle,
-            ("Previous Outfit", () => me.PreviousOutfit()),
-            ("Next Outfit", () => me.NextOutfit()));
-
+        DrawButtonRow(me, clearAllStyle, ("Previous Outfit", () => me.PreviousOutfit()), ("Next Outfit", () => me.NextOutfit()));
         EditorGUILayout.Space();
-        DrawOutfitTypeSection(me, clearAllStyle, "Work Outfits", OutfitType.Work, Color.cyan);
 
+        DrawOutfitTypeSection(me, clearAllStyle, "Work Outfits", OutfitType.Work, Color.cyan);
         EditorGUILayout.Space();
         DrawOutfitTypeSection(me, clearAllStyle, "Main Outfits", OutfitType.Main, Color.green);
-
         EditorGUILayout.Space();
         DrawOutfitTypeSection(me, clearAllStyle, "PJs", OutfitType.Pyjamas, new Color(0.5f, 0.8f, 1f));
-
         EditorGUILayout.Space();
         DrawOutfitTypeSection(me, clearAllStyle, "Night Out", OutfitType.NightOut, new Color(1f, 0.6f, 0.8f));
-
         EditorGUILayout.Space();
         DrawOutfitTypeSection(me, clearAllStyle, "Special Outfits", OutfitType.Special, new Color(0.7f, 0.4f, 1f));
-
         EditorGUILayout.Space();
         DrawOutfitTypeSection(me, clearAllStyle, "Storyline Outfits", OutfitType.Storyline, new Color(0.1f, 0.1f, 0.5f));
-
         EditorGUILayout.Space();
         DrawOutfitTypeSection(me, clearAllStyle, "Undergarments", OutfitType.Undergarments, Color.red);
-
         EditorGUILayout.Space();
-        GUI.backgroundColor = Color.yellow;
 
+        GUI.backgroundColor = Color.yellow;
         EditorGUILayout.LabelField("Accessories (toggle independently — any combination)", EditorStyles.boldLabel);
         DrawButtonRow(me, clearAllStyle,
             ("Toggle Wings", () => me.ToggleWings()),
             ("Toggle Overall", () => me.ToggleOverall()),
             ("Toggle Hat", () => me.ToggleHat()),
             ("Toggle Choker", () => me.ToggleChoker()));
-
         EditorGUILayout.Space();
+
         GUI.backgroundColor = new Color(0.6f, 0.9f, 0.6f);
-
         EditorGUILayout.LabelField("Hair (exclusive — only one at a time)", EditorStyles.boldLabel);
-        DrawButtonRow(me, clearAllStyle,
-            ("Default Hair", () => me.SetHair(HairName.DefaultHair)),
-            ("Work Hair", () => me.SetHair(HairName.WorkHair)),
-            ("Work Hair Two", () => me.SetHair(HairName.WorkHairTwo)));
-        DrawButtonRow(me, clearAllStyle,
-            ("Casual Hair", () => me.SetHair(HairName.CasualHair)),
-            ("Pyjama Hair", () => me.SetHair(HairName.PyjamaHair)),
-            ("Dating Hair", () => me.SetHair(HairName.DatingHair)));
-        DrawButtonRow(me, clearAllStyle,
-            ("Dating Hair Two", () => me.SetHair(HairName.DatingHairTwo)),
-            ("Out Hair", () => me.SetHair(HairName.OutHair)),
-            ("Homeless Hair", () => me.SetHair(HairName.HomelessHair)));
-        DrawButtonRow(me, clearAllStyle,
-            ("Twin Tails Hair", () => me.SetHair(HairName.TwinTailsHair)),
-            ("Up Hair", () => me.SetHair(HairName.UpHair)));
-        DrawButtonRow(me, clearAllStyle,
-            ("Updo", () => me.SetHair(HairName.UpDo)));
-
+        DrawSortedHairButtons(me, clearAllStyle);
         EditorGUILayout.Space();
-        GUI.backgroundColor = Color.white;
 
+        GUI.backgroundColor = Color.white;
         EditorGUILayout.LabelField("Random Outfits", EditorStyles.boldLabel);
         DrawButtonRow(me, clearAllStyle,
             ("Random Work", () => me.SetRandomOutfitOfType(OutfitType.Work)),
@@ -793,10 +765,41 @@ public class NorasWardrobeEditor : Editor
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("---------------------", EditorStyles.boldLabel);
         EditorGUILayout.Space();
+
         GUI.backgroundColor = Color.white;
         DrawDefaultInspector();
     }
 
+    private void DrawSortedHairButtons(NorasWardrobe me, GUIStyle style)
+    {
+        var hairButtons = new List<(string Label, System.Action OnClick)>
+        {
+            ("Default Hair", () => me.SetHair(HairName.DefaultHair)),
+            ("Work Hair", () => me.SetHair(HairName.WorkHair)),
+            ("Work Hair Two", () => me.SetHair(HairName.WorkHairTwo)),
+            ("Casual Hair", () => me.SetHair(HairName.CasualHair)),
+            ("Pyjama Hair", () => me.SetHair(HairName.PyjamaHair)),
+            ("Dating Hair", () => me.SetHair(HairName.DatingHair)),
+            ("Dating Hair Two", () => me.SetHair(HairName.DatingHairTwo)),
+            ("Out Hair", () => me.SetHair(HairName.OutHair)),
+            ("Homeless Hair", () => me.SetHair(HairName.HomelessHair)),
+            ("Twin Tails Hair", () => me.SetHair(HairName.TwinTailsHair)),
+            ("Up Hair", () => me.SetHair(HairName.UpHair)),
+            ("Updo", () => me.SetHair(HairName.UpDo))
+        };
+
+        // Sort alphabetically by label
+        hairButtons.Sort((a, b) => string.Compare(a.Label, b.Label, System.StringComparison.Ordinal));
+
+        // Draw in rows of 3
+        for (int i = 0; i < hairButtons.Count; i += DefaultColumns)
+        {
+            var row = hairButtons.Skip(i).Take(DefaultColumns).ToArray();
+            DrawButtonRow(me, style, row);
+        }
+    }
+    
+    
     private static int CountCanSpawn(List<Outfit> outfits, OutfitType? type = null)
     {
         return outfits.Count(o => o.SpawnAs && (type == null || o.outfitType == type));
@@ -837,6 +840,7 @@ public class NorasWardrobeEditor : Editor
 
         var outfits = (me.Outfits ?? new List<Outfit>())
             .Where(o => o != null && o.outfitType == type)
+            .OrderBy(o => string.IsNullOrEmpty(o.outfitTitle) ? o.thisOutfit.ToString() : o.outfitTitle) // ← Alphabetical sort
             .ToList();
 
         if (outfits.Count == 0)
@@ -854,11 +858,11 @@ public class NorasWardrobeEditor : Editor
 
     private void DrawOutfitButtonRow(NorasWardrobe me, GUIStyle style, Outfit[] outfits)
     {
-        if (outfits == null || outfits.Length == 0) { return; }
+        if (outfits == null || outfits.Length == 0) return;
 
         float slotWidth = GetButtonWidth(outfits.Length);
-
         EditorGUILayout.BeginHorizontal();
+
         foreach (var outfit in outfits)
         {
             string label = string.IsNullOrEmpty(outfit.outfitTitle) ? outfit.thisOutfit.ToString() : outfit.outfitTitle;
@@ -867,7 +871,6 @@ public class NorasWardrobeEditor : Editor
             if (me.PreviewEnabled && _pendingPreviewOutfit.HasValue && _pendingPreviewOutfit.Value == outfitName)
             {
                 float halfWidth = (slotWidth - ButtonSpacing) / 2f;
-
                 if (GUILayout.Button("Apply", style, GUILayout.Height(ButtonHeight), GUILayout.Width(halfWidth)))
                 {
                     me.ApplyPreviewOutfit(outfitName);
@@ -910,11 +913,11 @@ public class NorasWardrobeEditor : Editor
 
     private static void DrawButtonRow(NorasWardrobe me, GUIStyle style, params (string Label, System.Action OnClick)[] buttons)
     {
-        if (buttons == null || buttons.Length == 0) { return; }
+        if (buttons == null || buttons.Length == 0) return;
 
         float buttonWidth = GetButtonWidth(buttons.Length);
-
         EditorGUILayout.BeginHorizontal();
+
         foreach (var button in buttons)
         {
             if (GUILayout.Button(button.Label, style, GUILayout.Height(ButtonHeight), GUILayout.Width(buttonWidth)))
@@ -928,111 +931,108 @@ public class NorasWardrobeEditor : Editor
 }
 #endif
 
-
-
 public enum HairName
 {
-    DefaultHair,
-    WorkHair,
-    WorkHairTwo,
-    CasualHair,
-    PyjamaHair,
-    DatingHair,
-    DatingHairTwo,
-    OutHair,
-    HomelessHair,
-    TwinTailsHair,
-    UpHair,
-    UpDo,
-    MessyHair,
+    CasualHair = 3,
+    DatingHair = 5,
+    DatingHairTwo = 6,
+    DefaultHair = 0,
+    HomelessHair = 8,
+    MessyHair = 12,
+    OutHair = 7,
+    PyjamaHair = 4,
+    TwinTailsHair = 9,
+    UpDo = 11,
+    UpHair = 10,
+    WorkHair = 1,
+    WorkHairTwo = 2,
 }
 
 public enum OutfitName
 {
-    None,
-    Work,
-    WorkTwo,
-    WorkThree,
-    WorkFour,
-    WorkSuitThree,
-    Casual,
-    Fitness,
-    Pyjamas,
-    Housecoat,
-    Nightie,
-    RisqueNightie,
-    Date1,
-    Date2,
-    Domme,
-    HalterSkirter,
-    GreyCheckHalterDress,
-    SweaterAndSkirt,
-    TurtleneckAndSkirt,
-    CheckTopAndJeans,
-    KnottedBlousseAndSkirt,
-    RuffleBlousseAndSkirt,
-    LooseTopAndLongSkirt,
-    TurtleneckAndMediumSkirt,
-    WoolenJumper,
-    Edea,
-    DitzyDress,
-    LittleBlackDress,
-    WorkPantSuit,
-    Casual3,
-    StraplessRuffleDress,
-    CheckBodySuit,
-    ElegantDress,
-    NightOutRuffle,
-    Wedding,
-    Funeral,
-    Homelessness,
-    Lingerie,
-    ShortsAndTights,
-    CleanBandit,
-    ChurchDress,
-    Fae,
-    Undergarments,
-    StealthSuit,
-    Conservative,
-    ButtonDress,
-    Traditional,
-    WoolyAndJeans,
-    KnottedAndShorts,
-    Modest,
-    StrappyTopAndSkirt,
-    Shortie,
-    TopWithSkirt,
-    WoolyModesty,
-    FrootCardiganTop,
-    CasualShortDress,
-    StrappyTopAndShorts,
-    StylishHalterTopAndPants,
-    LeatherTube,
-    CasualTeeAndPants,
-    BlazerAndSkirt,
-    StrappyDress,
-    HalterDressAndTights,
-    ShortSleeveDress,
-    CropTopAndSkirt,
-    StraplessAndPants,
-    TurtleneckAndPants,
-    FloatyTopAndSkirt,
-    TubeDressAndTights,
-    TankTopAndSkirt,
-    StraplessCardiAndSkirt,
-    FitnessAerobics,
-    StringyTopAndSkirt,
-    Nothinatall,
-    DuckTeeAndSkirt,
-    StrappyTopAndPants,
-    StraplessTopAndSkirt,
-    EveningDress,
-    CasualTopAndPants,
-    TwilightDress,
-    AllInOne,
-    ModestCardiAndSkirt
+    AllInOne = 80,
+    BlazerAndSkirt = 60,
+    ButtonDress = 45,
+    Casual = 6,
+    Casual3 = 29,
+    CasualShortDress = 55,
+    CasualTeeAndPants = 59,
+    CasualTopAndPants = 78,
+    CheckBodySuit = 31,
+    CheckTopAndJeans = 19,
+    ChurchDress = 40,
+    CleanBandit = 39,
+    Conservative = 44,
+    CropTopAndSkirt = 64,
+    Date1 = 12,
+    Date2 = 13,
+    DitzyDress = 26,
+    Domme = 14,
+    DuckTeeAndSkirt = 74,
+    Edea = 25,
+    ElegantDress = 32,
+    EveningDress = 77,
+    Fae = 41,
+    Fitness = 7,
+    FitnessAerobics = 71,
+    FloatyTopAndSkirt = 67,
+    FrootCardiganTop = 54,
+    Funeral = 35,
+    GreyCheckHalterDress = 16,
+    HalterDressAndTights = 62,
+    HalterSkirter = 15,
+    Homelessness = 36,
+    Housecoat = 9,
+    KnottedAndShorts = 48,
+    KnottedBlousseAndSkirt = 20,
+    LeatherTube = 58,
+    Lingerie = 37,
+    LittleBlackDress = 27,
+    LooseTopAndLongSkirt = 22,
+    Modest = 49,
+    ModestCardiAndSkirt = 81,
+    Nightie = 10,
+    NightOutRuffle = 33,
+    None = 0,
+    Nothinatall = 73,
+    Pyjamas = 8,
+    RisqueNightie = 11,
+    RuffleBlousseAndSkirt = 21,
+    Shortie = 51,
+    ShortsAndTights = 38,
+    ShortSleeveDress = 63,
+    StealthSuit = 43,
+    StraplessAndPants = 65,
+    StraplessCardiAndSkirt = 70,
+    StraplessRuffleDress = 30,
+    StraplessTopAndSkirt = 76,
+    StrappyDress = 61,
+    StrappyTopAndPants = 75,
+    StrappyTopAndShorts = 56,
+    StrappyTopAndSkirt = 50,
+    StringyTopAndSkirt = 72,
+    StylishHalterTopAndPants = 57,
+    SweaterAndSkirt = 17,
+    TankTopAndSkirt = 69,
+    TopWithSkirt = 52,
+    Traditional = 46,
+    TubeDressAndTights = 68,
+    TurtleneckAndMediumSkirt = 23,
+    TurtleneckAndPants = 66,
+    TurtleneckAndSkirt = 18,
+    TwilightDress = 79,
+    Undergarments = 42,
+    Wedding = 34,
+    WoolenJumper = 24,
+    WoolyAndJeans = 47,
+    WoolyModesty = 53,
+    Work = 1,
+    WorkFour = 4,
+    WorkPantSuit = 28,
+    WorkSuitThree = 5,
+    WorkThree = 3,
+    WorkTwo = 2,
 }
-
 public enum OutfitType
 {
     Work,

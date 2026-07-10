@@ -8,7 +8,8 @@ using UnityEditor;
 
 public class NorasWardrobe : MonoBehaviour
 {
-    [Header("Settings")]
+    [Header("Settings")] 
+    public bool DebugMode;
     public bool UnressedOnLoad;
     public bool PreviewEnabled;
 
@@ -81,8 +82,7 @@ public class NorasWardrobe : MonoBehaviour
     [Header("Input")]
     public InputActionReference nextOutfit;
     public InputActionReference previousOutfit;
-    public InputActionReference holdToUnlock;
-    public InputActionReference holdToUnlockAll;
+    public InputActionReference holdToggleDebug;
 
     private bool _wingsOverride = false;
     private bool _overallOverride = false;
@@ -112,14 +112,12 @@ public class NorasWardrobe : MonoBehaviour
 
     private void SetupInput()
     {
-        if (holdToUnlock != null) { holdToUnlock.action.performed += OnToggleUndergarments; }
-        if (holdToUnlockAll != null) { holdToUnlockAll.action.performed += OnToggleNothinatall; }
+        if (holdToggleDebug != null) { holdToggleDebug.action.performed += OnToggleDebug; }
         if (nextOutfit != null) { nextOutfit.action.performed += OnNextOutfit; }
         if (previousOutfit != null) { previousOutfit.action.performed += OnPreviousOutfit; }
     }
 
-    private void OnToggleUndergarments(InputAction.CallbackContext ctx) { ToggleUndergarments(); }
-    private void OnToggleNothinatall(InputAction.CallbackContext ctx) { Undress(); }
+    private void OnToggleDebug(InputAction.CallbackContext ctx) { ToggleDebug(); }
     private void OnNextOutfit(InputAction.CallbackContext ctx) { NextOutfit(); }
     private void OnPreviousOutfit(InputAction.CallbackContext ctx) { PreviousOutfit(); }
 
@@ -127,10 +125,20 @@ public class NorasWardrobe : MonoBehaviour
     {
         if (nextOutfit != null) { nextOutfit.action.performed -= OnNextOutfit; }
         if (previousOutfit != null) { previousOutfit.action.performed -= OnPreviousOutfit; }
-        if (holdToUnlock != null) { holdToUnlock.action.performed -= OnToggleUndergarments; }
-        if (holdToUnlockAll != null) { holdToUnlockAll.action.performed -= OnToggleNothinatall; }
+        if (holdToggleDebug != null) { holdToggleDebug.action.performed -= OnToggleDebug; }
     }
 
+
+
+    private void ToggleDebug()
+    {
+        DebugMode = !DebugMode;
+    }
+    
+    
+    
+    
+    
     private void ClearOutfitMeshes()
     {
         if (SkinnedMeshRendererParentOutfits == null) { return; }
@@ -368,8 +376,21 @@ public class NorasWardrobe : MonoBehaviour
 
     public bool IsOutfitEnabled(OutfitName outfit)
     {
+        bool canSpawn = false;
+
         var data = GetOutfit(outfit);
-        return data == null || data.OutfitEnabled;
+        
+        if (DebugMode)
+        {
+            canSpawn = true;
+        }
+        else
+        {
+            canSpawn = data.SpawnAs;
+        }
+        
+        
+        return data == null || canSpawn;
     }
 
     public void ToggleWings(bool? forceOn = null)
@@ -657,6 +678,7 @@ public class NorasWardrobe : MonoBehaviour
     }
 }
 
+
 #if UNITY_EDITOR
 [CustomEditor(typeof(NorasWardrobe))]
 public class NorasWardrobeEditor : Editor
@@ -665,6 +687,7 @@ public class NorasWardrobeEditor : Editor
     private const float ButtonSpacing = 4f;
     private const float SideMargin = 40f;
     private const int DefaultColumns = 3;
+    private const int SpawnableTarget = 128;
 
     private OutfitName? _pendingPreviewOutfit;
 
@@ -718,9 +741,6 @@ public class NorasWardrobeEditor : Editor
 
         EditorGUILayout.Space();
         DrawOutfitTypeSection(me, clearAllStyle, "Undergarments", OutfitType.Undergarments, Color.red);
-        GUI.backgroundColor = Color.red;
-        DrawButtonRow(me, clearAllStyle,
-            ("Nothin' At All", () => me.Undress()));
 
         EditorGUILayout.Space();
         GUI.backgroundColor = Color.yellow;
@@ -777,22 +797,32 @@ public class NorasWardrobeEditor : Editor
         DrawDefaultInspector();
     }
 
+    private static int CountCanSpawn(List<Outfit> outfits, OutfitType? type = null)
+    {
+        return outfits.Count(o => o.SpawnAs && (type == null || o.outfitType == type));
+    }
+
     private static void DrawOutfitStats(NorasWardrobe me)
     {
-        var outfits = (me.Outfits ?? new List<Outfit>())
-            .Where(o => o != null && o.thisOutfit != OutfitName.None)
-            .ToList();
+        var outfits = (me.Outfits ?? new List<Outfit>()).Where(o => o != null && o.thisOutfit != OutfitName.None).ToList();
 
-        GUI.backgroundColor = Color.blueViolet;
+        int canSpawnCount = CountCanSpawn(outfits);
+
+        GUI.backgroundColor = Color.blue;
         EditorGUILayout.LabelField("Outfit Stats", EditorStyles.boldLabel);
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
+        EditorGUILayout.LabelField("Number of outfits: ", EditorStyles.boldLabel);
+        
         foreach (OutfitType type in System.Enum.GetValues(typeof(OutfitType)))
         {
             int count = outfits.Count(o => o.outfitType == type);
-            EditorGUILayout.LabelField($"{count} {type} Outfits", EditorStyles.boldLabel);
-        }
+            int canSpawn = CountCanSpawn(outfits, type);
+            EditorGUILayout.LabelField($"{count} {type}, of which {(canSpawn == 0 ? "none" : $"{canSpawn}")} are spawnable.", EditorStyles.boldLabel); }
 
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField($"{canSpawnCount} Can be used when spawning Nora", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField($"{SpawnableTarget - canSpawnCount} left to hit target of {SpawnableTarget}", EditorStyles.boldLabel);
         EditorGUILayout.Space();
         EditorGUILayout.LabelField($"Total {outfits.Count} Outfits", EditorStyles.boldLabel);
 
@@ -806,7 +836,7 @@ public class NorasWardrobeEditor : Editor
         EditorGUILayout.LabelField(sectionLabel, EditorStyles.boldLabel);
 
         var outfits = (me.Outfits ?? new List<Outfit>())
-            .Where(o => o != null && o.outfitType == type && o.thisOutfit != OutfitName.None)
+            .Where(o => o != null && o.outfitType == type)
             .ToList();
 
         if (outfits.Count == 0)
@@ -897,6 +927,8 @@ public class NorasWardrobeEditor : Editor
     }
 }
 #endif
+
+
 
 public enum HairName
 {
@@ -989,7 +1021,14 @@ public enum OutfitName
     TankTopAndSkirt,
     StraplessCardiAndSkirt,
     FitnessAerobics,
-    StringyTopAndSkirt
+    StringyTopAndSkirt,
+    Nothinatall,
+    DuckTeeAndSkirt,
+    StrappyTopAndPants,
+    StraplessTopAndSkirt,
+    EveningDress,
+    CasualTopAndPants,
+    TwilightDress
 }
 
 public enum OutfitType

@@ -290,6 +290,9 @@ public class Zoom : MonoBehaviour
             float tpT = Mathf.InverseLerp(0f, thirdPersonMaxZoom, zoomAmount);
             ThirdPersonCamera.fieldOfView = Mathf.Lerp(thirdPersonMinFOV, thirdPersonMaxFOV, tpT);
         }
+
+        if (wasThirdPerson && !IsThirdPersonActive)
+            EventManager.ResetThirdPersonState();
     }
 
     private void SetDefaultFOV()
@@ -322,8 +325,14 @@ public class Zoom : MonoBehaviour
         _forceFirstPersonMode = true;
         zoomAmount = 0f;
 
+        bool wasThirdPerson = IsThirdPersonActive;
+        IsThirdPersonActive = false;
+
         if (ThirdPersonCamera != null) ThirdPersonCamera.enabled = false;
         if (FirstPersonCamera != null) FirstPersonCamera.enabled = true;
+
+        if (wasThirdPerson)
+            EventManager.ResetThirdPersonState();
 
         StartCoroutine(SmoothFOV(targetFOV, autoZoomDuration));
     }

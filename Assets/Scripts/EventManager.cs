@@ -52,6 +52,7 @@ public static class EventManager
     public static event Action OnSlideTickerIn = () => { };
 
     public static event Action OnSlideTickerOut = () => { };
+    public static event Action OnResetThirdPersonState = () => { };
 
     
     // cheev
@@ -63,6 +64,11 @@ public static class EventManager
     public static void UnlockAchievement(SteamAchievements thisCheevo)
     {
         OnUnlockAchievement.Invoke(thisCheevo);
+    }
+
+    public static void ResetThirdPersonState()
+    {
+        OnResetThirdPersonState.Invoke();
     }
 
 

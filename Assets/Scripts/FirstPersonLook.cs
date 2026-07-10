@@ -6,6 +6,7 @@ public class FirstPersonLook : MonoBehaviour
 {
     public Transform character;
     [SerializeField] InputActionReference lookAction;
+    [SerializeField] InputActionReference flipThirdPersonCam;
 
     Vector2 currentMouseLook;
     Vector2 appliedMouseDelta;
@@ -46,6 +47,19 @@ public class FirstPersonLook : MonoBehaviour
 
     
     public Camera ThirdPersonCamera;
+
+    [Header("Third Person Camera Front/Back")]
+    [SerializeField] private float thirdPersonCamFrontLowYOffset = -2f;
+
+    private enum ThirdPersonCamMode { Default, Front, FrontLow }
+
+    private Vector3       _thirdPersonCamDefaultLocalPos;
+    private Quaternion    _thirdPersonCamDefaultLocalRot;
+    private Vector3       _thirdPersonCamDefaultLocalEuler;
+    private bool          _thirdPersonCamCaptured;
+    private ThirdPersonCamMode _thirdPersonCamMode = ThirdPersonCamMode.Default;
+
+    public bool IsThirdPersonCameraFront => _thirdPersonCamMode == ThirdPersonCamMode.Front || _thirdPersonCamMode == ThirdPersonCamMode.FrontLow;
     
     [Header("Initial Look")]
     [SerializeField] private bool useSceneStartingRotation = true;
@@ -68,10 +82,9 @@ public class FirstPersonLook : MonoBehaviour
     [SerializeField] private AnimationCurve lookAtCurve = null;
 
     private Coroutine _lookAtCo;
-// Add these fields near the other public variables (around line 70)
     [Header("Phone Camera Look Tuning")]
     [Tooltip("Multiplier for pitch sensitivity when phone camera is open. Lower = slower/more controlled camera tilt.")]
-    public float phoneCameraPitchMultiplier = 0.65f;   // ← Tweak this (0.5 = half speed, 0.8 = subtle reduction)
+    public float phoneCameraPitchMultiplier = 0.65f;
 
     private float _currentPitchMultiplier = 1f;
     [Header("Camera Mode Device Follow")]
@@ -86,7 +99,6 @@ public class FirstPersonLook : MonoBehaviour
     private Vector3    _deviceBaseLocalPos;
     private Quaternion _deviceBaseLocalRot;
     private bool       _deviceBaseCaptured;
-// Add near the other public properties (e.g. after CurrentYaw)
     public float CurrentPitch => currentMouseLook.y;
     
     public bool deviceCheckOverride;
@@ -122,22 +134,42 @@ public class FirstPersonLook : MonoBehaviour
         else
             sensitivity = GameMaster.Instance.MouseSensitivity;
 
+        if (ThirdPersonCamera != null)
+        {
+            _thirdPersonCamDefaultLocalPos   = ThirdPersonCamera.transform.localPosition;
+            _thirdPersonCamDefaultLocalRot   = ThirdPersonCamera.transform.localRotation;
+            _thirdPersonCamDefaultLocalEuler = _thirdPersonCamDefaultLocalRot.eulerAngles;
+            _thirdPersonCamCaptured = true;
+        }
+
+        EventManager.OnResetThirdPersonState += ResetThirdPersonCameraMode;
         EventManager.OnStartComputer += LookAtThis;
         EventManager.OnStartPhone    += LookAtThis;
         EventManager.OnStartNotepad  += LookAtThis;
         EventManager.OnCameraOpen    += PhoneCameraOpen;
         EventManager.OnCameraClosed  += PhoneCameraClosed;
+
+        
+        flipThirdPersonCam.action.performed += OnFlipThirdPersonCam;
     }
 
     private void OnDestroy()
     {
+        EventManager.OnResetThirdPersonState -= ResetThirdPersonCameraMode;
         EventManager.OnStartComputer -= LookAtThis;
         EventManager.OnStartPhone    -= LookAtThis;
         EventManager.OnStartNotepad  -= LookAtThis;
         EventManager.OnCameraOpen    -= PhoneCameraOpen;
         EventManager.OnCameraClosed  -= PhoneCameraClosed;
+        flipThirdPersonCam.action.performed -= OnFlipThirdPersonCam;
     }
 
+    
+    
+    private void OnFlipThirdPersonCam(InputAction.CallbackContext ctx)
+    {
+        CycleThirdPersonCameraMode();
+    }
     // ── Central gate ─────────────────────────────────────────────────────
     // Returns true when look input should be read and rotation applied.
     private bool LookAllowedThisFrame()
@@ -196,6 +228,69 @@ public class FirstPersonLook : MonoBehaviour
 
         if (character != null)
             character.localRotation = Quaternion.AngleAxis(currentMouseLook.x, Vector3.up);
+
+        ApplyThirdPersonCameraState();
+    }
+
+    public void ResetThirdPersonCameraMode()
+    {
+        _thirdPersonCamMode = ThirdPersonCamMode.Default;
+    }
+
+    private void ApplyThirdPersonCameraState()
+    {
+        if (ThirdPersonCamera == null || !_thirdPersonCamCaptured) return;
+
+        switch (_thirdPersonCamMode)
+        {
+            case ThirdPersonCamMode.Default:
+                ThirdPersonCamera.transform.localPosition = _thirdPersonCamDefaultLocalPos;
+                ThirdPersonCamera.transform.localRotation = _thirdPersonCamDefaultLocalRot;
+                break;
+
+            case ThirdPersonCamMode.Front:
+            {
+                Vector3 pos = _thirdPersonCamDefaultLocalPos;
+                pos.z = Mathf.Abs(_thirdPersonCamDefaultLocalPos.z);
+                ThirdPersonCamera.transform.localPosition = pos;
+
+                ThirdPersonCamera.transform.localRotation = Quaternion.Euler(
+                    _thirdPersonCamDefaultLocalEuler.x,
+                    _thirdPersonCamDefaultLocalEuler.y + 180f,
+                    _thirdPersonCamDefaultLocalEuler.z);
+                break;
+            }
+
+            case ThirdPersonCamMode.FrontLow:
+            {
+                Vector3 pos = _thirdPersonCamDefaultLocalPos;
+                pos.z = Mathf.Abs(_thirdPersonCamDefaultLocalPos.z);
+                pos.y += thirdPersonCamFrontLowYOffset;
+                ThirdPersonCamera.transform.localPosition = pos;
+
+                ThirdPersonCamera.transform.localRotation =
+                    _thirdPersonCamDefaultLocalRot * Quaternion.Euler(0f, 180f, 0f);
+                break;
+            }
+        }
+    }
+
+    public void CycleThirdPersonCameraMode()
+    {
+        if (ThirdPersonCamera == null) return;
+
+        switch (_thirdPersonCamMode)
+        {
+            case ThirdPersonCamMode.Default:
+                _thirdPersonCamMode = ThirdPersonCamMode.Front;
+                break;
+            case ThirdPersonCamMode.Front:
+                _thirdPersonCamMode = ThirdPersonCamMode.FrontLow;
+                break;
+            case ThirdPersonCamMode.FrontLow:
+                _thirdPersonCamMode = ThirdPersonCamMode.Default;
+                break;
+        }
     }
 
 

@@ -860,6 +860,8 @@ public class Player : Singleton<Player>
 
         moveInput = moveAction?.action.ReadValue<Vector2>() ?? Vector2.zero;
 
+        if (FirstPersonLook != null && FirstPersonLook.IsThirdPersonCameraFront) moveInput = -moveInput;
+        
         Transform moveBasis = FirstPersonLook?.character ?? transform;
         Vector3 moveForward = moveBasis.forward;
         Vector3 moveRight = moveBasis.right;

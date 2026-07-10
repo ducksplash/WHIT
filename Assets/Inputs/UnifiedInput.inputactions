@@ -439,18 +439,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "OnToggleGarments",
+                    "name": "OnToggleWardrobeDebug",
                     "type": "Button",
                     "id": "eddcf38c-11a5-454e-a979-b225e2967e99",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "OnToggleGarmentsAll",
-                    "type": "Button",
-                    "id": "ba9cd5f4-6bb9-4754-b6bc-d967da3a03a4",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -460,6 +451,15 @@
                     "name": "ToggleFullScreen",
                     "type": "Button",
                     "id": "76a74748-7b0d-4012-9a99-73a7a7a7f53c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleFlipThirdPerson",
+                    "type": "Button",
+                    "id": "5a75ee1f-3771-43c6-8cb3-9b96495c5c94",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -1915,7 +1915,7 @@
                     "interactions": "Hold(duration=5)",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "OnToggleGarments",
+                    "action": "OnToggleWardrobeDebug",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1926,29 +1926,7 @@
                     "interactions": "Hold(duration=5)",
                     "processors": "",
                     "groups": "",
-                    "action": "OnToggleGarments",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "c66a815d-da46-4094-b0f7-a9f33239c50c",
-                    "path": "<Gamepad>/leftStickPress",
-                    "interactions": "Hold(duration=5)",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "OnToggleGarmentsAll",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "aed759f3-52d2-40f1-b4de-fde50fbc35be",
-                    "path": "<Keyboard>/n",
-                    "interactions": "Hold(duration=5)",
-                    "processors": "",
-                    "groups": "",
-                    "action": "OnToggleGarmentsAll",
+                    "action": "OnToggleWardrobeDebug",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1960,6 +1938,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleFullScreen",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "31420def-bdc7-4e0e-8cdf-adf635a7417f",
+                    "path": "<Keyboard>/m",
+                    "interactions": "Hold(duration=3)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleFlipThirdPerson",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9edd0e9e-609b-405b-8560-2864cab7f611",
+                    "path": "<Gamepad>/start",
+                    "interactions": "Hold(duration=3)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleFlipThirdPerson",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -62,7 +62,7 @@ public class OutfitEditor : Editor
     private static void ApplyOutfit(Outfit outfit)
     {
         NorasWardrobe wardrobe = Application.isPlaying && Player.Instance != null
-            ? Player.Instance.NorasWardrobe
+            ? GameMaster.Instance.NorasWardrobe
             : FindFirstObjectByType<NorasWardrobe>();
 
         if (wardrobe == null)

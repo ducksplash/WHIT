@@ -32,8 +32,6 @@ public class Player : Singleton<Player>
     private Coroutine _controllerJumpBlendRoutine;
     
     private Vector2 moveInput;
-
-    public NorasWardrobe NorasWardrobe;
     
     private CharacterController thisCharController;
 

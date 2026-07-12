@@ -1031,7 +1031,9 @@ public enum OutfitName
     TwilightDress,
     AllInOne,
     ModestCardiAndSkirt,
-    CasualTopAndSkirt
+    CasualTopAndSkirt,
+    SkimpyTopAndShorts,
+    MinidressWithSleeves
     
 }
 

@@ -222,9 +222,9 @@ public class ETV_DIRECTOR : MonoBehaviour
             true);
         
         // Priya shoves papers at you
+        DirectorEvents.SlidePapers();
         DirectorEvents.UpperBodyAnimation(NPC.Priya, "DoSlidePapers");
         // WAITING FOR YOU TO ADVANCE
-        DirectorEvents.SlidePapers();
         yield return new WaitForSeconds(1);
         
         yield return WaitForPlayerInput();

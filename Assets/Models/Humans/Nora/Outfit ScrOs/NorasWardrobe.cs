@@ -1033,7 +1033,10 @@ public enum OutfitName
     ModestCardiAndSkirt,
     CasualTopAndSkirt,
     SkimpyTopAndShorts,
-    MinidressWithSleeves
+    MinidressWithSleeves,
+    JezebelleDress,
+    AltWork,
+    FlutedDressAndTights
     
 }
 

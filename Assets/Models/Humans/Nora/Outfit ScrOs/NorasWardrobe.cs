@@ -1036,7 +1036,9 @@ public enum OutfitName
     MinidressWithSleeves,
     JezebelleDress,
     AltWork,
-    FlutedDressAndTights
+    FlutedDressAndTights,
+    RockDress,
+    ShortsAndTeeShirt
     
 }
 

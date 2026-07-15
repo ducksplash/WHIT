@@ -1038,7 +1038,13 @@ public enum OutfitName
     AltWork,
     FlutedDressAndTights,
     RockDress,
-    ShortsAndTeeShirt
+    ShortsAndTeeShirt,
+    SkimpyTopAndMidSkirt,
+    RevealingDress,
+    FloatyDress,
+    LowTopLongSkirt,
+    WoolyAndSkirt,
+    DressOverLeggings
     
 }
 

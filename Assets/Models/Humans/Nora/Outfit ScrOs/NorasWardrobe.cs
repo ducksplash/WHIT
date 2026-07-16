@@ -1044,7 +1044,11 @@ public enum OutfitName
     FloatyDress,
     LowTopLongSkirt,
     WoolyAndSkirt,
-    DressOverLeggings
+    DressOverLeggings,
+    FreeSpiritDress,
+    SummerDress,
+    SkimpyTopAndSkirt,
+    TightTeeAndPants
     
 }
 

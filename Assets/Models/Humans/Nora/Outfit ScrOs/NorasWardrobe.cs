@@ -1048,7 +1048,18 @@ public enum OutfitName
     FreeSpiritDress,
     SummerDress,
     SkimpyTopAndSkirt,
-    TightTeeAndPants
+    TightTeeAndPants,
+    CasualSuit,
+    BlousseAndSkirt,
+    OffShoulderTopAndSkirt,
+    LowBlousseAndSkirt,
+    TankTopAndShorts,
+    WoolyModestyTwo,
+    SweaterAndSkirtTwo,
+    CorruptedStrappyDress,
+    TurtleneckAndSkirtAlt,
+    TankTopAndSkirtAlt,
+    LooseBlousseAndSkirt
     
 }
 

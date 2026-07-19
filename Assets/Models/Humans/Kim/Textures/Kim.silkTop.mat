@@ -33,12 +33,13 @@ Material:
   - _DISABLE_DECALS
   - _DISABLE_SSR
   - _DISABLE_SSR_TRANSPARENT
+  - _DOUBLESIDED_ON
   - _THREAD_UV_CHANNEL_UV0
   m_InvalidKeywords:
   - _NORMALMAP_TANGENT_SPACE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
+  m_DoubleSidedGI: 1
   m_CustomRenderQueue: 2000
   stringTagMap:
     MotionVector: User
@@ -172,13 +173,13 @@ Material:
     - _AlphaRemapMax: 1
     - _AlphaRemapMin: 0
     - _AlphaSrcBlend: 1
-    - _Anisotropy: -0.212
+    - _Anisotropy: 0.14
     - _BASE_UV_CHANNEL: 0
     - _BlendMode: 0
     - _CoatMask: 0
     - _ConservativeDepthOffsetEnable: 0
-    - _CullMode: 2
-    - _CullModeForward: 2
+    - _CullMode: 0
+    - _CullModeForward: 0
     - _Cutoff: 0.5
     - _DepthOffsetEnable: 0
     - _DetailAlbedoScale: 1
@@ -189,7 +190,7 @@ Material:
     - _DisplacementLockObjectScale: 1
     - _DisplacementLockTilingScale: 1
     - _DisplacementMode: 0
-    - _DoubleSidedEnable: 0
+    - _DoubleSidedEnable: 1
     - _DoubleSidedGIMode: 0
     - _DoubleSidedNormalMode: 1
     - _DstBlend: 0
@@ -224,7 +225,7 @@ Material:
     - _MetallicRemapMax: 1
     - _MetallicRemapMin: 0
     - _NormalMapSpace: 0
-    - _NormalMapStrength: 8
+    - _NormalMapStrength: 0
     - _NormalScale: 1
     - _ObjectSpaceUVMapping: 0
     - _ObjectSpaceUVMappingEmissive: 0
@@ -242,8 +243,8 @@ Material:
     - _RenderQueueType: 1
     - _RequireSplitLighting: 0
     - _Smoothness: 0.5
-    - _SmoothnessMax: 0.484
-    - _SmoothnessMin: 0.136
+    - _SmoothnessMax: 0.555
+    - _SmoothnessMin: 0.119
     - _SmoothnessRemapMax: 1
     - _SmoothnessRemapMin: 0
     - _SpecularAAScreenSpaceVariance: 0.1
@@ -268,8 +269,8 @@ Material:
     - _TexWorldScaleEmissive: 1
     - _Thickness: 1
     - _ThreadAOStrength01: 1
-    - _ThreadNormalStrength: 1.098
-    - _ThreadSmoothnessScale: 0
+    - _ThreadNormalStrength: 1.6
+    - _ThreadSmoothnessScale: 1
     - _TransmissionEnable: 1
     - _TransmissionMask: 1
     - _TransparentBackfaceEnable: 0
@@ -306,7 +307,7 @@ Material:
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
     - _uvBaseMask: {r: 1, g: 0, b: 0, a: 0}
-    - _uvBaseST: {r: 1, g: 1, b: 0, a: 0}
-    - _uvThreadST: {r: 1000, g: 1000, b: 1000, a: 1000}
+    - _uvBaseST: {r: 10, g: 10, b: 10, a: 10}
+    - _uvThreadST: {r: 500, g: 500, b: 500, a: 500}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

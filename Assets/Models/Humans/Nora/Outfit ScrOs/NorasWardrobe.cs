@@ -1059,7 +1059,14 @@ public enum OutfitName
     CorruptedStrappyDress,
     TurtleneckAndSkirtAlt,
     TankTopAndSkirtAlt,
-    LooseBlousseAndSkirt
+    LooseBlousseAndSkirt,
+    SheerRuffleDress,
+    LongStrappyDress,
+    CasualTopAndLongSkirt,
+    TubeDressAndCardi,
+    RuffleBlousseAndPants,
+    TankTopAndModestSkirt,
+    StrappyTopAndFloatySkirt
     
 }
 

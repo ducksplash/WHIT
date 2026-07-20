@@ -18,9 +18,7 @@ Shader "Custom/GlowCubemapShaderRotatableTintedDoubleSided"
         _RotationY ("Horizontal Rotation", Range(0,360)) = 0
         _RotationX ("Vertical Rotation", Range(-180,180)) = 0
 
-        // Double-sided control
-        [Enum(UnityEngine.Rendering.CullMode)]
-        _Cull ("Cull Mode (Off = Double Sided)", Float) = 0
+        [Toggle] _DoubleSided ("Double Sided", Float) = 0
     }
 
     SubShader
@@ -35,7 +33,7 @@ Shader "Custom/GlowCubemapShaderRotatableTintedDoubleSided"
 
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
-        Cull [_Cull]
+        Cull Off
 
         Pass
         {
@@ -73,6 +71,8 @@ Shader "Custom/GlowCubemapShaderRotatableTintedDoubleSided"
 
             float _RotationY;
             float _RotationX;
+
+            float _DoubleSided;
 
             float3 RotateY(float3 dir, float angle)
             {
@@ -112,8 +112,13 @@ Shader "Custom/GlowCubemapShaderRotatableTintedDoubleSided"
                 return o;
             }
 
-            half4 frag(v2f i) : SV_Target
+            half4 frag(v2f i, bool facing : SV_IsFrontFace) : SV_Target
             {
+                if (_DoubleSided < 0.5 && !facing)
+                {
+                    discard;
+                }
+
                 float3 dir = normalize(i.worldDir);
 
                 dir = RotateY(dir, radians(_RotationY));
@@ -121,7 +126,6 @@ Shader "Custom/GlowCubemapShaderRotatableTintedDoubleSided"
 
                 half4 tex = texCUBE(_CubeTex, dir);
 
-                // Tint (RGBA)
                 tex *= _TintColor;
 
                 float pulse = sin(_Time.y * _GlowSpeed) * 0.5 + 0.5;

@@ -37,6 +37,8 @@ public class GameMaster : MonoBehaviour
     public LanguageManager LanguageManager;
 
     public NorasWardrobe NorasWardrobe;
+
+    public NoraManager NoraManager;
     
     public DeviceType DeviceType;
     public InputManager InputManager;

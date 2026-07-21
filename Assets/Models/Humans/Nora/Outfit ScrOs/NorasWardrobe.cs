@@ -1066,7 +1066,14 @@ public enum OutfitName
     TubeDressAndCardi,
     RuffleBlousseAndPants,
     TankTopAndModestSkirt,
-    StrappyTopAndFloatySkirt
+    StrappyTopAndFloatySkirt,
+    ShortDressCardiAndTights,
+    CutOutDress,
+    BlousseAndPants,
+    FloatyTopAndTinySkirt,
+    HeartDress,
+    SkinTightLeo,
+    WavyDress
     
 }
 

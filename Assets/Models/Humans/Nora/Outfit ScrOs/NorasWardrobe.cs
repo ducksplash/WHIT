@@ -1073,7 +1073,10 @@ public enum OutfitName
     FloatyTopAndTinySkirt,
     HeartDress,
     SkinTightLeo,
-    WavyDress
+    WavyDress,
+    RuffleTopAndSkirt,
+    RuffleTopWithPants,
+    RuffleTopWithMaxiSkirt
     
 }
 

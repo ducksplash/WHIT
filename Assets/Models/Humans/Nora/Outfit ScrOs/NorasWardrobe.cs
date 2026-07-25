@@ -1076,7 +1076,13 @@ public enum OutfitName
     WavyDress,
     RuffleTopAndSkirt,
     RuffleTopWithPants,
-    RuffleTopWithMaxiSkirt
+    RuffleTopWithMaxiSkirt,
+    MicrodressAndStocks,
+    ExtremeRuffleDress,
+    WorkRuffleAndSkirt,
+    WavyDressAndTights,
+    CompactDress,
+    LightJacketAndPants
     
 }
 

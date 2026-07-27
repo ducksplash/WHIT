@@ -138,17 +138,23 @@ public class DialogueManager : MonoBehaviour
 
         Debug.Log("Play thought " + thoughtName);
 
-        if (ThoughtsSeen.Contains(thoughtName))
-        {
-            Debug.Log("Thought already seen: " + thoughtName);
-            
-            if (AwaitingFirstThoughts)
-            {
-                AwaitingFirstThoughts = false;
-            }
-            
-            return;
-        }
+
+
+        Debug.Log("Thought seen filtering disabled in code for testing purposes!");
+        // if (ThoughtsSeen.Contains(thoughtName))
+        // {
+        //     Debug.Log("Thought already seen: " + thoughtName);
+        //     
+        //     if (AwaitingFirstThoughts)
+        //     {
+        //         AwaitingFirstThoughts = false;
+        //     }
+        //     
+        //     return;
+        // }
+        
+        
+        
 
         if (!_noraThoughtDict.TryGetValue(thoughtName, out var data))
         {

@@ -54,6 +54,8 @@ public static class EventManager
     public static event Action OnSlideTickerOut = () => { };
     public static event Action OnResetThirdPersonState = () => { };
 
+    public static event Action OnStartThoughtVignette = () => { };
+
     
     // cheev
     
@@ -69,6 +71,11 @@ public static class EventManager
     public static void ResetThirdPersonState()
     {
         OnResetThirdPersonState.Invoke();
+    }
+
+    public static void StartThoughtVignette()
+    {
+        OnStartThoughtVignette.Invoke();
     }
 
 

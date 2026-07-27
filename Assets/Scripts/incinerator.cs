@@ -27,16 +27,16 @@ public class incinerator : MonoBehaviour
 
         return;
 
-        if (GameMaster.Instance.POWER_SUPPLY_ENABLED && GameMaster.Instance.INCINERATOR_ENABLED)
-        {
-
-            FlameControl(true);
-            
-        }
-        else
-        {
-            FlameControl(false);
-        }
+        // if (GameMaster.Instance.POWER_SUPPLY_ENABLED && GameMaster.Instance.INCINERATOR_ENABLED)
+        // {
+        //
+        //     FlameControl(true);
+        //     
+        // }
+        // else
+        // {
+        //     FlameControl(false);
+        // }
         
     }
 

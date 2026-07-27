@@ -23,9 +23,6 @@ public class NoraManager : MonoBehaviour
         
         CurrentNora = (NoraID)StoredPrefs.Instance.GetInt("NORA", 0);
         
-        
-        
-        
     }
 
 

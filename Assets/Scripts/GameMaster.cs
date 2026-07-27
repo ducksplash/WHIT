@@ -38,6 +38,8 @@ public class GameMaster : MonoBehaviour
 
     public NorasWardrobe NorasWardrobe;
 
+    public SmokeVignetteController SmokeVignetteController;
+    
     public NoraManager NoraManager;
     
     public DeviceType DeviceType;
@@ -257,6 +259,8 @@ public class GameMaster : MonoBehaviour
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
+        
+        EventManager.StartThoughtVignette();
         LoadingManager.SceneFadeIn();
         DialogueManager.PlayThought(ThoughtName.StartingWork);
     }

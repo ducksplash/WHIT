@@ -89,8 +89,11 @@ public class NorasWardrobe : MonoBehaviour
     private bool _hatOverride = false;
     private bool _chokerOverride = false;
 
-    private Dictionary<OutfitName, Outfit> _outfitLookup;
+    private Dictionary<OutfitName, Outfit> _outfitLookup = new Dictionary<OutfitName, Outfit>();
 
+    public List<OutfitName> BurnedOutfits = new List<OutfitName>();
+    
+    
     private void Start()
     {
         SetupAccessories();
@@ -102,8 +105,25 @@ public class NorasWardrobe : MonoBehaviour
         { SwitchToOutfit(OutfitName.Work); }
         else { DisableAllMainOutfits(); }
 
-        SetupInput(); 
+        SetupInput();
+
+        BurnedOutfits = new List<OutfitName>(StoredPrefs.Instance.GetCollection<List<OutfitName>>("BurnedOutfits"));
+        
     }
+
+
+    public void BurnOutfit()
+    {
+        if (!BurnedOutfits.Contains(currentOutfit))
+        {
+            BurnedOutfits.Add(currentOutfit);
+
+            StoredPrefs.Instance.SetCollection("BurnedOutfits", BurnedOutfits, CollectionType.list);
+            StoredPrefs.Instance.Save();
+        }
+    }
+    
+    
 
     private void OnValidate()
     {
@@ -539,6 +559,9 @@ public class NorasWardrobe : MonoBehaviour
         ApplyBodyColors(outfit);
         ApplyAccessories();
         SetHair(GetHairForOutfit(outfit));
+
+        Debug.Log("outfit name passed: "+outfit);
+        Debug.Log("wardrobe count when asked: "+_outfitLookup.Count);
         
         EventManager.OutfitWasChanged(data.outfitTitle);
     }
@@ -604,6 +627,48 @@ public class NorasWardrobe : MonoBehaviour
     }
 
     public void SetRandomOutfitOfType(OutfitType type)
+    {
+        OutfitName[] pool;
+
+        switch (type)
+        {
+            case OutfitType.Work:
+                pool = GetOutfitsOfType(OutfitType.Work);
+                break;
+            case OutfitType.Main:
+                pool = GetOutfitsOfType(OutfitType.Main);
+                break;
+            case OutfitType.Pyjamas:
+                pool = GetOutfitsOfType(OutfitType.Pyjamas);
+                break;
+            case OutfitType.NightOut:
+                pool = GetOutfitsOfType(OutfitType.NightOut);
+                break;
+            case OutfitType.Special:
+                pool = GetOutfitsOfType(OutfitType.Special);
+                break;
+            case OutfitType.Storyline:
+                pool = GetOutfitsOfType(OutfitType.Storyline);
+                break;
+            case OutfitType.Undergarments:
+                pool = GetOutfitsOfType(OutfitType.Undergarments);
+                break;
+            default:
+                Debug.LogWarning($"NorasWardrobe: No outfit pool defined for type {type}");
+                return;
+        }
+
+        if (pool.Length == 0)
+        {
+            Debug.LogWarning($"NorasWardrobe: No outfits found for type {type}");
+            return;
+        }
+
+        SwitchToOutfit(PickRandom(pool));
+    }
+
+
+    public void SetRandomOutfitOfTypeAndStage(OutfitType type, OutfitStage outfitStage = OutfitStage.StageOne)
     {
         OutfitName[] pool;
 
@@ -1083,7 +1148,13 @@ public enum OutfitName
     WavyDressAndTights,
     CompactDress,
     LightJacketAndPants
-    
+}
+
+
+public enum OutfitStage {
+    StageOne,
+    StageTwo,
+    StageThree
 }
 
 public enum OutfitType

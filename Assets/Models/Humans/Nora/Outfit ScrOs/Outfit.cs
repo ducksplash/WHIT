@@ -15,6 +15,7 @@ public class Outfit : ScriptableObject
 {
     public OutfitName thisOutfit;
     public OutfitType outfitType;
+    public OutfitStage outfitStage = OutfitStage.StageOne;
     public string outfitTitle;
     public bool SpawnAs = true;
     public List<GameObject> OutfitPrefabs;
@@ -53,7 +54,6 @@ public class OutfitEditor : Editor
         GUI.backgroundColor = Color.white;
 
         EditorGUILayout.Space();
-        DrawAssignmentNotice(outfit);
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("---------------------", EditorStyles.boldLabel);
         EditorGUILayout.Space();
@@ -61,57 +61,7 @@ public class OutfitEditor : Editor
         DrawDefaultInspector();
     }
 
-    private static void DrawAssignmentNotice(Outfit outfit)
-    {
-        List<Nora> assignedNoras = FindNorasUsingOutfit(outfit.thisOutfit);
-
-        if (assignedNoras.Count == 0)
-        {
-            EditorGUILayout.HelpBox("Not currently assigned to any Nora.", MessageType.Info);
-            return;
-        }
-
-        string idList = string.Join(", ", assignedNoras.Select(n => n.NoraID.ToString()));
-
-        if (assignedNoras.Count == 1)
-        {
-            EditorGUILayout.HelpBox($"Assigned to Nora: {idList}", MessageType.Warning);
-        }
-        else
-        {
-            EditorGUILayout.HelpBox(
-                $"Assigned to MULTIPLE Noras ({assignedNoras.Count}): {idList}\nThis outfit should only be used once per player.",
-                MessageType.Error);
-        }
-
-        foreach (Nora nora in assignedNoras)
-        {
-            if (GUILayout.Button($"Ping {nora.name} (NoraID: {nora.NoraID})"))
-            {
-                EditorGUIUtility.PingObject(nora);
-                Selection.activeObject = nora;
-            }
-        }
-    }
-
-    private static List<Nora> FindNorasUsingOutfit(OutfitName outfitName)
-    {
-        var result = new List<Nora>();
-
-        string[] guids = AssetDatabase.FindAssets("t:Nora");
-        foreach (string guid in guids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            Nora nora = AssetDatabase.LoadAssetAtPath<Nora>(path);
-            if (nora != null && nora.SelectedOutfit == outfitName)
-            {
-                result.Add(nora);
-            }
-        }
-
-        return result;
-    }
-
+    
     private static void ApplyOutfit(Outfit outfit)
     {
         NorasWardrobe wardrobe = Application.isPlaying && Player.Instance != null

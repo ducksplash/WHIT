@@ -370,6 +370,9 @@ public class Player : Singleton<Player>
 
         if (thisCharController != null) thisCharController.enabled = ccWasEnabled;
 
+        GameMaster.Instance.NoraManager.IsDead = false;
+        GameMaster.Instance.PLAYERBUSY = false;
+        
         Debug.Log($"Spawned at {spawnPoint} with rotation {spawnRotation}");
     }
 
@@ -1377,6 +1380,7 @@ public class Player : Singleton<Player>
         PaperScreenFader.alpha = 0f;
         DeathScreenMain.alpha = 0f;
         DeathScreenMain.blocksRaycasts = false;
+        DeathScreenMain.interactable = false;
         DeathScreenFader.alpha = 0f;
         ButtonFaderLeave.alpha = 0f;
         ButtonFaderContinue.alpha = 0f;
@@ -1387,7 +1391,11 @@ public class Player : Singleton<Player>
 
     public void CauseDeath(string cause)
     {
+        if (GameMaster.Instance.PauseManager.IsPaused) GameMaster.Instance.PauseManager.UnpauseGame();
         GameMaster.Instance.PLAYERBUSY = true;
+        GameMaster.Instance.NoraManager.IsDead = true;
+        Debug.Log("death caused, player busy: "+GameMaster.Instance.PLAYERBUSY);
+        Debug.Log($"[CauseDeath] Writing PLAYERBUSY=true on GameMaster instance {GameMaster.Instance.GetInstanceID()}");
         StartCoroutine(SlowDeath(cause));
     }
 
@@ -1395,20 +1403,21 @@ public class Player : Singleton<Player>
     {
         DisableAllScreens();
 
-        string buildDate = System.DateTime.Now.ToString("dddd") + ", " +
-                           System.DateTime.Now.ToString("MMMM d") +
-                           MonthDay(System.DateTime.Now.ToString("dd")) + ", " +
-                           System.DateTime.Now.ToString("yyyy");
+        GameMaster.Instance.LoadingManager.SceneFadeOut();
+        
+        string buildDate = System.DateTime.Now.ToString("dddd") + ", " + System.DateTime.Now.ToString("MMMM d") + MonthDay(System.DateTime.Now.ToString("dd")) + ", " + System.DateTime.Now.ToString("yyyy");
 
         PaperDeathText.text = CauseString + ".";
         PaperDateText.text  = buildDate;
 
         DeathScreenMain.alpha = 1f;
         DeathScreenMain.blocksRaycasts = true;
+        DeathScreenMain.interactable = true;
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible   = true;
 
+        
         int duration = 100, diedDuration = 50, paperDuration = 50, buttonDuration = 50;
 
         while (duration     > 0) { DeathScreenFader.alpha += 0.01f; yield return new WaitForSeconds(0.01f); duration--; }
@@ -1424,9 +1433,44 @@ public class Player : Singleton<Player>
             yield return new WaitForSeconds(0.02f);
             buttonDuration--;
         }
+        
+        // let's register the death here.
+        PlayerStatus.AddDeath();
+        
 
-        Uncrouch();
+        // we can burn their outfit here
+        GameMaster.Instance.NorasWardrobe.BurnOutfit();
     }
+
+
+
+    public void Respawn()
+    {
+        
+        DeathScreenMain.blocksRaycasts = false;
+        DeathScreenMain.interactable = false;
+        
+        StartCoroutine(SlowRespawn());
+    }
+    
+    private IEnumerator SlowRespawn()
+    {
+        DisableAllScreens();
+        
+        
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        yield return new WaitForSeconds(0.5f);
+        
+        DeathScreenFader.alpha = DiedTextFader.alpha = PaperScreenFader.alpha = 0f;
+        
+        GameMaster.Instance.LoadingManager.SceneFadeIn();
+        
+        Uncrouch();
+        Spawn();
+    }
+    
 
     private string MonthDay(string day)
     {

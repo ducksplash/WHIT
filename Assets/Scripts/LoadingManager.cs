@@ -42,7 +42,6 @@ public class LoadingManager : MonoBehaviour
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
-        hotToGo.action.performed += LoadSecretLevel;
 
         // Start black if desired
         if (fadeCanvas != null)
@@ -79,19 +78,6 @@ public class LoadingManager : MonoBehaviour
     }
     
     
-    public void LoadSecretLevel(InputAction.CallbackContext callbackContext)
-    {
-        if (_isLoading) return;
-
-        
-        
-        GAMELEVEL toGoTo = inSecret ? GAMELEVEL.NorasFlat : GAMELEVEL.SecretLevel;
-
-        inSecret = toGoTo == GAMELEVEL.SecretLevel;
-        EventManager.DebugCamEnabled(false);
-        StartCoroutine(LoadLevelSequence(toGoTo));
-    }
-
 
     private IEnumerator LoadLevelSequence(GAMELEVEL levelName, Action onFinished = null)
     {
@@ -186,8 +172,6 @@ public class LoadingManager : MonoBehaviour
             yield return null;
         }
         
-        
-        
         float startAlpha = fadeCanvas.alpha;
 
         if (duration <= 0f || Mathf.Approximately(startAlpha, targetAlpha))
@@ -199,7 +183,6 @@ public class LoadingManager : MonoBehaviour
 
         float t = 0f;
 
-        GameMaster.Instance.PLAYERBUSY = false;
         
         while (t < duration)
         {
@@ -219,7 +202,7 @@ public class LoadingManager : MonoBehaviour
 
         fadeCanvas.alpha = targetAlpha;
         _fadeCo = null;
-
+        
     }
 
     
@@ -247,8 +230,6 @@ public class LoadingManager : MonoBehaviour
         while (!_sceneLoadedFlag) yield return null;
 
         Time.timeScale = 1f;
-
-        if (GameMaster.Instance != null) GameMaster.Instance.PLAYERBUSY = false;
         
         
         if (GameMaster.Instance != null)

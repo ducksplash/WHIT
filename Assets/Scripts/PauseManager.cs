@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -54,14 +55,12 @@ public class PauseManager : MonoBehaviour
         if (!hasFocus)
         {
             // Lost focus → Pause
-            if (!IsPaused)
-                PauseGame();
+            if (!IsPaused) PauseGame();
         }
         else
         {
             // Regained focus → Unpause (standard behavior)
-            if (IsPaused)
-                UnpauseGame();
+            if (IsPaused) UnpauseGame();
         }
     }
 
@@ -115,18 +114,15 @@ public class PauseManager : MonoBehaviour
     private void TogglePause(InputAction.CallbackContext callbackContext)
     {
         if (!this || !gameObject) return;
-
-        var gm = GameMaster.Instance;
-        if (gm == null || gm.PLAYERBUSY) return;
-
-        if (IsPaused)
-            UnpauseGame();
-        else
-            PauseGame();
+        
+        if (IsPaused) UnpauseGame();
+        else PauseGame();
     }
 
-    private void PauseGame()
+    public void PauseGame()
     {
+        if (GameMaster.Instance.NoraManager.IsDead) return;
+        if (GameMaster.Instance.PLAYERBUSY) return;
         IsPaused = true;
         CacheLookSensitivityIfNeeded();
         SetLookSensitivity(0f);
@@ -135,7 +131,7 @@ public class PauseManager : MonoBehaviour
         EventManager.GamePaused(true);
     }
 
-    private void UnpauseGame()
+    public void UnpauseGame()
     {
         IsPaused = false;
         SafeUnbindExitAction();

@@ -143,10 +143,19 @@ public class SmokeVignetteController : MonoBehaviour
     void OnDestroy()
     {
         if (runtimeMaterial != null)
+        {
+            
+            
+            #if UNITY_EDITOR
+            DestroyImmediate(runtimeMaterial);
+            #else
             Destroy(runtimeMaterial);
+            #endif
+            
+        }
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (!isRunning) return;
 

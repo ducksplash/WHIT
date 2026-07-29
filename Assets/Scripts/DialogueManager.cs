@@ -11,6 +11,11 @@ using Random = UnityEngine.Random;
 
 public class DialogueManager : MonoBehaviour
 {
+    [Header("Debug Mode (bypasses 'seen' anti-repetition mechanism)")]
+    public bool DebugMode;
+    [Header("Awaiting First Thoughts")]
+    public bool AwaitingFirstThoughts = true;
+    
     // ─── UI References ─────────────────────────────────────────────────────
     [Header("SMS / Phone")]
     public CanvasGroup PhoneMessageCanvas;
@@ -86,7 +91,6 @@ public class DialogueManager : MonoBehaviour
     // Advance-key state
     bool _advanceRequested;
     
-    public bool AwaitingFirstThoughts = true;
     
     // ───────────────────────────────────────────────────────────────────────
     // Unity lifecycle
@@ -128,31 +132,35 @@ public class DialogueManager : MonoBehaviour
     // ───────────────────────────────────────────────────────────────────────
     public async void PlayThought(ThoughtName thoughtName)
     {
-
-        if (AwaitingFirstThoughts)
-        {
-            GameMaster.Instance.PLAYERBUSY = true;
-        }
         
         while (!SeenLoaded) await Task.Yield();
 
         Debug.Log("Play thought " + thoughtName);
 
-
-
-        Debug.Log("Thought seen filtering disabled in code for testing purposes!");
-        // if (ThoughtsSeen.Contains(thoughtName))
-        // {
-        //     Debug.Log("Thought already seen: " + thoughtName);
-        //     
-        //     if (AwaitingFirstThoughts)
-        //     {
-        //         AwaitingFirstThoughts = false;
-        //     }
-        //     
-        //     return;
-        // }
         
+        if (DebugMode)
+        {
+            Debug.Log("Debug Mode: Thought 'seen' filtering disabled testing purposes!");
+            
+            GameMaster.Instance.PLAYERBUSY = false;
+        }
+        else
+        {
+            if (ThoughtsSeen.Contains(thoughtName))
+            {
+                Debug.Log("Thought already seen: " + thoughtName);
+                
+                if (AwaitingFirstThoughts)
+                {
+                    AwaitingFirstThoughts = false;
+                }
+                
+                return;
+            }
+        }
+        
+
+        EventManager.StartThoughtVignette();
         
         
 

@@ -13,7 +13,7 @@ public class GameMaster : MonoBehaviour
     private static GameMaster _instance;
     public static GameMaster Instance => _instance ??= FindObjectOfType<GameMaster>();
 
-    private const string TimeZoneId = "GMT Standard Time";
+    public string TimeZoneId = "GMT Standard Time";
 
     GameData saveData = new GameData();
 
@@ -255,12 +255,14 @@ public class GameMaster : MonoBehaviour
     {
         THISLEVEL = GAMELEVEL.ETVStudio;
         Player.Instance.Spawn();
-        NorasWardrobe.SetRandomOutfitOfType(OutfitType.Work);
+        
+        
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
         
-        EventManager.StartThoughtVignette();
+        NoraManager.InitialiseNora();
+        
         LoadingManager.SceneFadeIn();
         DialogueManager.PlayThought(ThoughtName.StartingWork);
     }
@@ -268,7 +270,6 @@ public class GameMaster : MonoBehaviour
     public void StartLevelNorasFlat()
     {
         THISLEVEL = GAMELEVEL.NorasFlat;
-        Player.Instance.Spawn();
 
         DateTime utcNow = DateTime.UtcNow;
         TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
@@ -290,6 +291,7 @@ public class GameMaster : MonoBehaviour
             NorasWardrobe.SetRandomOutfitOfType(OutfitType.Main);
         }
 
+        Player.Instance.Spawn();
         StartAudio(AudioProfile.NorasFlat);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();

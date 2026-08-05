@@ -9,20 +9,25 @@ public class clock : MonoBehaviour
     public bool JustTheYear;
     public bool NewspaperFormat;
 
-    // Change this to your real timezone
-    private const string TimeZoneId = "GMT Standard Time";
+
+    private static TimeZoneInfo GetUkTimeZone()
+    {
+        // Windows uses Windows IDs.
+        // Linux/macOS use IANA IDs.
+        string id = Application.platform == RuntimePlatform.WindowsPlayer ||
+                    Application.platform == RuntimePlatform.WindowsEditor
+            ? "GMT Standard Time"
+            : "Europe/London";
+
+        return TimeZoneInfo.FindSystemTimeZoneById(id);
+    }
 
     void LateUpdate()
     {
-        // Always start from UTC
-        DateTime utcNow = DateTime.UtcNow;
+        DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, GameMaster.Instance.GameTimeZone);
 
-        // Convert to a known timezone (avoids Proton / Steam Deck offset bugs)
-        TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
-        DateTime now = TimeZoneInfo.ConvertTimeFromUtc(utcNow, timeZone);
-
-        string anHour = now.Hour.ToString().PadLeft(2, '0');
-        string aMinute = now.Minute.ToString().PadLeft(2, '0');
+        string anHour = now.Hour.ToString("00");
+        string aMinute = now.Minute.ToString("00");
 
         foreach (TextMeshProUGUI timetext in timereadout)
         {
@@ -32,38 +37,31 @@ public class clock : MonoBehaviour
             }
             else if (NewspaperFormat)
             {
-                string buildDate = "";
-                buildDate += now.ToString("dddd");
-                buildDate += ", ";
-                buildDate += now.ToString("MMMM d");
-                buildDate += MonthDay(now.ToString("dd"));
-                buildDate += ", ";
-                buildDate += now.ToString("yyyy");
-
-                timetext.text = buildDate;
+                timetext.text =
+                    $"{now:dddd}, {now:MMMM d}{MonthDay(now.Day.ToString())}, {now:yyyy}";
             }
             else
             {
-                timetext.text = anHour + ":" + aMinute;
+                timetext.text = $"{anHour}:{aMinute}";
             }
         }
     }
 
     public string MonthDay(string day)
     {
-        string nuNum = "th";
+        string suffix = "th";
         int dayNum = int.Parse(day);
 
         if (dayNum < 11 || dayNum > 20)
         {
             switch (dayNum % 10)
             {
-                case 1: nuNum = "st"; break;
-                case 2: nuNum = "nd"; break;
-                case 3: nuNum = "rd"; break;
+                case 1: suffix = "st"; break;
+                case 2: suffix = "nd"; break;
+                case 3: suffix = "rd"; break;
             }
         }
 
-        return nuNum;
+        return suffix;
     }
 }

@@ -83,9 +83,8 @@ public class NoraManager : MonoBehaviour
 
             case GAMELEVEL.NorasFlat:
                 
-                DateTime utcNow = DateTime.UtcNow;
-                TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(GameMaster.Instance.TimeZoneId);
-                DateTime now = TimeZoneInfo.ConvertTimeFromUtc(utcNow, timeZone);
+                DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, GameMaster.Instance.GameTimeZone);
+
                 int hour = now.Hour;
 
                 bool isNight;

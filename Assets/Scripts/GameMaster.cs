@@ -13,8 +13,10 @@ public class GameMaster : MonoBehaviour
     private static GameMaster _instance;
     public static GameMaster Instance => _instance ??= FindObjectOfType<GameMaster>();
 
-    public string TimeZoneId = "GMT Standard Time";
-
+    public TimeZoneInfo GameTimeZone { get; private set; }
+    
+    
+    
     GameData saveData = new GameData();
 
     // Debuggery
@@ -182,7 +184,9 @@ public class GameMaster : MonoBehaviour
 
         _instance = this;
         DontDestroyOnLoad(gameObject);
-
+        
+        GameTimeZone = GetGameTimeZone();
+        
         m_bInitialized = SteamAPI.Init();
 
         if (!m_bInitialized)
@@ -271,9 +275,8 @@ public class GameMaster : MonoBehaviour
     {
         THISLEVEL = GAMELEVEL.NorasFlat;
 
-        DateTime utcNow = DateTime.UtcNow;
-        TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
-        DateTime now = TimeZoneInfo.ConvertTimeFromUtc(utcNow, timeZone);
+        DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, GameTimeZone);
+
         int hour = now.Hour;
 
         bool isNight;
@@ -349,6 +352,20 @@ public class GameMaster : MonoBehaviour
             case AudioProfile.NorasFlat:
                 AudioSlave.PlayBGA(BGAResource.Rain);
                 break;
+        }
+    }
+    
+    private TimeZoneInfo GetGameTimeZone()
+    {
+        try
+        {
+            // Windows
+            return TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            // Linux / macOS / Steam Deck
+            return TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
         }
     }
 }

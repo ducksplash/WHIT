@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Random = UnityEngine.Random;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -92,8 +94,13 @@ public class NorasWardrobe : MonoBehaviour
     private Dictionary<OutfitName, Outfit> _outfitLookup = new Dictionary<OutfitName, Outfit>();
 
     public List<OutfitName> BurnedOutfits = new List<OutfitName>();
-    
-    
+
+
+    private void Awake()
+    {
+        BuildOutfitLookup();
+    }
+
     private void Start()
     {
         SetupAccessories();
@@ -1147,7 +1154,16 @@ public enum OutfitName
     WorkRuffleAndSkirt,
     WavyDressAndTights,
     CompactDress,
-    LightJacketAndPants
+    LightJacketAndPants,
+    BlousseAndLongSkirt,
+    CasualOveralls,
+    BusinessDress,
+    CasualTopAndPantsAlt,
+    LooseTopAndTinySkirt,
+    StrappyTopAndFloatySkirtTwo,
+    Romper,
+    SplitDress,
+    LeopardSuit
 }
 
 

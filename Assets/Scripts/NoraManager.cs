@@ -17,16 +17,23 @@ public class NoraManager : MonoBehaviour
     public bool IsDead;
     
     
-    public void InitialiseNora()
+    public void InitialiseNora(bool outfitOverride = false)
     {
         // retrieve and apply Nora's outfit
 
-        int stored = StoredPrefs.Instance.GetInt("NorasOutfit", 0);
+        if (!outfitOverride)
+        {
+            int stored = StoredPrefs.Instance.GetInt("NorasOutfit", 0);
 
-        CurrentOutfit = Enum.IsDefined(typeof(OutfitName), stored) ? (OutfitName)stored : OutfitName.Work;
+            CurrentOutfit = Enum.IsDefined(typeof(OutfitName), stored) ? (OutfitName)stored : OutfitName.Work;
 
-        if (CurrentOutfit == OutfitName.None) CurrentOutfit = OutfitName.Work;
-        
+            if (CurrentOutfit == OutfitName.None) CurrentOutfit = OutfitName.Work;
+        }
+        else
+        {
+            CurrentOutfit = OutfitName.Work;
+        }
+
         GameMaster.Instance.NorasWardrobe.SetMainOutfit(CurrentOutfit);
     }
 

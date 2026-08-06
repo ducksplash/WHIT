@@ -1446,10 +1446,11 @@ public class Player : Singleton<Player>
 
     public void Respawn()
     {
-        
         DeathScreenMain.blocksRaycasts = false;
         DeathScreenMain.interactable = false;
-        
+
+        GameMaster.Instance.NorasWardrobe.SelectAndApplyOutfitForDeaths(PlayerStatus.NumberOfDeaths);
+
         StartCoroutine(SlowRespawn());
     }
     

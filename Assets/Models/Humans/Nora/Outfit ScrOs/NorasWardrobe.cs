@@ -163,7 +163,37 @@ public class NorasWardrobe : MonoBehaviour
     }
     
     
-    
+    private List<OutfitName> GetOutfitsForStageExcludingBurned(OutfitStage stage)
+    {
+        return Outfits
+            .Where(o => o != null && o.outfitStage == stage && o.SpawnAs && !BurnedOutfits.Contains(o.thisOutfit))
+            .Select(o => o.thisOutfit)
+            .ToList();
+    }
+
+    public void SelectAndApplyOutfitForDeaths(int deaths)
+    {
+        OutfitStage stage;
+
+        if (deaths < 46) { stage = OutfitStage.StageOne; }
+        else if (deaths < 92) { stage = OutfitStage.StageTwo; }
+        else { stage = OutfitStage.StageThree; }
+
+        List<OutfitName> pool = GetOutfitsForStageExcludingBurned(stage);
+
+        if (pool.Count == 0)
+        {
+            Debug.LogWarning($"NorasWardrobe: No unburned outfits left for {stage}.");
+            return;
+        }
+
+        OutfitName selected = pool[Random.Range(0, pool.Count)];
+
+        SetMainOutfit(selected);
+
+        StoredPrefs.Instance.SetInt("NorasOutfit", (int)selected);
+        StoredPrefs.Instance.Save();
+    }
     
     
     private void ClearOutfitMeshes()
@@ -874,6 +904,11 @@ public class NorasWardrobeEditor : Editor
         return outfits.Count(o => o.SpawnAs && (type == null || o.outfitType == type));
     }
 
+    private static int CountByStage(List<Outfit> outfits, OutfitStage stage)
+    {
+        return outfits.Count(o => o.outfitStage == stage);
+    }
+
     private static void DrawOutfitStats(NorasWardrobe me)
     {
         var outfits = (me.Outfits ?? new List<Outfit>()).Where(o => o != null && o.thisOutfit != OutfitName.None).ToList();
@@ -891,6 +926,13 @@ public class NorasWardrobeEditor : Editor
             int count = outfits.Count(o => o.outfitType == type);
             int canSpawn = CountCanSpawn(outfits, type);
             EditorGUILayout.LabelField($"{count} {type}, of which {(canSpawn == 0 ? "none" : $"{canSpawn}")} are spawnable.", EditorStyles.boldLabel); }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Outfits by stage: ", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.StageOne)} Outfits for Stage One", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.StageTwo)} Outfits for Stage Two", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.StageThree)} Outfits for Stage Three", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.Special)} Outfits excluded from Staging", EditorStyles.boldLabel);
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField($"{canSpawnCount} Can be used when spawning Nora", EditorStyles.boldLabel);
@@ -1163,14 +1205,16 @@ public enum OutfitName
     StrappyTopAndFloatySkirtTwo,
     Romper,
     SplitDress,
-    LeopardSuit
+    LeopardSuit,
+    Traditionalt
 }
 
 
 public enum OutfitStage {
     StageOne,
     StageTwo,
-    StageThree
+    StageThree,
+    Special
 }
 
 public enum OutfitType

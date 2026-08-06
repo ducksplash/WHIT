@@ -265,7 +265,7 @@ public class GameMaster : MonoBehaviour
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
         
-        NoraManager.InitialiseNora();
+        NoraManager.InitialiseNora(true);
         
         LoadingManager.SceneFadeIn();
         DialogueManager.PlayThought(ThoughtName.StartingWork);
@@ -291,7 +291,7 @@ public class GameMaster : MonoBehaviour
         }
         else
         {
-            NorasWardrobe.SetRandomOutfitOfType(OutfitType.Main);
+            NoraManager.InitialiseNora();
         }
 
         Player.Instance.Spawn();
@@ -305,7 +305,7 @@ public class GameMaster : MonoBehaviour
     {
         THISLEVEL = GAMELEVEL.TawleyMeats;
         Player.Instance.Spawn();
-        NorasWardrobe.SetRandomOutfitOfType(OutfitType.Main);
+        NoraManager.InitialiseNora();
         StartAudio(AudioProfile.TawleyMeats);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
@@ -319,7 +319,7 @@ public class GameMaster : MonoBehaviour
     {
         THISLEVEL = GAMELEVEL.RoarkOutside;
         Player.Instance.Spawn();
-        NorasWardrobe.SetRandomOutfitOfType(OutfitType.Main);
+        NoraManager.InitialiseNora();
         StartAudio(AudioProfile.RoarkOutside);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
@@ -330,7 +330,7 @@ public class GameMaster : MonoBehaviour
     {
         THISLEVEL = GAMELEVEL.RoarkInside;
         Player.Instance.Spawn();
-        NorasWardrobe.SetRandomOutfitOfType(OutfitType.Main);
+        NoraManager.InitialiseNora();
         StartAudio(AudioProfile.RoarkInside);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();

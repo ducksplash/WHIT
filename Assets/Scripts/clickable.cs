@@ -14,6 +14,7 @@ public class clickable : Singleton<clickable>
     public Sprite drawersprite, drawerspritegreen, lockeddrawersprite;
     public Sprite lockeddoorsprite;
     public Sprite seatsprite;
+    public Sprite bedsprite;
     public Sprite pickupsprite, pickupcloseenoughsprite, evidencesprite;
 
     [Header("Info Text")]
@@ -38,7 +39,7 @@ public class clickable : Singleton<clickable>
     public float cameraAngularSlowThreshold = 45f;
 
     int doorlayer, drawerlayer, clickablelayer, enemylayer;
-    int itemlayer, evidencelayer, staticevidencelayer, slidingdoorlayer, seatlayer;
+    int itemlayer, evidencelayer, staticevidencelayer, slidingdoorlayer, seatlayer, bedlayer;
     int terminallayer;
 
     // ✅ NEW: interaction mask (excludes player)
@@ -73,6 +74,7 @@ public class clickable : Singleton<clickable>
         slidingdoorlayer = LayerMask.NameToLayer("slidingdoor");
         terminallayer = LayerMask.NameToLayer("terminal");
         seatlayer = LayerMask.NameToLayer("SEAT");
+        bedlayer = LayerMask.NameToLayer("BED");
 
         SetCursor(idlesprite, "");
 
@@ -196,7 +198,7 @@ public class clickable : Singleton<clickable>
                 layer == itemlayer || layer == drawerlayer || layer == doorlayer ||
                 layer == slidingdoorlayer || layer == clickablelayer || layer == enemylayer ||
                 layer == evidencelayer || layer == staticevidencelayer || layer == terminallayer ||
-                layer == seatlayer;
+                layer == seatlayer || layer == bedlayer;
 
             if (isInteractableLayer) return p;
             if (p.CompareTag("COLLECTABLE")) return p;
@@ -283,6 +285,12 @@ public class clickable : Singleton<clickable>
         if (layer == seatlayer)
         {
             SetCursor(seatsprite, "", "green");
+            return;
+        }
+
+        if (layer == bedlayer)
+        {
+            SetCursor(bedsprite, "", "green");
             return;
         }
 
@@ -383,7 +391,14 @@ public class clickable : Singleton<clickable>
         {
             thisSeat.NoraSit();
         }
-        
+
+
+        if (currentHit.transform.GetComponentInParent<Bed>() is Bed thisBed)
+        {
+            Debug.Log("bed found");
+            thisBed.NoraSleep();
+        }
+
         if (currentHit.transform.GetComponentInParent<Taps>() is Taps thisTap)
         {
             thisTap.ToggleTaps();

@@ -21,7 +21,11 @@ public class Bed : MonoBehaviour
 
     private void Awake()
     {
-        bedFootMarker = bedFootTransform.gameObject.GetComponent<Renderer>();
+        if (bedFootTransform != null)
+        {
+            bedFootMarker = bedFootTransform.gameObject.GetComponent<Renderer>();
+        }
+
         bedBedMarker = bedLyingTransform.gameObject.GetComponent<Renderer>();
     }
 
@@ -29,6 +33,17 @@ public class Bed : MonoBehaviour
     {
         if (bedBedMarker != null) bedBedMarker.enabled = false;
         if (bedFootMarker != null) bedFootMarker.enabled = false;
+    }
+
+
+    public void NoraSleep()
+    {
+        if (!occupied)
+        {
+            
+            Debug.Log("nora sleep");
+            EventManager.NoraSleep(this);
+        }
     }
 
 

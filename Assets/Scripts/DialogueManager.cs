@@ -132,37 +132,26 @@ public class DialogueManager : MonoBehaviour
     // ───────────────────────────────────────────────────────────────────────
     public async void PlayThought(ThoughtName thoughtName)
     {
-        
         while (!SeenLoaded) await Task.Yield();
 
         Debug.Log("Play thought " + thoughtName);
 
-        
         if (DebugMode)
         {
             Debug.Log("Debug Mode: Thought 'seen' filtering disabled testing purposes!");
-            
             GameMaster.Instance.PLAYERBUSY = false;
         }
         else
         {
+            // Fast path – already finished in a previous session / play
             if (ThoughtsSeen.Contains(thoughtName))
             {
                 Debug.Log("Thought already seen: " + thoughtName);
-                
                 if (AwaitingFirstThoughts)
-                {
                     AwaitingFirstThoughts = false;
-                }
-                
                 return;
             }
         }
-        
-
-        EventManager.StartThoughtVignette();
-        
-        
 
         if (!_noraThoughtDict.TryGetValue(thoughtName, out var data))
         {
@@ -176,15 +165,19 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        // Always make a fully independent copy of the string list.
-        // Concatenating "" forces a new string allocation for each entry,
-        // breaking shared-reference issues from duplicated SO assets.
+        // Make an independent copy of the lines
         var lines = new List<string>(data.NoraThoughtString.Count);
-        foreach (var s in data.NoraThoughtString) lines.Add(data.EregiReplace ? GetReplacedString(s) : (s + ""));
+        foreach (var s in data.NoraThoughtString)
+            lines.Add(data.EregiReplace ? GetReplacedString(s) : (s + ""));
 
         if (lines.Count == 0) return;
 
-        // Cancel any currently running thought sequence before starting a new one
+        // ── Claim the thought *now* so concurrent callers see it as seen ──
+        // (still respects DebugMode)
+        if (!DebugMode)
+            MarkThoughtSeen(thoughtName);   // moves the mark earlier
+
+        // Cancel any currently running thought sequence
         _thoughtCts?.Cancel();
         _thoughtCts?.Dispose();
         _thoughtCts = new CancellationTokenSource();
@@ -192,20 +185,25 @@ public class DialogueManager : MonoBehaviour
 
         CleanThoughts();
 
+        // Only now do we know a thought will actually play
+        EventManager.StartThoughtVignette();
+
         try
         {
             await ThoughtSequence(
-                lines, thoughtName,
+                lines,
+                thoughtName,
                 data.thoughtFinalFadeDuration,
                 data.thoughtFadeDuration,
                 data.thoughtFadeInDuration,
                 data.thoughtStaggerDelay,
                 ct);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException thisEX)
         {
-            // A newer thought preempted this one — exit silently
+            Debug.LogWarning("Exception: "+thisEX);
         }
+
     }
 
     async UniTask ThoughtSequence(List<string> lines, ThoughtName thoughtName, float thoughtFinalFadeDuration, float thoughtFadeDuration, float thoughtFadeInDuration, float thoughtStaggerDelay, CancellationToken ct)

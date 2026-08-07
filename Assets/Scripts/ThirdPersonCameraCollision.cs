@@ -111,11 +111,7 @@ public class ThirdPersonCameraCollision : MonoBehaviour
             return;
         }
 
-        /*
-         * IMPORTANT:
-         * We only compress the BACKWARD distance.
-         * We preserve vertical framing.
-         */
+
 
         Vector3 localTarget = _idealLocalPosition;
 

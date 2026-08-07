@@ -36,6 +36,7 @@ public static class EventManager
     public static event Action<GameObject> OnRegisterPhone = (PhoneObj) => { };
     public static event Action OnUpdateCorkboard = () => { };
     public static event Action<Seat> OnNoraSit = (thisSeat) => { };
+    public static event Action<Bed> OnNoraSleep = (thisBed) => { };
     public static event Action OnSpawnPlayer = () => { };
     public static event Action OnCrouch = () => { };
     public static event Action OnUnCrouch = () => { };
@@ -257,6 +258,10 @@ public static class EventManager
     public static void NoraSit(Seat selectedSeat)
     {
         OnNoraSit.Invoke(selectedSeat);
+    }
+    public static void NoraSleep(Bed selectedBed)
+    {
+        OnNoraSleep.Invoke(selectedBed);
     }
     public static void DialogueCanProceed(bool toggle)
     {

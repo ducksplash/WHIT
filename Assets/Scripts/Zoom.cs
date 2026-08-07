@@ -66,8 +66,7 @@ public class Zoom : MonoBehaviour
 
     public bool IsThirdPersonActive { get; private set; }
 
-    private bool IsInteractionLocked => 
-        _autoZoomActive || _forceFirstPersonMode || Time.time < _ignoreInputUntilTime;
+    private bool IsInteractionLocked => _autoZoomActive || _forceFirstPersonMode || Time.time < _ignoreInputUntilTime;
 
     private void Awake()
     {

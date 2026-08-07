@@ -38,6 +38,12 @@ public class FirstPersonLook : MonoBehaviour
     [Tooltip("How many degrees left or right the player can look from the seat facing direction.")]
     [SerializeField] private float seatedYawRange = 60f;
 
+    [Header("Lying Look Limits")]
+    [Tooltip("How far down the player can look while lying.")]
+    [SerializeField] private float lyingPitchClampMin = -30f;
+    [Tooltip("How far up the player can look while lying.")]
+    [SerializeField] private float lyingPitchClampMax = 30f;
+
     private float _activePitchMin;
     private float _activePitchMax;
 
@@ -45,11 +51,41 @@ public class FirstPersonLook : MonoBehaviour
     private bool  _seatedLookAllowed;
     private float _seatedFacingYaw;
 
+    private bool  _isLying;
+    private bool  _lyingLookAllowed;
+    private float _lyingFacingYaw;
+
     
     public Camera ThirdPersonCamera;
 
-    [Header("Third Person Camera Front/Back")]
-    [SerializeField] private float thirdPersonCamFrontLowYOffset = -2f;
+    [System.Serializable]
+    private struct ThirdPersonCameraOffset
+    {
+        public Vector3 position;
+        public Vector3 rotation;
+    }
+
+
+    [Header("Third Person Camera - Standing")]
+
+    [SerializeField] private ThirdPersonCameraOffset standingDefaultOffset;
+    [SerializeField] private ThirdPersonCameraOffset standingFrontOffset;
+    [SerializeField] private ThirdPersonCameraOffset standingFrontLowOffset;
+
+
+    [Header("Third Person Camera - Sitting")]
+
+    [SerializeField] private ThirdPersonCameraOffset sittingDefaultOffset;
+    [SerializeField] private ThirdPersonCameraOffset sittingFrontOffset;
+    [SerializeField] private ThirdPersonCameraOffset sittingFrontLowOffset;
+
+
+    [Header("Third Person Camera - Lying")]
+
+    [SerializeField] private ThirdPersonCameraOffset lyingDefaultOffset;
+    [SerializeField] private ThirdPersonCameraOffset lyingFrontOffset;
+    [SerializeField] private ThirdPersonCameraOffset lyingFrontLowOffset;
+
 
     private enum ThirdPersonCamMode { Default, Front, FrontLow }
 
@@ -170,12 +206,14 @@ public class FirstPersonLook : MonoBehaviour
     {
         CycleThirdPersonCameraMode();
     }
-    // ── Central gate ─────────────────────────────────────────────────────
-    // Returns true when look input should be read and rotation applied.
+
     private bool LookAllowedThisFrame()
     {
         if (bypassGM) return true;
         if (GameMaster.Instance.PauseManager.IsPaused) return false;
+
+        // Lying with free look: bypass PLAYERBUSY entirely, same as seated.
+        if (_isLying) return _lyingLookAllowed;
 
         // Seated with free look: bypass PLAYERBUSY entirely.
         if (_isSeated) return _seatedLookAllowed;
@@ -211,7 +249,12 @@ public class FirstPersonLook : MonoBehaviour
 
         currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, _activePitchMin, _activePitchMax);
 
-        if (_isSeated && _seatedLookAllowed)
+        if (_isLying && _lyingLookAllowed)
+        {
+            // Lying: pitch only, yaw locked to the lying facing direction.
+            currentMouseLook.x = _lyingFacingYaw;
+        }
+        else if (_isSeated && _seatedLookAllowed)
         {
             float yawDelta     = Mathf.DeltaAngle(_seatedFacingYaw, currentMouseLook.x);
             yawDelta           = Mathf.Clamp(yawDelta, -seatedYawRange, seatedYawRange);
@@ -241,38 +284,142 @@ public class FirstPersonLook : MonoBehaviour
     {
         if (ThirdPersonCamera == null || !_thirdPersonCamCaptured) return;
 
+        Transform cam = ThirdPersonCamera.transform;
+
+        Vector3 position;
+        Quaternion rotation;
+
+        // =========================================================
+        // BASE CAMERA MODE
+        // =========================================================
+
         switch (_thirdPersonCamMode)
         {
             case ThirdPersonCamMode.Default:
-                ThirdPersonCamera.transform.localPosition = _thirdPersonCamDefaultLocalPos;
-                ThirdPersonCamera.transform.localRotation = _thirdPersonCamDefaultLocalRot;
+            {
+                position = _thirdPersonCamDefaultLocalPos;
+                rotation = _thirdPersonCamDefaultLocalRot;
                 break;
+            }
 
             case ThirdPersonCamMode.Front:
             {
-                Vector3 pos = _thirdPersonCamDefaultLocalPos;
-                pos.z = Mathf.Abs(_thirdPersonCamDefaultLocalPos.z);
-                ThirdPersonCamera.transform.localPosition = pos;
+                position = _thirdPersonCamDefaultLocalPos;
+                position.z = Mathf.Abs(_thirdPersonCamDefaultLocalPos.z);
 
-                ThirdPersonCamera.transform.localRotation = Quaternion.Euler(
+                rotation = Quaternion.Euler(
                     _thirdPersonCamDefaultLocalEuler.x,
                     _thirdPersonCamDefaultLocalEuler.y + 180f,
                     _thirdPersonCamDefaultLocalEuler.z);
+
                 break;
             }
 
             case ThirdPersonCamMode.FrontLow:
             {
-                Vector3 pos = _thirdPersonCamDefaultLocalPos;
-                pos.z = Mathf.Abs(_thirdPersonCamDefaultLocalPos.z);
-                pos.y += thirdPersonCamFrontLowYOffset;
-                ThirdPersonCamera.transform.localPosition = pos;
+                position = _thirdPersonCamDefaultLocalPos;
+                position.z = Mathf.Abs(_thirdPersonCamDefaultLocalPos.z);
 
-                ThirdPersonCamera.transform.localRotation =
-                    _thirdPersonCamDefaultLocalRot * Quaternion.Euler(0f, 180f, 0f);
+                rotation =
+                    _thirdPersonCamDefaultLocalRot *
+                    Quaternion.Euler(0f, 180f, 0f);
+
+                break;
+            }
+
+            default:
+            {
+                position = _thirdPersonCamDefaultLocalPos;
+                rotation = _thirdPersonCamDefaultLocalRot;
                 break;
             }
         }
+
+
+        // =========================================================
+        // DETERMINE PLAYER STATE
+        // =========================================================
+
+        ThirdPersonCameraOffset offset;
+
+        if (_isLying)
+        {
+            // Lying
+            switch (_thirdPersonCamMode)
+            {
+                case ThirdPersonCamMode.Default:
+                    offset = lyingDefaultOffset;
+                    break;
+
+                case ThirdPersonCamMode.Front:
+                    offset = lyingFrontOffset;
+                    break;
+
+                case ThirdPersonCamMode.FrontLow:
+                    offset = lyingFrontLowOffset;
+                    break;
+
+                default:
+                    offset = lyingDefaultOffset;
+                    break;
+            }
+        }
+        else if (_isSeated)
+        {
+            // Sitting
+            switch (_thirdPersonCamMode)
+            {
+                case ThirdPersonCamMode.Default:
+                    offset = sittingDefaultOffset;
+                    break;
+
+                case ThirdPersonCamMode.Front:
+                    offset = sittingFrontOffset;
+                    break;
+
+                case ThirdPersonCamMode.FrontLow:
+                    offset = sittingFrontLowOffset;
+                    break;
+
+                default:
+                    offset = sittingDefaultOffset;
+                    break;
+            }
+        }
+        else
+        {
+            // Standing
+            switch (_thirdPersonCamMode)
+            {
+                case ThirdPersonCamMode.Default:
+                    offset = standingDefaultOffset;
+                    break;
+
+                case ThirdPersonCamMode.Front:
+                    offset = standingFrontOffset;
+                    break;
+
+                case ThirdPersonCamMode.FrontLow:
+                    offset = standingFrontLowOffset;
+                    break;
+
+                default:
+                    offset = standingDefaultOffset;
+                    break;
+            }
+        }
+
+
+        // =========================================================
+        // APPLY STATE/MODE OFFSET
+        // =========================================================
+
+        position += offset.position;
+
+        rotation *= Quaternion.Euler(offset.rotation);
+
+        cam.localPosition = position;
+        cam.localRotation = rotation;
     }
 
     public void CycleThirdPersonCameraMode()
@@ -298,21 +445,13 @@ public class FirstPersonLook : MonoBehaviour
     {
         return Player.Instance?.PlayerPhone?.CameraOpen == true;
     }
-    /// <summary>
-    /// Freeze or release raw look input without disabling the component.
-    /// Called by Player during scripted approach / align / backstep phases.
-    /// </summary>
+
     public void LockLook(bool locked)
     {
         _lookLocked = locked;
         if (locked) appliedMouseDelta = Vector2.zero;
     }
-
-    /// <summary>
-    /// Call when Nora sits (seated=true) or stands (seated=false).
-    /// facingYaw  – seat's world-space Y rotation; yaw is clamped relative to this.
-    /// allowLook  – false for scripted / director chairs where look must stay locked.
-    /// </summary>
+    
     public void SetSeated(bool seated, float facingYaw = 0f, bool allowLook = true)
     {
         _isSeated          = seated;
@@ -337,6 +476,43 @@ public class FirstPersonLook : MonoBehaviour
             currentMouseLook.x = facingYaw;
 
             // Zero delta so no leftover mouse movement fires on the first live frame
+            appliedMouseDelta = Vector2.zero;
+
+            if (allowLook) LockLook(false);
+        }
+        else
+        {
+            _activePitchMin   = pitchClampMin;
+            _activePitchMax   = pitchClampMax;
+            appliedMouseDelta = Vector2.zero;
+            LockLook(false);
+        }
+    }
+
+
+    public void SetLying(bool lying, float facingYaw = 0f, bool allowLook = true)
+    {
+        _isLying          = lying;
+        _lyingLookAllowed = lying && allowLook;
+
+        if (lying)
+        {
+            _lyingFacingYaw = facingYaw;
+            _activePitchMin = lyingPitchClampMin;
+            _activePitchMax = lyingPitchClampMax;
+
+            if (cameraPivot != null)
+            {
+                float rawPitch     = NormalizeAngle180(cameraPivot.localEulerAngles.x);
+                currentMouseLook.y = Mathf.Clamp(-rawPitch, _activePitchMin, _activePitchMax);
+            }
+            else
+            {
+                currentMouseLook.y = Mathf.Clamp(currentMouseLook.y, _activePitchMin, _activePitchMax);
+            }
+
+            currentMouseLook.x = facingYaw;
+
             appliedMouseDelta = Vector2.zero;
 
             if (allowLook) LockLook(false);

@@ -101,6 +101,10 @@ public class NoraKinematics : MonoBehaviour
     private float _currentTorsoPitch;
     private Vector3 _originalRootPosition;
 
+    // Add near the other private fields
+    private Dictionary<Transform, Quaternion> _baseLocalRotations = new Dictionary<Transform, Quaternion>();
+    
+    
     private void Reset() => animator = GetComponent<Animator>();
 
     private void Awake()

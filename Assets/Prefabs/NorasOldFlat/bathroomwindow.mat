@@ -15,11 +15,16 @@ Material:
   m_InvalidKeywords:
   - _DISABLE_SSR_TRANSPARENT
   - _DOUBLESIDED_ON
+  - _EMISSIONENABLED_ON
+  - _FRESNELENABLED_ON
+  - _GLOWENABLED_ON
   - _MASKMAP
   - _MATERIAL_FEATURE_SPECULAR_COLOR
   - _NORMALMAP
   - _NORMALMAP_TANGENT_SPACE
+  - _OVERLAYENABLED_ON
   - _RAINBACK_ON
+  - _RAINENABLED_ON
   - _RAINFRONT_ON
   - _RAINLEFT_ON
   - _RAINRIGHT_ON
@@ -116,7 +121,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OverlayTex:
-        m_Texture: {fileID: 2800000, guid: 028a098681d403f40b8a17c923e55145, type: 3}
+        m_Texture: {fileID: 2800000, guid: 4ea0ee0a572e6374699f0761dcf0166f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RainTex:
@@ -202,6 +207,7 @@ Material:
     - _DoubleSidedNormalMode: 1
     - _DstBlend: 0
     - _DstBlend2: 0
+    - _EmissionEnabled: 1
     - _EmissionStrength: 1
     - _EmissiveColorMode: 1
     - _EmissiveExposureWeight: 1
@@ -211,6 +217,8 @@ Material:
     - _EnableFogOnTransparent: 1
     - _EnableGeometricSpecularAA: 0
     - _EnergyConservingSpecularColor: 0
+    - _FresnelEnabled: 1
+    - _GlowEnabled: 1
     - _GlowSpeed: 0
     - _GlowStrength: 0
     - _HeightAmplitude: 0.02
@@ -242,8 +250,9 @@ Material:
     - _ObjectSpaceUVMapping: 0
     - _ObjectSpaceUVMappingEmissive: 0
     - _OpaqueCullMode: 2
+    - _OverlayEnabled: 1
     - _OverlayRotation: 0
-    - _OverlayStrength: 0.113
+    - _OverlayStrength: 0.056
     - _PPDLodThreshold: 5
     - _PPDMaxSamples: 15
     - _PPDMinSamples: 5
@@ -252,6 +261,7 @@ Material:
     - _PerPixelSorting: 0
     - _RainBack: 1
     - _RainBottom: 0
+    - _RainEnabled: 1
     - _RainFront: 1
     - _RainLeft: 1
     - _RainRight: 1
@@ -321,8 +331,8 @@ Material:
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
     - _LightningForeground: {r: 0, g: 0, b: 0, a: 0}
     - _LightningTiling: {r: 0, g: 0, b: 0, a: 0}
-    - _OverlayTiling: {r: 8, g: 15.32, b: 0, a: 0}
-    - _OverlayTint: {r: 1, g: 0.42830187, b: 0.8808593, a: 1}
+    - _OverlayTiling: {r: 14.41, g: 11.5, b: 0, a: 0}
+    - _OverlayTint: {r: 1, g: 0, b: 0, a: 1}
     - _RainTiling: {r: 100, g: 5, b: 0, a: 0}
     - _RainTint: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}

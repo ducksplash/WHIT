@@ -233,6 +233,15 @@ public class Player : Singleton<Player>
     private Transform  _activeBedTransform;
     public bool       IsLying;
 
+    // Cached at NoraSleep time so WakeUpSequence can return the player to the
+    // bed's foot/approach point instead of leaving them standing on the bed.
+    private Vector3 _sleepStandPosition;
+    private Vector3 _sleepStandFacing;
+    private bool    _sleepStandCaptured;
+
+    private bool _wakingUp;
+    private bool _standingUp;
+
     [Header("UI References")]
     public TextMeshProUGUI PaperDeathText;
     public TextMeshProUGUI PaperDateText;
@@ -602,6 +611,8 @@ public class Player : Singleton<Player>
         if (meleeAction != null)
             meleeAction.action.performed -= OnMelee;
 
+        if (specialAttach != null) specialAttach.action.performed -= OnSpecialattach;
+
         if (StandUpAction != null)
             StandUpAction.action.performed -= StandUp;
     }
@@ -615,6 +626,8 @@ public class Player : Singleton<Player>
 
         if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null &&
             GameMaster.Instance.PauseManager.IsPaused) return;
+
+        if (IsSeated || IsLying) return;
 
         if (MoveOverride && moveAction != null && !moveAction.action.enabled)
             moveAction.action.Enable();
@@ -794,6 +807,8 @@ public class Player : Singleton<Player>
         if (IsSeated)
         {
             if (GameMaster.Instance.INAMEETING) return;
+            if (_standingUp) return;
+            _standingUp = true;
 
             _sitCts?.Cancel();
 
@@ -803,6 +818,9 @@ public class Player : Singleton<Player>
 
         if (IsLying)
         {
+            if (_wakingUp) return;
+            _wakingUp = true;
+
             _sleepCts?.Cancel();
 
             WakeUpSequence().Forget();
@@ -825,6 +843,8 @@ public class Player : Singleton<Player>
 
         ReturnToLocomotion();
         GameMaster.Instance.PLAYERBUSY = false;
+        ZoomOverride = false;
+        _standingUp = false;
     }
 
     private void ReturnToLocomotion()
@@ -832,7 +852,10 @@ public class Player : Singleton<Player>
         _activeSeatTransform = null;
 
         if (thisCharController != null)
+        {
             thisCharController.enabled = true;
+            Physics.SyncTransforms();
+        }
 
         FirstPersonLook?.SetSeated(false);
 
@@ -887,6 +910,14 @@ public class Player : Singleton<Player>
         Vector3 lieFacing = Quaternion.Euler(0f, sleepFacingYawOffset, 0f) * bedFacing;
 
         Vector3 approachPoint = bed.bedFootTransform.position;
+
+        // Cache where/which way to stand the player back up once they wake —
+        // the bed's foot/approach point, facing the same direction used to
+        // approach the bed originally — so WakeUpSequence doesn't leave them
+        // standing on top of the bed.
+        _sleepStandPosition = approachPoint;
+        _sleepStandFacing   = bedFacing;
+        _sleepStandCaptured = true;
 
         try
         {
@@ -990,6 +1021,8 @@ public class Player : Singleton<Player>
 
         ReturnFromLying();
         GameMaster.Instance.PLAYERBUSY = false;
+        ZoomOverride = false;
+        _wakingUp = false;
     }
 
     private void OnSpecialattach(InputAction.CallbackContext callbackContext)
@@ -1006,8 +1039,26 @@ public class Player : Singleton<Player>
     {
         _activeBedTransform = null;
 
+        // Move the player back to the bed's foot point (captured at NoraSleep
+        // time) before re-enabling the controller, so they don't end up
+        // standing on top of the bed.
         if (thisCharController != null)
+            thisCharController.enabled = false;
+
+        if (_sleepStandCaptured)
+        {
+            transform.position = _sleepStandPosition;
+            transform.rotation = Quaternion.LookRotation(_sleepStandFacing, Vector3.up);
+            _sleepStandCaptured = false;
+        }
+
+        Physics.SyncTransforms();
+
+        if (thisCharController != null)
+        {
             thisCharController.enabled = true;
+            Physics.SyncTransforms();
+        }
 
         FirstPersonLook?.SetLying(false);
 
@@ -1033,6 +1084,8 @@ public class Player : Singleton<Player>
     {
         if (CurrentCamera == DebugCam) return;
         if (GameMaster.Instance?.PauseManager?.IsPaused == true) return;
+        if (IsSeated || IsLying) return;
+        if (thisCharController == null || !thisCharController.enabled) return;
         if (MoveOverride && moveAction != null && !moveAction.action.enabled)
             moveAction.action.Enable();
 

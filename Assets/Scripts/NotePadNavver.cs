@@ -27,7 +27,6 @@ public class NotePadNavver : MonoBehaviour
     private Coroutine enablementCo;
     public int currentIndex = 0;
 
-    // NEW: Remember last hovered index
     private int lastHoveredIndex = 0;
 
     
@@ -52,7 +51,7 @@ public class NotePadNavver : MonoBehaviour
 
     private IEnumerator HoverLastOrDefaultNextFrame()
     {
-        yield return null; // wait one frame to ensure GridButtons populated
+        yield return null;
         HoverLastOrDefault();
     }
 
@@ -60,7 +59,6 @@ public class NotePadNavver : MonoBehaviour
     {
         if (GridButtons.Count == 0) return;
 
-        // Use lastHoveredIndex if valid, otherwise 0
         currentIndex = Mathf.Clamp(lastHoveredIndex, 0, GridButtons.Count - 1);
         Highlight(currentIndex);
     }
@@ -103,7 +101,6 @@ public class NotePadNavver : MonoBehaviour
                 break;
         }
 
-        // 🔁 WRAP LOGIC (UP)
         if (newIndex < 0)
             newIndex = GridButtons.Count - 1;
         else if (newIndex >= GridButtons.Count)
@@ -134,7 +131,6 @@ public class NotePadNavver : MonoBehaviour
                 break;
         }
 
-        // 🔁 WRAP LOGIC (DOWN)
         if (newIndex >= GridButtons.Count)
             newIndex = 0;
         else if (newIndex < 0)
@@ -199,7 +195,6 @@ public class NotePadNavver : MonoBehaviour
         if (!GameMaster.Instance.TravelCompanion.CompanionOpen) return;
         currentIndex = Mathf.Clamp(newIndex, 0, GridButtons.Count - 1);
 
-        // NEW: update last hovered index
         lastHoveredIndex = currentIndex;
 
         Highlight(currentIndex);
@@ -250,6 +245,8 @@ public class NotePadNavver : MonoBehaviour
     public void ResetList()
     {
         GridButtons = new List<NotePadNavButton>();
+        currentIndex = 0;
+        lastHoveredIndex = 0;
     }
 }
 

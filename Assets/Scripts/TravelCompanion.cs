@@ -35,7 +35,6 @@ public class TravelCompanion : MonoBehaviour
     
     private void Start()
     {
-        // UI + input only
         Notepad = Player.Instance.TravelNotepad;
 
         exitButton?.action.Enable();
@@ -187,8 +186,10 @@ public class TravelCompanion : MonoBehaviour
 
         AvailableLocations.Clear();
 
-        // order matters
+        if (notepadNavver != null) notepadNavver.ResetList();
+
         AvailableLocations.Add(GAMELEVEL.TawleyMeats, "Tawley Meats");
+        AvailableLocations.Add(GAMELEVEL.TrainStation, "Train Station");
         AvailableLocations.Add(GAMELEVEL.NorasOldFlat, "Old Flat");
         AvailableLocations.Add(GAMELEVEL.RoarkOutside, "Roark Microtech");
         AvailableLocations.Add(GAMELEVEL.NorasFlat, "\n...just go home");

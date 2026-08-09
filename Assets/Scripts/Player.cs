@@ -355,6 +355,16 @@ public class Player : Singleton<Player>
                 spawnPoint = GameMaster.Instance.SPAWNPOINTETV;
                 spawnRotation = GameMaster.Instance.SPAWNROTETV;
                 break;
+            
+            case GAMELEVEL.NorasOldFlat:
+                spawnPoint = GameMaster.Instance.SPAWNPOINTNORASOLDFLAT;
+                spawnRotation = GameMaster.Instance.SPAWNROTNORASOLDFLAT;
+                break;
+            
+            case GAMELEVEL.TrainStation:
+                spawnPoint = GameMaster.Instance.SPAWNPOINTTRAINSTATION;
+                spawnRotation = GameMaster.Instance.SPAWNROTTRAINSTATION;
+                break;
 
             case GAMELEVEL.NorasFlat:
                 spawnPoint = GameMaster.Instance.SPAWNPOINTNORASFLAT;

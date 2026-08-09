@@ -75,15 +75,19 @@ public class GameMaster : MonoBehaviour
     
     [Header("ETV Studio")]
     public Vector3 SPAWNPOINTETV;
-    public Vector3 SPAWNROTETV;           // X = Pitch, Y = Yaw, Z = Roll
+    public Vector3 SPAWNROTETV;
+    
+    [Header("Nora's Old Flat")]
+    public Vector3 SPAWNPOINTNORASOLDFLAT;
+    public Vector3 SPAWNROTNORASOLDFLAT;
+    
+    [Header("Train Station")]
+    public Vector3 SPAWNPOINTTRAINSTATION;
+    public Vector3 SPAWNROTTRAINSTATION;
 
     [Header("Nora's Flat")]
     public Vector3 SPAWNPOINTNORASFLAT;
     public Vector3 SPAWNROTNORASFLAT;
-
-    [Header("Nora's Old Flat")]
-    public Vector3 SPAWNPOINTNORASOLDFLAT;
-    public Vector3 SPAWNROTNORASOLDFLAT;
 
     [Header("Tawley Meats")]
     public Vector3 SPAWNPOINTTAWLEYMEATS;
@@ -227,9 +231,18 @@ public class GameMaster : MonoBehaviour
                 break;
 
             case GAMELEVEL.MainMenu:
+            case GAMELEVEL.NorasOldFlat:
+                StartLevelNorasOldFlat();
+                break;
+
+            case GAMELEVEL.TrainStation:
+                StartLevelTrainStation();
+                break;
+            
             case GAMELEVEL.NorasFlat:
                 StartLevelNorasFlat();
                 break;
+            
 
             case GAMELEVEL.TawleyMeats:
                 StartLevelTawleyMeats();
@@ -241,10 +254,6 @@ public class GameMaster : MonoBehaviour
 
             case GAMELEVEL.RoarkInside:
                 StartLevelRoarkInside();
-                break;
-
-            case GAMELEVEL.SecretLevel:
-                StartLevelNorasFlat();
                 break;
 
             default:
@@ -271,6 +280,39 @@ public class GameMaster : MonoBehaviour
         DialogueManager.PlayThought(ThoughtName.StartingWork);
     }
 
+
+    public void StartLevelNorasOldFlat()
+    {
+        THISLEVEL = GAMELEVEL.NorasOldFlat;
+        
+        NoraManager.InitialiseNora();
+        
+
+        Player.Instance.Spawn();
+        StartAudio(AudioProfile.NorasFlat);
+        EventManager.GameStartedEvent();
+        EventManager.LevelLoaded();
+        LoadingManager.SceneFadeIn();
+    }
+
+    
+    
+    public void StartLevelTrainStation()
+    {
+        THISLEVEL = GAMELEVEL.TrainStation;
+        
+        NoraManager.InitialiseNora();
+        
+        
+        Player.Instance.Spawn();
+        StartAudio(AudioProfile.TrainStation);
+        EventManager.GameStartedEvent();
+        EventManager.LevelLoaded();
+        LoadingManager.SceneFadeIn();
+    }
+
+    
+    
     public void StartLevelNorasFlat()
     {
         THISLEVEL = GAMELEVEL.NorasFlat;
@@ -379,7 +421,7 @@ public enum GAMELEVEL
     TawleyMeats,
     RoarkOutside,
     RoarkInside,
-    SecretLevel
+    TrainStation
 }
 
 public enum DevModeScene
@@ -400,5 +442,6 @@ public enum AudioProfile
     NorasOldFlat,
     TawleyMeats,
     RoarkOutside,
-    RoarkInside
+    RoarkInside,
+    TrainStation
 }

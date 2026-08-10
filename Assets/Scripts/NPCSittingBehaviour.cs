@@ -23,6 +23,7 @@ public class NPCSittingBehaviour : NPCBehaviourBase
 
     [Header("Sitting Placement")]
     [SerializeField] private Vector3 seatedRootOffset     = Vector3.zero;
+    [SerializeField] private float seatedYAdjust = 0f;
     [SerializeField] private float   autoStandAfterSeconds = 0f;
 
     [Header("Sitting Lerp")]
@@ -534,50 +535,35 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         float waited = 0f;
         float maxWait = sitTriggerFallbackDelay + 0.15f;
 
+        // Wait until we are actually in the SitDown state
         while (waited < maxWait)
         {
             if (!string.IsNullOrWhiteSpace(sitDownStateName) &&
                 Anim.GetCurrentAnimatorStateInfo(sitAnimLayer).IsName(sitDownStateName))
-            {
                 break;
-            }
 
             waited += Time.deltaTime;
             yield return null;
         }
 
         Vector3 lerpStart = Body.position;
-
-        Vector3 lerpEnd =
-            _seatTf != null
-                ? _seatTf.position + seatedRootOffset
-                : Body.position;
+        Vector3 lerpEnd   = GetSeatedWorldPosition();   // full XYZ including offset
 
         while (true)
         {
-            if (_seatTf == null)
-                yield break;
+            if (_seatTf == null) yield break;
 
-            AnimatorStateInfo info =
-                Anim.GetCurrentAnimatorStateInfo(sitAnimLayer);
+            AnimatorStateInfo info = Anim.GetCurrentAnimatorStateInfo(sitAnimLayer);
+            bool inSitDown = !string.IsNullOrWhiteSpace(sitDownStateName) &&
+                             info.IsName(sitDownStateName);
 
-            bool inSitDown =
-                !string.IsNullOrWhiteSpace(sitDownStateName) &&
-                info.IsName(sitDownStateName);
-
-            if (!inSitDown)
-                yield break;
+            if (!inSitDown) yield break;
 
             float t = Mathf.Clamp01(info.normalizedTime);
 
-            Vector3 p = Body.position;
+            // Full XYZ lerp – this is the key change
+            Body.position = Vector3.Lerp(lerpStart, lerpEnd, t);
 
-            p.x = Mathf.Lerp(lerpStart.x, lerpEnd.x, t);
-            p.z = Mathf.Lerp(lerpStart.z, lerpEnd.z, t);
-
-            Body.position = p;
-
-            
             if (Agent != null && Agent.enabled)
                 Agent.nextPosition = Body.position;
 
@@ -588,6 +574,19 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         }
     }
 
+    
+    private Vector3 GetSeatedWorldPosition()
+    {
+        if (_seatTf == null)
+            return Body.position;
+
+        Vector3 pos = _seatTf.position + seatedRootOffset;
+        pos.y += seatedYAdjust;          // optional fine-tune
+        return pos;
+    }
+
+
+    
     private void TickSitDownPlaying(float dt)
     {
         if (Anim == null) return;
@@ -625,27 +624,20 @@ public class NPCSittingBehaviour : NPCBehaviourBase
     private void TickSittingIdle(float dt, Vector3 seatForward)
     {
         ForceIdlePose();
-
         Body.rotation = Quaternion.LookRotation(seatForward, Vector3.up);
 
         if (_seatTf != null)
         {
-            Vector3 target = _seatTf.position + seatedRootOffset;
-
-            // KEEP THE Y OFFSET
+            // Always force the exact seated position (full XYZ)
+            Vector3 target = GetSeatedWorldPosition();
             Body.position = target;
 
-            // IMPORTANT:
-            // Sync only X/Z to the agent so Unity doesn't snap Y back to navmesh.
+            // Keep agent X/Z in sync, leave Y alone so navmesh doesn’t fight us
             if (Agent != null && Agent.enabled)
             {
                 Vector3 next = Agent.nextPosition;
-
-                next.x = Body.position.x;
-                next.z = Body.position.z;
-
-                // DO NOT TOUCH next.y
-
+                next.x = target.x;
+                next.z = target.z;
                 Agent.nextPosition = next;
             }
         }
@@ -653,15 +645,12 @@ public class NPCSittingBehaviour : NPCBehaviourBase
         if (!isSitting)
         {
             isSitting = true;
-
-            if (seatDebugLogs)
-                Debug.Log($"{name} Sit: CONFIRMED seated");
+            if (seatDebugLogs) Debug.Log($"{name} Sit: CONFIRMED seated");
         }
 
         if (autoStandAfterSeconds > 0f)
         {
             _seatedT += dt;
-
             if (_seatedT >= autoStandAfterSeconds)
                 BeginStandUp();
         }

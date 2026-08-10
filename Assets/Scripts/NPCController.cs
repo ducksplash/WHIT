@@ -40,6 +40,13 @@ public class NPCController : MonoBehaviour
     public int patrolPointTries = 10;
     public float patrolSampleRadius = 2.0f;
 
+    [Header("Predefined Patrol")] public bool usePredefinedPatrol;
+    public List<Transform> predefinedPatrolPoints = new List<Transform>();
+    
+    [Tooltip("Wait time after reaching a waypoint before moving to the next one.\nX = min, Y = max. Set both to the same value for a fixed wait.")]
+    public Vector2 predefinedPatrolArrivePause = new Vector2(0.5f, 2.0f);
+    
+    
     [Header("Seeking")] public float seekingSpeedMultiplier = 1.2f;
     public float seekGiveUpSeconds = 6f;
     public float approachRepathInterval = 0.25f;
@@ -180,6 +187,7 @@ public class NPCController : MonoBehaviour
     private Vector3 _spawnPoint;
     private Vector3 _patrolDestination;
     private bool _hasPatrolDestination;
+    private int _predefinedPatrolIndex;
 
     private float _stateTimer;
     private float _patrolChangeTimer;
@@ -440,7 +448,7 @@ public class NPCController : MonoBehaviour
     {
         if (!_executePendingActionAfterStand)
         {
-            EnterState(NPCState.Patrolling);
+            EnterState(GetDefaultWanderState());
             return;
         }
 
@@ -509,7 +517,7 @@ public class NPCController : MonoBehaviour
         if (useStateMachine)
         {
             ForceReturnToLocomotion();
-            EnterState(NPCState.Patrolling);
+            EnterState(GetDefaultWanderState());
         }
 
         
@@ -620,6 +628,13 @@ public class NPCController : MonoBehaviour
     }
 
     public NPCState GetCurrentState() => _state;
+
+    private NPCState GetDefaultWanderState()
+    {
+        return (usePredefinedPatrol && predefinedPatrolPoints != null && predefinedPatrolPoints.Count > 0)
+            ? NPCState.PredefinedPatrol
+            : NPCState.Patrolling;
+    }
 
     public void SetTarget(Transform t)
     {
@@ -743,7 +758,7 @@ public class NPCController : MonoBehaviour
                 _resumeDestination = Vector3.zero;
                 ResetLocomotionState();
                 ForceReturnToLocomotion();
-                EnterState(NPCState.Patrolling);
+                EnterState(GetDefaultWanderState());
             })) return;
 
         InterruptAllTransientActions();
@@ -762,7 +777,7 @@ public class NPCController : MonoBehaviour
         _resumeDestination = Vector3.zero;
         ResetLocomotionState();
         ForceReturnToLocomotion();
-        EnterState(NPCState.Patrolling);
+        EnterState(GetDefaultWanderState());
     }
 
     public void RequestSitDown()
@@ -994,6 +1009,19 @@ public class NPCController : MonoBehaviour
                 _patrolActionTimer = UnityEngine.Random.Range(patrolActionCheckInterval.x, patrolActionCheckInterval.y);
                 break;
 
+            case NPCState.PredefinedPatrol:
+                if (AgentReady())
+                {
+                    agent.speed = moveSpeed;
+                    agent.autoBraking = true;
+                    agent.isStopped = false;
+                }
+
+                _hasPatrolDestination = false;
+                _patrolArriveTimer = 0f;
+                _predefinedPatrolIndex = 0;
+                break;
+
             case NPCState.Alerted:
                 if (AgentReady())
                 {
@@ -1075,27 +1103,49 @@ public class NPCController : MonoBehaviour
     void TickFSM(float dt)
     {
         _stateTimer += dt;
+
         if (_sitCooldownT > 0f) _sitCooldownT -= dt;
         if (_sleepCooldownT > 0f) _sleepCooldownT -= dt;
         if (_talkCooldownT > 0f) _talkCooldownT -= dt;
+
         if (currentTarget != null)
         {
             _lastKnownTargetPos = currentTarget.position;
             _hasLastKnownTargetPos = true;
         }
 
-        if (!_hasCommand && _state != NPCState.Talk && _state != NPCState.SeekingSeat && _state != NPCState.Sitting && _state != NPCState.SeekingBed && _state != NPCState.Lying && _state != NPCState.ClimbingLadder)
+        if (!_hasCommand &&
+            _state != NPCState.Talk &&
+            _state != NPCState.SeekingSeat &&
+            _state != NPCState.Sitting &&
+            _state != NPCState.SeekingBed &&
+            _state != NPCState.Lying &&
+            _state != NPCState.ClimbingLadder)
         {
             if (currentTarget != null && CanSeeTarget(currentTarget))
             {
-                float distToSpawn = Vector3.Distance(_spawnPoint, currentTarget.position);
-                if (distToSpawn > activeRadius && !allowApproachOutsideActiveRadius)
+                float distToSpawn = Vector3.Distance(
+                    _spawnPoint,
+                    currentTarget.position);
+
+                if (distToSpawn > activeRadius &&
+                    !allowApproachOutsideActiveRadius)
                 {
-                    if (_state != NPCState.Seeking) EnterState(NPCState.Seeking);
+                    if (_state != NPCState.Seeking)
+                        EnterState(NPCState.Seeking);
                 }
                 else
                 {
-                    if (_state == NPCState.Patrolling || _state == NPCState.Seeking) EnterState(NPCState.Alerted);
+                    // PredefinedPatrol deliberately excluded here.
+                    //
+                    // A predefined patrol should continue following its
+                    // waypoint sequence rather than being interrupted simply
+                    // because the NPC can see its target.
+                    if (_state == NPCState.Patrolling ||
+                        _state == NPCState.Seeking)
+                    {
+                        EnterState(NPCState.Alerted);
+                    }
                 }
             }
         }
@@ -1105,26 +1155,39 @@ public class NPCController : MonoBehaviour
             case NPCState.Patrolling:
                 TickPatrolling(dt, 1f);
                 break;
+
+            case NPCState.PredefinedPatrol:
+                TickPredefinedPatrol(dt);
+                break;
+
             case NPCState.Alerted:
                 TickAlerted(dt);
                 break;
+
             case NPCState.Approaching:
                 TickApproaching(dt);
                 break;
+
             case NPCState.Attacking:
                 _combat?.TickAttacking(dt);
                 break;
+
             case NPCState.Seeking:
                 TickSeeking(dt);
                 break;
-            
+
             case NPCState.SeekingSeat:
-                if (_sitting != null && _sitting.Phase == NPCSittingBehaviour.SitPhase.SearchingSeat)
+
+                if (_sitting != null &&
+                    _sitting.Phase == NPCSittingBehaviour.SitPhase.SearchingSeat)
+                {
                     TickPatrolMovementOnly(dt, 1f);
+                }
 
                 _sitting?.Tick(dt);
 
-                if (_sitting == null) break;
+                if (_sitting == null)
+                    break;
 
                 switch (_sitting.Phase)
                 {
@@ -1135,15 +1198,17 @@ public class NPCController : MonoBehaviour
                         return;
 
                     case NPCSittingBehaviour.SitPhase.None:
-                        EnterState(NPCState.Patrolling);
+                        EnterState(GetDefaultWanderState());
                         return;
                 }
+
                 break;
-            
+
             case NPCState.Sitting:
                 _sitting?.Tick(dt);
 
-                if (_sitting == null) break;
+                if (_sitting == null)
+                    break;
 
                 switch (_sitting.Phase)
                 {
@@ -1151,24 +1216,32 @@ public class NPCController : MonoBehaviour
                     case NPCSittingBehaviour.SitPhase.RoutingToLadder:
                     case NPCSittingBehaviour.SitPhase.ClimbingLadder:
                     case NPCSittingBehaviour.SitPhase.ApproachingFront:
-                    case NPCSittingBehaviour.SitPhase.Aligning:
-                    case NPCSittingBehaviour.SitPhase.Backstepping:
                         EnterState(NPCState.SeekingSeat);
                         return;
 
+                    case NPCSittingBehaviour.SitPhase.StandUpPlaying:
+                        EnterState(NPCState.Sitting);
+                        return;
+
                     case NPCSittingBehaviour.SitPhase.None:
-                        EnterState(NPCState.Patrolling);
+                        EnterState(GetDefaultWanderState());
                         return;
                 }
+
                 break;
 
             case NPCState.SeekingBed:
-                if (_lying != null && _lying.Phase == NPCLyingBehaviour.LiePhase.SearchingBed)
+
+                if (_lying != null &&
+                    _lying.Phase == NPCLyingBehaviour.LiePhase.SearchingBed)
+                {
                     TickPatrolMovementOnly(dt, 1f);
+                }
 
                 _lying?.Tick(dt);
 
-                if (_lying == null) break;
+                if (_lying == null)
+                    break;
 
                 switch (_lying.Phase)
                 {
@@ -1179,15 +1252,17 @@ public class NPCController : MonoBehaviour
                         return;
 
                     case NPCLyingBehaviour.LiePhase.None:
-                        EnterState(NPCState.Patrolling);
+                        EnterState(GetDefaultWanderState());
                         return;
                 }
+
                 break;
 
             case NPCState.Lying:
                 _lying?.Tick(dt);
 
-                if (_lying == null) break;
+                if (_lying == null)
+                    break;
 
                 switch (_lying.Phase)
                 {
@@ -1199,20 +1274,26 @@ public class NPCController : MonoBehaviour
                         EnterState(NPCState.SeekingBed);
                         return;
 
+                    case NPCLyingBehaviour.LiePhase.WakeUpPlaying:
+                        EnterState(NPCState.Lying);
+                        return;
+
                     case NPCLyingBehaviour.LiePhase.None:
-                        EnterState(NPCState.Patrolling);
+                        EnterState(GetDefaultWanderState());
                         return;
                 }
+
                 break;
+
             case NPCState.Talk:
                 _talk?.TickTalk(dt);
                 break;
+
             case NPCState.ClimbingLadder:
                 break;
         }
     }
 
- 
     void TickPatrolling(float dt, float speedMultiplier)
     {
         if (!AgentReady()) return;
@@ -1267,6 +1348,102 @@ public class NPCController : MonoBehaviour
         }
     }
 
+    void TickPredefinedPatrol(float dt)
+    {
+        if (!AgentReady())
+            return;
+
+        if (predefinedPatrolPoints == null || predefinedPatrolPoints.Count == 0)
+        {
+            EnterState(NPCState.Patrolling);
+            return;
+        }
+
+        // ── Already have a destination ──────────────────────────────────────
+        if (_hasPatrolDestination)
+        {
+            // First time we detect arrival → start the wait timer
+            if (_patrolArriveTimer <= 0f && HasArrived(agent, arriveDistance))
+            {
+                float min = predefinedPatrolArrivePause.x;
+                float max = predefinedPatrolArrivePause.y;
+                if (max < min) max = min; // safety
+
+                _patrolArriveTimer = (Mathf.Approximately(min, max))
+                    ? min // fixed wait
+                    : UnityEngine.Random.Range(min, max);
+
+                agent.isStopped = true;
+            }
+
+            // While waiting, stay stopped and count down
+            // (do NOT re-require HasArrived – that was the original bug)
+            if (_patrolArriveTimer > 0f)
+            {
+                agent.isStopped = true;
+                _patrolArriveTimer -= dt;
+
+                if (_patrolArriveTimer <= 0f)
+                {
+                    agent.isStopped = false;
+                    _hasPatrolDestination = false;
+
+                    _predefinedPatrolIndex =
+                        (_predefinedPatrolIndex + 1) % predefinedPatrolPoints.Count;
+                }
+
+                return;
+            }
+        }
+
+        // ── Need a new destination ──────────────────────────────────────────
+        if (!_hasPatrolDestination)
+        {
+            Transform wp = GetValidPredefinedWaypoint();
+            if (wp == null)
+                return;
+
+            agent.isStopped = false;
+            agent.speed = moveSpeed;
+            agent.autoBraking = true;
+
+            agent.ResetPath();
+            bool destinationSet = agent.SetDestination(wp.position);
+
+            if (destinationSet)
+            {
+                _hasPatrolDestination = true;
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"{name}: Failed to set predefined patrol destination " +
+                    $"to waypoint {_predefinedPatrolIndex} '{wp.name}'. " +
+                    $"Waypoint position: {wp.position}");
+
+                _hasPatrolDestination = false;
+                _predefinedPatrolIndex =
+                    (_predefinedPatrolIndex + 1) % predefinedPatrolPoints.Count;
+            }
+        }
+    }
+
+    Transform GetValidPredefinedWaypoint()
+    {
+        int count = predefinedPatrolPoints.Count;
+        for (int i = 0; i < count; i++)
+        {
+            int idx = (_predefinedPatrolIndex + i) % count;
+            if (predefinedPatrolPoints[idx] != null)
+            {
+                _predefinedPatrolIndex = idx;
+                return predefinedPatrolPoints[idx];
+            }
+        }
+
+        return null;
+    }
+
     void TickAlerted(float dt)
     {
         if (AgentReady()) agent.isStopped = true;
@@ -1316,13 +1493,13 @@ public class NPCController : MonoBehaviour
         {
             _hasCommand = false;
             _commandGoal = NPCState.Patrolling;
-            EnterState(NPCState.Patrolling);
+            EnterState(GetDefaultWanderState());
             return;
         }
 
         if (currentTarget == null)
         {
-            EnterState(NPCState.Patrolling);
+            EnterState(GetDefaultWanderState());
             return;
         }
 
@@ -1410,7 +1587,7 @@ public class NPCController : MonoBehaviour
         _seekTimer += dt;
         if (_seekTimer >= Mathf.Max(0.01f, seekGiveUpSeconds))
         {
-            EnterState(NPCState.Patrolling);
+            EnterState(GetDefaultWanderState());
             return;
         }
 
@@ -2214,9 +2391,18 @@ public class NPCController : MonoBehaviour
 
     static bool HasArrived(NavMeshAgent a, float arriveDist)
     {
-        if (a == null || !a.isOnNavMesh || a.pathPending || !a.hasPath || float.IsInfinity(a.remainingDistance))
+        if (a == null || !a.isOnNavMesh || a.pathPending)
             return false;
-        return a.remainingDistance <= Mathf.Max(arriveDist, a.stoppingDistance);
+
+        // remainingDistance can be 0 or a tiny value even when hasPath becomes false
+        float threshold = Mathf.Max(arriveDist, a.stoppingDistance);
+        if (a.hasPath && !float.IsInfinity(a.remainingDistance))
+            return a.remainingDistance <= threshold;
+
+        // Fallback: if we have no path but we are very close to the last destination
+        return a.remainingDistance <= threshold ||
+               (a.destination != Vector3.zero &&
+                Vector3.Distance(a.transform.position, a.destination) <= threshold + 0.15f);
     }
 
     bool TrySampleNavPoint(Vector3 worldPos, out Vector3 snapped)
@@ -2452,7 +2638,7 @@ public class NPCController : MonoBehaviour
         if (_state != NPCState.Talk)
         {
             ClearTarget();
-            EnterState(NPCState.Patrolling);
+            EnterState(GetDefaultWanderState());
             SetActionCooldown(PatrolAction.Talk, patrolActionFailedRetrySeconds);
             _autoActionCoroutine = null;
             yield break;
@@ -2470,7 +2656,7 @@ public class NPCController : MonoBehaviour
 
         _talk?.UnregisterAsSpeaker();
         ClearTarget();
-        EnterState(NPCState.Patrolling);
+        EnterState(GetDefaultWanderState());
 
         SetActionCooldown(PatrolAction.Talk, patrolActionCooldownSeconds);
         _autoActionCoroutine = null;
@@ -2487,6 +2673,7 @@ public class NPCController : MonoBehaviour
 
         _hasPatrolDestination = false;
         _hasResumeDestination = false;
+        _predefinedPatrolIndex = 0;
 
         _resumeDestination = Vector3.zero;
         _patrolDestination = Vector3.zero;
@@ -2568,7 +2755,7 @@ public class NPCController : MonoBehaviour
         
         useStateMachine = true;
         ForceReturnToLocomotion();
-        EnterState(NPCState.Patrolling);
+        EnterState(GetDefaultWanderState());
 
         Debug.Log($"{name}: Respawned to spawn point {respawnPos}");
     }
@@ -2880,5 +3067,6 @@ public enum NPCState
     Sitting,
     SeekingBed,
     Lying,
-    ClimbingLadder
+    ClimbingLadder,
+    PredefinedPatrol
 }

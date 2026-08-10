@@ -42,7 +42,7 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5167145197112002785}
   m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 50379f708a012ab4a9cb7452c8101886, type: 3}
+  m_Avatar: {fileID: 9000000, guid: 053e390f44b8b874cad29095073071c9, type: 3}
   m_Controller: {fileID: 9100000, guid: 701a04640f5f5564f917a3f20a047fe7, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
@@ -151,6 +151,9 @@ MonoBehaviour:
   patrolArrivePause: {x: 0.2, y: 1}
   patrolPointTries: 10
   patrolSampleRadius: 2
+  usePredefinedPatrol: 0
+  predefinedPatrolPoints: []
+  predefinedPatrolArrivePause: {x: 0.5, y: 2}
   seekingSpeedMultiplier: 1.2
   seekGiveUpSeconds: 6
   approachRepathInterval: 0.25
@@ -336,6 +339,7 @@ MonoBehaviour:
   backstepSpeed: 10
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0, y: 0, z: 0}
+  seatedYAdjust: 0
   autoStandAfterSeconds: 0
   sitDownLerpDuration: 0.01
   standUpLerpDuration: 0.01

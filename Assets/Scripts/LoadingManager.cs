@@ -209,7 +209,7 @@ public class LoadingManager : MonoBehaviour
     private IEnumerator ChangeSceneAsync(GAMELEVEL levelName)
     {
         GameMaster.Instance.THISLEVEL = levelName;
-    
+
         _sceneLoadedFlag = false;
         Time.timeScale = 0f;
 
@@ -218,27 +218,27 @@ public class LoadingManager : MonoBehaviour
 
         while (op.progress < 0.9f)
         {
-            if (loadingbar != null) loadingbar.fillAmount = Mathf.Clamp01(op.progress / 0.9f);
+            if (loadingbar != null)
+                loadingbar.fillAmount = Mathf.Clamp01(op.progress / 0.9f);
+
             yield return null;
         }
 
-        if (loadingbar != null) loadingbar.fillAmount = 1f;
+        if (loadingbar != null)
+            loadingbar.fillAmount = 1f;
 
         op.allowSceneActivation = true;
 
-        // Wait until scene is fully loaded
-        while (!_sceneLoadedFlag) yield return null;
+        while (!_sceneLoadedFlag)
+            yield return null;
 
         Time.timeScale = 1f;
-        
-        
+
         if (GameMaster.Instance != null)
         {
             Debug.Log("scene loaded from LoadingManager");
             GameMaster.Instance.StartLevel(levelName);
         }
-        
-        
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

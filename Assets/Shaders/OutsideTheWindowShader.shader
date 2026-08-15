@@ -45,6 +45,10 @@ Shader "Custom/OutsideTheWindowShader"
         _RotationY        ("Horizontal Rotation", Range(0,360)) = 0
         _RotationX        ("Vertical Rotation", Range(-180,180))= 0
 
+        [Toggle] _MovementEnabled  ("Enable Movement", Float)         = 0
+        _MovementSpeed             ("Movement Speed", Range(0, 50))   = 5
+        _MovementDirection         ("Movement Direction (X=Yaw, Y=Pitch)", Vector) = (1,0,0,0)
+
         [Toggle] _LightningEnabled    ("Enable Lightning",         Float)  = 1
         _LightningForeground          ("Lightning Foreground Color", Color) = (1,1,1,1)
         _LightningMinTime             ("Min Time Between Flashes", Range(0.1,10))  = 2
@@ -114,6 +118,10 @@ Shader "Custom/OutsideTheWindowShader"
             float  _FresnelEnabled;
             float  _Smoothness, _Metallic;
 
+            float  _MovementEnabled;
+            float  _MovementSpeed;
+            float4 _MovementDirection;
+
             float  _LightningEnabled;
             float4 _LightningForeground;
             float  _LightningMinTime, _LightningMaxTime, _LightningStrength;
@@ -137,6 +145,20 @@ Shader "Custom/OutsideTheWindowShader"
                 p -= 0.5;
                 p = float2(p.x * c - p.y * s, p.x * s + p.y * c);
                 return p + 0.5;
+            }
+
+            float3 RotateYaw(float3 d, float angle)
+            {
+                float s, c;
+                sincos(angle, s, c);
+                return float3(d.x * c - d.z * s, d.y, d.x * s + d.z * c);
+            }
+
+            float3 RotatePitch(float3 d, float angle)
+            {
+                float s, c;
+                sincos(angle, s, c);
+                return float3(d.x, d.y * c - d.z * s, d.y * s + d.z * c);
             }
 
             // Merged: returns face index, face UV, and isTop in one abs(dir) pass
@@ -181,6 +203,19 @@ Shader "Custom/OutsideTheWindowShader"
             half4 frag(v2f i) : SV_Target
             {
                 float3 dir = normalize(i.worldDir);
+
+                if (_MovementEnabled > 0.5)
+                {
+                    float2 moveDir = length(_MovementDirection.xy) > 0.0001
+                        ? normalize(_MovementDirection.xy)
+                        : float2(1, 0);
+
+                    float angle = _Time.y * _MovementSpeed * 0.1;
+
+                    dir = RotateYaw(dir, angle * moveDir.x);
+                    dir = RotatePitch(dir, angle * moveDir.y * 0.5);
+                }
+
                 half4  tex = texCUBE(_CubeTex, dir) * _TintColor;
 
                 // ── Rain ──────────────────────────────────────────────

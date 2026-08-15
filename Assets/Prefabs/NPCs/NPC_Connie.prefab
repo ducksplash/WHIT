@@ -2455,7 +2455,7 @@ SkinnedMeshRenderer:
   - {fileID: 2100000, guid: c4328e157b76153419722342f5031627, type: 2}
   - {fileID: 2100000, guid: 709a596f36d3f7146ad82b736bc68b0b, type: 2}
   - {fileID: 2100000, guid: 9a5ca9bf2556b2d4ea0f7e84aaba447b, type: 2}
-  - {fileID: -4256837546948357689, guid: 8485084e94fd0d44b83f3e8096b2ce4e, type: 3}
+  - {fileID: 2100000, guid: c124432428ca29f4a8650821f0d35251, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2815,6 +2815,9 @@ MonoBehaviour:
   patrolArrivePause: {x: 0.2, y: 1}
   patrolPointTries: 10
   patrolSampleRadius: 2
+  usePredefinedPatrol: 0
+  predefinedPatrolPoints: []
+  predefinedPatrolArrivePause: {x: 0.5, y: 2}
   seekingSpeedMultiplier: 1.2
   seekGiveUpSeconds: 6
   approachRepathInterval: 0.25
@@ -3000,6 +3003,7 @@ MonoBehaviour:
   backstepSpeed: 10
   snapToSeatWhenSeated: 1
   seatedRootOffset: {x: 0.6, y: -0.2, z: -0.24}
+  seatedYAdjust: 0
   autoStandAfterSeconds: 0
   sitDownLerpDuration: 0.01
   standUpLerpDuration: 0.01

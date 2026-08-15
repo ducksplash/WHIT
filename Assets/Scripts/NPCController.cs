@@ -983,6 +983,28 @@ public class NPCController : MonoBehaviour
     {
         if (_isPlayingTriggeredAnimation) return;
 
+        if (next != NPCState.Sitting && next != NPCState.SeekingSeat &&
+            _sitting != null &&
+            (_sitting.Phase == NPCSittingBehaviour.SitPhase.SittingIdle ||
+             _sitting.Phase == NPCSittingBehaviour.SitPhase.SitDownPlaying))
+        {
+            _pendingPostStandAction = () => EnterState(next);
+            _executePendingActionAfterStand = true;
+            _sitting.BeginStandUp();
+            return;
+        }
+
+        if (next != NPCState.Lying && next != NPCState.SeekingBed &&
+            _lying != null &&
+            (_lying.Phase == NPCLyingBehaviour.LiePhase.LyingIdle ||
+             _lying.Phase == NPCLyingBehaviour.LiePhase.LieDownPlaying))
+        {
+            _pendingPostStandAction = () => EnterState(next);
+            _executePendingActionAfterStand = true;
+            _lying.BeginWakeUp();
+            return;
+        }
+
         NPCState prev = _state;
 
         if (prev == NPCState.Talk && next != NPCState.Talk)
@@ -1029,6 +1051,7 @@ public class NPCController : MonoBehaviour
                     agent.isStopped = true;
                     agent.autoBraking = true;
                 }
+
                 break;
 
             case NPCState.Approaching:
@@ -1079,9 +1102,9 @@ public class NPCController : MonoBehaviour
             case NPCState.SeekingSeat:
                 if (prev != NPCState.SeekingSeat && prev != NPCState.Sitting)
                 {
-                    //agent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
                     _sitting?.EnterSitting();
                 }
+
                 break;
 
             case NPCState.Sitting:

@@ -163,6 +163,8 @@ public class OnboardingManager : MonoBehaviour
         
     }
 
+    
+    
 
     IEnumerator NoraReady()
     {

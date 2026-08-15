@@ -102,6 +102,10 @@ public class Zoom : MonoBehaviour
         EventManager.OnPhoneOpened += SetDefaultFOV;
         SetDefaultFOV();
         StartCoroutine(WaitForGameMaster());
+    }
+
+    private void OnEnable()
+    {
         AttachListeners();
     }
 

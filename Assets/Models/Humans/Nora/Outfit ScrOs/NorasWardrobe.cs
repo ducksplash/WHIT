@@ -789,7 +789,6 @@ public class NorasWardrobeEditor : Editor
     private const float ButtonSpacing = 4f;
     private const float SideMargin = 40f;
     private const int DefaultColumns = 3;
-    private const int SpawnableTarget = 128;
 
     private OutfitName? _pendingPreviewOutfit;
 
@@ -936,7 +935,6 @@ public class NorasWardrobeEditor : Editor
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField($"{canSpawnCount} Can be used when spawning Nora", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField($"{SpawnableTarget - canSpawnCount} left to hit target of {SpawnableTarget}", EditorStyles.boldLabel);
         EditorGUILayout.Space();
         EditorGUILayout.LabelField($"Total {outfits.Count} Outfits", EditorStyles.boldLabel);
 
@@ -1206,7 +1204,16 @@ public enum OutfitName
     Romper,
     SplitDress,
     LeopardSuit,
-    Traditionalt
+    Traditionalt,
+    TiedTopAndSkirt,
+    FloatyBlousseAndSkirt,
+    TightLittleDress,
+    TightCropTopAndSkirt,
+    FlirtyDress,
+    NewTraditionDress,
+    FrilledDress,
+    SleevelessBlousseAndSkirt,
+    PVCSuit
 }
 
 

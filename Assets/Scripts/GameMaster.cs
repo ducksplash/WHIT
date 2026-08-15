@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
 using Steamworks;
+using UnityEditor;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 
@@ -84,6 +85,10 @@ public class GameMaster : MonoBehaviour
     [Header("Train Station")]
     public Vector3 SPAWNPOINTTRAINSTATION;
     public Vector3 SPAWNROTTRAINSTATION;
+
+    [Header("Entering Tawley")]
+    public Vector3 SPAWNPOINTENTERINGTAWLEY;
+    public Vector3 SPAWNROTENTERINGTAWLEY;
 
     [Header("Nora's Flat")]
     public Vector3 SPAWNPOINTNORASFLAT;
@@ -170,9 +175,53 @@ public class GameMaster : MonoBehaviour
         }
 
         InGame = true;
+
         Debug.Log("GameMaster: all systems ready, starting level.");
+
         StartLevel();
+
+#if UNITY_EDITOR
+        // If the editor has requested a development scene,
+        // allow the normal ETV startup to complete first,
+        // then use the normal LoadingManager transition.
+        if (EditorPrefs.HasKey("PlayModeStartScene_TargetLevel"))
+        {
+            string targetLevelName =
+                EditorPrefs.GetString("PlayModeStartScene_TargetLevel", string.Empty);
+
+            EditorPrefs.DeleteKey("PlayModeStartScene_TargetLevel");
+
+            if (Enum.TryParse(targetLevelName, out GAMELEVEL targetLevel) &&
+                targetLevel != GAMELEVEL.ETVStudio)
+            {
+                StartCoroutine(LoadDevelopmentLevelAfterStartup(targetLevel));
+            }
+        }
+#endif
     }
+    
+#if UNITY_EDITOR
+
+    private IEnumerator LoadDevelopmentLevelAfterStartup(GAMELEVEL targetLevel)
+    {
+        // Wait until the ETV startup has had a chance to finish.
+        yield return null;
+
+        Debug.Log(
+            $"[Editor Play Shortcut] Bootstrap complete. " +
+            $"Loading development level: {targetLevel}");
+
+        if (LoadingManager == null)
+        {
+            Debug.LogError(
+                "[Editor Play Shortcut] LoadingManager is not assigned.");
+
+            yield break;
+        }
+
+        LoadingManager.LoadLevel(targetLevel);
+    }
+#endif
 
     void Awake()
     {
@@ -235,8 +284,12 @@ public class GameMaster : MonoBehaviour
                 StartLevelNorasOldFlat();
                 break;
 
-            case GAMELEVEL.TrainStation:
+            case GAMELEVEL.FarsetCentralStation:
                 StartLevelTrainStation();
+                break;
+            
+            case GAMELEVEL.EnteringTawley:
+                StartLevelEnteringTawley();
                 break;
             
             case GAMELEVEL.NorasFlat:
@@ -299,13 +352,28 @@ public class GameMaster : MonoBehaviour
     
     public void StartLevelTrainStation()
     {
-        THISLEVEL = GAMELEVEL.TrainStation;
+        THISLEVEL = GAMELEVEL.FarsetCentralStation;
         
-        NoraManager.InitialiseNora();
+        NoraManager.InitialiseNora(true);
         
         
         Player.Instance.Spawn();
-        StartAudio(AudioProfile.TrainStation);
+        StartAudio(AudioProfile.FarsetCentralStation);
+        EventManager.GameStartedEvent();
+        EventManager.LevelLoaded();
+        LoadingManager.SceneFadeIn();
+    }
+
+    
+    public void StartLevelEnteringTawley()
+    {
+        THISLEVEL = GAMELEVEL.EnteringTawley;
+        
+        NoraManager.InitialiseNora(true);
+        
+        
+        Player.Instance.Spawn();
+        StartAudio(AudioProfile.FarsetCentralStation);
         EventManager.GameStartedEvent();
         EventManager.LevelLoaded();
         LoadingManager.SceneFadeIn();
@@ -421,7 +489,8 @@ public enum GAMELEVEL
     TawleyMeats,
     RoarkOutside,
     RoarkInside,
-    TrainStation
+    FarsetCentralStation,
+    EnteringTawley
 }
 
 public enum DevModeScene
@@ -443,5 +512,7 @@ public enum AudioProfile
     TawleyMeats,
     RoarkOutside,
     RoarkInside,
-    TrainStation
+    FarsetCentralStation,
+    EnteringTawley
 }
+

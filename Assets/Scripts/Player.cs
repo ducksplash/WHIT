@@ -6,8 +6,14 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityEngine.SceneManagement;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class Player : Singleton<Player>
 {
@@ -75,6 +81,8 @@ public class Player : Singleton<Player>
     public AnimationClip idleWithoutTorch;
     public AnimationClip walkingWithTorch;
     public AnimationClip walkingWithoutTorch;
+    public AnimationClip runningClip;// the run clip that replaces walk when fast
+    public bool shouldrun;
 
     private AnimatorOverrideController _locomotionOverride;
     private RuntimeAnimatorController _baseController;
@@ -242,6 +250,19 @@ public class Player : Singleton<Player>
     private bool _wakingUp;
     private bool _standingUp;
 
+    [Header("Autonomous Mode")]
+    public float autonomousMoveSpeed = 2f;
+    public float autonomousRotateSpeed = 7f;
+    public float autonomousArriveDistance = 0.15f;
+    public float autonomousMinWaitSeconds = 1f;
+    public float autonomousMaxWaitSeconds = 3f;
+
+    public Transform[] AutonomousmodeWaypoints = new Transform[] { };
+    
+    public bool IsAutonomous;
+
+    private CancellationTokenSource _autonomousCts;
+
     [Header("UI References")]
     public TextMeshProUGUI PaperDeathText;
     public TextMeshProUGUI PaperDateText;
@@ -361,9 +382,14 @@ public class Player : Singleton<Player>
                 spawnRotation = GameMaster.Instance.SPAWNROTNORASOLDFLAT;
                 break;
             
-            case GAMELEVEL.TrainStation:
+            case GAMELEVEL.FarsetCentralStation:
                 spawnPoint = GameMaster.Instance.SPAWNPOINTTRAINSTATION;
                 spawnRotation = GameMaster.Instance.SPAWNROTTRAINSTATION;
+                break;
+            
+            case GAMELEVEL.EnteringTawley:
+                spawnPoint = GameMaster.Instance.SPAWNPOINTENTERINGTAWLEY;
+                spawnRotation = GameMaster.Instance.SPAWNROTENTERINGTAWLEY;
                 break;
 
             case GAMELEVEL.NorasFlat:
@@ -598,15 +624,20 @@ public class Player : Singleton<Player>
             walkAction.action.canceled  += OnWalkReleased;
         }
 
-        if (meleeAction != null)
-            meleeAction.action.performed += OnMelee;
+        if (meleeAction != null) meleeAction.action.performed += OnMelee;
         
         if (specialAttach != null) specialAttach.action.performed += OnSpecialattach;
 
-        if (StandUpAction != null)
-            StandUpAction.action.performed += StandUp;
+        if (StandUpAction != null) StandUpAction.action.performed += StandUp;
+        
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ForceEndAutonomousMode();
+    }
+    
     void OnDisable()
     {
         if (jumpAction   != null) jumpAction.action.performed   -= OnJump;
@@ -618,13 +649,13 @@ public class Player : Singleton<Player>
             walkAction.action.canceled  -= OnWalkReleased;
         }
 
-        if (meleeAction != null)
-            meleeAction.action.performed -= OnMelee;
+        if (meleeAction != null) meleeAction.action.performed -= OnMelee;
 
         if (specialAttach != null) specialAttach.action.performed -= OnSpecialattach;
 
-        if (StandUpAction != null)
-            StandUpAction.action.performed -= StandUp;
+        if (StandUpAction != null) StandUpAction.action.performed -= StandUp;
+        
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void OnWalkPressed(InputAction.CallbackContext ctx) => walking = true;
@@ -637,7 +668,7 @@ public class Player : Singleton<Player>
         if (GameMaster.Instance != null && GameMaster.Instance.PauseManager != null &&
             GameMaster.Instance.PauseManager.IsPaused) return;
 
-        if (IsSeated || IsLying) return;
+        if (IsSeated || IsLying || IsAutonomous) return;
 
         if (MoveOverride && moveAction != null && !moveAction.action.enabled)
             moveAction.action.Enable();
@@ -814,6 +845,8 @@ public class Player : Singleton<Player>
 
     public void StandUp(InputAction.CallbackContext ctx = default)
     {
+        if (IsAutonomous) return;
+
         if (IsSeated)
         {
             if (GameMaster.Instance.INAMEETING) return;
@@ -893,6 +926,7 @@ public class Player : Singleton<Player>
         if (IsLying) return;
 
         GameMaster.Instance.PLAYERBUSY = true;
+        PlayerTorch.SetActive(false);
         ZoomOverride = true;
 
         if (FirstPersonLook != null) FirstPersonLook.LockLook(true);
@@ -1031,12 +1065,15 @@ public class Player : Singleton<Player>
 
         ReturnFromLying();
         GameMaster.Instance.PLAYERBUSY = false;
+        PlayerTorch.SetActive(true);
         ZoomOverride = false;
         _wakingUp = false;
     }
 
     private void OnSpecialattach(InputAction.CallbackContext callbackContext)
     {
+        if (IsAutonomous) return;
+
         Debug.Log("dospesh");
         if (IsLying)
         {
@@ -1090,11 +1127,232 @@ public class Player : Singleton<Player>
         IsLying = false;
     }
     
+    
+    public void StartAutonomousMode(Transform[] waypoints, Camera AutonomyCam = null)
+    {
+        if (waypoints == null || waypoints.Length == 0) return;
+        if (IsAutonomous) return;
+
+        IsAutonomous = true;
+        shouldrun = true;
+
+        SetInputEnabled(false);
+        GameMaster.Instance.PLAYERBUSY = true;
+        PlayerTorch.SetActive(false);
+        FirstPersonLook?.LockLook(true);
+
+        _autonomousCts?.Cancel();
+        _autonomousCts?.Dispose();
+        _autonomousCts = new CancellationTokenSource();
+
+        AutonomousSequence(waypoints, _autonomousCts.Token, AutonomyCam).Forget();
+    }
+    
+    /// <summary>
+    /// Ends Autonomous Mode without touching cameras.
+    /// Safe to call on scene load so the player regains control in the next level.
+    /// </summary>
+    /// <summary>
+    /// Ends Autonomous Mode without needing the AutonomyCam reference.
+    /// Called automatically on scene load so the player regains control
+    /// and the First Person camera is turned back on.
+    /// </summary>
+    public void ForceEndAutonomousMode()
+    {
+        if (!IsAutonomous && FirstPersonCamera != null && FirstPersonCamera.enabled)
+            return;
+
+        IsAutonomous = false;
+        shouldrun = false;
+
+        _autonomousCts?.Cancel();
+        _autonomousCts?.Dispose();
+        _autonomousCts = null;
+
+        if (thisCharController != null && !thisCharController.enabled)
+        {
+            thisCharController.enabled = true;
+            Physics.SyncTransforms();
+        }
+
+        moveDirection.x = 0f;
+        moveDirection.z = 0f;
+
+        SetInputEnabled(true);
+        FirstPersonLook?.LockLook(false);
+
+        if (FirstPersonCamera != null)
+        {
+            FirstPersonCamera.gameObject.SetActive(true);
+            FirstPersonCamera.enabled = true;
+
+            var zoom = FirstPersonCamera.GetComponent<Zoom>();
+            if (zoom != null) zoom.enabled = true;
+        }
+
+        if (ThirdPersonCamera != null)
+        {
+            ThirdPersonCamera.enabled = false;
+        }
+
+        GameMaster.Instance.PLAYERBUSY = false;
+        PlayerTorch.SetActive(true);
+
+        Debug.Log("[Player] Autonomous Mode force-ended – First Person camera restored");
+    }
+    
+
+    public void EndAutonomousMode(Camera AutonomyCam = null)
+    {
+        if (!IsAutonomous) return;
+
+        IsAutonomous = false;
+
+        shouldrun = false;
+    
+        _autonomousCts?.Cancel();
+        _autonomousCts?.Dispose();
+        _autonomousCts = null;
+
+        if (AutonomyCam != null)
+        {
+            AutonomyCam.enabled = false;
+        }
+
+        if (FirstPersonCamera != null)
+        {
+            FirstPersonCamera.gameObject.SetActive(true);
+            FirstPersonCamera.enabled = true;
+
+            var zoom = FirstPersonCamera.GetComponent<Zoom>();
+            if (zoom != null) zoom.enabled = true;
+        }
+
+        moveDirection.x = 0f;
+        moveDirection.z = 0f;
+
+        SetInputEnabled(true);
+        FirstPersonLook?.LockLook(false);
+
+        GameMaster.Instance.PLAYERBUSY = false;
+        PlayerTorch.SetActive(true);
+    }
+
+    private async UniTask AutonomousSequence(Transform[] waypoints, CancellationToken token, Camera AutoCam = null)
+    {
+        try
+        {
+            if (AutoCam != null)
+            {
+                // 1. Disable whatever gameplay camera is currently active
+                if (FirstPersonCamera != null && FirstPersonCamera.enabled)
+                {
+                    FirstPersonCamera.enabled = false;
+
+                    var zoom = FirstPersonCamera.GetComponent<Zoom>();
+                    if (zoom != null) zoom.enabled = false;
+                }
+
+                if (ThirdPersonCamera != null && ThirdPersonCamera.enabled)
+                {
+                    ThirdPersonCamera.enabled = false;
+                }
+
+                // 2. Make sure the Autonomy camera's GameObject is active, then enable the Camera
+                AutoCam.gameObject.SetActive(true);
+                AutoCam.enabled = true;
+
+                // Optional: force it to be the highest depth so nothing else wins
+                AutoCam.depth = 100;
+            }
+            
+            
+            for (int i = 0; i < waypoints.Length; i++)
+            {
+                if (waypoints[i] == null) continue;
+
+                await AutonomousMoveToPoint(waypoints[i].position, token);
+
+                float wait = UnityEngine.Random.Range(autonomousMinWaitSeconds, autonomousMaxWaitSeconds);
+                await UniTask.WaitForSeconds(wait, cancellationToken: token);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+
+        
+        
+        
+        //EndAutonomousMode(AutoCam);
+    }
+    
+    
+    private async UniTask AutonomousMoveToPoint(Vector3 target, CancellationToken token)
+    {
+        while (true)
+        {
+            token.ThrowIfCancellationRequested();
+
+            Vector3 flatPos = transform.position;
+            flatPos.y = 0f;
+
+            Vector3 flatTarget = target;
+            flatTarget.y = 0f;
+
+            if (Vector3.Distance(flatPos, flatTarget) <= autonomousArriveDistance) return;
+
+            Vector3 dir = target - transform.position;
+            dir.y = 0f;
+            dir.Normalize();
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir, Vector3.up),
+                Time.deltaTime * autonomousRotateSpeed);
+
+            if (thisCharController != null && thisCharController.enabled)
+            {
+                bool isGrounded = thisCharController.isGrounded;
+
+                thisCharController.Move(dir * autonomousMoveSpeed * Time.deltaTime);
+
+                moveDirection.y += Physics.gravity.y * Time.deltaTime;
+                thisCharController.Move(moveDirection * Time.deltaTime);
+
+                UpdateAnimator(isGrounded);
+            }
+
+            await UniTask.Yield(PlayerLoopTiming.Update, token);
+        }
+    }
+
+    private void SetInputEnabled(bool enabled)
+    {
+        void Set(InputActionReference actionRef)
+        {
+            if (actionRef == null) return;
+            if (enabled) actionRef.action.Enable();
+            else actionRef.action.Disable();
+        }
+
+        Set(moveAction);
+        Set(jumpAction);
+        Set(crouchAction);
+        Set(walkAction);
+        Set(climbUpAction);
+        Set(climbDownAction);
+        Set(exitLadderAction);
+        Set(meleeAction);
+        Set(specialAttach);
+        Set(StandUpAction);
+        Set(CameraToggleAction);
+    }
+
     private void HandleMovement()
     {
         if (CurrentCamera == DebugCam) return;
         if (GameMaster.Instance?.PauseManager?.IsPaused == true) return;
-        if (IsSeated || IsLying) return;
+        if (IsSeated || IsLying || IsAutonomous) return;
         if (thisCharController == null || !thisCharController.enabled) return;
         if (MoveOverride && moveAction != null && !moveAction.action.enabled)
             moveAction.action.Enable();
@@ -1155,14 +1413,26 @@ public class Player : Singleton<Player>
 
         ComputeManualVelocityXZ();
 
-        Vector3 vel = _manualVelocityXZ;
-        float speed = vel.magnitude;
+        Vector3 vel   = _manualVelocityXZ;
+        float speed   = vel.magnitude;
+        bool isMoving = speed > 0.5f;
 
-        float moveThreshold = 0.5f;
-        bool isMoving = speed > moveThreshold;
+        // -------------------------------------------------
+        //  Running override – ALWAYS use walkingWithTorch as the key
+        // -------------------------------------------------
+        if (_locomotionOverride != null && walkingWithTorch != null && runningClip != null)
+        {
+            AnimationClip targetWalkClip = shouldrun
+                ? runningClip
+                : (_hasTorch ? walkingWithTorch : walkingWithoutTorch);
 
+            _locomotionOverride[walkingWithTorch] = targetWalkClip;
+        }
+
+        // Direction
         Vector3 localDir = Vector3.zero;
-        if (isMoving && _animT != null) localDir = _animT.InverseTransformDirection(vel.normalized);
+        if (isMoving && _animT != null)
+            localDir = _animT.InverseTransformDirection(vel.normalized);
 
         float targetX = isMoving ? Mathf.Clamp(localDir.x, -1f, 1f) : 0f;
         float targetY = isMoving ? Mathf.Clamp(localDir.z, -1f, 1f) : 0f;
@@ -1173,11 +1443,13 @@ public class Player : Singleton<Player>
         Noranimator.SetFloat(AnimMoveX, targetX, animDampTime, dt);
         Noranimator.SetFloat(AnimMoveY, targetY, animDampTime, dt);
 
+        // Speed parameter for the blend tree
         float targetSpeed01 = 0f;
         if (isMoving)
         {
-            if (crouching) targetSpeed01 = 0.5f;
-            else           targetSpeed01 = walking ? 0.5f : 1f;
+            if (crouching)      targetSpeed01 = 0.5f;
+            else if (shouldrun) targetSpeed01 = 1f;
+            else                targetSpeed01 = 0.5f;
         }
 
         Noranimator.SetFloat(AnimSpeed, targetSpeed01, animDampTime, dt);
@@ -1316,6 +1588,7 @@ public class Player : Singleton<Player>
 
     public void TryMelee()
     {
+        if (IsAutonomous) return;
         if (!CombatEnabled) return;
         if (Noranimator == null) return;
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
@@ -1381,6 +1654,7 @@ public class Player : Singleton<Player>
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
+        if (IsAutonomous) return;
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
         if (climbing || crouching || thisCharController == null) return;
         if (!thisCharController.isGrounded) return;
@@ -1474,6 +1748,7 @@ public class Player : Singleton<Player>
     
     private void OnCrouchToggle(InputAction.CallbackContext ctx)
     {
+        if (IsAutonomous) return;
         if (climbing) return;
         if (PlayerPhone.CameraOpen) return;
         if (GameMaster.Instance != null && GameMaster.Instance.PLAYERBUSY && !MoveOverride) return;
@@ -1713,3 +1988,49 @@ public class Player : Singleton<Player>
         return nuNum;
     }
 }
+
+#if UNITY_EDITOR
+
+[CustomEditor(typeof(Player))]
+public class PlayerEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+
+        Player player = (Player)target;
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Autonomous Mode", EditorStyles.boldLabel);
+
+        using (new EditorGUI.DisabledScope(!Application.isPlaying))
+        {
+            EditorGUILayout.BeginHorizontal();
+
+            using (new EditorGUI.DisabledScope(player.IsAutonomous || player.AutonomousmodeWaypoints == null || player.AutonomousmodeWaypoints.Length == 0))
+            {
+                if (GUILayout.Button("Start Autonomous Mode"))
+                {
+                    player.StartAutonomousMode(player.AutonomousmodeWaypoints);
+                }
+            }
+
+            using (new EditorGUI.DisabledScope(!player.IsAutonomous))
+            {
+                if (GUILayout.Button("End Autonomous Mode"))
+                {
+                    player.EndAutonomousMode();
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        if (!Application.isPlaying)
+        {
+            EditorGUILayout.HelpBox("Buttons are only usable in Play Mode.", MessageType.Info);
+        }
+    }
+}
+
+#endif

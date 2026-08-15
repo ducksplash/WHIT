@@ -1213,7 +1213,12 @@ public enum OutfitName
     NewTraditionDress,
     FrilledDress,
     SleevelessBlousseAndSkirt,
-    PVCSuit
+    PVCSuit,
+    WavyTopAndSkirt,
+    ModestSleevelessDress,
+    FloatyBlousseAndCutoffs,
+    PartyDress,
+    ConservativeDressAndCardi
 }
 
 

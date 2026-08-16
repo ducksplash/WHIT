@@ -1218,7 +1218,12 @@ public enum OutfitName
     ModestSleevelessDress,
     FloatyBlousseAndCutoffs,
     PartyDress,
-    ConservativeDressAndCardi
+    ConservativeDressAndCardi,
+    FittedDress,
+    PrincessDress,
+    StraplessWithTights,
+    FloatyBlousseAndLongSkirt
+    
 }
 
 

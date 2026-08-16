@@ -307,9 +307,7 @@ public class OnboardingManager : MonoBehaviour
 
     public void GarbageRun()
     {
-        //Debug.Log("GarbageRun");
 
-        // ---- CLEAR EVIDENCE KEYS ----
         var keys = StoredPrefs.Instance.GetAllKeys();
 
         foreach (var key in keys)
@@ -317,12 +315,10 @@ public class OnboardingManager : MonoBehaviour
             if (key.StartsWith("Evidence/")) StoredPrefs.Instance.DeleteKey(key);
         }
 
-        // ---- RESET EQ ----
         StoredPrefs.Instance.SetInt("EQLevelNorasFlat", 0);
         StoredPrefs.Instance.SetInt("EQLevel1", 0);
         StoredPrefs.Instance.SetInt("EQLevel2", 0);
 
-        // ---- OPTIONAL: clear DCIM images ----
         string dcim = Application.persistentDataPath + "/Phone/0/Evidence/";
         if (Directory.Exists(dcim)) Directory.Delete(dcim, true);
 
@@ -330,7 +326,6 @@ public class OnboardingManager : MonoBehaviour
 
         StoredPrefs.Instance.Save();
 
-        // Clear runtime dictionary
         GameMaster.Instance.EvidenceManager.EvidenceFound.Clear();
     }
 
@@ -338,9 +333,7 @@ public class OnboardingManager : MonoBehaviour
     {
         if (GameMaster.Instance.PLAYERBUSY) return;
         string root = Application.persistentDataPath;
-
-        //Debug.Log($"[OnboardingEditor] FULL WIPE: {root}");
-
+        
         try
         {
             if (Directory.Exists(root)) Directory.Delete(root, true);
@@ -350,19 +343,11 @@ public class OnboardingManager : MonoBehaviour
             Debug.LogError($"[OnboardingEditor] Failed to delete persistent data: {e}");
         }
 
-        // Recreate base directory so systems don’t crash
         Directory.CreateDirectory(root);
 
-        // Clear runtime state
-        if (GameMaster.Instance != null)
-        {
-            if (GameMaster.Instance.EvidenceManager != null) GameMaster.Instance.EvidenceManager.EvidenceFound.Clear();
-        }
+        if (GameMaster.Instance != null) { if (GameMaster.Instance.EvidenceManager != null) GameMaster.Instance.EvidenceManager.EvidenceFound.Clear(); }
 
-        // Reset scene objects safely
         ResetSceneObjects();
-
-        //Debug.Log("[OnboardingEditor] Persistent data wipe complete.");
     }
 
     private void ResetSceneObjects()
@@ -405,8 +390,6 @@ public class OnboardingManager : MonoBehaviour
 
 }
 
-// File: OnboardingManagerEditor.cs
-// Place in folder named "Editor"
 #if UNITY_EDITOR
 
 [CustomEditor(typeof(OnboardingManager))]
@@ -490,9 +473,7 @@ public class OnboardingManagerEditor : Editor
     public void FullPersistentDataWipe(OnboardingManager mgr)
     {
         string root = Application.persistentDataPath;
-
-        //Debug.Log($"[OnboardingEditor] FULL WIPE: {root}");
-
+        
         try
         {
             if (Directory.Exists(root)) Directory.Delete(root, true);
@@ -502,19 +483,12 @@ public class OnboardingManagerEditor : Editor
             Debug.LogError($"[OnboardingEditor] Failed to delete persistent data: {e}");
         }
 
-        // Recreate base directory so systems don’t crash
         Directory.CreateDirectory(root);
 
-        // Clear runtime state
-        if (GameMaster.Instance != null)
-        {
-            if (GameMaster.Instance.EvidenceManager != null) GameMaster.Instance.EvidenceManager.EvidenceFound.Clear();
-        }
+        if (GameMaster.Instance != null) { if (GameMaster.Instance.EvidenceManager != null) GameMaster.Instance.EvidenceManager.EvidenceFound.Clear(); }
 
-        // Reset scene objects safely
         ResetSceneObjects(mgr);
 
-        //Debug.Log("[OnboardingEditor] Persistent data wipe complete.");
     }
 
     private void ResetSceneObjects(OnboardingManager mgr)

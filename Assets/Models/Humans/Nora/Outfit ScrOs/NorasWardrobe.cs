@@ -1222,7 +1222,10 @@ public enum OutfitName
     FittedDress,
     PrincessDress,
     StraplessWithTights,
-    FloatyBlousseAndLongSkirt
+    FloatyBlousseAndLongSkirt,
+    StraplessTopAndFlares,
+    SleevelessShirtAndSkirt,
+    StrappyTopAndTrousers
     
 }
 

@@ -1225,7 +1225,14 @@ public enum OutfitName
     FloatyBlousseAndLongSkirt,
     StraplessTopAndFlares,
     SleevelessShirtAndSkirt,
-    StrappyTopAndTrousers
+    StrappyTopAndTrousers,
+    StylishSuit,
+    ModestEveningDress,
+    ConservativeEveningDress,
+    FrilledSkirtAndTop,
+    BridesmaidDress,
+    LiberalDress,
+    ShareholderMeetingDress
     
 }
 

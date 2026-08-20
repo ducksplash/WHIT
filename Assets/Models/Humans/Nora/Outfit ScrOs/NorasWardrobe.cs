@@ -1232,7 +1232,20 @@ public enum OutfitName
     FrilledSkirtAndTop,
     BridesmaidDress,
     LiberalDress,
-    ShareholderMeetingDress
+    ShareholderMeetingDress,
+    RuffleCollarTopAndSkirt,
+    RuffleCollarDress,
+    LowRuffleAndSkirt,
+    CroppedShirtAndSkirt,
+    CroptopSkirtAndCardi,
+    TightDress,
+    TeardropDress,
+    CroppedDressAndTights,
+    ClingyDress,
+    ClingySkirtAndTop,
+    CropTopAndShorts,
+    StylishJacketAndSkirt,
+    KnottedCardiAndSkirt
     
 }
 

@@ -1245,7 +1245,19 @@ public enum OutfitName
     ClingySkirtAndTop,
     CropTopAndShorts,
     StylishJacketAndSkirt,
-    KnottedCardiAndSkirt
+    KnottedCardiAndSkirt,
+    JumperOverShirtAndSkirt,
+    RelaxedShirtAndPants,
+    RuffleTopAndRuffleSkirt,
+    RipplyTopAndPants,
+    LabTechnician,
+    LayeredSweaterAndPants,
+    ButterflyDress,
+    StylishJacketAndLongSkirt,
+    LayeredSweaterAndLongSkirt,
+    VestAndShorts,
+    VestAndSkirt,
+    TiedTopSkirtAndStocks
     
 }
 

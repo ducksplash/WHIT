@@ -1257,7 +1257,11 @@ public enum OutfitName
     LayeredSweaterAndLongSkirt,
     VestAndShorts,
     VestAndSkirt,
-    TiedTopSkirtAndStocks
+    TiedTopSkirtAndStocks,
+    ProfessionalTopAndSkirt,
+    StretchyDress,
+    ShortDressAndJacket,
+    PrettyDress
     
 }
 

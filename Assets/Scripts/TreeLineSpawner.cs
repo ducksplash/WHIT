@@ -1,6 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
+
 [System.Serializable]
 public class TreeLine
 {
@@ -9,15 +14,16 @@ public class TreeLine
     public Transform Source;
     public Transform End;
     public List<GameObject> Prefabs = new List<GameObject>();
-    public Vector3 Direction = Vector3.forward;
+    public bool Reverse = false;
     public float Speed = 1f;
     public float SpawnInterval = 1f;
     public int InitialPoolSizePerPrefab = 5;
 
     [HideInInspector] public float SpawnTimer;
     [HideInInspector] public Dictionary<GameObject, Queue<GameObject>> Pools = new Dictionary<GameObject, Queue<GameObject>>();
+    [HideInInspector] public Dictionary<GameObject, Quaternion> PrefabRotations = new Dictionary<GameObject, Quaternion>();
     [HideInInspector] public List<ActiveTreeInstance> ActiveTrees = new List<ActiveTreeInstance>();
-    [HideInInspector] public Vector3 CachedDirection;
+    [HideInInspector] public List<GameObject> RecentPrefabs = new List<GameObject>();
 }
 
 public class ActiveTreeInstance
@@ -26,11 +32,12 @@ public class ActiveTreeInstance
     public GameObject SourcePrefab;
 }
 
+[ExecuteAlways]
 public class TreeLineSpawner : MonoBehaviour
 {
     public List<TreeLine> Lines = new List<TreeLine>();
 
-    void Awake()
+    void OnEnable()
     {
         foreach (TreeLine line in Lines)
         {
@@ -40,23 +47,47 @@ public class TreeLineSpawner : MonoBehaviour
 
     void Update()
     {
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
         float deltaTime = Time.deltaTime;
 
         foreach (TreeLine line in Lines)
         {
-            if (!line.Enabled || line.Source == null || line.End == null)
+            if (!line.Enabled)
             {
                 continue;
             }
 
-            HandleSpawning(line, deltaTime);
-            HandleMovementAndRemoval(line, deltaTime);
+            if (line.Source == null || line.End == null || line.Prefabs.Count == 0)
+            {
+                Debug.LogWarning("TreeLineSpawner: line \"" + line.LineName + "\" is Enabled but missing Source, End, or Prefabs, so it will not spawn.", this);
+                continue;
+            }
+
+            Transform spawnPoint = line.Reverse ? line.End : line.Source;
+            Transform removePoint = line.Reverse ? line.Source : line.End;
+
+            Vector3 flow = removePoint.position - spawnPoint.position;
+            flow.y = 0f;
+
+            if (flow.sqrMagnitude < 0.0001f)
+            {
+                Debug.LogWarning("TreeLineSpawner: line \"" + line.LineName + "\" has Source and End at the same XZ position, so no direction of travel can be computed.", this);
+                continue;
+            }
+
+            Vector3 direction = flow.normalized;
+
+            HandleSpawning(line, spawnPoint, deltaTime);
+            HandleMovementAndRemoval(line, removePoint, direction, deltaTime);
         }
     }
 
     void InitializeLine(TreeLine line)
     {
-        line.CachedDirection = line.Direction.normalized;
         line.SpawnTimer = line.SpawnInterval;
 
         foreach (GameObject prefab in line.Prefabs)
@@ -66,11 +97,17 @@ public class TreeLineSpawner : MonoBehaviour
                 continue;
             }
 
+            if (!line.PrefabRotations.ContainsKey(prefab))
+            {
+                line.PrefabRotations.Add(prefab, prefab.transform.rotation);
+            }
+
             Queue<GameObject> pool = new Queue<GameObject>();
 
             for (int i = 0; i < line.InitialPoolSizePerPrefab; i++)
             {
                 GameObject instance = Instantiate(prefab, transform);
+                instance.transform.rotation = line.PrefabRotations[prefab];
                 instance.SetActive(false);
                 pool.Enqueue(instance);
             }
@@ -79,7 +116,7 @@ public class TreeLineSpawner : MonoBehaviour
         }
     }
 
-    void HandleSpawning(TreeLine line, float deltaTime)
+    void HandleSpawning(TreeLine line, Transform spawnPoint, float deltaTime)
     {
         if (line.Prefabs.Count == 0)
         {
@@ -90,18 +127,23 @@ public class TreeLineSpawner : MonoBehaviour
 
         if (line.SpawnTimer <= 0f)
         {
-            SpawnTree(line);
+            SpawnTree(line, spawnPoint);
             line.SpawnTimer = line.SpawnInterval;
         }
     }
 
-    void SpawnTree(TreeLine line)
+    void SpawnTree(TreeLine line, Transform spawnPoint)
     {
-        GameObject prefab = line.Prefabs[Random.Range(0, line.Prefabs.Count)];
+        GameObject prefab = PickPrefab(line);
 
         if (prefab == null)
         {
             return;
+        }
+
+        if (!line.PrefabRotations.ContainsKey(prefab))
+        {
+            line.PrefabRotations.Add(prefab, prefab.transform.rotation);
         }
 
         if (!line.Pools.ContainsKey(prefab))
@@ -121,8 +163,8 @@ public class TreeLineSpawner : MonoBehaviour
             instance = Instantiate(prefab, transform);
         }
 
-        instance.transform.position = line.Source.position;
-        instance.transform.rotation = line.Source.rotation;
+        instance.transform.position = spawnPoint.position;
+        instance.transform.rotation = line.PrefabRotations[prefab];
         instance.SetActive(true);
 
         line.ActiveTrees.Add(new ActiveTreeInstance
@@ -130,12 +172,49 @@ public class TreeLineSpawner : MonoBehaviour
             Instance = instance,
             SourcePrefab = prefab
         });
+
+        line.RecentPrefabs.Add(prefab);
+
+        while (line.RecentPrefabs.Count > 3)
+        {
+            line.RecentPrefabs.RemoveAt(0);
+        }
     }
 
-    void HandleMovementAndRemoval(TreeLine line, float deltaTime)
+    GameObject PickPrefab(TreeLine line)
     {
-        Vector3 direction = line.CachedDirection;
-        Vector3 endPosition = line.End.position;
+        List<GameObject> candidates = new List<GameObject>();
+
+        foreach (GameObject prefab in line.Prefabs)
+        {
+            if (prefab != null && !line.RecentPrefabs.Contains(prefab))
+            {
+                candidates.Add(prefab);
+            }
+        }
+
+        if (candidates.Count == 0)
+        {
+            foreach (GameObject prefab in line.Prefabs)
+            {
+                if (prefab != null)
+                {
+                    candidates.Add(prefab);
+                }
+            }
+        }
+
+        if (candidates.Count == 0)
+        {
+            return null;
+        }
+
+        return candidates[Random.Range(0, candidates.Count)];
+    }
+
+    void HandleMovementAndRemoval(TreeLine line, Transform removePoint, Vector3 direction, float deltaTime)
+    {
+        Vector3 removePosition = removePoint.position;
 
         for (int i = line.ActiveTrees.Count - 1; i >= 0; i--)
         {
@@ -149,7 +228,8 @@ public class TreeLineSpawner : MonoBehaviour
 
             activeTree.Instance.transform.position += direction * line.Speed * deltaTime;
 
-            Vector3 toInstance = activeTree.Instance.transform.position - endPosition;
+            Vector3 toInstance = activeTree.Instance.transform.position - removePosition;
+            toInstance.y = 0f;
 
             if (Vector3.Dot(toInstance, direction) >= 0f)
             {
@@ -171,6 +251,43 @@ public class TreeLineSpawner : MonoBehaviour
         line.Pools[activeTree.SourcePrefab].Enqueue(activeTree.Instance);
     }
 
+    void SafeDestroy(GameObject instance)
+    {
+        if (instance == null)
+        {
+            return;
+        }
+
+        if (Application.isPlaying)
+        {
+            Destroy(instance);
+        }
+        else
+        {
+            DestroyImmediate(instance);
+        }
+    }
+
+    public void StartLine(TreeLine line)
+    {
+        line.Enabled = true;
+        line.SpawnTimer = line.SpawnInterval;
+    }
+
+    public void StopLine(TreeLine line)
+    {
+        line.Enabled = false;
+    }
+
+    public void ClearLine(TreeLine line)
+    {
+        for (int i = line.ActiveTrees.Count - 1; i >= 0; i--)
+        {
+            ReturnToPool(line, line.ActiveTrees[i]);
+            line.ActiveTrees.RemoveAt(i);
+        }
+    }
+
     public void AddLine(TreeLine line)
     {
         Lines.Add(line);
@@ -186,22 +303,14 @@ public class TreeLineSpawner : MonoBehaviour
 
         foreach (ActiveTreeInstance activeTree in line.ActiveTrees)
         {
-            if (activeTree.Instance != null)
-            {
-                Destroy(activeTree.Instance);
-            }
+            SafeDestroy(activeTree.Instance);
         }
 
         foreach (Queue<GameObject> pool in line.Pools.Values)
         {
             while (pool.Count > 0)
             {
-                GameObject instance = pool.Dequeue();
-
-                if (instance != null)
-                {
-                    Destroy(instance);
-                }
+                SafeDestroy(pool.Dequeue());
             }
         }
 
@@ -217,6 +326,11 @@ public class TreeLineSpawner : MonoBehaviour
 
         line.Prefabs.Add(prefab);
 
+        if (!line.PrefabRotations.ContainsKey(prefab))
+        {
+            line.PrefabRotations.Add(prefab, prefab.transform.rotation);
+        }
+
         if (!line.Pools.ContainsKey(prefab))
         {
             Queue<GameObject> pool = new Queue<GameObject>();
@@ -224,6 +338,7 @@ public class TreeLineSpawner : MonoBehaviour
             for (int i = 0; i < line.InitialPoolSizePerPrefab; i++)
             {
                 GameObject instance = Instantiate(prefab, transform);
+                instance.transform.rotation = line.PrefabRotations[prefab];
                 instance.SetActive(false);
                 pool.Enqueue(instance);
             }
@@ -240,16 +355,13 @@ public class TreeLineSpawner : MonoBehaviour
         }
 
         line.Prefabs.Remove(prefab);
+        line.RecentPrefabs.RemoveAll(p => p == prefab);
 
         for (int i = line.ActiveTrees.Count - 1; i >= 0; i--)
         {
             if (line.ActiveTrees[i].SourcePrefab == prefab)
             {
-                if (line.ActiveTrees[i].Instance != null)
-                {
-                    Destroy(line.ActiveTrees[i].Instance);
-                }
-
+                SafeDestroy(line.ActiveTrees[i].Instance);
                 line.ActiveTrees.RemoveAt(i);
             }
         }
@@ -260,15 +372,163 @@ public class TreeLineSpawner : MonoBehaviour
 
             while (pool.Count > 0)
             {
-                GameObject instance = pool.Dequeue();
-
-                if (instance != null)
-                {
-                    Destroy(instance);
-                }
+                SafeDestroy(pool.Dequeue());
             }
 
             line.Pools.Remove(prefab);
         }
     }
 }
+
+#if UNITY_EDITOR
+
+[CustomEditor(typeof(TreeLineSpawner))]
+public class TreeLineSpawnerEditor : Editor
+{
+    SerializedProperty linesProperty;
+    List<bool> foldouts = new List<bool>();
+
+    void OnEnable()
+    {
+        linesProperty = serializedObject.FindProperty("Lines");
+    }
+
+    public override void OnInspectorGUI()
+    {
+        serializedObject.Update();
+
+        TreeLineSpawner spawner = (TreeLineSpawner)target;
+
+        while (foldouts.Count < linesProperty.arraySize)
+        {
+            foldouts.Add(true);
+        }
+
+        while (foldouts.Count > linesProperty.arraySize)
+        {
+            foldouts.RemoveAt(foldouts.Count - 1);
+        }
+
+        if (!Application.isPlaying)
+        {
+            EditorGUILayout.HelpBox("Spawning and movement only run in Play Mode. Use the buttons below to configure lines and warm up pools ahead of time.", MessageType.Info);
+        }
+
+        bool lineWasRemoved = false;
+
+        for (int i = 0; i < linesProperty.arraySize; i++)
+        {
+            SerializedProperty lineProperty = linesProperty.GetArrayElementAtIndex(i);
+
+            if (DrawLine(spawner, lineProperty, i))
+            {
+                lineWasRemoved = true;
+                break;
+            }
+        }
+
+        if (lineWasRemoved)
+        {
+            serializedObject.Update();
+            EditorUtility.SetDirty(spawner);
+        }
+
+        EditorGUILayout.Space();
+
+        if (GUILayout.Button("Add Line"))
+        {
+            spawner.AddLine(new TreeLine());
+            serializedObject.Update();
+            EditorUtility.SetDirty(spawner);
+        }
+
+        serializedObject.ApplyModifiedProperties();
+    }
+
+    bool DrawLine(TreeLineSpawner spawner, SerializedProperty lineProperty, int index)
+    {
+        SerializedProperty lineNameProperty = lineProperty.FindPropertyRelative("LineName");
+        SerializedProperty enabledProperty = lineProperty.FindPropertyRelative("Enabled");
+        SerializedProperty sourceProperty = lineProperty.FindPropertyRelative("Source");
+        SerializedProperty endProperty = lineProperty.FindPropertyRelative("End");
+        SerializedProperty prefabsProperty = lineProperty.FindPropertyRelative("Prefabs");
+        SerializedProperty reverseProperty = lineProperty.FindPropertyRelative("Reverse");
+        SerializedProperty speedProperty = lineProperty.FindPropertyRelative("Speed");
+        SerializedProperty spawnIntervalProperty = lineProperty.FindPropertyRelative("SpawnInterval");
+        SerializedProperty poolSizeProperty = lineProperty.FindPropertyRelative("InitialPoolSizePerPrefab");
+
+        TreeLine line = spawner.Lines[index];
+
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        EditorGUILayout.BeginHorizontal();
+
+        foldouts[index] = EditorGUILayout.Foldout(foldouts[index], string.IsNullOrEmpty(lineNameProperty.stringValue) ? "Line " + index : lineNameProperty.stringValue, true);
+
+        GUILayout.FlexibleSpace();
+
+        GUIStyle statusStyle = new GUIStyle(EditorStyles.miniBoldLabel);
+        statusStyle.normal.textColor = enabledProperty.boolValue ? new Color(0.2f, 0.7f, 0.2f) : new Color(0.7f, 0.2f, 0.2f);
+        GUILayout.Label(enabledProperty.boolValue ? "Running" : "Stopped", statusStyle, GUILayout.Width(60));
+
+        if (GUILayout.Button("Remove", GUILayout.Width(70)))
+        {
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndVertical();
+            spawner.RemoveLine(line);
+            return true;
+        }
+
+        EditorGUILayout.EndHorizontal();
+
+        if (foldouts[index])
+        {
+            EditorGUI.indentLevel++;
+
+            EditorGUILayout.PropertyField(lineNameProperty);
+            EditorGUILayout.PropertyField(sourceProperty);
+            EditorGUILayout.PropertyField(endProperty);
+            EditorGUILayout.PropertyField(reverseProperty);
+            EditorGUILayout.PropertyField(speedProperty);
+            EditorGUILayout.PropertyField(spawnIntervalProperty);
+            EditorGUILayout.PropertyField(poolSizeProperty);
+            EditorGUILayout.PropertyField(prefabsProperty, true);
+
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+
+            GUI.enabled = !enabledProperty.boolValue;
+            if (GUILayout.Button("Start"))
+            {
+                enabledProperty.boolValue = true;
+                serializedObject.ApplyModifiedProperties();
+                spawner.StartLine(line);
+                EditorUtility.SetDirty(spawner);
+            }
+
+            GUI.enabled = enabledProperty.boolValue;
+            if (GUILayout.Button("Stop"))
+            {
+                enabledProperty.boolValue = false;
+                serializedObject.ApplyModifiedProperties();
+                spawner.StopLine(line);
+                EditorUtility.SetDirty(spawner);
+            }
+
+            GUI.enabled = true;
+            if (GUILayout.Button("Clear Active"))
+            {
+                spawner.ClearLine(line);
+                EditorUtility.SetDirty(spawner);
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUI.indentLevel--;
+        }
+
+        EditorGUILayout.EndVertical();
+
+        return false;
+    }
+}
+#endif

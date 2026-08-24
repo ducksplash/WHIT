@@ -813,7 +813,7 @@ public class NorasWardrobeEditor : Editor
             normal = { textColor = Color.white }
         };
 
-        DrawOutfitStats(me);
+        DrawOutfitStats(me, clearAllStyle);
 
         EditorGUILayout.LabelField("Outfit Controls", EditorStyles.boldLabel);
         EditorGUILayout.Space();
@@ -908,13 +908,13 @@ public class NorasWardrobeEditor : Editor
         return outfits.Count(o => o.outfitStage == stage);
     }
 
-    private static void DrawOutfitStats(NorasWardrobe me)
+    private static void DrawOutfitStats(NorasWardrobe me, GUIStyle style)
     {
         var outfits = (me.Outfits ?? new List<Outfit>()).Where(o => o != null && o.thisOutfit != OutfitName.None).ToList();
 
         int canSpawnCount = CountCanSpawn(outfits);
 
-        GUI.backgroundColor = Color.blue;
+        GUI.backgroundColor = Color.green;
         EditorGUILayout.LabelField("Outfit Stats", EditorStyles.boldLabel);
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
@@ -937,6 +937,12 @@ public class NorasWardrobeEditor : Editor
         EditorGUILayout.LabelField($"{canSpawnCount} Can be used when spawning Nora", EditorStyles.boldLabel);
         EditorGUILayout.Space();
         EditorGUILayout.LabelField($"Total {outfits.Count} Outfits", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField($"Current Outfit ID: {me.currentOutfit}", EditorStyles.boldLabel);
+        
+        if (GUILayout.Button("Copy Outfit ID to clipbiard", style, GUILayout.Height(ButtonHeight)))
+        {
+            EditorGUIUtility.systemCopyBuffer = me.currentOutfit.ToString();
+        }
 
         EditorGUILayout.EndVertical();
         EditorGUILayout.Space();
@@ -1261,7 +1267,17 @@ public enum OutfitName
     ProfessionalTopAndSkirt,
     StretchyDress,
     ShortDressAndJacket,
-    PrettyDress
+    PrettyDress,
+    DressWithBlousse,
+    BlousseDress,
+    BlousseTopAndPants,
+    CroppedShirtAndTinySkirt,
+    RelaxedDressAndBlousse,
+    ShortStretchyDressAndTights,
+    CasualJeansAndHoodie,
+    ModestShortSleeveTopAndSkirt,
+    ModestBlousseTopWithSkirtTop,
+    ConservativeBlousseTopWithLongSkirt
     
 }
 

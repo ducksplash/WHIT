@@ -30,6 +30,19 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer OverallPreview;
     public SkinnedMeshRenderer HatPreview;
     public SkinnedMeshRenderer ChokerPreview;
+    public SkinnedMeshRenderer GlassesPreview;
+    public SkinnedMeshRenderer CigarettePreview;
+
+    [Header("Preview Shoes")]
+    public SkinnedMeshRenderer WorkFlatsShoesPreview;
+    public SkinnedMeshRenderer SilentShoesShoesPreview;
+    public SkinnedMeshRenderer SandalsShoesPreview;
+    public SkinnedMeshRenderer BootsShoesPreview;
+    public SkinnedMeshRenderer WhiteFlatsShoesPreview;
+    public SkinnedMeshRenderer ShittyTrainersShoesPreview;
+    public SkinnedMeshRenderer FMBShoesPreview;
+    public SkinnedMeshRenderer ShuPlaceholder3ShoesPreview;
+    public SkinnedMeshRenderer ShuPlaceholder4ShoesPreview;
 
     [Header("Preview Hair")]
     public SkinnedMeshRenderer DefaultHairPreview;
@@ -57,6 +70,19 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer Overall;
     public SkinnedMeshRenderer Hat;
     public SkinnedMeshRenderer Choker;
+    public SkinnedMeshRenderer Glasses;
+    public SkinnedMeshRenderer Cigarette;
+
+    [Header("Shoes")]
+    public SkinnedMeshRenderer WorkFlatsShoes;
+    public SkinnedMeshRenderer SilentShoesShoes;
+    public SkinnedMeshRenderer SandalsShoes;
+    public SkinnedMeshRenderer BootsShoes;
+    public SkinnedMeshRenderer WhiteFlatsShoes;
+    public SkinnedMeshRenderer ShittyTrainersShoes;
+    public SkinnedMeshRenderer FMBShoes;
+    public SkinnedMeshRenderer ShuPlaceholder3Shoes;
+    public SkinnedMeshRenderer ShuPlaceholder4Shoes;
 
     [Header("Hair")]
     public SkinnedMeshRenderer DefaultHair;
@@ -90,8 +116,23 @@ public class NorasWardrobe : MonoBehaviour
     private bool _overallOverride = false;
     private bool _hatOverride = false;
     private bool _chokerOverride = false;
+    private bool _glassesOverride = false;
+    private bool _cigaretteOverride = false;
 
     private Dictionary<OutfitName, Outfit> _outfitLookup = new Dictionary<OutfitName, Outfit>();
+
+    private static readonly OutfitType[] InspectorSectionOrder =
+    {
+        OutfitType.Work,
+        OutfitType.Main,
+        OutfitType.Pyjamas,
+        OutfitType.NightOut,
+        OutfitType.Special,
+        OutfitType.Storyline,
+        OutfitType.Undergarments
+    };
+
+    private List<OutfitName> _inspectorOrderedOutfits;
 
     public List<OutfitName> BurnedOutfits = new List<OutfitName>();
 
@@ -105,8 +146,10 @@ public class NorasWardrobe : MonoBehaviour
     {
         SetupAccessories();
         SetupHair();
+        SetupShoes();
         SetupAccessoriesPreview();
         SetupHairPreview();
+        SetupShoesPreview();
 
         if (!UnressedOnLoad) 
         { SwitchToOutfit(OutfitName.Work); }
@@ -115,7 +158,7 @@ public class NorasWardrobe : MonoBehaviour
         SetupInput();
 
         BurnedOutfits = new List<OutfitName>(StoredPrefs.Instance.GetCollection<List<OutfitName>>("BurnedOutfits"));
-        
+    
     }
 
 
@@ -135,6 +178,7 @@ public class NorasWardrobe : MonoBehaviour
     private void OnValidate()
     {
         _outfitLookup = null;
+        _inspectorOrderedOutfits = null;
     }
 
     private void SetupInput()
@@ -294,6 +338,48 @@ public class NorasWardrobe : MonoBehaviour
             smr.enabled = false;
         }
     }
+    private void SetupShoes()
+    {
+        Transform rootBone = Body != null ? Body.rootBone : null;
+        Transform[] bones = Body != null ? Body.bones : null;
+
+        SkinnedMeshRenderer[] allShoes =
+        {
+            WorkFlatsShoes, SilentShoesShoes, SandalsShoes, BootsShoes, WhiteFlatsShoes,
+            ShittyTrainersShoes, FMBShoes, ShuPlaceholder3Shoes, ShuPlaceholder4Shoes
+        };
+
+        foreach (var smr in allShoes)
+        {
+            if (smr == null) { continue; }
+            if (rootBone != null) { smr.rootBone = rootBone; }
+            if (bones != null) { smr.bones = bones; }
+            smr.updateWhenOffscreen = true;
+            smr.enabled = false;
+        }
+    }
+
+    private void SetupShoesPreview()
+    {
+        Transform rootBone = BodyPreview != null ? BodyPreview.rootBone : null;
+        Transform[] bones = BodyPreview != null ? BodyPreview.bones : null;
+
+        SkinnedMeshRenderer[] allShoesPreview =
+        {
+            WorkFlatsShoesPreview, SilentShoesShoesPreview, SandalsShoesPreview, BootsShoesPreview, WhiteFlatsShoesPreview,
+            ShittyTrainersShoesPreview, FMBShoesPreview, ShuPlaceholder3ShoesPreview, ShuPlaceholder4ShoesPreview
+        };
+
+        foreach (var smr in allShoesPreview)
+        {
+            if (smr == null) { continue; }
+            if (rootBone != null) { smr.rootBone = rootBone; }
+            if (bones != null) { smr.bones = bones; }
+            smr.updateWhenOffscreen = true;
+            smr.enabled = false;
+        }
+    }
+
 
     private void HideAllHair()
     {
@@ -327,6 +413,32 @@ public class NorasWardrobe : MonoBehaviour
         if (UpDoPreview != null) { UpDoPreview.enabled = false; }
     }
 
+    private void HideAllShoes()
+    {
+        if (WorkFlatsShoes != null) { WorkFlatsShoes.enabled = false; }
+        if (SilentShoesShoes != null) { SilentShoesShoes.enabled = false; }
+        if (SandalsShoes != null) { SandalsShoes.enabled = false; }
+        if (BootsShoes != null) { BootsShoes.enabled = false; }
+        if (WhiteFlatsShoes != null) { WhiteFlatsShoes.enabled = false; }
+        if (ShittyTrainersShoes != null) { ShittyTrainersShoes.enabled = false; }
+        if (FMBShoes != null) { FMBShoes.enabled = false; }
+        if (ShuPlaceholder3Shoes != null) { ShuPlaceholder3Shoes.enabled = false; }
+        if (ShuPlaceholder4Shoes != null) { ShuPlaceholder4Shoes.enabled = false; }
+    }
+
+    private void HideAllShoesPreview()
+    {
+        if (WorkFlatsShoesPreview != null) { WorkFlatsShoesPreview.enabled = false; }
+        if (SilentShoesShoesPreview != null) { SilentShoesShoesPreview.enabled = false; }
+        if (SandalsShoesPreview != null) { SandalsShoesPreview.enabled = false; }
+        if (BootsShoesPreview != null) { BootsShoesPreview.enabled = false; }
+        if (WhiteFlatsShoesPreview != null) { WhiteFlatsShoesPreview.enabled = false; }
+        if (ShittyTrainersShoesPreview != null) { ShittyTrainersShoesPreview.enabled = false; }
+        if (FMBShoesPreview != null) { FMBShoesPreview.enabled = false; }
+        if (ShuPlaceholder3ShoesPreview != null) { ShuPlaceholder3ShoesPreview.enabled = false; }
+        if (ShuPlaceholder4ShoesPreview != null) { ShuPlaceholder4ShoesPreview.enabled = false; }
+    }
+    
     public void SetHair(HairName hair)
     {
         HideAllHair();
@@ -366,12 +478,51 @@ public class NorasWardrobe : MonoBehaviour
             case HairName.UpDo: if (UpDoPreview != null) { UpDoPreview.enabled = true; } break;
         }
     }
+    
+public void SetShoes(ShoesName shoes)
+{
+    HideAllShoes();
+    switch (shoes)
+    {
+        case ShoesName.WorkFlats: if (WorkFlatsShoes != null) { WorkFlatsShoes.enabled = true; } break;
+        case ShoesName.SilentShoes: if (SilentShoesShoes != null) { SilentShoesShoes.enabled = true; } break;
+        case ShoesName.Sandals: if (SandalsShoes != null) { SandalsShoes.enabled = true; } break;
+        case ShoesName.Boots: if (BootsShoes != null) { BootsShoes.enabled = true; } break;
+        case ShoesName.WhiteFlats: if (WhiteFlatsShoes != null) { WhiteFlatsShoes.enabled = true; } break;
+        case ShoesName.ShittyTrainers: if (ShittyTrainersShoes != null) { ShittyTrainersShoes.enabled = true; } break;
+        case ShoesName.FMB: if (FMBShoes != null) { FMBShoes.enabled = true; } break;
+        case ShoesName.ShuPlaceholder3: if (ShuPlaceholder3Shoes != null) { ShuPlaceholder3Shoes.enabled = true; } break;
+        case ShoesName.ShuPlaceholder4: if (ShuPlaceholder4Shoes != null) { ShuPlaceholder4Shoes.enabled = true; } break;
+    }
+}
+
+public void SetShoesPreview(ShoesName shoes)
+{
+    HideAllShoesPreview();
+    switch (shoes)
+    {
+        case ShoesName.WorkFlats: if (WorkFlatsShoesPreview != null) { WorkFlatsShoesPreview.enabled = true; } break;
+        case ShoesName.SilentShoes: if (SilentShoesShoesPreview != null) { SilentShoesShoesPreview.enabled = true; } break;
+        case ShoesName.Sandals: if (SandalsShoesPreview != null) { SandalsShoesPreview.enabled = true; } break;
+        case ShoesName.Boots: if (BootsShoesPreview != null) { BootsShoesPreview.enabled = true; } break;
+        case ShoesName.WhiteFlats: if (WhiteFlatsShoesPreview != null) { WhiteFlatsShoesPreview.enabled = true; } break;
+        case ShoesName.ShittyTrainers: if (ShittyTrainersShoesPreview != null) { ShittyTrainersShoesPreview.enabled = true; } break;
+        case ShoesName.FMB: if (FMBShoesPreview != null) { FMBShoesPreview.enabled = true; } break;
+        case ShoesName.ShuPlaceholder3: if (ShuPlaceholder3ShoesPreview != null) { ShuPlaceholder3ShoesPreview.enabled = true; } break;
+        case ShoesName.ShuPlaceholder4: if (ShuPlaceholder4ShoesPreview != null) { ShuPlaceholder4ShoesPreview.enabled = true; } break;
+    }
+}
 
     private HairName GetHairForOutfit(OutfitName outfit)
     {
         return GetOutfit(outfit)?.Hair ?? HairName.DefaultHair;
     }
 
+    private ShoesName GetShoesForOutfit(OutfitName outfit)
+    {
+        return GetOutfit(outfit)?.Shoes ?? ShoesName.WorkFlats;
+    }
+    
     private Outfit GetOutfit(OutfitName outfit)
     {
         if (_outfitLookup == null) { BuildOutfitLookup(); }
@@ -387,6 +538,26 @@ public class NorasWardrobe : MonoBehaviour
             if (outfit == null) { continue; }
             _outfitLookup[outfit.thisOutfit] = outfit;
         }
+    }
+
+    private List<OutfitName> GetInspectorOrderedOutfits()
+    {
+        if (_inspectorOrderedOutfits != null) { return _inspectorOrderedOutfits; }
+
+        _inspectorOrderedOutfits = new List<OutfitName>();
+        if (Outfits == null) { return _inspectorOrderedOutfits; }
+
+        foreach (var type in InspectorSectionOrder)
+        {
+            foreach (var outfit in Outfits)
+            {
+                if (outfit == null || outfit.thisOutfit == OutfitName.None) { continue; }
+                if (outfit.outfitType != type) { continue; }
+                _inspectorOrderedOutfits.Add(outfit.thisOutfit);
+            }
+        }
+
+        return _inspectorOrderedOutfits;
     }
 
     private void InstantiatePrefabs(List<GameObject> prefabs)
@@ -473,6 +644,18 @@ public class NorasWardrobe : MonoBehaviour
         _chokerOverride = forceOn.HasValue ? forceOn.Value : !_chokerOverride;
         ApplyAccessories();
     }
+    
+    public void ToggleGlasses(bool? forceOn = null)
+    {
+        _glassesOverride = forceOn.HasValue ? forceOn.Value : !_glassesOverride;
+        ApplyAccessories();
+    }
+
+    public void ToggleCigarette(bool? forceOn = null)
+    {
+        _cigaretteOverride = forceOn.HasValue ? forceOn.Value : !_cigaretteOverride;
+        ApplyAccessories();
+    }
 
     public void ResetAccessoryOverrides()
     {
@@ -480,6 +663,8 @@ public class NorasWardrobe : MonoBehaviour
         _overallOverride = false;
         _hatOverride = false;
         _chokerOverride = false;
+        _glassesOverride = false;
+        _cigaretteOverride = false;
     }
 
     private void ApplyAccessories()
@@ -489,10 +674,14 @@ public class NorasWardrobe : MonoBehaviour
         bool o = data != null && data.Apron;
         bool h = data != null && data.Hat;
         bool c = data != null && data.Choker;
+        bool g = data != null && data.Glasses;
+        bool ci = data != null && data.Cigarette;
         if (ButterflyWings != null) { ButterflyWings.enabled = w || _wingsOverride; }
         if (Overall != null) { Overall.enabled = o || _overallOverride; }
         if (Hat != null) { Hat.enabled = h || _hatOverride; }
         if (Choker != null) { Choker.enabled = c || _chokerOverride; }
+        if (Glasses != null) { Glasses.enabled = g || _glassesOverride; }
+        if (Cigarette != null) { Cigarette.enabled = ci || _cigaretteOverride; }
     }
 
     private void ApplyAccessoriesPreview(OutfitName outfit)
@@ -502,10 +691,14 @@ public class NorasWardrobe : MonoBehaviour
         bool o = data != null && data.Apron;
         bool h = data != null && data.Hat;
         bool c = data != null && data.Choker;
+        bool g = data != null && data.Glasses;
+        bool ci = data != null && data.Cigarette;
         if (ButterflyWingsPreview != null) { ButterflyWingsPreview.enabled = w; }
         if (OverallPreview != null) { OverallPreview.enabled = o; }
         if (HatPreview != null) { HatPreview.enabled = h; }
         if (ChokerPreview != null) { ChokerPreview.enabled = c; }
+        if (GlassesPreview != null) { GlassesPreview.enabled = g; }
+        if (CigarettePreview != null) { CigarettePreview.enabled = ci; }
     }
 
     private void HideAllAccessories()
@@ -514,6 +707,8 @@ public class NorasWardrobe : MonoBehaviour
         if (Overall != null) { Overall.enabled = false; }
         if (Hat != null) { Hat.enabled = false; }
         if (Choker != null) { Choker.enabled = false; }
+        if (Glasses != null) { Glasses.enabled = false; }
+        if (Cigarette != null) { Cigarette.enabled = false; }
     }
 
     private void HideAllAccessoriesPreview()
@@ -522,29 +717,44 @@ public class NorasWardrobe : MonoBehaviour
         if (OverallPreview != null) { OverallPreview.enabled = false; }
         if (HatPreview != null) { HatPreview.enabled = false; }
         if (ChokerPreview != null) { ChokerPreview.enabled = false; }
+        if (GlassesPreview != null) { GlassesPreview.enabled = false; }
+        if (CigarettePreview != null) { CigarettePreview.enabled = false; }
     }
-
-    private static bool IsUndergarmentOutfit(int index)
-    {
-        return index == (int)OutfitName.None;
-    }
-
     public void NextOutfit()
     {
-        int total = System.Enum.GetValues(typeof(OutfitName)).Length;
-        int index = (int)currentOutfit;
-        do { index = (index + 1) % total; }
-        while (IsUndergarmentOutfit(index) || !IsOutfitEnabled((OutfitName)index));
-        SwitchToOutfit((OutfitName)index);
+        List<OutfitName> order = GetInspectorOrderedOutfits();
+        if (order.Count == 0) { return; }
+
+        int index = order.IndexOf(currentOutfit);
+
+        for (int i = 0; i < order.Count; i++)
+        {
+            index = (index + 1) % order.Count;
+            if (IsOutfitEnabled(order[index]))
+            {
+                SwitchToOutfit(order[index]);
+                return;
+            }
+        }
     }
 
     public void PreviousOutfit()
     {
-        int total = System.Enum.GetValues(typeof(OutfitName)).Length;
-        int index = (int)currentOutfit;
-        do { index = (index - 1 + total) % total; }
-        while (IsUndergarmentOutfit(index) || !IsOutfitEnabled((OutfitName)index));
-        SwitchToOutfit((OutfitName)index);
+        List<OutfitName> order = GetInspectorOrderedOutfits();
+        if (order.Count == 0) { return; }
+
+        int index = order.IndexOf(currentOutfit);
+        if (index < 0) { index = 0; }
+
+        for (int i = 0; i < order.Count; i++)
+        {
+            index = (index - 1 + order.Count) % order.Count;
+            if (IsOutfitEnabled(order[index]))
+            {
+                SwitchToOutfit(order[index]);
+                return;
+            }
+        }
     }
 
     private void SwitchToOutfit(OutfitName outfit)
@@ -596,13 +806,14 @@ public class NorasWardrobe : MonoBehaviour
         ApplyBodyColors(outfit);
         ApplyAccessories();
         SetHair(GetHairForOutfit(outfit));
+        SetShoes(GetShoesForOutfit(outfit));
 
         Debug.Log("outfit name passed: "+outfit);
         Debug.Log("wardrobe count when asked: "+_outfitLookup.Count);
-        
+    
         EventManager.OutfitWasChanged(data.outfitTitle);
     }
-
+    
     public void SetMainOutfitPreview(OutfitName outfit)
     {
         HideAllAccessoriesPreview();
@@ -613,6 +824,7 @@ public class NorasWardrobe : MonoBehaviour
 
         ApplyAccessoriesPreview(outfit);
         SetHairPreview(GetHairForOutfit(outfit));
+        SetShoesPreview(GetShoesForOutfit(outfit));
     }
 
     public void ApplyPreviewOutfit(OutfitName outfit)
@@ -639,6 +851,7 @@ public class NorasWardrobe : MonoBehaviour
         ClearOutfitMeshes();
         currentOutfit = OutfitName.None;
         SetHair(HairName.DefaultHair);
+        HideAllShoes();
         ApplyAccessories();
     }
 
@@ -813,15 +1026,82 @@ public class NorasWardrobeEditor : Editor
             normal = { textColor = Color.white }
         };
 
-        DrawOutfitStats(me, clearAllStyle);
 
-        EditorGUILayout.LabelField("Outfit Controls", EditorStyles.boldLabel);
+        
+
+        var redButton = new GUIStyle(GUI.skin.button)
+        {
+            fontStyle = FontStyle.Bold,
+            fontSize = 12,
+            alignment = TextAnchor.MiddleCenter,
+            padding = new RectOffset(3, 3, 3, 3)
+        };
+        
+        
+        Texture2D myTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(
+            "Assets/Editor/butterflyeditor.png"
+        );
+
+        var boxStyle = new GUIStyle
+        {
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleLeft,
+            padding = new RectOffset(5, 5, 5, 5)
+        };
+
+        boxStyle.normal.textColor = Color.white;
+        boxStyle.normal.background = myTexture;
+
+
+        var statsTitle = new GUIStyle(GUI.skin.label)
+        {
+            fontStyle = FontStyle.Bold,
+            fontSize = 16,
+            alignment = TextAnchor.MiddleLeft,
+            normal = { textColor = Color.white },
+            padding = new RectOffset(3, 3, 3, 3)
+        };
+
+
+        var statsStyle = new GUIStyle(GUI.skin.label)
+        {
+            fontStyle = FontStyle.Bold,
+            fontSize = 12,
+            alignment = TextAnchor.MiddleLeft,
+            normal = { textColor = Color.white },
+            padding = new RectOffset(3, 3, 3, 3)
+        };
+
+
+        var statsbuttonStyle = new GUIStyle(GUI.skin.button)
+        {
+            fontStyle = FontStyle.Bold,
+            fontSize = 12,
+            alignment = TextAnchor.MiddleCenter,
+            normal = { textColor = Color.white },
+            padding = new RectOffset(3, 3, 3, 3)
+        };
+
+
+        
+        
+        
+        EditorGUILayout.BeginVertical(boxStyle);
+        
+        
+        
+        
+        
+        
+        DrawOutfitStats(me,  boxStyle,statsTitle, statsStyle, statsbuttonStyle);
+
         EditorGUILayout.Space();
+        
 
-        DrawButtonRow(me, clearAllStyle,
-            ("Previous Outfit", () => me.PreviousOutfit()),
-            ("Next Outfit", () => me.NextOutfit()));
-
+        GUI.backgroundColor = Color.red;
+        DrawButtonRow(me, redButton, ("Previous Outfit", () => me.PreviousOutfit()), ("Next Outfit", () => me.NextOutfit()));
+        
+        
         EditorGUILayout.Space();
         DrawOutfitTypeSection(me, clearAllStyle, "Work Outfits", OutfitType.Work, Color.cyan);
 
@@ -846,17 +1126,38 @@ public class NorasWardrobeEditor : Editor
         EditorGUILayout.Space();
         GUI.backgroundColor = Color.yellow;
 
-        EditorGUILayout.LabelField("Accessories (toggle independently — any combination)", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Accessories", EditorStyles.boldLabel);
         DrawButtonRow(me, clearAllStyle,
             ("Toggle Wings", () => me.ToggleWings()),
             ("Toggle Overall", () => me.ToggleOverall()),
             ("Toggle Hat", () => me.ToggleHat()),
             ("Toggle Choker", () => me.ToggleChoker()));
+        DrawButtonRow(me, clearAllStyle,
+            ("Toggle Glasses", () => me.ToggleGlasses()),
+            ("Toggle Cigarette", () => me.ToggleCigarette()));
+
+        EditorGUILayout.Space();
+        GUI.backgroundColor = new Color(0.9f, 0.8f, 0.5f);
+
+        EditorGUILayout.LabelField("Shoes", EditorStyles.boldLabel);
+        DrawButtonRow(me, clearAllStyle,
+            ("WorkFlats", () => me.SetShoes(ShoesName.WorkFlats)),
+            ("SilentShoes", () => me.SetShoes(ShoesName.SilentShoes)),
+            ("Sandals", () => me.SetShoes(ShoesName.Sandals)));
+        DrawButtonRow(me, clearAllStyle,
+            ("Boots", () => me.SetShoes(ShoesName.Boots)),
+            ("WhiteFlats", () => me.SetShoes(ShoesName.WhiteFlats)));
+        DrawButtonRow(me, clearAllStyle,
+            ("ShittyTrainers", () => me.SetShoes(ShoesName.ShittyTrainers)),
+            ("FMB", () => me.SetShoes(ShoesName.FMB)));
+        DrawButtonRow(me, clearAllStyle,
+            ("ShuPlaceholder3", () => me.SetShoes(ShoesName.ShuPlaceholder3)),
+            ("ShuPlaceholder4", () => me.SetShoes(ShoesName.ShuPlaceholder4)));
 
         EditorGUILayout.Space();
         GUI.backgroundColor = new Color(0.6f, 0.9f, 0.6f);
 
-        EditorGUILayout.LabelField("Hair (exclusive — only one at a time)", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Hair", EditorStyles.boldLabel);
         DrawButtonRow(me, clearAllStyle,
             ("Default Hair", () => me.SetHair(HairName.DefaultHair)),
             ("Work Hair", () => me.SetHair(HairName.WorkHair)),
@@ -895,6 +1196,7 @@ public class NorasWardrobeEditor : Editor
         EditorGUILayout.LabelField("---------------------", EditorStyles.boldLabel);
         EditorGUILayout.Space();
         GUI.backgroundColor = Color.white;
+        EditorGUILayout.EndVertical();
         DrawDefaultInspector();
     }
 
@@ -908,44 +1210,79 @@ public class NorasWardrobeEditor : Editor
         return outfits.Count(o => o.outfitStage == stage);
     }
 
-    private static void DrawOutfitStats(NorasWardrobe me, GUIStyle style)
+    private static void DrawOutfitStats(NorasWardrobe me, GUIStyle boxStyle, GUIStyle titleStyle, GUIStyle statStyle, GUIStyle buttonStyle)
     {
         var outfits = (me.Outfits ?? new List<Outfit>()).Where(o => o != null && o.thisOutfit != OutfitName.None).ToList();
 
         int canSpawnCount = CountCanSpawn(outfits);
-
-        GUI.backgroundColor = Color.green;
-        EditorGUILayout.LabelField("Outfit Stats", EditorStyles.boldLabel);
-        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-
-        EditorGUILayout.LabelField("Number of outfits: ", EditorStyles.boldLabel);
         
+        
+        EditorGUILayout.BeginVertical();
+        
+        
+        EditorGUILayout.LabelField("Number of outfits: ", titleStyle);
+
+        EditorGUILayout.Space();
         foreach (OutfitType type in System.Enum.GetValues(typeof(OutfitType)))
         {
             int count = outfits.Count(o => o.outfitType == type);
             int canSpawn = CountCanSpawn(outfits, type);
-            EditorGUILayout.LabelField($"{count} {type}, of which {(canSpawn == 0 ? "none" : $"{canSpawn}")} are spawnable.", EditorStyles.boldLabel); }
+            EditorGUILayout.LabelField($"{count} {type}, of which {(canSpawn == 0 ? "none" : $"{canSpawn}")} are spawnable.", statStyle);
+        }
 
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Outfits by stage: ", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.StageOne)} Outfits for Stage One", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.StageTwo)} Outfits for Stage Two", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.StageThree)} Outfits for Stage Three", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.Special)} Outfits excluded from Staging", EditorStyles.boldLabel);
-
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField($"{canSpawnCount} Can be used when spawning Nora", EditorStyles.boldLabel);
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField($"Total {outfits.Count} Outfits", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField($"Current Outfit ID: {me.currentOutfit}", EditorStyles.boldLabel);
+        //
         
-        if (GUILayout.Button("Copy Outfit ID to clipbiard", style, GUILayout.Height(ButtonHeight)))
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Outfits by stage:", titleStyle);
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.StageOne)} Outfits for Stage One", statStyle);
+        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.StageTwo)} Outfits for Stage Two", statStyle);
+        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.StageThree)} Outfits for Stage Three", statStyle);
+        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.Special)} Outfits excluded from Staging", statStyle);
+        
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField($"{canSpawnCount} Can be used when spawning Nora", statStyle);
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField($"Total {outfits.Count} Outfits", statStyle);
+        EditorGUILayout.LabelField($"Current Outfit ID: {me.currentOutfit}", statStyle);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.BeginHorizontal();
+
+        if (GUILayout.Button($"Jump To Asset", buttonStyle, GUILayout.Height(ButtonHeight)))
+        {
+            SelectOutfitAsset(me);
+        }
+        if (GUILayout.Button($"Copy Outfit ID", buttonStyle, GUILayout.Height(ButtonHeight)))
         {
             EditorGUIUtility.systemCopyBuffer = me.currentOutfit.ToString();
         }
 
+        //
+        
+        
+        EditorGUILayout.EndHorizontal();
+
+        if (GUILayout.Button($"Re-Apply\n{me.currentOutfit}", buttonStyle, GUILayout.Height(42))) { me.SetMainOutfit(me.currentOutfit); }
+        
         EditorGUILayout.EndVertical();
         EditorGUILayout.Space();
+    }
+
+    private static void SelectOutfitAsset(NorasWardrobe me)
+    {
+        Outfit matchingOutfit = (me.Outfits ?? new List<Outfit>()).FirstOrDefault(o => o != null && o.thisOutfit == me.currentOutfit);
+
+        if (matchingOutfit == null)
+        {
+            Debug.LogWarning($"NorasWardrobeEditor: No Outfit asset found matching {me.currentOutfit}.");
+            return;
+        }
+
+        Selection.activeObject = matchingOutfit;
+        EditorGUIUtility.PingObject(matchingOutfit);
     }
 
     private void DrawOutfitTypeSection(NorasWardrobe me, GUIStyle style, string sectionLabel, OutfitType type, Color color)
@@ -1063,6 +1400,37 @@ public enum HairName
     UpHair,
     UpDo,
     MessyHair,
+}
+
+
+public enum ShoesName
+{
+    WorkFlats,
+    SilentShoes,
+    Sandals,
+    Boots,
+    WhiteFlats,
+    ShittyTrainers,
+    FMB,
+    ShuPlaceholder3,
+    ShuPlaceholder4
+}
+public enum OutfitStage {
+    StageOne,
+    StageTwo,
+    StageThree,
+    Special
+}
+
+public enum OutfitType
+{
+    Work,
+    Main,
+    Pyjamas,
+    NightOut,
+    Special,
+    Storyline,
+    Undergarments
 }
 
 public enum OutfitName
@@ -1277,25 +1645,7 @@ public enum OutfitName
     CasualJeansAndHoodie,
     ModestShortSleeveTopAndSkirt,
     ModestBlousseTopWithSkirtTop,
-    ConservativeBlousseTopWithLongSkirt
+    ConservativeBlousseTopWithLongSkirt,
+    ConservativeLayeredSweaterAndSkirt
     
-}
-
-
-public enum OutfitStage {
-    StageOne,
-    StageTwo,
-    StageThree,
-    Special
-}
-
-public enum OutfitType
-{
-    Work,
-    Main,
-    Pyjamas,
-    NightOut,
-    Special,
-    Storyline,
-    Undergarments
 }

@@ -41,7 +41,11 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer WhiteFlatsShoesPreview;
     public SkinnedMeshRenderer ShittyTrainersShoesPreview;
     public SkinnedMeshRenderer FMBShoesPreview;
-    public SkinnedMeshRenderer ShuPlaceholder3ShoesPreview;
+    public SkinnedMeshRenderer BlackBowFlatsShoesPreview;
+    public SkinnedMeshRenderer WhiteBowFlatsShoesPreview;
+    public SkinnedMeshRenderer BlackBootsShoesPreview;
+    public SkinnedMeshRenderer BlackFMBShoesPreview;
+    public SkinnedMeshRenderer PrimAndProperShoesPreview;
     public SkinnedMeshRenderer ShuPlaceholder4ShoesPreview;
 
     [Header("Preview Hair")]
@@ -81,7 +85,11 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer WhiteFlatsShoes;
     public SkinnedMeshRenderer ShittyTrainersShoes;
     public SkinnedMeshRenderer FMBShoes;
-    public SkinnedMeshRenderer ShuPlaceholder3Shoes;
+    public SkinnedMeshRenderer BlackBowFlatsShoes;
+    public SkinnedMeshRenderer WhiteBowFlatsShoes;
+    public SkinnedMeshRenderer BlackBootsShoes;
+    public SkinnedMeshRenderer BlackFMBShoes;
+    public SkinnedMeshRenderer PrimAndProperShoes;
     public SkinnedMeshRenderer ShuPlaceholder4Shoes;
 
     [Header("Hair")]
@@ -346,7 +354,8 @@ public class NorasWardrobe : MonoBehaviour
         SkinnedMeshRenderer[] allShoes =
         {
             WorkFlatsShoes, SilentShoesShoes, SandalsShoes, BootsShoes, WhiteFlatsShoes,
-            ShittyTrainersShoes, FMBShoes, ShuPlaceholder3Shoes, ShuPlaceholder4Shoes
+            ShittyTrainersShoes, FMBShoes, BlackBowFlatsShoes, WhiteBowFlatsShoes,
+            BlackBootsShoes, BlackFMBShoes, PrimAndProperShoes, ShuPlaceholder4Shoes
         };
 
         foreach (var smr in allShoes)
@@ -367,7 +376,8 @@ public class NorasWardrobe : MonoBehaviour
         SkinnedMeshRenderer[] allShoesPreview =
         {
             WorkFlatsShoesPreview, SilentShoesShoesPreview, SandalsShoesPreview, BootsShoesPreview, WhiteFlatsShoesPreview,
-            ShittyTrainersShoesPreview, FMBShoesPreview, ShuPlaceholder3ShoesPreview, ShuPlaceholder4ShoesPreview
+            ShittyTrainersShoesPreview, FMBShoesPreview, BlackBowFlatsShoesPreview, WhiteBowFlatsShoesPreview,
+            BlackBootsShoesPreview, BlackFMBShoesPreview, PrimAndProperShoesPreview, ShuPlaceholder4ShoesPreview
         };
 
         foreach (var smr in allShoesPreview)
@@ -379,7 +389,6 @@ public class NorasWardrobe : MonoBehaviour
             smr.enabled = false;
         }
     }
-
 
     private void HideAllHair()
     {
@@ -413,31 +422,39 @@ public class NorasWardrobe : MonoBehaviour
         if (UpDoPreview != null) { UpDoPreview.enabled = false; }
     }
 
-    private void HideAllShoes()
-    {
-        if (WorkFlatsShoes != null) { WorkFlatsShoes.enabled = false; }
-        if (SilentShoesShoes != null) { SilentShoesShoes.enabled = false; }
-        if (SandalsShoes != null) { SandalsShoes.enabled = false; }
-        if (BootsShoes != null) { BootsShoes.enabled = false; }
-        if (WhiteFlatsShoes != null) { WhiteFlatsShoes.enabled = false; }
-        if (ShittyTrainersShoes != null) { ShittyTrainersShoes.enabled = false; }
-        if (FMBShoes != null) { FMBShoes.enabled = false; }
-        if (ShuPlaceholder3Shoes != null) { ShuPlaceholder3Shoes.enabled = false; }
-        if (ShuPlaceholder4Shoes != null) { ShuPlaceholder4Shoes.enabled = false; }
-    }
+private void HideAllShoes()
+{
+    if (WorkFlatsShoes != null) { WorkFlatsShoes.enabled = false; }
+    if (SilentShoesShoes != null) { SilentShoesShoes.enabled = false; }
+    if (SandalsShoes != null) { SandalsShoes.enabled = false; }
+    if (BootsShoes != null) { BootsShoes.enabled = false; }
+    if (WhiteFlatsShoes != null) { WhiteFlatsShoes.enabled = false; }
+    if (ShittyTrainersShoes != null) { ShittyTrainersShoes.enabled = false; }
+    if (FMBShoes != null) { FMBShoes.enabled = false; }
+    if (BlackBowFlatsShoes != null) { BlackBowFlatsShoes.enabled = false; }
+    if (WhiteBowFlatsShoes != null) { WhiteBowFlatsShoes.enabled = false; }
+    if (BlackBootsShoes != null) { BlackBootsShoes.enabled = false; }
+    if (BlackFMBShoes != null) { BlackFMBShoes.enabled = false; }
+    if (PrimAndProperShoes != null) { PrimAndProperShoes.enabled = false; }
+    if (ShuPlaceholder4Shoes != null) { ShuPlaceholder4Shoes.enabled = false; }
+}
 
-    private void HideAllShoesPreview()
-    {
-        if (WorkFlatsShoesPreview != null) { WorkFlatsShoesPreview.enabled = false; }
-        if (SilentShoesShoesPreview != null) { SilentShoesShoesPreview.enabled = false; }
-        if (SandalsShoesPreview != null) { SandalsShoesPreview.enabled = false; }
-        if (BootsShoesPreview != null) { BootsShoesPreview.enabled = false; }
-        if (WhiteFlatsShoesPreview != null) { WhiteFlatsShoesPreview.enabled = false; }
-        if (ShittyTrainersShoesPreview != null) { ShittyTrainersShoesPreview.enabled = false; }
-        if (FMBShoesPreview != null) { FMBShoesPreview.enabled = false; }
-        if (ShuPlaceholder3ShoesPreview != null) { ShuPlaceholder3ShoesPreview.enabled = false; }
-        if (ShuPlaceholder4ShoesPreview != null) { ShuPlaceholder4ShoesPreview.enabled = false; }
-    }
+private void HideAllShoesPreview()
+{
+    if (WorkFlatsShoesPreview != null) { WorkFlatsShoesPreview.enabled = false; }
+    if (SilentShoesShoesPreview != null) { SilentShoesShoesPreview.enabled = false; }
+    if (SandalsShoesPreview != null) { SandalsShoesPreview.enabled = false; }
+    if (BootsShoesPreview != null) { BootsShoesPreview.enabled = false; }
+    if (WhiteFlatsShoesPreview != null) { WhiteFlatsShoesPreview.enabled = false; }
+    if (ShittyTrainersShoesPreview != null) { ShittyTrainersShoesPreview.enabled = false; }
+    if (FMBShoesPreview != null) { FMBShoesPreview.enabled = false; }
+    if (BlackBowFlatsShoesPreview != null) { BlackBowFlatsShoesPreview.enabled = false; }
+    if (WhiteBowFlatsShoesPreview != null) { WhiteBowFlatsShoesPreview.enabled = false; }
+    if (BlackBootsShoesPreview != null) { BlackBootsShoesPreview.enabled = false; }
+    if (BlackFMBShoesPreview != null) { BlackFMBShoesPreview.enabled = false; }
+    if (PrimAndProperShoesPreview != null) { PrimAndProperShoesPreview.enabled = false; }
+    if (ShuPlaceholder4ShoesPreview != null) { ShuPlaceholder4ShoesPreview.enabled = false; }
+}
     
     public void SetHair(HairName hair)
     {
@@ -478,40 +495,106 @@ public class NorasWardrobe : MonoBehaviour
             case HairName.UpDo: if (UpDoPreview != null) { UpDoPreview.enabled = true; } break;
         }
     }
-    
-public void SetShoes(ShoesName shoes)
-{
-    HideAllShoes();
-    switch (shoes)
-    {
-        case ShoesName.WorkFlats: if (WorkFlatsShoes != null) { WorkFlatsShoes.enabled = true; } break;
-        case ShoesName.SilentShoes: if (SilentShoesShoes != null) { SilentShoesShoes.enabled = true; } break;
-        case ShoesName.Sandals: if (SandalsShoes != null) { SandalsShoes.enabled = true; } break;
-        case ShoesName.Boots: if (BootsShoes != null) { BootsShoes.enabled = true; } break;
-        case ShoesName.WhiteFlats: if (WhiteFlatsShoes != null) { WhiteFlatsShoes.enabled = true; } break;
-        case ShoesName.ShittyTrainers: if (ShittyTrainersShoes != null) { ShittyTrainersShoes.enabled = true; } break;
-        case ShoesName.FMB: if (FMBShoes != null) { FMBShoes.enabled = true; } break;
-        case ShoesName.ShuPlaceholder3: if (ShuPlaceholder3Shoes != null) { ShuPlaceholder3Shoes.enabled = true; } break;
-        case ShoesName.ShuPlaceholder4: if (ShuPlaceholder4Shoes != null) { ShuPlaceholder4Shoes.enabled = true; } break;
-    }
-}
 
-public void SetShoesPreview(ShoesName shoes)
-{
-    HideAllShoesPreview();
-    switch (shoes)
+    public void SetShoes(ShoesName shoes)
     {
-        case ShoesName.WorkFlats: if (WorkFlatsShoesPreview != null) { WorkFlatsShoesPreview.enabled = true; } break;
-        case ShoesName.SilentShoes: if (SilentShoesShoesPreview != null) { SilentShoesShoesPreview.enabled = true; } break;
-        case ShoesName.Sandals: if (SandalsShoesPreview != null) { SandalsShoesPreview.enabled = true; } break;
-        case ShoesName.Boots: if (BootsShoesPreview != null) { BootsShoesPreview.enabled = true; } break;
-        case ShoesName.WhiteFlats: if (WhiteFlatsShoesPreview != null) { WhiteFlatsShoesPreview.enabled = true; } break;
-        case ShoesName.ShittyTrainers: if (ShittyTrainersShoesPreview != null) { ShittyTrainersShoesPreview.enabled = true; } break;
-        case ShoesName.FMB: if (FMBShoesPreview != null) { FMBShoesPreview.enabled = true; } break;
-        case ShoesName.ShuPlaceholder3: if (ShuPlaceholder3ShoesPreview != null) { ShuPlaceholder3ShoesPreview.enabled = true; } break;
-        case ShoesName.ShuPlaceholder4: if (ShuPlaceholder4ShoesPreview != null) { ShuPlaceholder4ShoesPreview.enabled = true; } break;
+        HideAllShoes();
+        
+        switch (shoes)
+        {
+            case ShoesName.WorkFlats:
+                if (WorkFlatsShoes != null) { WorkFlatsShoes.enabled = true; }
+
+                break;
+            case ShoesName.SilentShoes:
+                if (SilentShoesShoes != null) { SilentShoesShoes.enabled = true; }
+
+                break;
+            case ShoesName.Sandals:
+                if (SandalsShoes != null) { SandalsShoes.enabled = true; }
+
+                break;
+            case ShoesName.Boots:
+                if (BootsShoes != null) { BootsShoes.enabled = true; }
+
+                break;
+            case ShoesName.WhiteFlats:
+                if (WhiteFlatsShoes != null) { WhiteFlatsShoes.enabled = true; }
+
+                break;
+            case ShoesName.ShittyTrainers:
+                if (ShittyTrainersShoes != null) { ShittyTrainersShoes.enabled = true; }
+
+                break;
+            case ShoesName.FMB:
+                if (FMBShoes != null) { FMBShoes.enabled = true; }
+
+                break;
+            case ShoesName.BlackBowFlats:
+                if (BlackBowFlatsShoes != null) { BlackBowFlatsShoes.enabled = true; }
+
+                break;
+            case ShoesName.WhiteBowFlats:
+                if (WhiteBowFlatsShoes != null) { WhiteBowFlatsShoes.enabled = true; }
+
+                break;
+            case ShoesName.BlackBoots:
+                if (BlackBootsShoes != null) { BlackBootsShoes.enabled = true; }
+
+                break;
+            case ShoesName.BlackFMB:
+                if (BlackFMBShoes != null) { BlackFMBShoes.enabled = true; }
+
+                break;
+            case ShoesName.PrimAndProper:
+                if (PrimAndProperShoes != null) { PrimAndProperShoes.enabled = true; }
+
+                break;
+            case ShoesName.ShuPlaceholder4:
+                if (ShuPlaceholder4Shoes != null) { ShuPlaceholder4Shoes.enabled = true; }
+
+                break;
+            case ShoesName.None:
+                // do nothing
+
+                break;
+        }
     }
-}
+
+    public void SetShoesPreview(ShoesName shoes)
+    {
+        HideAllShoesPreview();
+        switch (shoes)
+        {
+            case ShoesName.WorkFlats: if (WorkFlatsShoesPreview != null) { WorkFlatsShoesPreview.enabled = true; }
+
+            break; case ShoesName.SilentShoes: if (SilentShoesShoesPreview != null) { SilentShoesShoesPreview.enabled = true; }
+
+            break; case ShoesName.Sandals: if (SandalsShoesPreview != null) { SandalsShoesPreview.enabled = true; }
+
+            break; case ShoesName.Boots: if (BootsShoesPreview != null) { BootsShoesPreview.enabled = true; }
+
+            break; case ShoesName.WhiteFlats: if (WhiteFlatsShoesPreview != null) { WhiteFlatsShoesPreview.enabled = true; }
+
+            break; case ShoesName.ShittyTrainers: if (ShittyTrainersShoesPreview != null) { ShittyTrainersShoesPreview.enabled = true; }
+
+            break; case ShoesName.FMB: if (FMBShoesPreview != null) { FMBShoesPreview.enabled = true; }
+
+            break; case ShoesName.BlackBowFlats: if (BlackBowFlatsShoesPreview != null) { BlackBowFlatsShoesPreview.enabled = true; }
+
+            break; case ShoesName.WhiteBowFlats: if (WhiteBowFlatsShoesPreview != null) { WhiteBowFlatsShoesPreview.enabled = true; }
+
+            break; case ShoesName.BlackBoots: if (BlackBootsShoesPreview != null) { BlackBootsShoesPreview.enabled = true; }
+
+            break; case ShoesName.BlackFMB: if (BlackFMBShoesPreview != null) { BlackFMBShoesPreview.enabled = true; }
+
+            break; case ShoesName.PrimAndProper: if (PrimAndProperShoesPreview != null) { PrimAndProperShoesPreview.enabled = true; }
+
+            break; case ShoesName.ShuPlaceholder4: if (ShuPlaceholder4ShoesPreview != null) { ShuPlaceholder4ShoesPreview.enabled = true; }
+
+            break;
+        }
+    }
 
     private HairName GetHairForOutfit(OutfitName outfit)
     {
@@ -1099,7 +1182,7 @@ public class NorasWardrobeEditor : Editor
         
 
         GUI.backgroundColor = Color.red;
-        DrawButtonRow(me, redButton, ("Previous Outfit", () => me.PreviousOutfit()), ("Next Outfit", () => me.NextOutfit()));
+        DrawButtonRow(me, redButton, ("Previous Outfit", () => { me.PreviousOutfit(); SelectOutfitAsset(me); }), ("Next Outfit", () => { me.NextOutfit(); SelectOutfitAsset(me); }));
         
         
         EditorGUILayout.Space();
@@ -1151,8 +1234,15 @@ public class NorasWardrobeEditor : Editor
             ("ShittyTrainers", () => me.SetShoes(ShoesName.ShittyTrainers)),
             ("FMB", () => me.SetShoes(ShoesName.FMB)));
         DrawButtonRow(me, clearAllStyle,
-            ("ShuPlaceholder3", () => me.SetShoes(ShoesName.ShuPlaceholder3)),
+            ("BlackBowFlats", () => me.SetShoes(ShoesName.BlackBowFlats)),
+            ("WhiteBowFlats", () => me.SetShoes(ShoesName.WhiteBowFlats)));
+        DrawButtonRow(me, clearAllStyle,
+            ("BlackBoots", () => me.SetShoes(ShoesName.BlackBoots)),
+            ("BlackFMB", () => me.SetShoes(ShoesName.BlackFMB)));
+        DrawButtonRow(me, clearAllStyle,
+            ("PrimAndProper", () => me.SetShoes(ShoesName.PrimAndProper)),
             ("ShuPlaceholder4", () => me.SetShoes(ShoesName.ShuPlaceholder4)));
+        DrawButtonRow(me, clearAllStyle, ("None", () => me.SetShoes(ShoesName.None)));
 
         EditorGUILayout.Space();
         GUI.backgroundColor = new Color(0.6f, 0.9f, 0.6f);
@@ -1412,8 +1502,13 @@ public enum ShoesName
     WhiteFlats,
     ShittyTrainers,
     FMB,
-    ShuPlaceholder3,
-    ShuPlaceholder4
+    BlackBowFlats,
+    WhiteBowFlats,
+    BlackBoots,
+    BlackFMB,
+    PrimAndProper,
+    ShuPlaceholder4,
+    None
 }
 public enum OutfitStage {
     StageOne,

@@ -41,7 +41,7 @@ public class Outfit : ScriptableObject
 [CustomEditor(typeof(Outfit))]
 public class OutfitEditor : Editor
 {
-    private const int StatTitleFontSize = 14;
+    private const int StatTitleFontSize = 12;
 
     public override void OnInspectorGUI()
     {
@@ -50,7 +50,7 @@ public class OutfitEditor : Editor
         var outfitButtonStyle = new GUIStyle(GUI.skin.button)
         {
             fontStyle = FontStyle.Bold,
-            fontSize = 12,
+            fontSize = 10,
             alignment = TextAnchor.MiddleCenter,
             normal = { textColor = Color.white },
             padding = new RectOffset(3, 3, 4, 4)
@@ -77,41 +77,31 @@ public class OutfitEditor : Editor
         boxStyle.normal.textColor = Color.white;
         boxStyle.normal.background = backgroundTexture;
 
-        var statsFieldStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, fontSize = 12, alignment = TextAnchor.MiddleLeft, richText = true, normal = { textColor = Color.white } };
+        var statsFieldStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, fontSize = 10, alignment = TextAnchor.MiddleLeft, richText = true, normal = { textColor = Color.white } };
         
-        var sectionHeadingStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, fontSize = 16, alignment = TextAnchor.MiddleLeft, normal = { textColor = Color.cyan } };
+        var sectionHeadingStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, fontSize = 14, alignment = TextAnchor.MiddleLeft, normal = { textColor = Color.cyan } };
 
         EditorGUILayout.BeginVertical(boxStyle);
 
-        EditorGUILayout.LabelField("Details", sectionHeadingStyle);
 
         DrawStat("Outfit ID:", outfit.thisOutfit.ToString(), statsFieldStyle);
         DrawStat("Type:", outfit.outfitType.ToString(), statsFieldStyle);
         DrawStat("Stage:", outfit.outfitStage.ToString(), statsFieldStyle);
         DrawStat("Title:", outfit.outfitTitle, statsFieldStyle);
 
-        EditorGUILayout.Space();
-        EditorGUILayout.Space();
 
-        EditorGUILayout.LabelField("Settings", sectionHeadingStyle);
 
         DrawStat("Spawnable:", outfit.SpawnAs.ToString(), statsFieldStyle);
         DrawStat("Jiggle Enabled:", outfit.Jiggle.ToString(), statsFieldStyle);
 
-        EditorGUILayout.Space();
-        EditorGUILayout.Space();
 
-        EditorGUILayout.LabelField("Style", sectionHeadingStyle);
 
-        DrawColourStat("Lips Colour:", outfit.lipsColor);
-        DrawColourStat("Nails Colour:", outfit.nailsColor);
+        DrawColourStat("Lips:", outfit.lipsColor);
+        DrawColourStat("Nails:", outfit.nailsColor);
         DrawStat("Selected Hair:", outfit.Hair.ToString(), statsFieldStyle);
         DrawStat("Shoes:", outfit.Shoes.ToString(), statsFieldStyle);
 
-        EditorGUILayout.Space();
-        EditorGUILayout.Space();
 
-        EditorGUILayout.LabelField("Accessories", sectionHeadingStyle);
 
         DrawStat("Wings:", outfit.Wings.ToString(), statsFieldStyle);
         DrawStat("Apron:", outfit.Apron.ToString(), statsFieldStyle);
@@ -130,15 +120,15 @@ public class OutfitEditor : Editor
 
         GUI.backgroundColor = applyButtonColor;
         
-        if (GUILayout.Button("Select Asset", outfitButtonStyle, GUILayout.Height(28))) { Selection.activeObject = outfit; EditorGUIUtility.PingObject(outfit); }
+        if (GUILayout.Button("Select Asset", outfitButtonStyle, GUILayout.Height(20))) { Selection.activeObject = outfit; EditorGUIUtility.PingObject(outfit); }
 
-        if (GUILayout.Button("Copy Outfit ID", outfitButtonStyle, GUILayout.Height(28))) { EditorGUIUtility.systemCopyBuffer = outfit.thisOutfit.ToString(); }
+        if (GUILayout.Button("Copy Outfit ID", outfitButtonStyle, GUILayout.Height(20))) { EditorGUIUtility.systemCopyBuffer = outfit.thisOutfit.ToString(); }
 
         EditorGUILayout.EndHorizontal();
         
         string thisOutfit = outfit.thisOutfit.ToString().Length < 25 ? outfit.thisOutfit.ToString() : outfit.thisOutfit.ToString().Substring(0, 25) + "...";
 
-        if (GUILayout.Button($"Apply\n{thisOutfit}", outfitButtonStyle, GUILayout.Height(42))) { ApplyOutfit(outfit); }
+        if (GUILayout.Button($"Apply\n{thisOutfit}", outfitButtonStyle, GUILayout.Height(30))) { ApplyOutfit(outfit); }
 
         GUI.backgroundColor = Color.white;
 
@@ -164,11 +154,11 @@ public class OutfitEditor : Editor
 
         string hex = ColorUtility.ToHtmlStringRGBA(colour);
         string rgba = $"new Color({colour.r:0.00}f, {colour.g:0.00}f, {colour.b:0.00}f, {colour.a:0.00}f)";
-        string rgbatext = $"R:{colour.r:0.00}, G:{colour.g:0.00}, B:{colour.b:0.00}, A:{colour.a:0.00}";
+        string rgbatext = $"{colour.r:0.00}, {colour.g:0.00}, {colour.b:0.00}, {colour.a:0.00}";
 
         var colourButtonStyle = new GUIStyle(GUI.skin.button)
         {
-            fontSize = 12,
+            fontSize = 10,
             fontStyle = FontStyle.Bold,
             alignment = TextAnchor.MiddleCenter,
             normal = { textColor = GetReadableTextColour(colour) }
@@ -180,12 +170,12 @@ public class OutfitEditor : Editor
 
         EditorGUILayout.BeginHorizontal();
 
-        if (GUILayout.Button($"#{hex}", colourButtonStyle, GUILayout.Height(20), GUILayout.Width(100)))
+        if (GUILayout.Button($"#{hex}", colourButtonStyle, GUILayout.Height(16), GUILayout.Width(80)))
         {
             EditorGUIUtility.systemCopyBuffer = $"#{hex}";
         }
 
-        if (GUILayout.Button(rgbatext, colourButtonStyle, GUILayout.Height(20), GUILayout.Width(240)))
+        if (GUILayout.Button(rgbatext, colourButtonStyle, GUILayout.Height(16), GUILayout.Width(140)))
         {
             EditorGUIUtility.systemCopyBuffer = rgba;
         }

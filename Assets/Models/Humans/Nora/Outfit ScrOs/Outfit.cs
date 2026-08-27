@@ -15,23 +15,21 @@ public class Outfit : ScriptableObject
     public OutfitStage outfitStage = OutfitStage.StageOne;
     public string outfitTitle;
     
-    [Header("Settings")]
     public bool SpawnAs = true;
     public bool Jiggle;
     
-    [Header("Style")]
     public List<GameObject> OutfitPrefabs;
     public Color lipsColor = new Color(0.95f, 0.6f, 0.7f);
     public Color nailsColor = new Color(0.9f, 0.7f, 0.8f);
     public HairName Hair = HairName.DefaultHair;
     public ShoesName Shoes = ShoesName.WorkFlats;
-    
-    [Header("Accessories")]
+    public NecklaceName Necklace = NecklaceName.None;
+    public GlassesName Glasses = GlassesName.None;
+
     public bool Wings;
     public bool Apron;
     public bool Hat;
     public bool Choker;
-    public bool Glasses;
     public bool Cigarette;
 }
 
@@ -77,37 +75,30 @@ public class OutfitEditor : Editor
         boxStyle.normal.textColor = Color.white;
         boxStyle.normal.background = backgroundTexture;
 
-        var statsFieldStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, fontSize = 10, alignment = TextAnchor.MiddleLeft, richText = true, normal = { textColor = Color.white } };
+        var statsFieldStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, fontSize = 14, alignment = TextAnchor.MiddleLeft, richText = true, normal = { textColor = Color.white } };
         
-        var sectionHeadingStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, fontSize = 14, alignment = TextAnchor.MiddleLeft, normal = { textColor = Color.cyan } };
 
         EditorGUILayout.BeginVertical(boxStyle);
 
 
+        DrawStat("Title:", outfit.outfitTitle, statsFieldStyle);
         DrawStat("Outfit ID:", outfit.thisOutfit.ToString(), statsFieldStyle);
         DrawStat("Type:", outfit.outfitType.ToString(), statsFieldStyle);
         DrawStat("Stage:", outfit.outfitStage.ToString(), statsFieldStyle);
-        DrawStat("Title:", outfit.outfitTitle, statsFieldStyle);
-
-
-
         DrawStat("Spawnable:", outfit.SpawnAs.ToString(), statsFieldStyle);
-        DrawStat("Jiggle Enabled:", outfit.Jiggle.ToString(), statsFieldStyle);
-
-
-
+        DrawStat("Jiggle:", outfit.Jiggle.ToString(), statsFieldStyle);
+        
         DrawColourStat("Lips:", outfit.lipsColor);
         DrawColourStat("Nails:", outfit.nailsColor);
-        DrawStat("Selected Hair:", outfit.Hair.ToString(), statsFieldStyle);
+        DrawStat("Hair:", outfit.Hair.ToString(), statsFieldStyle);
         DrawStat("Shoes:", outfit.Shoes.ToString(), statsFieldStyle);
-
-
+        DrawStat("Necklace:", outfit.Necklace.ToString(), statsFieldStyle);
+        DrawStat("Glasses:", outfit.Glasses.ToString(), statsFieldStyle);
 
         DrawStat("Wings:", outfit.Wings.ToString(), statsFieldStyle);
         DrawStat("Apron:", outfit.Apron.ToString(), statsFieldStyle);
         DrawStat("Hat:", outfit.Hat.ToString(), statsFieldStyle);
         DrawStat("Choker:", outfit.Choker.ToString(), statsFieldStyle);
-        DrawStat("Glasses:", outfit.Glasses.ToString(), statsFieldStyle);
         DrawStat("Cigarette:", outfit.Cigarette.ToString(), statsFieldStyle);
 
         EditorGUILayout.EndVertical();
@@ -186,7 +177,6 @@ public class OutfitEditor : Editor
 
         EditorGUILayout.EndVertical();
 
-        EditorGUILayout.Space();
     }
 
     private static Color GetReadableTextColour(Color colour)

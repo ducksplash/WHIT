@@ -2143,6 +2143,7 @@ public enum OutfitName
     ModestBlousseTopWithSkirtTop,
     ConservativeBlousseTopWithLongSkirt,
     ConservativeLayeredSweaterAndSkirt,
-    EhYo
+    EhYo,
+    RelaxedLayeredBlousseAndSkirt
     
 }

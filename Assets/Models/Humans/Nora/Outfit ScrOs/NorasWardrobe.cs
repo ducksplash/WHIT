@@ -66,6 +66,10 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer ButterflyNecklacePreview;
     public SkinnedMeshRenderer PearlsNecklacePreview;
     public SkinnedMeshRenderer CrossNecklacePreview;
+    public SkinnedMeshRenderer NekPlaceholder1NecklacePreview;
+    public SkinnedMeshRenderer NekPlaceholder2NecklacePreview;
+    public SkinnedMeshRenderer NekPlaceholder3NecklacePreview;
+    public SkinnedMeshRenderer NekPlaceholder4NecklacePreview;
     
     [Header("Preview Glasses")]
     public SkinnedMeshRenderer ProfessionalGlassesPreview;
@@ -86,7 +90,6 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer Overall;
     public SkinnedMeshRenderer Hat;
     public SkinnedMeshRenderer Choker;
-    public SkinnedMeshRenderer Glasses;
     public SkinnedMeshRenderer Cigarette;
 
     [Header("Shoes")]
@@ -122,6 +125,10 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer ButterflyNecklace;
     public SkinnedMeshRenderer PearlsNecklace;
     public SkinnedMeshRenderer CrossNecklace;
+    public SkinnedMeshRenderer NekPlaceholder1Necklace;
+    public SkinnedMeshRenderer NekPlaceholder2Necklace;
+    public SkinnedMeshRenderer NekPlaceholder3Necklace;
+    public SkinnedMeshRenderer NekPlaceholder4Necklace;
     
     [Header("Glasses")]
     public SkinnedMeshRenderer ProfessionalGlasses;
@@ -161,7 +168,7 @@ public class NorasWardrobe : MonoBehaviour
         OutfitType.NightOut,
         OutfitType.Special,
         OutfitType.Storyline,
-        OutfitType.Undergarments
+        //OutfitType.Undergarments
     };
 
     private List<OutfitName> _inspectorOrderedOutfits;
@@ -466,7 +473,8 @@ public class NorasWardrobe : MonoBehaviour
 
         SkinnedMeshRenderer[] allNecklaces =
         {
-            ButterflyNecklace, PearlsNecklace, CrossNecklace
+            ButterflyNecklace, PearlsNecklace, CrossNecklace,
+            NekPlaceholder1Necklace, NekPlaceholder2Necklace, NekPlaceholder3Necklace, NekPlaceholder4Necklace
         };
 
         foreach (var smr in allNecklaces)
@@ -486,7 +494,8 @@ public class NorasWardrobe : MonoBehaviour
 
         SkinnedMeshRenderer[] allNecklacesPreview =
         {
-            ButterflyNecklacePreview, PearlsNecklacePreview, CrossNecklacePreview
+            ButterflyNecklacePreview, PearlsNecklacePreview, CrossNecklacePreview,
+            NekPlaceholder1NecklacePreview, NekPlaceholder2NecklacePreview, NekPlaceholder3NecklacePreview, NekPlaceholder4NecklacePreview
         };
 
         foreach (var smr in allNecklacesPreview)
@@ -612,13 +621,21 @@ public class NorasWardrobe : MonoBehaviour
         if (ButterflyNecklace != null) { ButterflyNecklace.enabled = false; }
         if (PearlsNecklace != null) { PearlsNecklace.enabled = false; }
         if (CrossNecklace != null) { CrossNecklace.enabled = false; }
+        if (NekPlaceholder1Necklace != null) { NekPlaceholder1Necklace.enabled = false; }
+        if (NekPlaceholder2Necklace != null) { NekPlaceholder2Necklace.enabled = false; }
+        if (NekPlaceholder3Necklace != null) { NekPlaceholder3Necklace.enabled = false; }
+        if (NekPlaceholder4Necklace != null) { NekPlaceholder4Necklace.enabled = false; }
     }
 
     private void HideAllNecklacesPreview()
     {
         if (ButterflyNecklacePreview != null) { ButterflyNecklacePreview.enabled = false; }
         if (PearlsNecklacePreview != null) { PearlsNecklacePreview.enabled = false; }
-        if (CrossNecklacePreview != null) { CrossNecklace.enabled = false; }
+        if (CrossNecklacePreview != null) { CrossNecklacePreview.enabled = false; }
+        if (NekPlaceholder1NecklacePreview != null) { NekPlaceholder1NecklacePreview.enabled = false; }
+        if (NekPlaceholder2NecklacePreview != null) { NekPlaceholder2NecklacePreview.enabled = false; }
+        if (NekPlaceholder3NecklacePreview != null) { NekPlaceholder3NecklacePreview.enabled = false; }
+        if (NekPlaceholder4NecklacePreview != null) { NekPlaceholder4NecklacePreview.enabled = false; }
     }
 
     public void SetHair(HairName hair)
@@ -720,7 +737,6 @@ public class NorasWardrobe : MonoBehaviour
 
                 break;
             case ShoesName.None:
-                // do nothing
 
                 break;
         }
@@ -769,6 +785,10 @@ public class NorasWardrobe : MonoBehaviour
             case NecklaceName.Butterfly: if (ButterflyNecklace != null) { ButterflyNecklace.enabled = true; } break;
             case NecklaceName.Pearls: if (PearlsNecklace != null) { PearlsNecklace.enabled = true; } break;
             case NecklaceName.Cross: if (CrossNecklace != null) { CrossNecklace.enabled = true; } break;
+            case NecklaceName.NekPlaceholder1: if (NekPlaceholder1Necklace != null) { NekPlaceholder1Necklace.enabled = true; } break;
+            case NecklaceName.NekPlaceholder2: if (NekPlaceholder2Necklace != null) { NekPlaceholder2Necklace.enabled = true; } break;
+            case NecklaceName.NekPlaceholder3: if (NekPlaceholder3Necklace != null) { NekPlaceholder3Necklace.enabled = true; } break;
+            case NecklaceName.NekPlaceholder4: if (NekPlaceholder4Necklace != null) { NekPlaceholder4Necklace.enabled = true; } break;
             case NecklaceName.None: break;
         }
     }
@@ -781,6 +801,10 @@ public class NorasWardrobe : MonoBehaviour
             case NecklaceName.Butterfly: if (ButterflyNecklacePreview != null) { ButterflyNecklacePreview.enabled = true; } break;
             case NecklaceName.Pearls: if (PearlsNecklacePreview != null) { PearlsNecklacePreview.enabled = true; } break;
             case NecklaceName.Cross: if (CrossNecklacePreview != null) { CrossNecklacePreview.enabled = true; } break;
+            case NecklaceName.NekPlaceholder1: if (NekPlaceholder1NecklacePreview != null) { NekPlaceholder1NecklacePreview.enabled = true; } break;
+            case NecklaceName.NekPlaceholder2: if (NekPlaceholder2NecklacePreview != null) { NekPlaceholder2NecklacePreview.enabled = true; } break;
+            case NecklaceName.NekPlaceholder3: if (NekPlaceholder3NecklacePreview != null) { NekPlaceholder3NecklacePreview.enabled = true; } break;
+            case NecklaceName.NekPlaceholder4: if (NekPlaceholder4NecklacePreview != null) { NekPlaceholder4NecklacePreview.enabled = true; } break;
             case NecklaceName.None: break;
         }
     }
@@ -1143,9 +1167,6 @@ public class NorasWardrobe : MonoBehaviour
 
     public void ClearPreview()
     {
-        // HideAllAccessoriesPreview();
-        // ClearOutfitMeshesPreview();
-        // HideAllHairPreview();
     }
 
     public void DisableAllMainOutfits()
@@ -1298,7 +1319,6 @@ public class NorasWardrobe : MonoBehaviour
     }
 }
 
-
 #if UNITY_EDITOR
 [CustomEditor(typeof(NorasWardrobe))]
 public class NorasWardrobeEditor : Editor
@@ -1309,10 +1329,33 @@ public class NorasWardrobeEditor : Editor
     private const int DefaultColumns = 3;
 
     private OutfitName? _pendingPreviewOutfit;
+    private string _outfitSearchText = string.Empty;
+    private Rect _searchAreaRect;
 
     private void OnEnable()
     {
         _pendingPreviewOutfit = null;
+        _outfitSearchText = string.Empty;
+        EditorApplication.update += OnEditorUpdate;
+    }
+
+    private void OnDisable()
+    {
+        EditorApplication.update -= OnEditorUpdate;
+    }
+
+    private void OnEditorUpdate()
+    {
+        if (string.IsNullOrEmpty(_outfitSearchText)) { return; }
+
+        EditorWindow focused = EditorWindow.focusedWindow;
+        bool inspectorFocused = focused != null && focused.GetType().Name == "InspectorWindow";
+
+        if (!inspectorFocused)
+        {
+            _outfitSearchText = string.Empty;
+            Repaint();
+        }
     }
 
     public override void OnInspectorGUI()
@@ -1388,15 +1431,18 @@ public class NorasWardrobeEditor : Editor
         };
 
 
-        
-        
+        var resultsbuttonStyle = new GUIStyle(GUI.skin.button)
+        {
+            fontStyle = FontStyle.Bold,
+            fontSize = 14,
+            alignment = TextAnchor.MiddleLeft,
+            normal = { textColor = new Color(0.7f, 0.4f, 1f) },
+            padding = new RectOffset(3, 3, 3, 3)
+        };
+
+
         
         EditorGUILayout.BeginVertical(boxStyle);
-        
-        
-        
-        
-        
         
         DrawOutfitStats(me,  boxStyle,statsTitle, statsStyle, statsbuttonStyle);
 
@@ -1405,6 +1451,17 @@ public class NorasWardrobeEditor : Editor
 
         GUI.backgroundColor = Color.red;
         DrawButtonRow(me, redButton, ("Previous Outfit", () => { me.PreviousOutfit(); SelectOutfitAsset(me); }), ("Next Outfit", () => { me.NextOutfit(); SelectOutfitAsset(me); }));
+        
+        
+        EditorGUILayout.Space();
+
+        
+        
+        
+        
+        
+        DrawOutfitSearch(me, statsTitle, resultsbuttonStyle);
+
         
         
         EditorGUILayout.Space();
@@ -1473,7 +1530,14 @@ public class NorasWardrobeEditor : Editor
         DrawButtonRow(me, clearAllStyle,
             ("Butterfly", () => me.SetNecklace(NecklaceName.Butterfly)),
             ("Pearls", () => me.SetNecklace(NecklaceName.Pearls)),
-            ("Cross", () => me.SetNecklace(NecklaceName.Cross)),
+            ("Cross", () => me.SetNecklace(NecklaceName.Cross)));
+        DrawButtonRow(me, clearAllStyle,
+            ("NekPlaceholder1", () => me.SetNecklace(NecklaceName.NekPlaceholder1)),
+            ("NekPlaceholder2", () => me.SetNecklace(NecklaceName.NekPlaceholder2)));
+        DrawButtonRow(me, clearAllStyle,
+            ("NekPlaceholder3", () => me.SetNecklace(NecklaceName.NekPlaceholder3)),
+            ("NekPlaceholder4", () => me.SetNecklace(NecklaceName.NekPlaceholder4)));
+        DrawButtonRow(me, clearAllStyle,
             ("None", () => me.SetNecklace(NecklaceName.None)));
         
         
@@ -1535,6 +1599,74 @@ public class NorasWardrobeEditor : Editor
         GUI.backgroundColor = Color.white;
         EditorGUILayout.EndVertical();
         DrawDefaultInspector();
+    }
+
+    private void DrawOutfitSearch(NorasWardrobe me, GUIStyle titleStyle, GUIStyle labelStyle)
+    {
+        EditorGUILayout.BeginVertical();
+
+        EditorGUILayout.LabelField("Search Outfits", titleStyle);
+
+        var searchFieldStyle = new GUIStyle(EditorStyles.textField)
+        {
+            fontSize = 18,
+            alignment = TextAnchor.MiddleLeft
+        };
+
+        _outfitSearchText = EditorGUILayout.TextField(_outfitSearchText, searchFieldStyle, GUILayout.Height(ButtonHeight));
+        
+        
+        if (!string.IsNullOrEmpty(_outfitSearchText))
+        {
+            string query = _outfitSearchText.ToLowerInvariant();
+
+            List<OutfitName> matches = System.Enum.GetValues(typeof(OutfitName))
+                .Cast<OutfitName>()
+                .Where(o => o != OutfitName.None && o.ToString().ToLowerInvariant().Contains(query))
+                .ToList();
+
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+
+            if (matches.Count == 0)
+            {
+                EditorGUILayout.LabelField("No matches", EditorStyles.miniLabel);
+            }
+            else
+            {
+                Color previousColor = GUI.backgroundColor;
+                GUI.backgroundColor = Color.cyan;
+
+                foreach (var match in matches)
+                {
+                    if (GUILayout.Button(match.ToString(), labelStyle))
+                    {
+                        me.ToggleOutfit(match, true);
+                        SelectOutfitAsset(me);
+                        EditorUtility.SetDirty(me);
+                    }
+                }
+
+                GUI.backgroundColor = previousColor;
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+
+        EditorGUILayout.EndVertical();
+
+        if (Event.current.type == EventType.Repaint)
+        {
+            _searchAreaRect = GUILayoutUtility.GetLastRect();
+        }
+
+        if (!string.IsNullOrEmpty(_outfitSearchText) &&
+            Event.current.type == EventType.MouseDown &&
+            !_searchAreaRect.Contains(Event.current.mousePosition))
+        {
+            _outfitSearchText = string.Empty;
+            GUI.FocusControl(null);
+            Repaint();
+        }
     }
 
     private static int CountCanSpawn(List<Outfit> outfits, OutfitType? type = null)
@@ -1721,7 +1853,6 @@ public class NorasWardrobeEditor : Editor
 #endif
 
 
-
 public enum HairName
 {
     DefaultHair,
@@ -1763,7 +1894,11 @@ public enum NecklaceName
     None,
     Butterfly,
     Pearls,
-    Cross
+    Cross,
+    NekPlaceholder1,
+    NekPlaceholder2,
+    NekPlaceholder3,
+    NekPlaceholder4
 }
 
 public enum GlassesName
@@ -2007,6 +2142,7 @@ public enum OutfitName
     ModestShortSleeveTopAndSkirt,
     ModestBlousseTopWithSkirtTop,
     ConservativeBlousseTopWithLongSkirt,
-    ConservativeLayeredSweaterAndSkirt
+    ConservativeLayeredSweaterAndSkirt,
+    EhYo
     
 }

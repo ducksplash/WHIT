@@ -20,10 +20,17 @@ Material:
   - _FRESNELENABLED_ON
   - _GLOWENABLED_ON
   - _MASKMAP
+  - _MOVEMENTENABLED_ON
   - _NORMALMAP
   - _NORMALMAP_TANGENT_SPACE
   - _OVERLAYENABLED_ON
+  - _RAINBACK_ON
+  - _RAINBOTTOM_ON
   - _RAINENABLED_ON
+  - _RAINFRONT_ON
+  - _RAINLEFT_ON
+  - _RAINRIGHT_ON
+  - _RAINTOP_ON
   - _SURFACE_TYPE_TRANSPARENT
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -69,7 +76,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CubeTex:
-        m_Texture: {fileID: 8900000, guid: 64501fbadb305f74b9b03ac4a93ff093, type: 3}
+        m_Texture: {fileID: 8900000, guid: f3ce04595ca32b6449b07628541dcce3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -109,19 +116,19 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _LightningTex0:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 1d6270b4034366b4ea8bdbd7861c38a9, type: 3}
         m_Scale: {x: 0, y: 0}
         m_Offset: {x: 0, y: 0}
     - _LightningTex1:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 15f75b11726af9843a762e402c54a4bb, type: 3}
         m_Scale: {x: 0, y: 0}
         m_Offset: {x: 0, y: 0}
     - _LightningTex2:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 485549c3689a8664fba21b493f32df8d, type: 3}
         m_Scale: {x: 0, y: 0}
         m_Offset: {x: 0, y: 0}
     - _LightningTex3:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 883017269773de946950db8b8d49a8bc, type: 3}
         m_Scale: {x: 0, y: 0}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -256,7 +263,7 @@ Material:
     - _DstBlend: 10
     - _DstBlend2: 10
     - _EmissionEnabled: 1
-    - _EmissionStrength: 0
+    - _EmissionStrength: 1.34
     - _EmissiveColorMode: 1
     - _EmissiveExposureWeight: 1
     - _EmissiveIntensity: 1
@@ -270,8 +277,8 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 1
     - _GlowEnabled: 1
-    - _GlowSpeed: 0
-    - _GlowStrength: 0
+    - _GlowSpeed: 0.55
+    - _GlowStrength: 0.84
     - _HeightAmplitude: 0.02
     - _HeightCenter: 0.5
     - _HeightMapParametrization: 0
@@ -286,11 +293,11 @@ Material:
     - _IridescenceMask: 1
     - _IridescenceThickness: 1
     - _LightningEnabled: 0
-    - _LightningMaxDuration: 0.01
-    - _LightningMaxTime: 0.1
-    - _LightningMinDuration: 0.01
-    - _LightningMinTime: 0.1
-    - _LightningStrength: 0
+    - _LightningMaxDuration: 1
+    - _LightningMaxTime: 1
+    - _LightningMinDuration: 0.5
+    - _LightningMinTime: 0.5
+    - _LightningStrength: 0.05
     - _LinkDetailsWithBase: 0
     - _MaterialID: 1
     - _Metallic: 1
@@ -299,8 +306,8 @@ Material:
     - _MidEnabled: 0
     - _MidParallax: 1
     - _Mode: 0
-    - _MovementEnabled: 0
-    - _MovementSpeed: 0.3
+    - _MovementEnabled: 1
+    - _MovementSpeed: 0.03
     - _NearEnabled: 0
     - _NearParallax: 2
     - _NormalMapSpace: 0
@@ -319,22 +326,22 @@ Material:
     - _PPDPrimitiveWidth: 1
     - _Parallax: 0.02
     - _PerPixelSorting: 0
-    - _RainBack: 0
-    - _RainBottom: 0
+    - _RainBack: 1
+    - _RainBottom: 1
     - _RainEnabled: 1
-    - _RainFront: 0
-    - _RainLeft: 0
-    - _RainRight: 0
+    - _RainFront: 1
+    - _RainLeft: 1
+    - _RainRight: 1
     - _RainSpeed: 2.7
     - _RainStrength: 1
-    - _RainTop: 0
+    - _RainTop: 1
     - _RayTracing: 0
     - _ReceivesSSR: 0
     - _ReceivesSSRTransparent: 0
     - _RefractionModel: 0
     - _RotationX: 0
     - _RotationY: 0
-    - _Smoothness: 0
+    - _Smoothness: 1
     - _SmoothnessRemapMax: 1
     - _SmoothnessRemapMin: 0
     - _SmoothnessTextureChannel: 0
@@ -388,17 +395,17 @@ Material:
     - _Color: {r: 0.17735848, g: 0.17735848, b: 0.17735848, a: 1}
     - _DiffusionProfileAsset: {r: 0, g: 0, b: 0, a: 0}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissionColor: {r: 0, g: 0.003921569, b: 0.54901963, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveColorLDR: {r: 0, g: 0, b: 0, a: 1}
-    - _GlowColor: {r: 0, g: 0, b: 0, a: 1}
+    - _GlowColor: {r: 0, g: 0.005323887, b: 0.5471698, a: 1}
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
     - _LightningForeground: {r: 1, g: 1, b: 1, a: 1}
-    - _LightningTiling: {r: 0, g: 0, b: 0, a: 0}
+    - _LightningTiling: {r: 20, g: 20, b: 20, a: 0}
     - _MidTiling: {r: 1, g: 1, b: 0, a: 0}
     - _MidTint: {r: 1, g: 1, b: 1, a: 1}
-    - _MovementDirection: {r: 1, g: 0, b: 0, a: 0}
+    - _MovementDirection: {r: 0, g: 0, b: 0, a: 75}
     - _NearTiling: {r: 1, g: 1, b: 0, a: 0}
     - _NearTint: {r: 1, g: 1, b: 1, a: 1}
     - _OverlayTiling: {r: 30, g: 30, b: 10, a: 0}
@@ -408,7 +415,7 @@ Material:
     - _SpecColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 0, g: 0, b: 0, a: 1}
     - _ThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
-    - _TintColor: {r: 0.78113204, g: 0.78113204, b: 0.78113204, a: 1}
+    - _TintColor: {r: 0.17735851, g: 0.17735851, b: 0.17735851, a: 1}
     - _TransmittanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}

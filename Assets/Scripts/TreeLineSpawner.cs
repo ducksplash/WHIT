@@ -16,7 +16,8 @@ public class TreeLine
     public List<GameObject> Prefabs = new List<GameObject>();
     public bool Reverse = false;
     public float Speed = 1f;
-    public float SpawnInterval = 1f;
+    public float MinSpawnInterval = 1f;
+    public float MaxSpawnInterval = 1f;
     public int InitialPoolSizePerPrefab = 5;
 
     [HideInInspector] public float SpawnTimer;
@@ -32,16 +33,49 @@ public class ActiveTreeInstance
     public GameObject SourcePrefab;
 }
 
-[ExecuteAlways]
+
 public class TreeLineSpawner : MonoBehaviour
 {
     public List<TreeLine> Lines = new List<TreeLine>();
 
     void OnEnable()
     {
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        ClearAllChildren();
+
         foreach (TreeLine line in Lines)
         {
             InitializeLine(line);
+        }
+    }
+
+    void OnDisable()
+    {
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        ClearAllChildren();
+    }
+
+    void ClearAllChildren()
+    {
+        for (int i = transform.childCount - 1; i >= 0; i--)
+        {
+            SafeDestroy(transform.GetChild(i).gameObject);
+        }
+
+        foreach (TreeLine line in Lines)
+        {
+            line.Pools.Clear();
+            line.PrefabRotations.Clear();
+            line.ActiveTrees.Clear();
+            line.RecentPrefabs.Clear();
         }
     }
 
@@ -86,9 +120,19 @@ public class TreeLineSpawner : MonoBehaviour
         }
     }
 
+    float GetNextSpawnInterval(TreeLine line)
+    {
+        if (line.MaxSpawnInterval <= line.MinSpawnInterval)
+        {
+            return line.MinSpawnInterval;
+        }
+
+        return Random.Range(line.MinSpawnInterval, line.MaxSpawnInterval);
+    }
+
     void InitializeLine(TreeLine line)
     {
-        line.SpawnTimer = line.SpawnInterval;
+        line.SpawnTimer = GetNextSpawnInterval(line);
 
         foreach (GameObject prefab in line.Prefabs)
         {
@@ -128,7 +172,7 @@ public class TreeLineSpawner : MonoBehaviour
         if (line.SpawnTimer <= 0f)
         {
             SpawnTree(line, spawnPoint);
-            line.SpawnTimer = line.SpawnInterval;
+            line.SpawnTimer = GetNextSpawnInterval(line);
         }
     }
 
@@ -271,7 +315,7 @@ public class TreeLineSpawner : MonoBehaviour
     public void StartLine(TreeLine line)
     {
         line.Enabled = true;
-        line.SpawnTimer = line.SpawnInterval;
+        line.SpawnTimer = GetNextSpawnInterval(line);
     }
 
     public void StopLine(TreeLine line)
@@ -409,11 +453,6 @@ public class TreeLineSpawnerEditor : Editor
             foldouts.RemoveAt(foldouts.Count - 1);
         }
 
-        if (!Application.isPlaying)
-        {
-            EditorGUILayout.HelpBox("Spawning and movement only run in Play Mode. Use the buttons below to configure lines and warm up pools ahead of time.", MessageType.Info);
-        }
-
         bool lineWasRemoved = false;
 
         for (int i = 0; i < linesProperty.arraySize; i++)
@@ -435,11 +474,14 @@ public class TreeLineSpawnerEditor : Editor
 
         EditorGUILayout.Space();
 
-        if (GUILayout.Button("Add Line"))
+        if (Application.isPlaying)
         {
-            spawner.AddLine(new TreeLine());
-            serializedObject.Update();
-            EditorUtility.SetDirty(spawner);
+            if (GUILayout.Button("Add Line"))
+            {
+                spawner.AddLine(new TreeLine());
+                serializedObject.Update();
+                EditorUtility.SetDirty(spawner);
+            }
         }
 
         serializedObject.ApplyModifiedProperties();
@@ -454,7 +496,8 @@ public class TreeLineSpawnerEditor : Editor
         SerializedProperty prefabsProperty = lineProperty.FindPropertyRelative("Prefabs");
         SerializedProperty reverseProperty = lineProperty.FindPropertyRelative("Reverse");
         SerializedProperty speedProperty = lineProperty.FindPropertyRelative("Speed");
-        SerializedProperty spawnIntervalProperty = lineProperty.FindPropertyRelative("SpawnInterval");
+        SerializedProperty minSpawnIntervalProperty = lineProperty.FindPropertyRelative("MinSpawnInterval");
+        SerializedProperty maxSpawnIntervalProperty = lineProperty.FindPropertyRelative("MaxSpawnInterval");
         SerializedProperty poolSizeProperty = lineProperty.FindPropertyRelative("InitialPoolSizePerPrefab");
 
         TreeLine line = spawner.Lines[index];
@@ -468,14 +511,17 @@ public class TreeLineSpawnerEditor : Editor
 
         GUIStyle statusStyle = new GUIStyle(EditorStyles.miniBoldLabel);
         statusStyle.normal.textColor = enabledProperty.boolValue ? new Color(0.2f, 0.7f, 0.2f) : new Color(0.7f, 0.2f, 0.2f);
-        GUILayout.Label(enabledProperty.boolValue ? "Running" : "Stopped", statusStyle, GUILayout.Width(60));
+        GUILayout.Label(enabledProperty.boolValue ? "Enabled" : "Disabled", statusStyle, GUILayout.Width(60));
 
-        if (GUILayout.Button("Remove", GUILayout.Width(70)))
+        if (Application.isPlaying)
         {
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.EndVertical();
-            spawner.RemoveLine(line);
-            return true;
+            if (GUILayout.Button("Remove", GUILayout.Width(70)))
+            {
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
+                spawner.RemoveLine(line);
+                return true;
+            }
         }
 
         EditorGUILayout.EndHorizontal();
@@ -489,39 +535,43 @@ public class TreeLineSpawnerEditor : Editor
             EditorGUILayout.PropertyField(endProperty);
             EditorGUILayout.PropertyField(reverseProperty);
             EditorGUILayout.PropertyField(speedProperty);
-            EditorGUILayout.PropertyField(spawnIntervalProperty);
+            EditorGUILayout.PropertyField(minSpawnIntervalProperty);
+            EditorGUILayout.PropertyField(maxSpawnIntervalProperty);
             EditorGUILayout.PropertyField(poolSizeProperty);
             EditorGUILayout.PropertyField(prefabsProperty, true);
 
-            EditorGUILayout.Space();
-            EditorGUILayout.BeginHorizontal();
-
-            GUI.enabled = !enabledProperty.boolValue;
-            if (GUILayout.Button("Start"))
+            if (Application.isPlaying)
             {
-                enabledProperty.boolValue = true;
-                serializedObject.ApplyModifiedProperties();
-                spawner.StartLine(line);
-                EditorUtility.SetDirty(spawner);
-            }
+                EditorGUILayout.Space();
+                EditorGUILayout.BeginHorizontal();
 
-            GUI.enabled = enabledProperty.boolValue;
-            if (GUILayout.Button("Stop"))
-            {
-                enabledProperty.boolValue = false;
-                serializedObject.ApplyModifiedProperties();
-                spawner.StopLine(line);
-                EditorUtility.SetDirty(spawner);
-            }
+                GUI.enabled = !enabledProperty.boolValue;
+                if (GUILayout.Button("Start"))
+                {
+                    enabledProperty.boolValue = true;
+                    serializedObject.ApplyModifiedProperties();
+                    spawner.StartLine(line);
+                    EditorUtility.SetDirty(spawner);
+                }
 
-            GUI.enabled = true;
-            if (GUILayout.Button("Clear Active"))
-            {
-                spawner.ClearLine(line);
-                EditorUtility.SetDirty(spawner);
-            }
+                GUI.enabled = enabledProperty.boolValue;
+                if (GUILayout.Button("Stop"))
+                {
+                    enabledProperty.boolValue = false;
+                    serializedObject.ApplyModifiedProperties();
+                    spawner.StopLine(line);
+                    EditorUtility.SetDirty(spawner);
+                }
 
-            EditorGUILayout.EndHorizontal();
+                GUI.enabled = true;
+                if (GUILayout.Button("Clear Active"))
+                {
+                    spawner.ClearLine(line);
+                    EditorUtility.SetDirty(spawner);
+                }
+
+                EditorGUILayout.EndHorizontal();
+            }
 
             EditorGUI.indentLevel--;
         }

@@ -55,6 +55,8 @@ public class OnboardingManager : MonoBehaviour
         EventManager.OnEvidenceLoaded += RunOnboardingChecks;
         EventManager.OnEvidenceCollected += RunOnboardingChecks;
         EventManager.OnLevelLoaded += OnboardingCheckEvent;
+
+        SceneManager.sceneUnloaded += ResetRestored;
     }
 
 
@@ -84,44 +86,27 @@ public class OnboardingManager : MonoBehaviour
         RunOnboardingChecks();
         
     }
+    
+    
 
     
     private void OnEnable()
     {
         EventManager.OnEvidenceLoaded += RunOnboardingChecks;
         EventManager.OnEvidenceCollected += RunOnboardingChecks;
-
-        // EventManager.OnPlayerDataLoaded += RunOnboardingChecks;
-
-        StartCoroutine(DeferredInit());
+        EventManager.OnPlayerDataLoaded += RunOnboardingChecks;
     }
 
     private void OnDisable()
     {
         EventManager.OnEvidenceLoaded -= RunOnboardingChecks;
         EventManager.OnEvidenceCollected -= RunOnboardingChecks;
-        // EventManager.OnPlayerDataLoaded -= RunOnboardingChecks;
+        EventManager.OnPlayerDataLoaded -= RunOnboardingChecks;
     }
 
 
     private void OnboardingCheckEvent()
     {
-
-        //if (GameMaster.Instance.THISLEVEL != GAMELEVEL.NorasFlat) return;
-        
-        StartCoroutine(DeferredInit());
-    }
-
-    private System.Collections.IEnumerator DeferredInit()
-    {
-        // wait a frame so other Awake/OnEnable happen first
-        yield return null;
-
-        // optionally wait until singletons exist (max a few frames)
-        int safety = 30;
-        while ((StoredPrefs.Instance == null || GameMaster.Instance == null) && safety-- > 0)
-            yield return null;
-
         RunOnboardingChecks();
     }
 
@@ -139,7 +124,7 @@ public class OnboardingManager : MonoBehaviour
         TESTEVIDENCECOLLECTED = StoredPrefs.Instance.GetInt("TESTEVIDENCECOLLECTED", 0) != 0;
         PHONEACCESSED = StoredPrefs.Instance.GetInt("PHONEACCESSED", 0) != 0;
 
-        if (GameMaster.Instance.THISLEVEL != GAMELEVEL.NorasFlat) return;
+        //if (GameMaster.Instance.THISLEVEL != GAMELEVEL.NorasFlat) return;
 
         if (!_restoredThisScene)
         {
@@ -385,6 +370,11 @@ public class OnboardingManager : MonoBehaviour
         if (notepadPickup != null) notepadPickup.SetActive(false);
 
         EventManager.NotepadCollectedEvent();
+    }
+
+    private void ResetRestored(Scene arg0)
+    {
+        _restoredThisScene = false;
     }
 
 

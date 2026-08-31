@@ -192,6 +192,7 @@ public class TravelCompanion : MonoBehaviour
         AvailableLocations.Add(GAMELEVEL.NorasOldFlat, "Old Flat");
         AvailableLocations.Add(GAMELEVEL.FarsetCentralStation, "Farset Central");
         AvailableLocations.Add(GAMELEVEL.TawleyMeats, "Tawley Meats");
+        AvailableLocations.Add(GAMELEVEL.TawleyMeatsMaze, "Meats Excursion");
         AvailableLocations.Add(GAMELEVEL.RoarkOutside, "Roark Microtech");
         AvailableLocations.Add(GAMELEVEL.NorasFlat, "\n...just go home");
 

@@ -402,6 +402,11 @@ public class Player : Singleton<Player>
                 spawnRotation = GameMaster.Instance.SPAWNROTTAWLEYMEATS;
                 break;
 
+            case GAMELEVEL.TawleyMeatsMaze:
+                spawnPoint = GameMaster.Instance.SPAWNPOINTTAWLEYMEATSMAZE;
+                spawnRotation = GameMaster.Instance.SPAWNROTTAWLEYMEATSMAZE;
+                break;
+
             case GAMELEVEL.RoarkOutside:
                 spawnPoint = GameMaster.Instance.SPAWNPOINTROARKOUTSIDE;
                 spawnRotation = GameMaster.Instance.SPAWNROTROARKOUTSIDE;
@@ -435,6 +440,41 @@ public class Player : Singleton<Player>
         
         Debug.Log($"Spawned at {spawnPoint} with rotation {spawnRotation}");
     }
+
+    
+
+    public void SpawnOverride(Vector3 spawnPoint)
+    {
+        Vector3 spawnRotation = Vector3.zero;
+
+
+        bool ccWasEnabled = thisCharController != null && thisCharController.enabled;
+
+        if (thisCharController != null)
+            thisCharController.enabled = false;
+
+        Transform rootTransform = thisCharController != null
+            ? thisCharController.transform
+            : transform;
+
+        rootTransform.position = spawnPoint;
+        rootTransform.rotation = Quaternion.Euler(spawnRotation);
+
+        Physics.SyncTransforms();
+
+        if (thisCharController != null)
+            thisCharController.enabled = ccWasEnabled;
+
+        GameMaster.Instance.NoraManager.IsDead = false;
+        GameMaster.Instance.PLAYERBUSY = false;
+
+        Debug.Log($"Spawned at {spawnPoint} with rotation {spawnRotation}");
+    }
+
+
+
+
+
 
     private void TorchCollected() => SetTorchLocomotion(true);
 
@@ -1987,6 +2027,65 @@ public class Player : Singleton<Player>
         }
         return nuNum;
     }
+    
+    
+    
+    
+    
+    
+    
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (GameMaster.Instance.PLAYERBUSY) return;
+
+        if (hit.collider.CompareTag("FloorTile"))
+        {
+            var tile = hit.collider.GetComponent<ColorFloor>();
+            if (tile != null && !tile.ranOver)
+            {
+                tile.ranOver = true;
+                tile.SetTileColor(Color.gray * 0.2f);
+                DungeonGenerator.Instance.floorTilesCovered++;
+                
+                
+                //GameMaster.Instance.PlayerOne.UpdateCoverage();
+                //GameMaster.Instance.PlayerOne.IncrementScore(5);
+                
+                
+            }
+        }
+
+        if (hit.collider.CompareTag("SpawnableTile") || hit.collider.CompareTag("SpecialtyTile"))
+        {
+            var tile = hit.collider.GetComponent<ColorFloor>();
+            if (tile != null && !tile.ranOver)
+            {
+                tile.ranOver = true;
+                tile.SetTileColor(Color.gray * 0.2f);
+                if (tile.attachedLight != null) tile.attachedLight.enabled = false;
+            }
+        }
+
+        if (hit.collider.CompareTag("Spikes"))
+        {
+            // if (spikeCoolDown) return;
+            //
+            // spikeCoolDown = true;
+            // StartCoroutine(SpikeCooldown());
+            //
+            // Vector3 knockbackDirection = (transform.position - hit.collider.transform.position).normalized;
+            // knockbackDirection.y = 0.1f;
+            // Vector3 knockback = knockbackDirection * 25f;
+            // ApplyKnockback(knockback);
+            // GameMaster.Instance.PlayerOne.DecrementHealth(10);
+        }
+        
+        
+    }
+    
+    
+    
+    
 }
 
 #if UNITY_EDITOR

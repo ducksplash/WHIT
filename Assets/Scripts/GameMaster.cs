@@ -97,6 +97,10 @@ public class GameMaster : MonoBehaviour
     [Header("Tawley Meats")]
     public Vector3 SPAWNPOINTTAWLEYMEATS;
     public Vector3 SPAWNROTTAWLEYMEATS;
+    
+    [Header("Tawley Meats Maze")]
+    public Vector3 SPAWNPOINTTAWLEYMEATSMAZE;
+    public Vector3 SPAWNROTTAWLEYMEATSMAZE;
 
     [Header("Roark Outside")]
     public Vector3 SPAWNPOINTROARKOUTSIDE;
@@ -300,6 +304,10 @@ public class GameMaster : MonoBehaviour
             case GAMELEVEL.TawleyMeats:
                 StartLevelTawleyMeats();
                 break;
+            
+            case GAMELEVEL.TawleyMeatsMaze:
+                StartLevelTawleyMeatsMaze();
+                break;
 
             case GAMELEVEL.RoarkOutside:
                 StartLevelRoarkOutside();
@@ -424,6 +432,18 @@ public class GameMaster : MonoBehaviour
         
         EventManager.UnlockAchievement(SteamAchievements.WorkMeating);
     }
+    public void StartLevelTawleyMeatsMaze()
+    {
+        THISLEVEL = GAMELEVEL.TawleyMeatsMaze;
+        Player.Instance.Spawn();
+        NoraManager.InitialiseNora();
+        StartAudio(AudioProfile.TawleyMeats);
+        EventManager.GameStartedEvent();
+        EventManager.LevelLoaded();
+        LoadingManager.SceneFadeIn();
+        
+        EventManager.UnlockAchievement(SteamAchievements.WorkMeatingCancelled);
+    }
 
     public void StartLevelRoarkOutside()
     {
@@ -490,7 +510,8 @@ public enum GAMELEVEL
     RoarkOutside,
     RoarkInside,
     FarsetCentralStation,
-    EnteringTawley
+    EnteringTawley,
+    TawleyMeatsMaze
 }
 
 public enum DevModeScene

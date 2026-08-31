@@ -177,11 +177,11 @@ public class NorasWardrobe : MonoBehaviour
     private static readonly OutfitType[] InspectorSectionOrder =
     {
         OutfitType.Work,
-        OutfitType.Main,
         OutfitType.Pyjamas,
         OutfitType.NightOut,
         OutfitType.Special,
         OutfitType.Storyline,
+        OutfitType.Main,
         //OutfitType.Undergarments
     };
 
@@ -2229,6 +2229,9 @@ public enum OutfitName
     RelaxedLayeredBlousseAndSkirt,
     ShortSleevedRelaxedDress,
     RelaxedCollarShirtAndSkirt,
-    FrillishDress
+    FrillishDress,
+    LayeredSweaterAndMiniskirtTop,
+    RelaxedDressAndStocks,
+    RuffleTopAndPoofySkirt
     
 }

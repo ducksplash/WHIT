@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &591594144738001478
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7005013470335913575}
+  - component: {fileID: 4376600224447854100}
+  - component: {fileID: 1265348364334190082}
+  m_Layer: 0
+  m_Name: DunGen
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7005013470335913575
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 591594144738001478}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.1185937, y: -4.4359674, z: -2.996266}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4376600224447854100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 591594144738001478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d7e700fdf85d9a41b06872c242bc881, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maximumRealtimeLights: 50
+  maximumEmissiveLights: 0
+  gridWidth: 60
+  gridHeight: 60
+  floorCount: 2
+  cellSize: 3
+  minRooms: 5
+  maxRooms: 10
+  minRoomDistance: 3
+  wallHeight: 5
+  ceilingHeight: 5
+  autoRegenerate: 0
+  spawnPoint: {x: 39, y: 0.1, z: 4}
+  minLoots: 15
+  maxLoots: 30
+  minEnemies: 10
+  maxEnemies: 10
+  wallNorthPrefab: {fileID: 7285143679850460083, guid: 124c289ec668cdc45acceaa89afc90be, type: 3}
+  wallEastPrefab: {fileID: 7285143679850460083, guid: 2a3ee31480964704cae7fe038450a8e7, type: 3}
+  wallSouthPrefab: {fileID: 7285143679850460083, guid: ca362dec916700e42b2a8231aed0ee7e, type: 3}
+  wallWestPrefab: {fileID: 7285143679850460083, guid: 6d1abf06ac46491428878291d05cd55c, type: 3}
+  floorPrefab: {fileID: 3359883096951897815, guid: e9415b661a8a008409302fcecdc12827, type: 3}
+  ceilingPrefab: {fileID: 2592475100145989977, guid: 2d5009d2cd91d8847b550c9ae7e51138, type: 3}
+  entrancePrefab: {fileID: 4639006347664725420, guid: eddd3305e15cd3a49a24296f8cf86f8c, type: 3}
+  exitPrefab: {fileID: 7649735676832276444, guid: 7d18c09c2b3896d4a8d774d8565cc177, type: 3}
+  redTelepadPrefab: {fileID: 3473382763416672157, guid: 0bbd8fcdf9ca6a740b25ce70b22746d5, type: 3}
+  blueTelepadPrefab: {fileID: 7682569051715949998, guid: 4013af4ba39deaa469e938cf7226131a, type: 3}
+  spawnableObjectPrefab: {fileID: 9119641584935931866, guid: e0c093590e800c04bbdc182f4f1fb148, type: 3}
+  lootPrefab: {fileID: 3887077492594736797, guid: b25a9991afd703f46bfbf7ba3e776c53, type: 3}
+  holePrefab: {fileID: 3148606218231221046, guid: de9b1baf16dc6654a945ad89b47db566, type: 3}
+  specialTilePrefab: {fileID: 7682569051715949998, guid: 9933d1db59983014081cec57200af6be, type: 3}
+  lightList: []
+  dungeonMask:
+    serializedVersion: 2
+    m_Bits: 128
+  spikeMan: {fileID: 1265348364334190082}
+  floorTilesCount: 0
+  floorTilesCovered: 0
+  IsDungeoning: 0
+  floorObjects: []
+--- !u!114 &1265348364334190082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 591594144738001478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afecb71fccad8ae4fa3c375fbc03af85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spikePrefab: {fileID: 987845600318671016, guid: a26f6ee8121d9a34897c32f96300c310, type: 3}
+  clusterChance: 5
+  maxTotalSpikes: 50
+  spikeRotation: {x: -90, y: 90, z: 0}
+  spiking: 0

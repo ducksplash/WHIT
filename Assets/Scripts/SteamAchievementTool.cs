@@ -214,6 +214,7 @@ public enum SteamAchievements
 {
     NewsHound,
     WorkMeating,
-    Primadonna
+    Primadonna,
+    WorkMeatingCancelled,
     // Add new achievements here
 }

@@ -8,8 +8,9 @@ using UnityEditor;
 
 public class SpikeHandler : MonoBehaviour
 {
+    public bool GenerateSpikes;
     public GameObject spikePrefab;
-    [Range(0f, 100f)]
+    [Range(0f, 100f)] 
     public float clusterChance = 30f; // Percentage chance to spawn a spike
     public int maxTotalSpikes = 50; // Hard limit on total spikes
     public Vector3 spikeRotation = Vector3.zero; // Public rotation tweak
@@ -20,6 +21,8 @@ public class SpikeHandler : MonoBehaviour
 
     public void BeginSpiking()
     {
+        if (!GenerateSpikes) return;
+        
         if (spikePrefab == null)
         {
             //Debug.LogError("SpikePrefab is null!");
@@ -55,6 +58,7 @@ public class SpikeHandler : MonoBehaviour
 
     private void SpawnCluster(GameObject centerTile)
     {
+        if (!GenerateSpikes) return;
         // Spawn on center tile
         if (!InstantiateSpike(centerTile.transform, Quaternion.Euler(spikeRotation)))
         {
@@ -99,6 +103,7 @@ public class SpikeHandler : MonoBehaviour
 
     private bool InstantiateSpike(Transform parentTile, Quaternion rotation)
     {
+        if (!GenerateSpikes) return false;
         if (totalSpikesSpawned >= maxTotalSpikes) return false;
         Vector3 position = parentTile.position + new Vector3(0, 0.05f, 0); // Align with tile
         GameObject nuSpyke = Instantiate(spikePrefab, position, rotation, parentTile);

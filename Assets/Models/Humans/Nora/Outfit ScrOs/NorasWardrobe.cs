@@ -21,9 +21,17 @@ public class NorasWardrobe : MonoBehaviour
     [Header("Preview Character Root")]
     public GameObject SkinnedMeshRendererParentOutfitsPreview;
     public GameObject SkinnedMeshRendererParentAccessoriesPreview;
+    public GameObject SkinnedMeshRendererParentBodiesPreview;
 
     [Header("Preview Body")]
     public SkinnedMeshRenderer BodyPreview;
+
+    [Header("Preview Body Types")]
+    public SkinnedMeshRenderer NormalBodyPreview;
+    public SkinnedMeshRenderer SimiaeBodyPreview;
+    public SkinnedMeshRenderer PapilioBodyPreview;
+    public SkinnedMeshRenderer ArachnidaBodyPreview;
+    public SkinnedMeshRenderer AlienBodyPreview;
 
     [Header("Preview Accessories")]
     public SkinnedMeshRenderer ButterflyWingsPreview;
@@ -58,12 +66,13 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer CasualHairPreview;
     public SkinnedMeshRenderer PyjamaHairPreview;
     public SkinnedMeshRenderer DatingHairPreview;
-    public SkinnedMeshRenderer DatingHairTwoPreview;
+    public SkinnedMeshRenderer PapilioHairPreview;
     public SkinnedMeshRenderer OutHairPreview;
     public SkinnedMeshRenderer HomelessHairPreview;
     public SkinnedMeshRenderer TwinTailsHairPreview;
     public SkinnedMeshRenderer UpHairPreview;
     public SkinnedMeshRenderer UpDoPreview;
+
 
     [Header("Preview Necklace")]
     public SkinnedMeshRenderer ButterflyNecklacePreview;
@@ -88,9 +97,17 @@ public class NorasWardrobe : MonoBehaviour
     [Header("Character Root")]
     public GameObject SkinnedMeshRendererParentOutfits;
     public GameObject SkinnedMeshRendererParentAccessories;
+    public GameObject SkinnedMeshRendererParentBodies;
     
     [Header("Body")]
     public SkinnedMeshRenderer Body;
+
+    [Header("Body Types")]
+    public SkinnedMeshRenderer NormalBody;
+    public SkinnedMeshRenderer SimiaeBody;
+    public SkinnedMeshRenderer PapilioBody;
+    public SkinnedMeshRenderer ArachnidaBody;
+    public SkinnedMeshRenderer AlienBody;
 
     [Header("Accessories")]
     public SkinnedMeshRenderer ButterflyWings;
@@ -124,7 +141,7 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer CasualHair;
     public SkinnedMeshRenderer PyjamaHair;
     public SkinnedMeshRenderer DatingHair;
-    public SkinnedMeshRenderer DatingHairTwo;
+    public SkinnedMeshRenderer PapilioHair;
     public SkinnedMeshRenderer OutHair;
     public SkinnedMeshRenderer HomelessHair;
     public SkinnedMeshRenderer TwinTailsHair;
@@ -202,11 +219,13 @@ public class NorasWardrobe : MonoBehaviour
         SetupShoes();
         SetupNecklaces();
         SetupGlasses();
+        SetupBodies();
         SetupAccessoriesPreview();
         SetupHairPreview();
         SetupShoesPreview();
         SetupNecklacesPreview();
         SetupGlassesPreview();
+        SetupBodiesPreview();
 
         if (!UnressedOnLoad) 
         { SwitchToOutfit(OutfitName.Work); }
@@ -394,6 +413,37 @@ public class NorasWardrobe : MonoBehaviour
         }
     }
 
+    private void SetupBodies()
+    {
+        if (SkinnedMeshRendererParentBodies == null) { return; }
+        Transform rootBone = Body != null ? Body.rootBone : null;
+        Transform[] bones = Body != null ? Body.bones : null;
+        foreach (var smr in SkinnedMeshRendererParentBodies.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+        {
+            if (smr == null) { continue; }
+            if (rootBone != null) { smr.rootBone = rootBone; }
+            if (bones != null) { smr.bones = bones; }
+            smr.updateWhenOffscreen = true;
+            EnsureUniqueBodyMaterials(smr);
+        }
+        SetBody(NoraBodies.Normal);
+    }
+
+    private void SetupBodiesPreview()
+    {
+        if (SkinnedMeshRendererParentBodiesPreview == null) { return; }
+        Transform rootBone = BodyPreview != null ? BodyPreview.rootBone : null;
+        Transform[] bones = BodyPreview != null ? BodyPreview.bones : null;
+        foreach (var smr in SkinnedMeshRendererParentBodiesPreview.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+        {
+            if (smr == null) { continue; }
+            if (rootBone != null) { smr.rootBone = rootBone; }
+            if (bones != null) { smr.bones = bones; }
+            smr.updateWhenOffscreen = true;
+        }
+        SetBodyPreview(NoraBodies.Normal);
+    }
+
     private void SetupHair()
     {
         Transform rootBone = Body != null ? Body.rootBone : null;
@@ -402,7 +452,7 @@ public class NorasWardrobe : MonoBehaviour
         SkinnedMeshRenderer[] allHair =
         {
             DefaultHair, WorkHair, WorkHairTwo, CasualHair,
-            PyjamaHair, DatingHair, DatingHairTwo, OutHair, UpHair, HomelessHair, TwinTailsHair, UpDo
+            PyjamaHair, DatingHair, PapilioHair, OutHair, UpHair, HomelessHair, TwinTailsHair, UpDo
         };
 
         foreach (var smr in allHair)
@@ -423,7 +473,7 @@ public class NorasWardrobe : MonoBehaviour
         SkinnedMeshRenderer[] allHairPreview =
         {
             DefaultHairPreview, WorkHairPreview, WorkHairTwoPreview, CasualHairPreview,
-            PyjamaHairPreview, DatingHairPreview, DatingHairTwoPreview, OutHairPreview,
+            PyjamaHairPreview, DatingHairPreview, PapilioHairPreview, OutHairPreview,
             UpHairPreview, HomelessHairPreview, TwinTailsHairPreview, UpDoPreview
         };
 
@@ -552,7 +602,7 @@ public class NorasWardrobe : MonoBehaviour
         if (CasualHair != null) { CasualHair.enabled = false; }
         if (PyjamaHair != null) { PyjamaHair.enabled = false; }
         if (DatingHair != null) { DatingHair.enabled = false; }
-        if (DatingHairTwo != null) { DatingHairTwo.enabled = false; }
+        if (PapilioHair != null) { PapilioHair.enabled = false; }
         if (OutHair != null) { OutHair.enabled = false; }
         if (HomelessHair != null) { HomelessHair.enabled = false; }
         if (TwinTailsHair != null) { TwinTailsHair.enabled = false; }
@@ -568,7 +618,7 @@ public class NorasWardrobe : MonoBehaviour
         if (CasualHairPreview != null) { CasualHairPreview.enabled = false; }
         if (PyjamaHairPreview != null) { PyjamaHairPreview.enabled = false; }
         if (DatingHairPreview != null) { DatingHairPreview.enabled = false; }
-        if (DatingHairTwoPreview != null) { DatingHairTwoPreview.enabled = false; }
+        if (PapilioHairPreview != null) { PapilioHairPreview.enabled = false; }
         if (OutHairPreview != null) { OutHairPreview.enabled = false; }
         if (HomelessHairPreview != null) { HomelessHairPreview.enabled = false; }
         if (TwinTailsHairPreview != null) { TwinTailsHairPreview.enabled = false; }
@@ -676,6 +726,24 @@ public class NorasWardrobe : MonoBehaviour
         if (NekPlaceholder4NecklacePreview != null) { NekPlaceholder4NecklacePreview.enabled = false; }
     }
 
+    private void HideAllBodies()
+    {
+        if (NormalBody != null) { NormalBody.enabled = false; }
+        if (SimiaeBody != null) { SimiaeBody.enabled = false; }
+        if (PapilioBody != null) { PapilioBody.enabled = false; }
+        if (ArachnidaBody != null) { ArachnidaBody.enabled = false; }
+        if (AlienBody != null) { AlienBody.enabled = false; }
+    }
+
+    private void HideAllBodiesPreview()
+    {
+        if (NormalBodyPreview != null) { NormalBodyPreview.enabled = false; }
+        if (SimiaeBodyPreview != null) { SimiaeBodyPreview.enabled = false; }
+        if (PapilioBodyPreview != null) { PapilioBodyPreview.enabled = false; }
+        if (ArachnidaBodyPreview != null) { ArachnidaBodyPreview.enabled = false; }
+        if (AlienBodyPreview != null) { AlienBodyPreview.enabled = false; }
+    }
+
     public void SetHair(HairName hair)
     {
         HideAllHair();
@@ -687,7 +755,7 @@ public class NorasWardrobe : MonoBehaviour
             case HairName.CasualHair: if (CasualHair != null) { CasualHair.enabled = true; } break;
             case HairName.PyjamaHair: if (PyjamaHair != null) { PyjamaHair.enabled = true; } break;
             case HairName.DatingHair: if (DatingHair != null) { DatingHair.enabled = true; } break;
-            case HairName.DatingHairTwo: if (DatingHairTwo != null) { DatingHairTwo.enabled = true; } break;
+            case HairName.PapilioHair: if (PapilioHair != null) { PapilioHair.enabled = true; } break;
             case HairName.OutHair: if (OutHair != null) { OutHair.enabled = true; } break;
             case HairName.HomelessHair: if (HomelessHair != null) { HomelessHair.enabled = true; } break;
             case HairName.TwinTailsHair: if (TwinTailsHair != null) { TwinTailsHair.enabled = true; } break;
@@ -707,7 +775,7 @@ public class NorasWardrobe : MonoBehaviour
             case HairName.CasualHair: if (CasualHairPreview != null) { CasualHairPreview.enabled = true; } break;
             case HairName.PyjamaHair: if (PyjamaHairPreview != null) { PyjamaHairPreview.enabled = true; } break;
             case HairName.DatingHair: if (DatingHairPreview != null) { DatingHairPreview.enabled = true; } break;
-            case HairName.DatingHairTwo: if (DatingHairTwoPreview != null) { DatingHairTwoPreview.enabled = true; } break;
+            case HairName.PapilioHair: if (PapilioHairPreview != null) { PapilioHairPreview.enabled = true; } break;
             case HairName.OutHair: if (OutHairPreview != null) { OutHairPreview.enabled = true; } break;
             case HairName.HomelessHair: if (HomelessHairPreview != null) { HomelessHairPreview.enabled = true; } break;
             case HairName.TwinTailsHair: if (TwinTailsHairPreview != null) { TwinTailsHairPreview.enabled = true; } break;
@@ -900,6 +968,34 @@ public class NorasWardrobe : MonoBehaviour
             case GlassesName.None: break;
         }
     }
+
+    public void SetBody(NoraBodies body)
+    {
+        HideAllBodies();
+        switch (body)
+        {
+            case NoraBodies.Normal: if (NormalBody != null) { NormalBody.enabled = true; } break;
+            case NoraBodies.Simiae: if (SimiaeBody != null) { SimiaeBody.enabled = true; } break;
+            case NoraBodies.Papilio: if (PapilioBody != null) { PapilioBody.enabled = true; } break;
+            case NoraBodies.Arachnida: if (ArachnidaBody != null) { ArachnidaBody.enabled = true; } break;
+            case NoraBodies.Alien: if (AlienBody != null) { AlienBody.enabled = true; } break;
+            default: if (NormalBody != null) { NormalBody.enabled = true; } break;
+        }
+    }
+
+    public void SetBodyPreview(NoraBodies body)
+    {
+        HideAllBodiesPreview();
+        switch (body)
+        {
+            case NoraBodies.Normal: if (NormalBodyPreview != null) { NormalBodyPreview.enabled = true; } break;
+            case NoraBodies.Simiae: if (SimiaeBodyPreview != null) { SimiaeBodyPreview.enabled = true; } break;
+            case NoraBodies.Papilio: if (PapilioBodyPreview != null) { PapilioBodyPreview.enabled = true; } break;
+            case NoraBodies.Arachnida: if (ArachnidaBodyPreview != null) { ArachnidaBodyPreview.enabled = true; } break;
+            case NoraBodies.Alien: if (AlienBodyPreview != null) { AlienBodyPreview.enabled = true; } break;
+            default: if (NormalBodyPreview != null) { NormalBodyPreview.enabled = true; } break;
+        }
+    }
     
     private HairName GetHairForOutfit(OutfitName outfit)
     {
@@ -919,6 +1015,11 @@ public class NorasWardrobe : MonoBehaviour
     private GlassesName GetGlassesForOutfit(OutfitName outfit)
     {
         return GetOutfit(outfit)?.Glasses ?? GlassesName.None;
+    }
+
+    private NoraBodies GetBodyForOutfit(OutfitName outfit)
+    {
+        return GetOutfit(outfit)?.Body ?? NoraBodies.Normal;
     }
     
     private Outfit GetOutfit(OutfitName outfit)
@@ -1190,12 +1291,13 @@ public class NorasWardrobe : MonoBehaviour
         var data = GetOutfit(outfit);
         if (data != null) { InstantiatePrefabs(data.OutfitPrefabs); }
 
-        ApplyBodyColors(outfit);
         ApplyAccessories();
         SetHair(GetHairForOutfit(outfit));
         SetShoes(GetShoesForOutfit(outfit));
         SetNecklace(GetNecklaceForOutfit(outfit));
         SetGlasses(GetGlassesForOutfit(outfit));
+        SetBody(GetBodyForOutfit(outfit));
+        ApplyBodyColors(outfit);
 
         Debug.Log("outfit name passed: "+outfit);
         Debug.Log("wardrobe count when asked: "+_outfitLookup.Count);
@@ -1216,6 +1318,8 @@ public class NorasWardrobe : MonoBehaviour
         SetShoesPreview(GetShoesForOutfit(outfit));
         SetNecklacePreview(GetNecklaceForOutfit(outfit));
         SetGlassesPreview(GetGlassesForOutfit(outfit));
+        SetBodyPreview(GetBodyForOutfit(outfit));
+        ApplyBodyColorsPreview(outfit);
     }
 
     public void ApplyPreviewOutfit(OutfitName outfit)
@@ -1242,6 +1346,7 @@ public class NorasWardrobe : MonoBehaviour
         HideAllShoes();
         HideAllNecklaces();
         HideAllGlasses();
+        SetBody(NoraBodies.Normal);
         ApplyAccessories();
     }
 
@@ -1349,12 +1454,62 @@ public class NorasWardrobe : MonoBehaviour
         SwitchToOutfit(PickRandom(pool));
     }
 
+    private SkinnedMeshRenderer GetBodyRenderer(NoraBodies body)
+    {
+        switch (body)
+        {
+            case NoraBodies.Normal: return NormalBody;
+            case NoraBodies.Simiae: return SimiaeBody;
+            case NoraBodies.Papilio: return PapilioBody;
+            case NoraBodies.Arachnida: return ArachnidaBody;
+            case NoraBodies.Alien: return AlienBody;
+            default: return NormalBody;
+        }
+    }
+
+    private SkinnedMeshRenderer GetBodyRendererPreview(NoraBodies body)
+    {
+        switch (body)
+        {
+            case NoraBodies.Normal: return NormalBodyPreview;
+            case NoraBodies.Simiae: return SimiaeBodyPreview;
+            case NoraBodies.Papilio: return PapilioBodyPreview;
+            case NoraBodies.Arachnida: return ArachnidaBodyPreview;
+            case NoraBodies.Alien: return AlienBodyPreview;
+            default: return NormalBodyPreview;
+        }
+    }
+
     private void ApplyBodyColors(OutfitName outfit)
     {
-        if (Body == null) { return; }
+        SkinnedMeshRenderer target = GetBodyRenderer(GetBodyForOutfit(outfit));
+        if (target == null) { target = Body; }
+        if (target == null) { return; }
+
         Color lipColor = GetLipColorForOutfit(outfit);
         Color nailColor = GetNailColorForOutfit(outfit);
-        Material[] materials = Application.isPlaying ? Body.materials : Body.sharedMaterials;
+        Material[] materials = Application.isPlaying ? target.materials : target.sharedMaterials;
+        for (int i = 0; i < materials.Length; i++)
+        {
+            if (materials[i] == null) { continue; }
+            string matName = materials[i].name.ToLower();
+            Debug.Log($"ApplyBodyColors: material[{i}] = '{matName}'");
+            if (matName.Contains("lips")) { materials[i].color = lipColor; }
+            else if (matName.Contains("fingernail") || matName.Contains("nail")) { materials[i].color = nailColor; }
+        }
+        if (Application.isPlaying) { target.materials = materials; }
+    }
+    
+    
+    private void ApplyBodyColorsPreview(OutfitName outfit)
+    {
+        SkinnedMeshRenderer target = GetBodyRendererPreview(GetBodyForOutfit(outfit));
+        if (target == null) { target = BodyPreview; }
+        if (target == null) { return; }
+
+        Color lipColor = GetLipColorForOutfit(outfit);
+        Color nailColor = GetNailColorForOutfit(outfit);
+        Material[] materials = Application.isPlaying ? target.materials : target.sharedMaterials;
         for (int i = 0; i < materials.Length; i++)
         {
             if (materials[i] == null) { continue; }
@@ -1362,9 +1517,10 @@ public class NorasWardrobe : MonoBehaviour
             if (matName.Contains("lips")) { materials[i].color = lipColor; }
             else if (matName.Contains("fingernail") || matName.Contains("nail")) { materials[i].color = nailColor; }
         }
-        if (Application.isPlaying) { Body.materials = materials; }
+        if (Application.isPlaying) { target.materials = materials; }
     }
-
+    
+    
     private Color GetLipColorForOutfit(OutfitName outfit)
     {
         var data = GetOutfit(outfit);
@@ -1380,6 +1536,18 @@ public class NorasWardrobe : MonoBehaviour
     public void Undress()
     {
         DisableAllMainOutfits();
+    }
+    
+    
+    private void EnsureUniqueBodyMaterials(SkinnedMeshRenderer smr)
+    {
+        if (smr == null) { return; }
+        Material[] mats = smr.sharedMaterials;
+        for (int i = 0; i < mats.Length; i++)
+        {
+            if (mats[i] != null) { mats[i] = new Material(mats[i]); }
+        }
+        smr.sharedMaterials = mats;
     }
 }
 
@@ -1629,6 +1797,18 @@ public class NorasWardrobeEditor : Editor
         DrawButtonRow(me, clearAllStyle,
             ("GlaPlaceholder4", () => me.SetGlasses(GlassesName.GlaPlaceholder4)),
             ("None", () => me.SetGlasses(GlassesName.None)));
+
+        EditorGUILayout.Space();
+        GUI.backgroundColor = new Color(0.6f, 0.75f, 0.6f);
+
+        EditorGUILayout.LabelField("Body", EditorStyles.boldLabel);
+        DrawButtonRow(me, clearAllStyle,
+            ("Normal", () => me.SetBody(NoraBodies.Normal)),
+            ("Simiae", () => me.SetBody(NoraBodies.Simiae)),
+            ("Papilio", () => me.SetBody(NoraBodies.Papilio)));
+        DrawButtonRow(me, clearAllStyle,
+            ("Arachnida", () => me.SetBody(NoraBodies.Arachnida)),
+            ("Alien", () => me.SetBody(NoraBodies.Alien)));
         
         EditorGUILayout.Space();
         GUI.backgroundColor = new Color(0.6f, 0.9f, 0.6f);
@@ -1643,7 +1823,7 @@ public class NorasWardrobeEditor : Editor
             ("Pyjama Hair", () => me.SetHair(HairName.PyjamaHair)),
             ("Dating Hair", () => me.SetHair(HairName.DatingHair)));
         DrawButtonRow(me, clearAllStyle,
-            ("Dating Hair Two", () => me.SetHair(HairName.DatingHairTwo)),
+            ("Dating Hair Two", () => me.SetHair(HairName.PapilioHair)),
             ("Out Hair", () => me.SetHair(HairName.OutHair)),
             ("Homeless Hair", () => me.SetHair(HairName.HomelessHair)));
         DrawButtonRow(me, clearAllStyle,
@@ -1809,7 +1989,11 @@ public class NorasWardrobeEditor : Editor
         
         EditorGUILayout.EndHorizontal();
 
-        if (GUILayout.Button($"Re-Apply\n{me.currentOutfit}", buttonStyle, GUILayout.Height(42))) { me.SetMainOutfit(me.currentOutfit); }
+        if (GUILayout.Button($"Re-Apply\n{me.currentOutfit}", buttonStyle, GUILayout.Height(42)))
+        {
+            me.SetMainOutfit(me.currentOutfit);
+            SelectOutfitAsset(me);
+        }
         
         EditorGUILayout.EndVertical();
         EditorGUILayout.Space();
@@ -1892,6 +2076,7 @@ public class NorasWardrobeEditor : Editor
                     else
                     {
                         me.ToggleOutfit(outfitName);
+                        SelectOutfitAsset(me);
                     }
                     EditorUtility.SetDirty(me);
                 }
@@ -1936,7 +2121,7 @@ public enum HairName
     CasualHair,
     PyjamaHair,
     DatingHair,
-    DatingHairTwo,
+    PapilioHair,
     OutHair,
     HomelessHair,
     TwinTailsHair,
@@ -1991,6 +2176,15 @@ public enum GlassesName
     GlaPlaceholder2,
     GlaPlaceholder3,
     GlaPlaceholder4
+}
+
+public enum NoraBodies
+{
+    Normal,
+    Simiae,
+    Papilio,
+    Arachnida,
+    Alien
 }
 
 public enum OutfitStage {
@@ -2232,6 +2426,11 @@ public enum OutfitName
     FrillishDress,
     LayeredSweaterAndMiniskirtTop,
     RelaxedDressAndStocks,
-    RuffleTopAndPoofySkirt
+    RuffleTopAndPoofySkirt,
+    TurtleneckAndShortSkirt,
+    HoldupSkirtAndCropTop,
+    LooseBlousseAndLongSkirt,
+    StraplessFlickDress,
+    PapilioTopAndSkirt
     
 }

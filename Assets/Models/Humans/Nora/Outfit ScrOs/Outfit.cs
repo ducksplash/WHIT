@@ -25,6 +25,7 @@ public class Outfit : ScriptableObject
     public ShoesName Shoes = ShoesName.WorkFlats;
     public NecklaceName Necklace = NecklaceName.None;
     public GlassesName Glasses = GlassesName.None;
+    public NoraBodies Body = NoraBodies.Normal;
 
     public bool Wings;
     public bool Apron;
@@ -94,6 +95,7 @@ public class OutfitEditor : Editor
         DrawStat("Shoes:", outfit.Shoes.ToString(), statsFieldStyle);
         DrawStat("Necklace:", outfit.Necklace.ToString(), statsFieldStyle);
         DrawStat("Glasses:", outfit.Glasses.ToString(), statsFieldStyle);
+        DrawStat("Body:", outfit.Body.ToString(), statsFieldStyle);
 
         DrawStat("Wings:", outfit.Wings.ToString(), statsFieldStyle);
         DrawStat("Apron:", outfit.Apron.ToString(), statsFieldStyle);

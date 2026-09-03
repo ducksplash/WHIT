@@ -74,6 +74,13 @@ public class DungeonGenerator : MonoBehaviour
     public bool spawnRedTelepads = true;
     public bool spawnBlueTelepads = true;
     public bool spawnSpecialTiles = true;
+
+    public bool allowBackwardTravel = true;
+
+
+    [Header("Template Generation")]
+    public bool createFromTemplate = false;
+    public List<TextAsset> floorTemplates;
     
     public List<Light> lightList;
     
@@ -194,6 +201,12 @@ public class DungeonGenerator : MonoBehaviour
 
     public void GenerateDungeon()
     {
+        if (createFromTemplate)
+        {
+            GenerateDungeonFromTemplate();
+            return;
+        }
+
         int maxAttempts = 5;
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
@@ -244,6 +257,175 @@ public class DungeonGenerator : MonoBehaviour
             //Debug.Log($"Dungeon generation attempt {attempt + 1} failed. Retrying...");
         }
         //Debug.LogError("Failed to generate a valid dungeon after maximum attempts.");
+    }
+
+    void GenerateDungeonFromTemplate()
+    {
+        if (floorTemplates == null || floorTemplates.Count == 0)
+        {
+            return;
+        }
+
+        IsNavMeshReady = false;
+        foreach (var floorObj in floorObjects)
+        {
+            if (floorObj != null) DestroyImmediate(floorObj);
+        }
+        floorObjects.Clear();
+
+        floorCount = floorTemplates.Count;
+
+        List<string[]> parsedFloors = new List<string[]>();
+        int templateWidth = 0;
+        int templateHeight = 0;
+
+        for (int z = 0; z < floorCount; z++)
+        {
+            TextAsset asset = floorTemplates[z];
+            string text = asset != null ? asset.text : string.Empty;
+            string[] rawLines = text.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
+
+            List<string> cleanLines = new List<string>();
+            foreach (var line in rawLines)
+            {
+                if (line.Length > 0)
+                {
+                    cleanLines.Add(line);
+                }
+            }
+
+            parsedFloors.Add(cleanLines.ToArray());
+
+            templateHeight = Mathf.Max(templateHeight, cleanLines.Count);
+            foreach (var line in cleanLines)
+            {
+                templateWidth = Mathf.Max(templateWidth, line.Length);
+            }
+        }
+
+        gridWidth = Mathf.Max(1, templateWidth);
+        gridHeight = Mathf.Max(1, templateHeight);
+
+        grid = new CellType[gridWidth, gridHeight, floorCount];
+        floorCells = new List<Vector2Int>[floorCount];
+        roomsPerFloor = new List<(Vector2Int center, Vector2Int dimensions, RoomTypeConfig roomType)>[floorCount];
+        telepadLinks = new List<(Vector3Int redPad, Vector3Int bluePad)>();
+        redPads = new List<Vector3Int>();
+        bluePads = new List<Vector3Int>();
+        spawnableObjectTiles = new List<Vector3Int>();
+        enemyTiles = new List<Vector3Int>();
+
+        for (int z = 0; z < floorCount; z++)
+        {
+            floorCells[z] = new List<Vector2Int>();
+            roomsPerFloor[z] = new List<(Vector2Int center, Vector2Int dimensions, RoomTypeConfig roomType)>();
+        }
+
+        for (int z = 0; z < floorCount; z++)
+        {
+            string[] lines = parsedFloors[z];
+
+            for (int y = 0; y < gridHeight; y++)
+            {
+                string line = y < lines.Length ? lines[y] : string.Empty;
+
+                for (int x = 0; x < gridWidth; x++)
+                {
+                    char symbol = x < line.Length ? line[x] : '#';
+                    ApplyTemplateSymbol(symbol, x, y, z);
+                }
+            }
+        }
+
+        BuildTelepadLinks();
+        ValidateDungeonPath();
+        PlaceCubes();
+        SpawnAmbientLight();
+        StartCoroutine(BuildNavMeshAsync());
+    }
+
+    void ApplyTemplateSymbol(char symbol, int x, int y, int z)
+    {
+        switch (symbol)
+        {
+            case '#':
+                grid[x, y, z] = CellType.Empty;
+                break;
+
+            case '0':
+            case '_':
+                grid[x, y, z] = CellType.Floor;
+                floorCells[z].Add(new Vector2Int(x, y));
+                break;
+
+            case 'E':
+                grid[x, y, z] = CellType.Entrance;
+                floorCells[z].Add(new Vector2Int(x, y));
+                entrancePos = new Vector3Int(x, y, z);
+                spawnPos = entrancePos;
+                break;
+
+            case 'X':
+                grid[x, y, z] = CellType.Exit;
+                floorCells[z].Add(new Vector2Int(x, y));
+                exitPos = new Vector3Int(x, y, z);
+                break;
+
+            case 'R':
+                if (spawnRedTelepads && z != floorCount - 1)
+                {
+                    grid[x, y, z] = CellType.RedTelepad;
+                    redPads.Add(new Vector3Int(x, y, z));
+                }
+                else
+                {
+                    grid[x, y, z] = CellType.Floor;
+                }
+                floorCells[z].Add(new Vector2Int(x, y));
+                break;
+
+            case 'B':
+                if (spawnBlueTelepads && z != 0)
+                {
+                    grid[x, y, z] = CellType.BlueTelepad;
+                    bluePads.Add(new Vector3Int(x, y, z));
+                }
+                else
+                {
+                    grid[x, y, z] = CellType.Floor;
+                }
+                floorCells[z].Add(new Vector2Int(x, y));
+                break;
+
+            case '$':
+                if (spawnLoot)
+                {
+                    grid[x, y, z] = CellType.SpawnableObject;
+                    spawnableObjectTiles.Add(new Vector3Int(x, y, z));
+                }
+                else
+                {
+                    grid[x, y, z] = CellType.Floor;
+                }
+                floorCells[z].Add(new Vector2Int(x, y));
+                break;
+
+            case '*':
+                if (spawnSpecialTiles)
+                {
+                    grid[x, y, z] = CellType.Special;
+                }
+                else
+                {
+                    grid[x, y, z] = CellType.Floor;
+                }
+                floorCells[z].Add(new Vector2Int(x, y));
+                break;
+
+            default:
+                grid[x, y, z] = CellType.Empty;
+                break;
+        }
     }
 
     void SpawnAmbientLight()

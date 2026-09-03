@@ -84,6 +84,8 @@ public class Player : Singleton<Player>
     public AnimationClip runningClip;// the run clip that replaces walk when fast
     public bool shouldrun;
 
+    public bool CanTeleport;
+    
     private AnimatorOverrideController _locomotionOverride;
     private RuntimeAnimatorController _baseController;
     private bool _hasTorch;
@@ -445,6 +447,9 @@ public class Player : Singleton<Player>
 
     public void SpawnOverride(Vector3 spawnPoint)
     {
+        //Debug.Log("SpawnOverride!");
+        
+        
         Vector3 spawnRotation = Vector3.zero;
 
 

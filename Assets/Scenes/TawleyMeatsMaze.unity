@@ -120,6 +120,96 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &648201001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 648201004}
+  - component: {fileID: 648201003}
+  - component: {fileID: 648201002}
+  m_Layer: 0
+  m_Name: NOVASKY
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!23 &648201002
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648201001}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: f5a44f7bf114fd54f821f8959e8a074e, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &648201003
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648201001}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &648201004
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648201001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1000, y: 1000, z: 1000}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &650703702
 GameObject:
   m_ObjectHideFlags: 0
@@ -4935,6 +5025,57 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1272053371
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1272053373}
+  - component: {fileID: 1272053372}
+  m_Layer: 0
+  m_Name: WallMeatManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1272053372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1272053371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d636963d7dfb46e4895a45a0035d5756, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  wallMeats:
+  - {fileID: 11400000, guid: de915d58c8639d944951cc305989ac04, type: 2}
+  - {fileID: 11400000, guid: 9063e240d28b09d4cba35e8519e85567, type: 2}
+  - {fileID: 11400000, guid: a9becb664cf397d468e0901ac333a0f3, type: 2}
+  - {fileID: 11400000, guid: c361f5ebc01b91f4abee9658656fc24f, type: 2}
+  usedMaterials: []
+  ChanceOfWallMeat: 10
+--- !u!4 &1272053373
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1272053371}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 60.811462, y: 2.9199393, z: 486.98047}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1283934415
 GameObject:
   m_ObjectHideFlags: 1
@@ -5103,6 +5244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afecb71fccad8ae4fa3c375fbc03af85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GenerateSpikes: 0
   spikePrefab: {fileID: 987845600318671016, guid: a26f6ee8121d9a34897c32f96300c310,
     type: 3}
   clusterChance: 5
@@ -9783,7 +9925,7 @@ MonoBehaviour:
   gridWidth: 60
   gridHeight: 60
   floorCount: 1
-  cellSize: 8
+  cellSize: 4
   minRooms: 10
   maxRooms: 30
   minRoomDistance: 5
@@ -9830,6 +9972,11 @@ MonoBehaviour:
   spawnRedTelepads: 1
   spawnBlueTelepads: 1
   spawnSpecialTiles: 0
+  allowBackwardTravel: 0
+  createFromTemplate: 1
+  floorTemplates:
+  - {fileID: 4900000, guid: cc1fe31bccd80a5448c296f35c430aec, type: 3}
+  - {fileID: 4900000, guid: d49a2b5e1349fdd4fa0c6651f05901cc, type: 3}
   lightList: []
   dungeonMask:
     serializedVersion: 2
@@ -9977,3 +10124,5 @@ SceneRoots:
   - {fileID: 1283934417}
   - {fileID: 7681342619879564715}
   - {fileID: 7005013471657521311}
+  - {fileID: 648201004}
+  - {fileID: 1272053373}

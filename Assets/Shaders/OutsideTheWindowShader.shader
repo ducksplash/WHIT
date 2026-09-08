@@ -65,10 +65,11 @@ Shader "Custom/OutsideTheWindowShader"
 
     SubShader
     {
+        // Normal transparent behaviour – depth testing restored
         Tags { "Queue"="Transparent" "RenderType"="Transparent" }
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
-        Cull Off
+        Cull Back
 
         Pass
         {
@@ -161,7 +162,6 @@ Shader "Custom/OutsideTheWindowShader"
                 return float3(d.x, d.y * c - d.z * s, d.y * s + d.z * c);
             }
 
-            // Merged: returns face index, face UV, and isTop in one abs(dir) pass
             int GetFaceInfo(float3 dir, out float2 uv, out bool isTop)
             {
                 float3 a = abs(dir);
@@ -216,7 +216,7 @@ Shader "Custom/OutsideTheWindowShader"
                     dir = RotatePitch(dir, angle * moveDir.y * 0.5);
                 }
 
-                half4  tex = texCUBE(_CubeTex, dir) * _TintColor;
+                half4 tex = texCUBE(_CubeTex, dir) * _TintColor;
 
                 // ── Rain ──────────────────────────────────────────────
                 if (_RainEnabled > 0.5)
@@ -295,14 +295,6 @@ Shader "Custom/OutsideTheWindowShader"
                     }
                 }
 
-                // ── Overlay ───────────────────────────────────────────
-                if (_OverlayEnabled > 0.5)
-                {
-                    float2 overlayUV = i.uv * _OverlayTiling.xy;
-                    half4  overlay   = tex2D(_OverlayTex, overlayUV) * _OverlayTint;
-                    tex.rgb = lerp(tex.rgb, overlay.rgb, overlay.a * _OverlayStrength);
-                }
-
                 // ── Glow (pulsing) ────────────────────────────────────
                 if (_GlowEnabled > 0.5)
                 {
@@ -323,6 +315,25 @@ Shader "Custom/OutsideTheWindowShader"
                                           normalize(_WorldSpaceCameraPos))), 4.0);
                     float smoothGlow = fresnel * _Smoothness * 2.0;
                     tex.rgb += smoothGlow * lerp(0.04, tex.rgb, _Metallic);
+                }
+
+                // ── Overlay (applied LAST – now also forces opacity) ────────────────
+                // ── Overlay (applied LAST) ───────────────────────────────────────
+                if (_OverlayEnabled > 0.5)
+                {
+                    // Support both scale (xy) and offset (zw)
+                    float2 overlayUV = i.uv * _OverlayTiling.xy + _OverlayTiling.zw;
+
+                    // Force wrapping so UVs that go <0 or >1 on the left side
+                    // still sample valid texels instead of clamping to transparent edge
+                    overlayUV = frac(overlayUV);
+
+                    half4 overlay = tex2D(_OverlayTex, overlayUV) * _OverlayTint;
+
+                    float factor = saturate(overlay.a * _OverlayStrength);
+
+                    tex.rgb = lerp(tex.rgb, overlay.rgb, factor);
+                    tex.a   = max(tex.a, factor);   // keep the opacity force
                 }
 
                 return half4(tex.rgb, tex.a * _Alpha);

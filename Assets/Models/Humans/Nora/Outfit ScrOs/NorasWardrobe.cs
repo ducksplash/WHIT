@@ -22,16 +22,29 @@ public class NorasWardrobe : MonoBehaviour
     public GameObject SkinnedMeshRendererParentOutfitsPreview;
     public GameObject SkinnedMeshRendererParentAccessoriesPreview;
     public GameObject SkinnedMeshRendererParentBodiesPreview;
+    public GameObject SkinnedMeshRendererParentEyesPreview;
 
     [Header("Preview Body")]
     public SkinnedMeshRenderer BodyPreview;
 
     [Header("Preview Body Types")]
     public SkinnedMeshRenderer NormalBodyPreview;
-    public SkinnedMeshRenderer SimiaeBodyPreview;
+    public SkinnedMeshRenderer SunBodyPreview;
     public SkinnedMeshRenderer PapilioBodyPreview;
-    public SkinnedMeshRenderer ArachnidaBodyPreview;
-    public SkinnedMeshRenderer AlienBodyPreview;
+    public SkinnedMeshRenderer CloudBodyPreview;
+    public SkinnedMeshRenderer LightningBodyPreview;
+
+    [Header("Preview Eyes")]
+    public SkinnedMeshRenderer DefaultEyesPreview;
+    public SkinnedMeshRenderer SunEyesPreview;
+    public SkinnedMeshRenderer LightningEyesPreview;
+    public SkinnedMeshRenderer ButterflyEyesPreview;
+    public SkinnedMeshRenderer CloudEyesPreview;
+    public SkinnedMeshRenderer InvisibleEyesPreview;
+    public SkinnedMeshRenderer EyPlaceholder1EyesPreview;
+    public SkinnedMeshRenderer EyPlaceholder2EyesPreview;
+    public SkinnedMeshRenderer EyPlaceholder3EyesPreview;
+    public SkinnedMeshRenderer EyPlaceholder4EyesPreview;
 
     [Header("Preview Accessories")]
     public SkinnedMeshRenderer ButterflyWingsPreview;
@@ -54,7 +67,7 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer BlackBootsShoesPreview;
     public SkinnedMeshRenderer BlackFMBShoesPreview;
     public SkinnedMeshRenderer PrimAndProperShoesPreview;
-    public SkinnedMeshRenderer ShuPlaceholder4ShoesPreview;
+    public SkinnedMeshRenderer PinkBowFlatsShoesPreview;
     public SkinnedMeshRenderer ShuPlaceholder5ShoesPreview;
     public SkinnedMeshRenderer ShuPlaceholder6ShoesPreview;
     public SkinnedMeshRenderer ShuPlaceholder7ShoesPreview;
@@ -72,6 +85,11 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer TwinTailsHairPreview;
     public SkinnedMeshRenderer UpHairPreview;
     public SkinnedMeshRenderer UpDoPreview;
+    public SkinnedMeshRenderer SunHairPreview;
+    public SkinnedMeshRenderer HeartHairPreview;
+    public SkinnedMeshRenderer CloudHairPreview;
+    public SkinnedMeshRenderer HaPlaceholder4Preview;
+    public SkinnedMeshRenderer HaPlaceholder5Preview;
 
 
     [Header("Preview Necklace")]
@@ -98,16 +116,29 @@ public class NorasWardrobe : MonoBehaviour
     public GameObject SkinnedMeshRendererParentOutfits;
     public GameObject SkinnedMeshRendererParentAccessories;
     public GameObject SkinnedMeshRendererParentBodies;
+    public GameObject SkinnedMeshRendererParentEyes;
     
     [Header("Body")]
     public SkinnedMeshRenderer Body;
 
     [Header("Body Types")]
     public SkinnedMeshRenderer NormalBody;
-    public SkinnedMeshRenderer SimiaeBody;
+    public SkinnedMeshRenderer SunBody;
     public SkinnedMeshRenderer PapilioBody;
-    public SkinnedMeshRenderer ArachnidaBody;
-    public SkinnedMeshRenderer AlienBody;
+    public SkinnedMeshRenderer CloudBody;
+    public SkinnedMeshRenderer LightningBody;
+
+    [Header("Eyes")]
+    public SkinnedMeshRenderer DefaultEyes;
+    public SkinnedMeshRenderer SunEyes;
+    public SkinnedMeshRenderer LightningEyes;
+    public SkinnedMeshRenderer ButterflyEyes;
+    public SkinnedMeshRenderer CloudEyes;
+    public SkinnedMeshRenderer InvisibleEyes;
+    public SkinnedMeshRenderer EyPlaceholder1Eyes;
+    public SkinnedMeshRenderer EyPlaceholder2Eyes;
+    public SkinnedMeshRenderer EyPlaceholder3Eyes;
+    public SkinnedMeshRenderer EyPlaceholder4Eyes;
 
     [Header("Accessories")]
     public SkinnedMeshRenderer ButterflyWings;
@@ -129,7 +160,7 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer BlackBootsShoes;
     public SkinnedMeshRenderer BlackFMBShoes;
     public SkinnedMeshRenderer PrimAndProperShoes;
-    public SkinnedMeshRenderer ShuPlaceholder4Shoes;
+    public SkinnedMeshRenderer PinkBowFlatsShoes;
     public SkinnedMeshRenderer ShuPlaceholder5Shoes;
     public SkinnedMeshRenderer ShuPlaceholder6Shoes;
     public SkinnedMeshRenderer ShuPlaceholder7Shoes;
@@ -147,6 +178,11 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer TwinTailsHair;
     public SkinnedMeshRenderer UpHair;
     public SkinnedMeshRenderer UpDo;
+    public SkinnedMeshRenderer SunHair;
+    public SkinnedMeshRenderer HeartHair;
+    public SkinnedMeshRenderer CloudHair;
+    public SkinnedMeshRenderer HaPlaceholder4;
+    public SkinnedMeshRenderer HaPlaceholder5;
     
     [Header("Necklace")]
     public SkinnedMeshRenderer ButterflyNecklace;
@@ -196,10 +232,10 @@ public class NorasWardrobe : MonoBehaviour
         OutfitType.Work,
         OutfitType.Pyjamas,
         OutfitType.NightOut,
-        OutfitType.Special,
         OutfitType.Storyline,
         OutfitType.Main,
-        //OutfitType.Undergarments
+        OutfitType.Special,
+        OutfitType.Undergarments
     };
 
     private List<OutfitName> _inspectorOrderedOutfits;
@@ -220,12 +256,14 @@ public class NorasWardrobe : MonoBehaviour
         SetupNecklaces();
         SetupGlasses();
         SetupBodies();
+        SetupEyes();
         SetupAccessoriesPreview();
         SetupHairPreview();
         SetupShoesPreview();
         SetupNecklacesPreview();
         SetupGlassesPreview();
         SetupBodiesPreview();
+        SetupEyesPreview();
 
         if (!UnressedOnLoad) 
         { SwitchToOutfit(OutfitName.Work); }
@@ -286,7 +324,7 @@ public class NorasWardrobe : MonoBehaviour
     private List<OutfitName> GetOutfitsForStageExcludingBurned(OutfitStage stage)
     {
         return Outfits
-            .Where(o => o != null && o.outfitStage == stage && o.SpawnAs && !BurnedOutfits.Contains(o.thisOutfit))
+            .Where(o => o != null && o.outfitStage == stage && o.SpawnAs && !o.MarkedForDeletion && !BurnedOutfits.Contains(o.thisOutfit))
             .Select(o => o.thisOutfit)
             .ToList();
     }
@@ -444,6 +482,36 @@ public class NorasWardrobe : MonoBehaviour
         SetBodyPreview(NoraBodies.Normal);
     }
 
+    private void SetupEyes()
+    {
+        if (SkinnedMeshRendererParentEyes == null) { return; }
+        Transform rootBone = Body != null ? Body.rootBone : null;
+        Transform[] bones = Body != null ? Body.bones : null;
+        foreach (var smr in SkinnedMeshRendererParentEyes.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+        {
+            if (smr == null) { continue; }
+            if (rootBone != null) { smr.rootBone = rootBone; }
+            if (bones != null) { smr.bones = bones; }
+            smr.updateWhenOffscreen = true;
+        }
+        SetEyes(NoraEyes.Default);
+    }
+
+    private void SetupEyesPreview()
+    {
+        if (SkinnedMeshRendererParentEyesPreview == null) { return; }
+        Transform rootBone = BodyPreview != null ? BodyPreview.rootBone : null;
+        Transform[] bones = BodyPreview != null ? BodyPreview.bones : null;
+        foreach (var smr in SkinnedMeshRendererParentEyesPreview.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+        {
+            if (smr == null) { continue; }
+            if (rootBone != null) { smr.rootBone = rootBone; }
+            if (bones != null) { smr.bones = bones; }
+            smr.updateWhenOffscreen = true;
+        }
+        SetEyesPreview(NoraEyes.Default);
+    }
+
     private void SetupHair()
     {
         Transform rootBone = Body != null ? Body.rootBone : null;
@@ -452,7 +520,8 @@ public class NorasWardrobe : MonoBehaviour
         SkinnedMeshRenderer[] allHair =
         {
             DefaultHair, WorkHair, WorkHairTwo, CasualHair,
-            PyjamaHair, DatingHair, PapilioHair, OutHair, UpHair, HomelessHair, TwinTailsHair, UpDo
+            PyjamaHair, DatingHair, PapilioHair, OutHair, UpHair, HomelessHair, TwinTailsHair, UpDo,
+            SunHair, HeartHair, CloudHair, HaPlaceholder4, HaPlaceholder5
         };
 
         foreach (var smr in allHair)
@@ -474,7 +543,8 @@ public class NorasWardrobe : MonoBehaviour
         {
             DefaultHairPreview, WorkHairPreview, WorkHairTwoPreview, CasualHairPreview,
             PyjamaHairPreview, DatingHairPreview, PapilioHairPreview, OutHairPreview,
-            UpHairPreview, HomelessHairPreview, TwinTailsHairPreview, UpDoPreview
+            UpHairPreview, HomelessHairPreview, TwinTailsHairPreview, UpDoPreview,
+            SunHairPreview, HeartHairPreview, CloudHairPreview, HaPlaceholder4Preview, HaPlaceholder5Preview
         };
 
         foreach (var smr in allHairPreview)
@@ -495,7 +565,7 @@ public class NorasWardrobe : MonoBehaviour
         {
             WorkFlatsShoes, SilentShoesShoes, SandalsShoes, BootsShoes, WhiteFlatsShoes,
             ShittyTrainersShoes, FMBShoes, BlackBowFlatsShoes, WhiteBowFlatsShoes,
-            BlackBootsShoes, BlackFMBShoes, PrimAndProperShoes, ShuPlaceholder4Shoes,
+            BlackBootsShoes, BlackFMBShoes, PrimAndProperShoes, PinkBowFlatsShoes,
             ShuPlaceholder5Shoes, ShuPlaceholder6Shoes, ShuPlaceholder7Shoes
         };
 
@@ -518,7 +588,7 @@ public class NorasWardrobe : MonoBehaviour
         {
             WorkFlatsShoesPreview, SilentShoesShoesPreview, SandalsShoesPreview, BootsShoesPreview, WhiteFlatsShoesPreview,
             ShittyTrainersShoesPreview, FMBShoesPreview, BlackBowFlatsShoesPreview, WhiteBowFlatsShoesPreview,
-            BlackBootsShoesPreview, BlackFMBShoesPreview, PrimAndProperShoesPreview, ShuPlaceholder4ShoesPreview,
+            BlackBootsShoesPreview, BlackFMBShoesPreview, PrimAndProperShoesPreview, PinkBowFlatsShoesPreview,
             ShuPlaceholder5ShoesPreview, ShuPlaceholder6ShoesPreview, ShuPlaceholder7ShoesPreview
         };
 
@@ -608,6 +678,11 @@ public class NorasWardrobe : MonoBehaviour
         if (TwinTailsHair != null) { TwinTailsHair.enabled = false; }
         if (UpHair != null) { UpHair.enabled = false; }
         if (UpDo != null) { UpDo.enabled = false; }
+        if (SunHair != null) { SunHair.enabled = false; }
+        if (HeartHair != null) { HeartHair.enabled = false; }
+        if (CloudHair != null) { CloudHair.enabled = false; }
+        if (HaPlaceholder4 != null) { HaPlaceholder4.enabled = false; }
+        if (HaPlaceholder5 != null) { HaPlaceholder5.enabled = false; }
     }
 
     private void HideAllHairPreview()
@@ -624,6 +699,11 @@ public class NorasWardrobe : MonoBehaviour
         if (TwinTailsHairPreview != null) { TwinTailsHairPreview.enabled = false; }
         if (UpHairPreview != null) { UpHairPreview.enabled = false; }
         if (UpDoPreview != null) { UpDoPreview.enabled = false; }
+        if (SunHairPreview != null) { SunHairPreview.enabled = false; }
+        if (HeartHairPreview != null) { HeartHairPreview.enabled = false; }
+        if (CloudHairPreview != null) { CloudHairPreview.enabled = false; }
+        if (HaPlaceholder4Preview != null) { HaPlaceholder4Preview.enabled = false; }
+        if (HaPlaceholder5Preview != null) { HaPlaceholder5Preview.enabled = false; }
     }
 
     private void HideAllShoes()
@@ -652,7 +732,7 @@ public class NorasWardrobe : MonoBehaviour
 
         if (PrimAndProperShoes != null) { PrimAndProperShoes.enabled = false; }
 
-        if (ShuPlaceholder4Shoes != null) { ShuPlaceholder4Shoes.enabled = false; }
+        if (PinkBowFlatsShoes != null) { PinkBowFlatsShoes.enabled = false; }
 
         if (ShuPlaceholder5Shoes != null) { ShuPlaceholder5Shoes.enabled = false; }
 
@@ -687,7 +767,7 @@ public class NorasWardrobe : MonoBehaviour
 
         if (PrimAndProperShoesPreview != null) { PrimAndProperShoesPreview.enabled = false; }
 
-        if (ShuPlaceholder4ShoesPreview != null) { ShuPlaceholder4ShoesPreview.enabled = false; }
+        if (PinkBowFlatsShoesPreview != null) { PinkBowFlatsShoesPreview.enabled = false; }
 
         if (ShuPlaceholder5ShoesPreview != null) { ShuPlaceholder5ShoesPreview.enabled = false; }
 
@@ -729,19 +809,47 @@ public class NorasWardrobe : MonoBehaviour
     private void HideAllBodies()
     {
         if (NormalBody != null) { NormalBody.enabled = false; }
-        if (SimiaeBody != null) { SimiaeBody.enabled = false; }
+        if (SunBody != null) { SunBody.enabled = false; }
         if (PapilioBody != null) { PapilioBody.enabled = false; }
-        if (ArachnidaBody != null) { ArachnidaBody.enabled = false; }
-        if (AlienBody != null) { AlienBody.enabled = false; }
+        if (CloudBody != null) { CloudBody.enabled = false; }
+        if (LightningBody != null) { LightningBody.enabled = false; }
     }
 
     private void HideAllBodiesPreview()
     {
         if (NormalBodyPreview != null) { NormalBodyPreview.enabled = false; }
-        if (SimiaeBodyPreview != null) { SimiaeBodyPreview.enabled = false; }
+        if (SunBodyPreview != null) { SunBodyPreview.enabled = false; }
         if (PapilioBodyPreview != null) { PapilioBodyPreview.enabled = false; }
-        if (ArachnidaBodyPreview != null) { ArachnidaBodyPreview.enabled = false; }
-        if (AlienBodyPreview != null) { AlienBodyPreview.enabled = false; }
+        if (CloudBodyPreview != null) { CloudBodyPreview.enabled = false; }
+        if (LightningBodyPreview != null) { LightningBodyPreview.enabled = false; }
+    }
+
+    private void HideAllEyes()
+    {
+        if (DefaultEyes != null) { DefaultEyes.enabled = false; }
+        if (SunEyes != null) { SunEyes.enabled = false; }
+        if (LightningEyes != null) { LightningEyes.enabled = false; }
+        if (ButterflyEyes != null) { ButterflyEyes.enabled = false; }
+        if (CloudEyes != null) { CloudEyes.enabled = false; }
+        if (InvisibleEyes != null) { InvisibleEyes.enabled = false; }
+        if (EyPlaceholder1Eyes != null) { EyPlaceholder1Eyes.enabled = false; }
+        if (EyPlaceholder2Eyes != null) { EyPlaceholder2Eyes.enabled = false; }
+        if (EyPlaceholder3Eyes != null) { EyPlaceholder3Eyes.enabled = false; }
+        if (EyPlaceholder4Eyes != null) { EyPlaceholder4Eyes.enabled = false; }
+    }
+
+    private void HideAllEyesPreview()
+    {
+        if (DefaultEyesPreview != null) { DefaultEyesPreview.enabled = false; }
+        if (SunEyesPreview != null) { SunEyesPreview.enabled = false; }
+        if (LightningEyesPreview != null) { LightningEyesPreview.enabled = false; }
+        if (ButterflyEyesPreview != null) { ButterflyEyesPreview.enabled = false; }
+        if (CloudEyesPreview != null) { CloudEyesPreview.enabled = false; }
+        if (InvisibleEyesPreview != null) { InvisibleEyesPreview.enabled = false; }
+        if (EyPlaceholder1EyesPreview != null) { EyPlaceholder1EyesPreview.enabled = false; }
+        if (EyPlaceholder2EyesPreview != null) { EyPlaceholder2EyesPreview.enabled = false; }
+        if (EyPlaceholder3EyesPreview != null) { EyPlaceholder3EyesPreview.enabled = false; }
+        if (EyPlaceholder4EyesPreview != null) { EyPlaceholder4EyesPreview.enabled = false; }
     }
 
     public void SetHair(HairName hair)
@@ -761,6 +869,11 @@ public class NorasWardrobe : MonoBehaviour
             case HairName.TwinTailsHair: if (TwinTailsHair != null) { TwinTailsHair.enabled = true; } break;
             case HairName.UpHair: if (UpHair != null) { UpHair.enabled = true; } break;
             case HairName.UpDo: if (UpDo != null) { UpDo.enabled = true; } break;
+            case HairName.SunHair: if (SunHair != null) { SunHair.enabled = true; } break;
+            case HairName.HeartHair: if (HeartHair != null) { HeartHair.enabled = true; } break;
+            case HairName.CloudHair: if (CloudHair != null) { CloudHair.enabled = true; } break;
+            case HairName.HaPlaceholder4: if (HaPlaceholder4 != null) { HaPlaceholder4.enabled = true; } break;
+            case HairName.HaPlaceholder5: if (HaPlaceholder5 != null) { HaPlaceholder5.enabled = true; } break;
         }
     }
 
@@ -781,6 +894,11 @@ public class NorasWardrobe : MonoBehaviour
             case HairName.TwinTailsHair: if (TwinTailsHairPreview != null) { TwinTailsHairPreview.enabled = true; } break;
             case HairName.UpHair: if (UpHairPreview != null) { UpHairPreview.enabled = true; } break;
             case HairName.UpDo: if (UpDoPreview != null) { UpDoPreview.enabled = true; } break;
+            case HairName.SunHair: if (SunHairPreview != null) { SunHairPreview.enabled = true; } break;
+            case HairName.HeartHair: if (HeartHairPreview != null) { HeartHairPreview.enabled = true; } break;
+            case HairName.CloudHair: if (CloudHairPreview != null) { CloudHairPreview.enabled = true; } break;
+            case HairName.HaPlaceholder4: if (HaPlaceholder4Preview != null) { HaPlaceholder4Preview.enabled = true; } break;
+            case HairName.HaPlaceholder5: if (HaPlaceholder5Preview != null) { HaPlaceholder5Preview.enabled = true; } break;
         }
     }
 
@@ -838,8 +956,8 @@ public class NorasWardrobe : MonoBehaviour
                 if (PrimAndProperShoes != null) { PrimAndProperShoes.enabled = true; }
 
                 break;
-            case ShoesName.ShuPlaceholder4:
-                if (ShuPlaceholder4Shoes != null) { ShuPlaceholder4Shoes.enabled = true; }
+            case ShoesName.PinkBowFlats:
+                if (PinkBowFlatsShoes != null) { PinkBowFlatsShoes.enabled = true; }
 
                 break;
             case ShoesName.ShuPlaceholder5:
@@ -889,7 +1007,7 @@ public class NorasWardrobe : MonoBehaviour
 
             break; case ShoesName.PrimAndProper: if (PrimAndProperShoesPreview != null) { PrimAndProperShoesPreview.enabled = true; }
 
-            break; case ShoesName.ShuPlaceholder4: if (ShuPlaceholder4ShoesPreview != null) { ShuPlaceholder4ShoesPreview.enabled = true; }
+            break; case ShoesName.PinkBowFlats: if (PinkBowFlatsShoesPreview != null) { PinkBowFlatsShoesPreview.enabled = true; }
 
             break; case ShoesName.ShuPlaceholder5: if (ShuPlaceholder5ShoesPreview != null) { ShuPlaceholder5ShoesPreview.enabled = true; }
 
@@ -975,10 +1093,10 @@ public class NorasWardrobe : MonoBehaviour
         switch (body)
         {
             case NoraBodies.Normal: if (NormalBody != null) { NormalBody.enabled = true; } break;
-            case NoraBodies.Simiae: if (SimiaeBody != null) { SimiaeBody.enabled = true; } break;
+            case NoraBodies.Sun: if (SunBody != null) { SunBody.enabled = true; } break;
             case NoraBodies.Papilio: if (PapilioBody != null) { PapilioBody.enabled = true; } break;
-            case NoraBodies.Arachnida: if (ArachnidaBody != null) { ArachnidaBody.enabled = true; } break;
-            case NoraBodies.Alien: if (AlienBody != null) { AlienBody.enabled = true; } break;
+            case NoraBodies.Cloud: if (CloudBody != null) { CloudBody.enabled = true; } break;
+            case NoraBodies.Lightning: if (LightningBody != null) { LightningBody.enabled = true; } break;
             default: if (NormalBody != null) { NormalBody.enabled = true; } break;
         }
     }
@@ -989,11 +1107,49 @@ public class NorasWardrobe : MonoBehaviour
         switch (body)
         {
             case NoraBodies.Normal: if (NormalBodyPreview != null) { NormalBodyPreview.enabled = true; } break;
-            case NoraBodies.Simiae: if (SimiaeBodyPreview != null) { SimiaeBodyPreview.enabled = true; } break;
+            case NoraBodies.Sun: if (SunBodyPreview != null) { SunBodyPreview.enabled = true; } break;
             case NoraBodies.Papilio: if (PapilioBodyPreview != null) { PapilioBodyPreview.enabled = true; } break;
-            case NoraBodies.Arachnida: if (ArachnidaBodyPreview != null) { ArachnidaBodyPreview.enabled = true; } break;
-            case NoraBodies.Alien: if (AlienBodyPreview != null) { AlienBodyPreview.enabled = true; } break;
+            case NoraBodies.Cloud: if (CloudBodyPreview != null) { CloudBodyPreview.enabled = true; } break;
+            case NoraBodies.Lightning: if (LightningBodyPreview != null) { LightningBodyPreview.enabled = true; } break;
             default: if (NormalBodyPreview != null) { NormalBodyPreview.enabled = true; } break;
+        }
+    }
+
+    public void SetEyes(NoraEyes eyes)
+    {
+        HideAllEyes();
+        switch (eyes)
+        {
+            case NoraEyes.Default: if (DefaultEyes != null) { DefaultEyes.enabled = true; } break;
+            case NoraEyes.Sun: if (SunEyes != null) { SunEyes.enabled = true; } break;
+            case NoraEyes.Lightning: if (LightningEyes != null) { LightningEyes.enabled = true; } break;
+            case NoraEyes.Butterfly: if (ButterflyEyes != null) { ButterflyEyes.enabled = true; } break;
+            case NoraEyes.Cloud: if (CloudEyes != null) { CloudEyes.enabled = true; } break;
+            case NoraEyes.Invisible: if (InvisibleEyes != null) { InvisibleEyes.enabled = true; } break;
+            case NoraEyes.EyPlaceholder1: if (EyPlaceholder1Eyes != null) { EyPlaceholder1Eyes.enabled = true; } break;
+            case NoraEyes.EyPlaceholder2: if (EyPlaceholder2Eyes != null) { EyPlaceholder2Eyes.enabled = true; } break;
+            case NoraEyes.EyPlaceholder3: if (EyPlaceholder3Eyes != null) { EyPlaceholder3Eyes.enabled = true; } break;
+            case NoraEyes.EyPlaceholder4: if (EyPlaceholder4Eyes != null) { EyPlaceholder4Eyes.enabled = true; } break;
+            default: if (DefaultEyes != null) { DefaultEyes.enabled = true; } break;
+        }
+    }
+
+    public void SetEyesPreview(NoraEyes eyes)
+    {
+        HideAllEyesPreview();
+        switch (eyes)
+        {
+            case NoraEyes.Default: if (DefaultEyesPreview != null) { DefaultEyesPreview.enabled = true; } break;
+            case NoraEyes.Sun: if (SunEyesPreview != null) { SunEyesPreview.enabled = true; } break;
+            case NoraEyes.Lightning: if (LightningEyesPreview != null) { LightningEyesPreview.enabled = true; } break;
+            case NoraEyes.Butterfly: if (ButterflyEyesPreview != null) { ButterflyEyesPreview.enabled = true; } break;
+            case NoraEyes.Cloud: if (CloudEyesPreview != null) { CloudEyesPreview.enabled = true; } break;
+            case NoraEyes.Invisible: if (InvisibleEyesPreview != null) { InvisibleEyesPreview.enabled = true; } break;
+            case NoraEyes.EyPlaceholder1: if (EyPlaceholder1EyesPreview != null) { EyPlaceholder1EyesPreview.enabled = true; } break;
+            case NoraEyes.EyPlaceholder2: if (EyPlaceholder2EyesPreview != null) { EyPlaceholder2EyesPreview.enabled = true; } break;
+            case NoraEyes.EyPlaceholder3: if (EyPlaceholder3EyesPreview != null) { EyPlaceholder3EyesPreview.enabled = true; } break;
+            case NoraEyes.EyPlaceholder4: if (EyPlaceholder4EyesPreview != null) { EyPlaceholder4EyesPreview.enabled = true; } break;
+            default: if (DefaultEyesPreview != null) { DefaultEyesPreview.enabled = true; } break;
         }
     }
     
@@ -1020,6 +1176,11 @@ public class NorasWardrobe : MonoBehaviour
     private NoraBodies GetBodyForOutfit(OutfitName outfit)
     {
         return GetOutfit(outfit)?.Body ?? NoraBodies.Normal;
+    }
+
+    private NoraEyes GetEyesForOutfit(OutfitName outfit)
+    {
+        return GetOutfit(outfit)?.Eyes ?? NoraEyes.Default;
     }
     
     private Outfit GetOutfit(OutfitName outfit)
@@ -1297,6 +1458,7 @@ public class NorasWardrobe : MonoBehaviour
         SetNecklace(GetNecklaceForOutfit(outfit));
         SetGlasses(GetGlassesForOutfit(outfit));
         SetBody(GetBodyForOutfit(outfit));
+        SetEyes(GetEyesForOutfit(outfit));
         ApplyBodyColors(outfit);
 
         Debug.Log("outfit name passed: "+outfit);
@@ -1319,6 +1481,7 @@ public class NorasWardrobe : MonoBehaviour
         SetNecklacePreview(GetNecklaceForOutfit(outfit));
         SetGlassesPreview(GetGlassesForOutfit(outfit));
         SetBodyPreview(GetBodyForOutfit(outfit));
+        SetEyesPreview(GetEyesForOutfit(outfit));
         ApplyBodyColorsPreview(outfit);
     }
 
@@ -1347,6 +1510,7 @@ public class NorasWardrobe : MonoBehaviour
         HideAllNecklaces();
         HideAllGlasses();
         SetBody(NoraBodies.Normal);
+        SetEyes(NoraEyes.Default);
         ApplyAccessories();
     }
 
@@ -1459,10 +1623,10 @@ public class NorasWardrobe : MonoBehaviour
         switch (body)
         {
             case NoraBodies.Normal: return NormalBody;
-            case NoraBodies.Simiae: return SimiaeBody;
+            case NoraBodies.Sun: return SunBody;
             case NoraBodies.Papilio: return PapilioBody;
-            case NoraBodies.Arachnida: return ArachnidaBody;
-            case NoraBodies.Alien: return AlienBody;
+            case NoraBodies.Cloud: return CloudBody;
+            case NoraBodies.Lightning: return LightningBody;
             default: return NormalBody;
         }
     }
@@ -1472,10 +1636,10 @@ public class NorasWardrobe : MonoBehaviour
         switch (body)
         {
             case NoraBodies.Normal: return NormalBodyPreview;
-            case NoraBodies.Simiae: return SimiaeBodyPreview;
+            case NoraBodies.Sun: return SunBodyPreview;
             case NoraBodies.Papilio: return PapilioBodyPreview;
-            case NoraBodies.Arachnida: return ArachnidaBodyPreview;
-            case NoraBodies.Alien: return AlienBodyPreview;
+            case NoraBodies.Cloud: return CloudBodyPreview;
+            case NoraBodies.Lightning: return LightningBodyPreview;
             default: return NormalBodyPreview;
         }
     }
@@ -1491,11 +1655,19 @@ public class NorasWardrobe : MonoBehaviour
         Material[] materials = Application.isPlaying ? target.materials : target.sharedMaterials;
         for (int i = 0; i < materials.Length; i++)
         {
-            if (materials[i] == null) { continue; }
+            if (materials[i] == null)
+            {
+                continue;
+            }
             string matName = materials[i].name.ToLower();
-            Debug.Log($"ApplyBodyColors: material[{i}] = '{matName}'");
-            if (matName.Contains("lips")) { materials[i].color = lipColor; }
-            else if (matName.Contains("fingernail") || matName.Contains("nail")) { materials[i].color = nailColor; }
+            if (matName.Contains("lips"))
+            {
+                materials[i].color = lipColor;
+            }
+            else if (matName.Contains("fingernail") || matName.Contains("nail"))
+            {
+                materials[i].color = nailColor;
+            }
         }
         if (Application.isPlaying) { target.materials = materials; }
     }
@@ -1751,7 +1923,7 @@ public class NorasWardrobeEditor : Editor
             ("BlackFMB", () => me.SetShoes(ShoesName.BlackFMB)));
         DrawButtonRow(me, clearAllStyle,
             ("PrimAndProper", () => me.SetShoes(ShoesName.PrimAndProper)),
-            ("ShuPlaceholder4", () => me.SetShoes(ShoesName.ShuPlaceholder4)));
+            ("PinkBowFlats", () => me.SetShoes(ShoesName.PinkBowFlats)));
         DrawButtonRow(me, clearAllStyle,
             ("ShuPlaceholder5", () => me.SetShoes(ShoesName.ShuPlaceholder5)),
             ("ShuPlaceholder6", () => me.SetShoes(ShoesName.ShuPlaceholder6)));
@@ -1804,11 +1976,30 @@ public class NorasWardrobeEditor : Editor
         EditorGUILayout.LabelField("Body", EditorStyles.boldLabel);
         DrawButtonRow(me, clearAllStyle,
             ("Normal", () => me.SetBody(NoraBodies.Normal)),
-            ("Simiae", () => me.SetBody(NoraBodies.Simiae)),
+            ("Sun", () => me.SetBody(NoraBodies.Sun)),
             ("Papilio", () => me.SetBody(NoraBodies.Papilio)));
         DrawButtonRow(me, clearAllStyle,
-            ("Arachnida", () => me.SetBody(NoraBodies.Arachnida)),
-            ("Alien", () => me.SetBody(NoraBodies.Alien)));
+            ("Cloud", () => me.SetBody(NoraBodies.Cloud)),
+            ("Lightning", () => me.SetBody(NoraBodies.Lightning)));
+
+        EditorGUILayout.Space();
+        GUI.backgroundColor = new Color(0.6f, 0.8f, 0.85f);
+
+        EditorGUILayout.LabelField("Eyes", EditorStyles.boldLabel);
+        DrawButtonRow(me, clearAllStyle,
+            ("Default", () => me.SetEyes(NoraEyes.Default)),
+            ("Sun", () => me.SetEyes(NoraEyes.Sun)),
+            ("Lightning", () => me.SetEyes(NoraEyes.Lightning)));
+        DrawButtonRow(me, clearAllStyle,
+            ("Butterfly", () => me.SetEyes(NoraEyes.Butterfly)),
+            ("Cloud", () => me.SetEyes(NoraEyes.Cloud)),
+            ("Invisible", () => me.SetEyes(NoraEyes.Invisible)));
+        DrawButtonRow(me, clearAllStyle,
+            ("EyPlaceholder1", () => me.SetEyes(NoraEyes.EyPlaceholder1)),
+            ("EyPlaceholder2", () => me.SetEyes(NoraEyes.EyPlaceholder2)));
+        DrawButtonRow(me, clearAllStyle,
+            ("EyPlaceholder3", () => me.SetEyes(NoraEyes.EyPlaceholder3)),
+            ("EyPlaceholder4", () => me.SetEyes(NoraEyes.EyPlaceholder4)));
         
         EditorGUILayout.Space();
         GUI.backgroundColor = new Color(0.6f, 0.9f, 0.6f);
@@ -1831,6 +2022,14 @@ public class NorasWardrobeEditor : Editor
             ("Up Hair", () => me.SetHair(HairName.UpHair)));
         DrawButtonRow(me, clearAllStyle,
             ("Updo", () => me.SetHair(HairName.UpDo)));
+        DrawButtonRow(me, clearAllStyle,
+            ("SunHair", () => me.SetHair(HairName.SunHair)),
+            ("HeartHair", () => me.SetHair(HairName.HeartHair)));
+        DrawButtonRow(me, clearAllStyle,
+            ("CloudHair", () => me.SetHair(HairName.CloudHair)),
+            ("HaPlaceholder4", () => me.SetHair(HairName.HaPlaceholder4)));
+        DrawButtonRow(me, clearAllStyle,
+            ("HaPlaceholder5", () => me.SetHair(HairName.HaPlaceholder5)));
 
         EditorGUILayout.Space();
         GUI.backgroundColor = Color.white;
@@ -1926,12 +2125,27 @@ public class NorasWardrobeEditor : Editor
 
     private static int CountCanSpawn(List<Outfit> outfits, OutfitType? type = null)
     {
-        return outfits.Count(o => o.SpawnAs && (type == null || o.outfitType == type));
+        return outfits.Count(o => o.SpawnAs && !o.MarkedForDeletion && (type == null || o.outfitType == type));
     }
 
     private static int CountByStage(List<Outfit> outfits, OutfitStage stage)
     {
+        return outfits.Count(o => o.outfitStage == stage && !o.MarkedForDeletion);
+    }
+
+    private static int CountTotalByStage(List<Outfit> outfits, OutfitStage stage)
+    {
         return outfits.Count(o => o.outfitStage == stage);
+    }
+
+    private static int CountMarkedByStage(List<Outfit> outfits, OutfitStage stage)
+    {
+        return outfits.Count(o => o.outfitStage == stage && o.MarkedForDeletion);
+    }
+
+    private static int CountMarkedForDeletion(List<Outfit> outfits)
+    {
+        return outfits.Count(o => o.MarkedForDeletion);
     }
 
     private static void DrawOutfitStats(NorasWardrobe me, GUIStyle boxStyle, GUIStyle titleStyle, GUIStyle statStyle, GUIStyle buttonStyle)
@@ -1939,6 +2153,7 @@ public class NorasWardrobeEditor : Editor
         var outfits = (me.Outfits ?? new List<Outfit>()).Where(o => o != null && o.thisOutfit != OutfitName.None).ToList();
 
         int canSpawnCount = CountCanSpawn(outfits);
+        int markedForDeletionCount = CountMarkedForDeletion(outfits);
         
         
         EditorGUILayout.BeginVertical();
@@ -1960,10 +2175,23 @@ public class NorasWardrobeEditor : Editor
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Outfits by stage:", titleStyle);
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.StageOne)} Outfits for Stage One", statStyle);
-        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.StageTwo)} Outfits for Stage Two", statStyle);
-        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.StageThree)} Outfits for Stage Three", statStyle);
-        EditorGUILayout.LabelField($"{CountByStage(outfits, OutfitStage.Special)} Outfits excluded from Staging", statStyle);
+
+        int stageOneTotal = CountTotalByStage(outfits, OutfitStage.StageOne);
+        int stageOneMarked = CountMarkedByStage(outfits, OutfitStage.StageOne);
+        EditorGUILayout.LabelField($"{stageOneTotal - stageOneMarked} Outfits for Stage One ({stageOneTotal} - {stageOneMarked} Marked for deletion)", statStyle);
+
+        int stageTwoTotal = CountTotalByStage(outfits, OutfitStage.StageTwo);
+        int stageTwoMarked = CountMarkedByStage(outfits, OutfitStage.StageTwo);
+        EditorGUILayout.LabelField($"{stageTwoTotal - stageTwoMarked} Outfits for Stage Two ({stageTwoTotal} - {stageTwoMarked} Marked for deletion)", statStyle);
+
+        int stageThreeTotal = CountTotalByStage(outfits, OutfitStage.StageThree);
+        int stageThreeMarked = CountMarkedByStage(outfits, OutfitStage.StageThree);
+        EditorGUILayout.LabelField($"{stageThreeTotal - stageThreeMarked} Outfits for Stage Three ({stageThreeTotal} - {stageThreeMarked} Marked for deletion)", statStyle);
+
+        EditorGUILayout.LabelField($"{CountTotalByStage(outfits, OutfitStage.Special)} Outfits excluded from Staging", statStyle);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField($"{markedForDeletionCount} Outfits Marked For Deletion", statStyle);
         
         EditorGUILayout.Space();
         EditorGUILayout.LabelField($"{canSpawnCount} Can be used when spawning Nora", statStyle);
@@ -2127,7 +2355,11 @@ public enum HairName
     TwinTailsHair,
     UpHair,
     UpDo,
-    MessyHair,
+    SunHair,
+    HeartHair,
+    CloudHair,
+    HaPlaceholder4,
+    HaPlaceholder5
 }
 
 
@@ -2145,7 +2377,7 @@ public enum ShoesName
     BlackBoots,
     BlackFMB,
     PrimAndProper,
-    ShuPlaceholder4,
+    PinkBowFlats,
     ShuPlaceholder5,
     ShuPlaceholder6,
     ShuPlaceholder7,
@@ -2181,10 +2413,24 @@ public enum GlassesName
 public enum NoraBodies
 {
     Normal,
-    Simiae,
+    Sun,
     Papilio,
-    Arachnida,
-    Alien
+    Cloud,
+    Lightning
+}
+
+public enum NoraEyes
+{
+    Default,
+    Sun,
+    Lightning,
+    Butterfly,
+    Cloud,
+    Invisible,
+    EyPlaceholder1,
+    EyPlaceholder2,
+    EyPlaceholder3,
+    EyPlaceholder4
 }
 
 public enum OutfitStage {
@@ -2370,7 +2616,7 @@ public enum OutfitName
     StraplessWithTights,
     FloatyBlousseAndLongSkirt,
     StraplessTopAndFlares,
-    SleevelessShirtAndSkirt,
+    Gothica,
     StrappyTopAndTrousers,
     StylishSuit,
     ModestEveningDress,
@@ -2431,6 +2677,12 @@ public enum OutfitName
     HoldupSkirtAndCropTop,
     LooseBlousseAndLongSkirt,
     StraplessFlickDress,
-    PapilioTopAndSkirt
+    PapilioTopAndSkirt,
+    LightningDress,
+    SunDress,
+    CloudDress,
+    ProfessionalTopAndTrousers,
+    TiedTopAndShorts,
+    ModestShortSleevedDress
     
 }

@@ -17,6 +17,7 @@ public class Outfit : ScriptableObject
     
     public bool SpawnAs = true;
     public bool Jiggle;
+    public bool MarkedForDeletion = false;
     
     public List<GameObject> OutfitPrefabs;
     public Color lipsColor = new Color(0.95f, 0.6f, 0.7f);
@@ -26,6 +27,7 @@ public class Outfit : ScriptableObject
     public NecklaceName Necklace = NecklaceName.None;
     public GlassesName Glasses = GlassesName.None;
     public NoraBodies Body = NoraBodies.Normal;
+    public NoraEyes Eyes = NoraEyes.Default;
 
     public bool Wings;
     public bool Apron;
@@ -88,6 +90,7 @@ public class OutfitEditor : Editor
         DrawStat("Stage:", outfit.outfitStage.ToString(), statsFieldStyle);
         DrawStat("Spawnable:", outfit.SpawnAs.ToString(), statsFieldStyle);
         DrawStat("Jiggle:", outfit.Jiggle.ToString(), statsFieldStyle);
+        DrawStat("Marked For Deletion:", outfit.MarkedForDeletion.ToString(), statsFieldStyle);
         
         DrawColourStat("Lips:", outfit.lipsColor);
         DrawColourStat("Nails:", outfit.nailsColor);
@@ -96,6 +99,7 @@ public class OutfitEditor : Editor
         DrawStat("Necklace:", outfit.Necklace.ToString(), statsFieldStyle);
         DrawStat("Glasses:", outfit.Glasses.ToString(), statsFieldStyle);
         DrawStat("Body:", outfit.Body.ToString(), statsFieldStyle);
+        DrawStat("Eyes:", outfit.Eyes.ToString(), statsFieldStyle);
 
         DrawStat("Wings:", outfit.Wings.ToString(), statsFieldStyle);
         DrawStat("Apron:", outfit.Apron.ToString(), statsFieldStyle);
@@ -130,6 +134,20 @@ public class OutfitEditor : Editor
         EditorGUILayout.Space();
 
         DrawDefaultInspector();
+
+        EditorGUILayout.Space();
+
+        GUI.backgroundColor = outfit.MarkedForDeletion ? Color.green : Color.red;
+
+        string deletionButtonLabel = outfit.MarkedForDeletion ? "Un-Mark For Deletion" : "Mark For Deletion";
+
+        if (GUILayout.Button(deletionButtonLabel, outfitButtonStyle, GUILayout.Height(28)))
+        {
+            outfit.MarkedForDeletion = !outfit.MarkedForDeletion;
+            EditorUtility.SetDirty(outfit);
+        }
+
+        GUI.backgroundColor = Color.white;
     }
 
     private static void DrawStat(string title, string value, GUIStyle style)

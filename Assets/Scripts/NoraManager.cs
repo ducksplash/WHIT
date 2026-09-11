@@ -15,8 +15,14 @@ public class NoraManager : MonoBehaviour
     public OutfitName CurrentOutfit = OutfitName.Work;
     private List<OutfitName> usedOutfits = new List<OutfitName>();
     public bool IsDead;
-    
-    
+
+
+    private void Start()
+    {
+        EventManager.OnKillPlayer += KillPlayer;
+    }
+
+
     public void InitialiseNora(bool outfitOverride = false)
     {
         // retrieve and apply Nora's outfit

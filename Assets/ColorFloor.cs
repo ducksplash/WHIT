@@ -6,25 +6,23 @@ public class ColorFloor : MonoBehaviour
     public Renderer meshRenderer;
     public Light attachedLight;
 
-    private Material tileMaterial; // Per-tile material instance
-    private static readonly Color emissionColor = Color.red* 0.2f; // Cached emission color
+    private Material tileMaterial; 
+    public Color tileColor = Color.lightGray; 
 
     private void Awake()
     {
         if (meshRenderer != null)
         {
-            tileMaterial = new Material(meshRenderer.material); // Create unique material instance
-            meshRenderer.material = tileMaterial; // Assign to renderer
+            tileMaterial = new Material(meshRenderer.material); 
+            meshRenderer.material = tileMaterial; 
         }
     }
 
-    public void SetTileColor(Color baseColor)
+    public void SetTileColor()
     {
         if (meshRenderer == null || tileMaterial == null) return;
 
-        tileMaterial.SetColor("_BaseColor", baseColor);
-        tileMaterial.SetColor("_EmissiveColor", emissionColor);
-        tileMaterial.SetColor("_EmissiveColorLDR", emissionColor);
+        tileMaterial.SetColor("_BaseColor", tileColor);
     }
 
     private void OnDestroy()

@@ -74,6 +74,7 @@ public class DungeonGenerator : MonoBehaviour
     public bool spawnRedTelepads = true;
     public bool spawnBlueTelepads = true;
     public bool spawnSpecialTiles = true;
+    public bool spawnHoles = true;
 
     public bool allowBackwardTravel = true;
 
@@ -187,6 +188,8 @@ public class DungeonGenerator : MonoBehaviour
             entrancePos.y * cellSize
         );
 
+        GameMaster.Instance.SPAWNPOINTTAWLEYMEATSMAZE = playerSpawnPosition;
+        
         Player.Instance.SpawnOverride(playerSpawnPosition);
 
         yield return new WaitForSeconds(2f);
@@ -349,10 +352,10 @@ public class DungeonGenerator : MonoBehaviour
         switch (symbol)
         {
             case '#':
+            case '0':
                 grid[x, y, z] = CellType.Empty;
                 break;
 
-            case '0':
             case '_':
                 grid[x, y, z] = CellType.Floor;
                 floorCells[z].Add(new Vector2Int(x, y));
@@ -414,6 +417,18 @@ public class DungeonGenerator : MonoBehaviour
                 if (spawnSpecialTiles)
                 {
                     grid[x, y, z] = CellType.Special;
+                }
+                else
+                {
+                    grid[x, y, z] = CellType.Floor;
+                }
+                floorCells[z].Add(new Vector2Int(x, y));
+                break;
+
+            case '!':
+                if (spawnHoles)
+                {
+                    grid[x, y, z] = CellType.Hole;
                 }
                 else
                 {
@@ -1102,7 +1117,7 @@ public class DungeonGenerator : MonoBehaviour
 #if UNITY_EDITOR
             DestroyImmediate(child.gameObject);
 #else
-            Destroy(child.gameObject);
+        Destroy(child.gameObject);
 #endif
         }
 
@@ -1141,6 +1156,7 @@ public class DungeonGenerator : MonoBehaviour
                             grid[x, y, z] = CellType.Empty;
                             continue;
                         }
+
                         floorObj = Instantiate(floorPrefab, floorPos, Quaternion.identity, floorParent.transform);
                         floorTilesCount++;
                         floorObj.name = floorTilesCount.ToString();
@@ -1153,6 +1169,7 @@ public class DungeonGenerator : MonoBehaviour
                             grid[x, y, z] = CellType.Empty;
                             continue;
                         }
+
                         floorObj = Instantiate(entrancePrefab, floorPos, Quaternion.identity, floorParent.transform);
                         floorObj.name = objName;
                         floorObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
@@ -1164,6 +1181,7 @@ public class DungeonGenerator : MonoBehaviour
                             grid[x, y, z] = CellType.Empty;
                             continue;
                         }
+
                         floorObj = Instantiate(exitPrefab, floorPos, Quaternion.identity, floorParent.transform);
                         floorObj.name = objName;
                         floorObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
@@ -1175,6 +1193,7 @@ public class DungeonGenerator : MonoBehaviour
                             grid[x, y, z] = CellType.Empty;
                             continue;
                         }
+
                         floorObj = Instantiate(redTelepadPrefab, floorPos, Quaternion.identity, floorParent.transform);
                         floorObj.name = objName;
                         floorObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
@@ -1182,13 +1201,14 @@ public class DungeonGenerator : MonoBehaviour
                         {
                             Telepad addedTelepad = floorObj.AddComponent<Telepad>();
                             addedTelepad.telepadType = TelepadType.RedTelepad;
-
                         }
+
                         NavMeshModifier modifier = floorObj.GetComponent<NavMeshModifier>();
                         if (modifier == null)
                         {
                             modifier = floorObj.AddComponent<NavMeshModifier>();
                         }
+
                         modifier.overrideArea = true;
                         modifier.area = 1;
                     }
@@ -1199,6 +1219,7 @@ public class DungeonGenerator : MonoBehaviour
                             grid[x, y, z] = CellType.Empty;
                             continue;
                         }
+
                         floorObj = Instantiate(blueTelepadPrefab, floorPos, Quaternion.identity, floorParent.transform);
                         floorObj.name = objName;
                         floorObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
@@ -1207,11 +1228,13 @@ public class DungeonGenerator : MonoBehaviour
                             Telepad addedTelepad = floorObj.AddComponent<Telepad>();
                             addedTelepad.telepadType = TelepadType.BlueTelepad;
                         }
+
                         NavMeshModifier modifier = floorObj.GetComponent<NavMeshModifier>();
                         if (modifier == null)
                         {
                             modifier = floorObj.AddComponent<NavMeshModifier>();
                         }
+
                         modifier.overrideArea = true;
                         modifier.area = 1;
                     }
@@ -1222,6 +1245,7 @@ public class DungeonGenerator : MonoBehaviour
                             grid[x, y, z] = CellType.Empty;
                             continue;
                         }
+
                         floorObj = Instantiate(spawnableObjectPrefab, floorPos, Quaternion.identity, floorParent.transform);
                         floorObj.name = objName;
                         floorObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
@@ -1231,10 +1255,12 @@ public class DungeonGenerator : MonoBehaviour
                             SpawnableObject spawnComp = floorObj.AddComponent<SpawnableObject>();
                             spawnComp.type = SpawnableType.Default;
                         }
+
                         if (lootPrefab == null)
                         {
                             continue;
                         }
+
                         GameObject lootObj = Instantiate(lootPrefab, new Vector3(floorPos.x, floorPos.y + 0.55f, floorPos.z), Quaternion.identity, transform);
                         lootObj.name = $"Loot_{x}_{y}_F{z}";
                     }
@@ -1245,12 +1271,31 @@ public class DungeonGenerator : MonoBehaviour
                             grid[x, y, z] = CellType.Empty;
                             continue;
                         }
+
                         floorObj = Instantiate(floorPrefab, floorPos, Quaternion.identity, floorParent.transform);
                         floorObj.name = $"Floor_{x}_{y}_F{z}";
                         floorObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
                     }
                     else if (cell == CellType.Hole)
                     {
+                        if (holePrefab == null)
+                        {
+                            //Debug.LogError($"Missing holePrefab for cell at ({x}, {y}, {z}), skipping");
+                            continue;
+                        }
+
+                        floorObj = Instantiate(holePrefab, floorPos, Quaternion.identity, floorParent.transform);
+                        floorObj.name = objName;
+                        floorObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
+                        floorObj.layer = LayerMask.NameToLayer("ground");
+                        NavMeshModifier modifier = floorObj.GetComponent<NavMeshModifier>();
+                        if (modifier == null)
+                        {
+                            modifier = floorObj.AddComponent<NavMeshModifier>();
+                        }
+
+                        modifier.overrideArea = true;
+                        modifier.area = 1; // Not Walkable
                         continue;
                     }
                     else if (cell == CellType.Special)
@@ -1260,6 +1305,7 @@ public class DungeonGenerator : MonoBehaviour
                             grid[x, y, z] = CellType.Floor;
                             continue;
                         }
+
                         floorObj = Instantiate(specialTilePrefab, floorPos, Quaternion.identity, floorParent.transform);
                         floorObj.name = $"Special_{x}_{y}_F{z}";
                         floorObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
@@ -1345,6 +1391,7 @@ public class DungeonGenerator : MonoBehaviour
                         {
                             continue;
                         }
+
                         GameObject ceilingObj = Instantiate(ceilingPrefab, ceilingPos, Quaternion.identity, transform);
                         ceilingObj.name = $"Ceiling_{x}_{y}_F{z}";
                         ceilingObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
@@ -1355,7 +1402,9 @@ public class DungeonGenerator : MonoBehaviour
                         for (int i = 0; i < 4; i++)
                         {
                             Vector2Int neighbor = new Vector2Int(x + dx[i], y + dy[i]);
-                            if (!IsInBounds(neighbor) || grid[neighbor.x, neighbor.y, z] == CellType.Empty || grid[neighbor.x, neighbor.y, z] == CellType.Hole)
+                            // FIXED: only Empty (or out-of-bounds) should force a wall.
+                            // Holes must NOT force walls.
+                            if (!IsInBounds(neighbor) || grid[neighbor.x, neighbor.y, z] == CellType.Empty)
                             {
                                 Vector3 wallPos = new Vector3(x * cellSize, floorY + wallHeight / 2 + 0.05f, y * cellSize);
                                 GameObject wallPrefabToUse = null;
@@ -1386,6 +1435,7 @@ public class DungeonGenerator : MonoBehaviour
                                 {
                                     continue;
                                 }
+
                                 GameObject wallObj = Instantiate(wallPrefabToUse, wallPos, wallRotation, transform);
                                 wallObj.name = $"Wall_{(i == 0 ? "North" : i == 1 ? "East" : i == 2 ? "South" : "West")}_{x}_{y}_F{z}";
                                 Vector3 wallScale = new Vector3(

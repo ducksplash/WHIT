@@ -58,6 +58,7 @@ public static class EventManager
     public static event Action OnStartThoughtVignette = () => { };
 
     
+    public static event Action OnKillPlayer = () => { };
     // cheev
     
     public static event Action<SteamAchievements> OnUnlockAchievement = (SteamAchievements) => { };
@@ -101,6 +102,11 @@ public static class EventManager
     public static void UnCrouch()
     {
         OnUnCrouch.Invoke();
+    }
+
+    public static void KillPlayer()
+    {
+        OnKillPlayer.Invoke();
     }
 
     public static void KelliStarted()

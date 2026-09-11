@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: NovaSphere
-  m_Shader: {fileID: 4800000, guid: 37a5bbd396f11c84e99f8ab4db3b7813, type: 3}
+  m_Shader: {fileID: 4800000, guid: 7efb3a53798b1084cbadfe4a4f5b51ab, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -16,6 +16,7 @@ Material:
   - _DISABLE_DECALS
   - _DISABLE_SSR
   - _DISABLE_SSR_TRANSPARENT
+  - _DOUBLESIDED_ON
   - _EMISSIONENABLED_ON
   - _FRESNELENABLED_ON
   - _GLOWENABLED_ON
@@ -32,7 +33,7 @@ Material:
   - _SURFACE_TYPE_TRANSPARENT
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
+  m_DoubleSidedGI: 1
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses:
@@ -193,6 +194,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TemplateTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _ThicknessMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -238,13 +243,17 @@ Material:
     - _AlphaToMaskInspectorValue: 0
     - _Anisotropy: 0
     - _BackParallax: 0.3
+    - _BlackTransparentThreshold: 0.08
     - _BlendMode: 0
     - _BumpScale: 1.12
     - _CoatMask: 0
+    - _Contrast: 2
+    - _CrackWidth: 0.02
     - _Cull: 0
     - _CullMode: 2
     - _CullModeForward: 2
     - _Cutoff: 0.5
+    - _Density: 50
     - _DepthOffsetEnable: 0
     - _DetailAlbedoScale: 1
     - _DetailNormalMapScale: 1
@@ -255,6 +264,7 @@ Material:
     - _DisplacementLockObjectScale: 1
     - _DisplacementLockTilingScale: 1
     - _DisplacementMode: 0
+    - _DoubleSided: 1
     - _DoubleSidedEnable: 0
     - _DoubleSidedGIMode: 0
     - _DoubleSidedNormalMode: 1
@@ -270,13 +280,14 @@ Material:
     - _EnableFogOnTransparent: 0
     - _EnableGeometricSpecularAA: 0
     - _EnergyConservingSpecularColor: 0
+    - _FlipScreenY: 0
     - _FresnelEnabled: 1
     - _GlossMapScale: 0.672
     - _Glossiness: 0
     - _GlossyReflections: 1
     - _GlowEnabled: 1
     - _GlowSpeed: 0.04
-    - _GlowStrength: 10
+    - _GlowStrength: 5.13
     - _HeightAmplitude: 0.02
     - _HeightCenter: 0.5
     - _HeightMapParametrization: 0
@@ -308,11 +319,13 @@ Material:
     - _MovementSpeed: 0.03
     - _NearEnabled: 0
     - _NearParallax: 2
+    - _NoiseScale: 200
     - _NormalMapSpace: 0
     - _NormalScale: 1
     - _ObjectSpaceUVMapping: 0
     - _ObjectSpaceUVMappingEmissive: 0
     - _OcclusionStrength: 1
+    - _Opacity: 1
     - _OpaqueCullMode: 2
     - _OverlayEnabled: 0
     - _OverlayRotation: 0
@@ -347,6 +360,7 @@ Material:
     - _SpecularAAThreshold: 0.2
     - _SpecularHighlights: 1
     - _SpecularOcclusionMode: 1
+    - _Speed: 2
     - _SrcBlend: 1
     - _StencilRef: 0
     - _StencilRefDepth: 0
@@ -368,6 +382,7 @@ Material:
     - _TopRainVariation: 0.75
     - _TransmissionEnable: 1
     - _TransmissionMask: 1
+    - _Transparency: 0.5
     - _TransparentBackfaceEnable: 0
     - _TransparentCullMode: 2
     - _TransparentDepthPostpassEnable: 0
@@ -380,7 +395,9 @@ Material:
     - _UVEmissive: 0
     - _UVSec: 0
     - _UseEmissiveIntensity: 0
+    - _UseScreenSpace: 1
     - _UseShadowThreshold: 0
+    - _UseTemplateTex: 0
     - _ZTestDepthEqualForOpaque: 4
     - _ZTestGBuffer: 4
     - _ZTestTransparent: 4
@@ -388,12 +405,13 @@ Material:
     m_Colors:
     - _BackTiling: {r: 1, g: 1, b: 0, a: 0}
     - _BackTint: {r: 1, g: 1, b: 1, a: 1}
-    - _BaseColor: {r: 0.17735851, g: 0.17735851, b: 0.17735851, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 0.17735848, g: 0.17735848, b: 0.17735848, a: 1}
+    - _CrackColor: {r: 0, g: 0, b: 0, a: 1}
     - _DiffusionProfileAsset: {r: 0, g: 0, b: 0, a: 0}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
-    - _EmissionColor: {r: 0, g: 0.003921569, b: 0.54901963, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveColorLDR: {r: 0, g: 0, b: 0, a: 1}
     - _GlowColor: {r: 1, g: 1, b: 1, a: 1}
@@ -413,7 +431,7 @@ Material:
     - _SpecColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 0, g: 0, b: 0, a: 1}
     - _ThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
-    - _TintColor: {r: 0.78113204, g: 0.78113204, b: 0.78113204, a: 1}
+    - _TintColor: {r: 0.4716981, g: 0.4716981, b: 0.4716981, a: 1}
     - _TransmittanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}

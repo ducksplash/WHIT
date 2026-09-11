@@ -85,7 +85,7 @@ public class OutfitEditor : Editor
 
 
         DrawStat("Title:", outfit.outfitTitle, statsFieldStyle);
-        DrawStat("Outfit ID:", outfit.thisOutfit.ToString(), statsFieldStyle);
+        DrawStat("Outfit ID:","#"+(int)outfit.thisOutfit + " [" + outfit.thisOutfit.ToString() + "]", statsFieldStyle);
         DrawStat("Type:", outfit.outfitType.ToString(), statsFieldStyle);
         DrawStat("Stage:", outfit.outfitStage.ToString(), statsFieldStyle);
         DrawStat("Spawnable:", outfit.SpawnAs.ToString(), statsFieldStyle);

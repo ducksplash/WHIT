@@ -217,6 +217,7 @@ public class NorasWardrobe : MonoBehaviour
     public InputActionReference nextOutfit;
     public InputActionReference previousOutfit;
     public InputActionReference holdToggleDebug;
+    public InputActionReference holdToggleUndress;
 
     private bool _wingsOverride = false;
     private bool _overallOverride = false;
@@ -300,6 +301,7 @@ public class NorasWardrobe : MonoBehaviour
         if (holdToggleDebug != null) { holdToggleDebug.action.performed += OnToggleDebug; }
         if (nextOutfit != null) { nextOutfit.action.performed += OnNextOutfit; }
         if (previousOutfit != null) { previousOutfit.action.performed += OnPreviousOutfit; }
+        if (holdToggleUndress != null) { holdToggleUndress.action.performed += Undress; }
     }
 
     private void OnToggleDebug(InputAction.CallbackContext ctx) { ToggleDebug(); }
@@ -311,6 +313,7 @@ public class NorasWardrobe : MonoBehaviour
         if (nextOutfit != null) { nextOutfit.action.performed -= OnNextOutfit; }
         if (previousOutfit != null) { previousOutfit.action.performed -= OnPreviousOutfit; }
         if (holdToggleDebug != null) { holdToggleDebug.action.performed -= OnToggleDebug; }
+        if (holdToggleUndress != null) { holdToggleUndress.action.performed -= Undress; }
     }
 
 
@@ -324,7 +327,7 @@ public class NorasWardrobe : MonoBehaviour
     private List<OutfitName> GetOutfitsForStageExcludingBurned(OutfitStage stage)
     {
         return Outfits
-            .Where(o => o != null && o.outfitStage == stage && o.SpawnAs && !o.MarkedForDeletion && !BurnedOutfits.Contains(o.thisOutfit))
+            .Where(o => o != null && o.outfitStage == stage && IsOutfitSpawnable(o.thisOutfit) && !BurnedOutfits.Contains(o.thisOutfit))
             .Select(o => o.thisOutfit)
             .ToList();
     }
@@ -1262,23 +1265,12 @@ public class NorasWardrobe : MonoBehaviour
         }
     }
 
-    public bool IsOutfitEnabled(OutfitName outfit)
+    public bool IsOutfitSpawnable(OutfitName outfit)
     {
-        bool canSpawn = false;
-
         var data = GetOutfit(outfit);
-        
-        if (DebugMode)
-        {
-            canSpawn = true;
-        }
-        else
-        {
-            canSpawn = data.SpawnAs;
-        }
-        
-        
-        return data == null || canSpawn;
+        if (data == null) { return true; }
+        if (data.MarkedForDeletion) { return false; }
+        return data.SpawnAs;
     }
 
     public void ToggleWings(bool? forceOn = null)
@@ -1375,16 +1367,9 @@ public class NorasWardrobe : MonoBehaviour
         if (order.Count == 0) { return; }
 
         int index = order.IndexOf(currentOutfit);
+        index = (index + 1) % order.Count;
 
-        for (int i = 0; i < order.Count; i++)
-        {
-            index = (index + 1) % order.Count;
-            if (IsOutfitEnabled(order[index]))
-            {
-                SwitchToOutfit(order[index]);
-                return;
-            }
-        }
+        SwitchToOutfit(order[index]);
     }
 
     public void PreviousOutfit()
@@ -1394,16 +1379,9 @@ public class NorasWardrobe : MonoBehaviour
 
         int index = order.IndexOf(currentOutfit);
         if (index < 0) { index = 0; }
+        index = (index - 1 + order.Count) % order.Count;
 
-        for (int i = 0; i < order.Count; i++)
-        {
-            index = (index - 1 + order.Count) % order.Count;
-            if (IsOutfitEnabled(order[index]))
-            {
-                SwitchToOutfit(order[index]);
-                return;
-            }
-        }
+        SwitchToOutfit(order[index]);
     }
 
     private void SwitchToOutfit(OutfitName outfit)
@@ -1464,7 +1442,9 @@ public class NorasWardrobe : MonoBehaviour
         Debug.Log("outfit name passed: "+outfit);
         Debug.Log("wardrobe count when asked: "+_outfitLookup.Count);
 
-        EventManager.OutfitWasChanged(data.outfitTitle);
+        string OutfitDebugText = "Title: "+data.outfitTitle + "\nOID: " + data.thisOutfit+"["+(int)data.thisOutfit+"]\nMarked Deleted: "+data.MarkedForDeletion;
+        
+        EventManager.OutfitWasChanged(OutfitDebugText);
     }
     
     public void SetMainOutfitPreview(OutfitName outfit)
@@ -1514,11 +1494,18 @@ public class NorasWardrobe : MonoBehaviour
         ApplyAccessories();
     }
 
+    public void UndressAsIs()
+    {
+        HideAllAccessories();
+        ClearOutfitMeshes();
+        currentOutfit = OutfitName.None;
+    }
+
     private OutfitName PickRandom(OutfitName[] pool)
     {
-        OutfitName[] eligible = pool.Where(o => IsOutfitEnabled(o) && o != currentOutfit).ToArray();
+        OutfitName[] eligible = pool.Where(o => IsOutfitSpawnable(o) && o != currentOutfit).ToArray();
         if (eligible.Length == 0)
-            eligible = pool.Where(o => IsOutfitEnabled(o)).ToArray();
+            eligible = pool.Where(o => IsOutfitSpawnable(o)).ToArray();
 
         if (eligible.Length == 0)
             return currentOutfit;
@@ -1705,9 +1692,9 @@ public class NorasWardrobe : MonoBehaviour
         return data != null ? data.nailsColor : Color.white;
     }
 
-    public void Undress()
+    public void Undress(InputAction.CallbackContext callbackContext = new InputAction.CallbackContext())
     {
-        DisableAllMainOutfits();
+        UndressAsIs();
     }
     
     
@@ -2072,11 +2059,14 @@ public class NorasWardrobeEditor : Editor
         
         if (!string.IsNullOrEmpty(_outfitSearchText))
         {
-            string query = _outfitSearchText.ToLowerInvariant();
+            string query = _outfitSearchText.ToLowerInvariant().Trim();
+            bool queryIsNumeric = int.TryParse(query, out int numericQuery);
 
             List<OutfitName> matches = System.Enum.GetValues(typeof(OutfitName))
                 .Cast<OutfitName>()
-                .Where(o => o != OutfitName.None && o.ToString().ToLowerInvariant().Contains(query))
+                .Where(o => o != OutfitName.None &&
+                    (o.ToString().ToLowerInvariant().Contains(query) ||
+                     (queryIsNumeric && (int)o == numericQuery)))
                 .ToList();
 
             EditorGUILayout.BeginVertical(GUI.skin.box);
@@ -2092,7 +2082,7 @@ public class NorasWardrobeEditor : Editor
 
                 foreach (var match in matches)
                 {
-                    if (GUILayout.Button(match.ToString(), labelStyle))
+                    if (GUILayout.Button($"{match} [{(int)match}]", labelStyle))
                     {
                         me.ToggleOutfit(match, true);
                         SelectOutfitAsset(me);
@@ -2607,7 +2597,7 @@ public enum OutfitName
     SleevelessBlousseAndSkirt,
     PVCSuit,
     WavyTopAndSkirt,
-    ModestSleevelessDress,
+    ModestShortSleevedDress,
     FloatyBlousseAndCutoffs,
     PartyDress,
     ConservativeDressAndCardi,
@@ -2683,6 +2673,18 @@ public enum OutfitName
     CloudDress,
     ProfessionalTopAndTrousers,
     TiedTopAndShorts,
-    ModestShortSleevedDress
+    ShortModestDress,
+    JeansSkirtAndTop,
+    RelaxedLayeredBlousseAndJeans,
+    ModestSleevelessDressAndTights,
+    JustDivorcedDress,
+    VeeNeckDress,
+    VeeNeckDressAndShirt,
+    LooseShirtAndSkirt,
+    LooseShirtAndTinySkirt,
+    TinyTopAndTinySkirt,
+    VeeNeckDressShirtAndTights,
+    TinyTopSkirtAndTights,
+    TiedTopAndTinySkirt
     
 }

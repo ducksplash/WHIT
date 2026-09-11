@@ -2049,7 +2049,7 @@ public class Player : Singleton<Player>
             if (tile != null && !tile.ranOver)
             {
                 tile.ranOver = true;
-                tile.SetTileColor(Color.gray * 0.2f);
+                tile.SetTileColor();
                 DungeonGenerator.Instance.floorTilesCovered++;
                 
                 
@@ -2066,7 +2066,7 @@ public class Player : Singleton<Player>
             if (tile != null && !tile.ranOver)
             {
                 tile.ranOver = true;
-                tile.SetTileColor(Color.gray * 0.2f);
+                tile.SetTileColor();
                 if (tile.attachedLight != null) tile.attachedLight.enabled = false;
             }
         }
@@ -2084,6 +2084,15 @@ public class Player : Singleton<Player>
             // ApplyKnockback(knockback);
             // GameMaster.Instance.PlayerOne.DecrementHealth(10);
         }
+
+
+        if (hit.collider.CompareTag("Void"))
+        {
+            Debug.Log("Fell into hole");
+            EventManager.KillPlayer();
+        }
+
+
         
         
     }

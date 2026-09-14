@@ -2685,6 +2685,12 @@ public enum OutfitName
     TinyTopAndTinySkirt,
     VeeNeckDressShirtAndTights,
     TinyTopSkirtAndTights,
-    TiedTopAndTinySkirt
+    TiedTopAndTinySkirt,
+    Ballet,
+    VeeNeckBlousseAndSkirt,
+    PoofyDress,
+    LooseShirtAndPleatedSkirt,
+    RelaxedTopAndPleatedSkirt,
+    SleevelessTopAndPleatedSkirt
     
 }

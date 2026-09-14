@@ -29,11 +29,11 @@ public class Outfit : ScriptableObject
     public NoraBodies Body = NoraBodies.Normal;
     public NoraEyes Eyes = NoraEyes.Default;
 
-    public bool Wings;
-    public bool Apron;
-    public bool Hat;
-    public bool Choker;
-    public bool Cigarette;
+    public WingsName Wings = WingsName.None;
+    public ApronName Apron = ApronName.None;
+    public HatName Hat = HatName.None;
+    public ChokerAccessoryName Choker = ChokerAccessoryName.None;
+    public ViceName Vice = ViceName.None;
 }
 
 
@@ -85,7 +85,7 @@ public class OutfitEditor : Editor
 
 
         DrawStat("Title:", outfit.outfitTitle, statsFieldStyle);
-        DrawStat("Outfit ID:","#"+(int)outfit.thisOutfit + " [" + outfit.thisOutfit.ToString() + "]", statsFieldStyle);
+        DrawStat("Outfit ID:", "#"+(int)outfit.thisOutfit + " [" + outfit.thisOutfit.ToString() + "]", statsFieldStyle);
         DrawStat("Type:", outfit.outfitType.ToString(), statsFieldStyle);
         DrawStat("Stage:", outfit.outfitStage.ToString(), statsFieldStyle);
         DrawStat("Spawnable:", outfit.SpawnAs.ToString(), statsFieldStyle);
@@ -105,7 +105,7 @@ public class OutfitEditor : Editor
         DrawStat("Apron:", outfit.Apron.ToString(), statsFieldStyle);
         DrawStat("Hat:", outfit.Hat.ToString(), statsFieldStyle);
         DrawStat("Choker:", outfit.Choker.ToString(), statsFieldStyle);
-        DrawStat("Cigarette:", outfit.Cigarette.ToString(), statsFieldStyle);
+        DrawStat("Vice:", outfit.Vice.ToString(), statsFieldStyle);
 
         EditorGUILayout.EndVertical();
 

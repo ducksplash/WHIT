@@ -130,6 +130,7 @@ public class DungeonGenerator : MonoBehaviour
     private CellType[,,] grid;
     private List<(Vector2Int center, Vector2Int dimensions, RoomTypeConfig roomType)>[] roomsPerFloor;
     public List<GameObject> floorObjects;
+    public List<GameObject> Dungeons;
     private GameObject ambientLightInstance;
 
     public CellType[,,] GetGrid() => grid;
@@ -142,6 +143,7 @@ public class DungeonGenerator : MonoBehaviour
             return;
         }
         _instance = this;
+        Dungeons = new List<GameObject>();
         floorObjects = new List<GameObject>();
         enemyTiles = new List<Vector3Int>();
         spawnableObjectTiles = new List<Vector3Int>();

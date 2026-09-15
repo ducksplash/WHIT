@@ -29,7 +29,7 @@ public class Player : Singleton<Player>
     public float jumpCooldown = 0.55f;             
     private float _jumpCooldownUntil;
 
-    private bool _isJumping;
+    public bool playerIsJumping;
     private Vector3 _jumpForwardDirection;
     private Coroutine _jumpRoutine;
     
@@ -1436,7 +1436,7 @@ public class Player : Singleton<Player>
 
         Vector3 horizontalMove = Vector3.zero;
 
-        if (!_isJumping && Time.time >= _jumpCooldownUntil)
+        if (!playerIsJumping && Time.time >= _jumpCooldownUntil)
         {
             horizontalMove = desiredMove;
         }
@@ -1446,7 +1446,7 @@ public class Player : Singleton<Player>
         moveDirection.y += Physics.gravity.y * Time.deltaTime;
         thisCharController.Move(moveDirection * Time.deltaTime);
 
-        UpdateAnimator(isGrounded: isGrounded && !_isJumping);
+        UpdateAnimator(isGrounded: isGrounded && !playerIsJumping);
         UpdatePeripheryFromAnimator();
     }
 
@@ -1709,8 +1709,8 @@ public class Player : Singleton<Player>
     }
     private void StartJump()
     {
-        if (_isJumping) return;
-        _isJumping = true;
+        if (playerIsJumping) return;
+        playerIsJumping = true;
         Noranimator?.SetTrigger(AnimJump);
     }
 
@@ -1741,7 +1741,7 @@ public class Player : Singleton<Player>
             yield return null;
         }
 
-        _isJumping = false;
+        playerIsJumping = false;
 
         if (_controllerJumpBlendRoutine != null) 
             StopCoroutine(_controllerJumpBlendRoutine);
@@ -1941,6 +1941,28 @@ public class Player : Singleton<Player>
         GameMaster.Instance.NoraManager.IsDead = true;
         Debug.Log("death caused, player busy: "+GameMaster.Instance.PLAYERBUSY);
         Debug.Log($"[CauseDeath] Writing PLAYERBUSY=true on GameMaster instance {GameMaster.Instance.GetInstanceID()}");
+        
+        if (_jumpRoutine != null)
+        {
+            StopCoroutine(_jumpRoutine);
+            _jumpRoutine = null;
+        }
+        playerIsJumping = false;
+
+        if (_controllerJumpBlendRoutine != null)
+        {
+            StopCoroutine(_controllerJumpBlendRoutine);
+            _controllerJumpBlendRoutine = null;
+        }
+
+        // // Optional but helpful: snap height back immediately
+        // if (thisCharController != null && _controllerBaselineCaptured)
+        // {
+        //     thisCharController.height = _standHeight;
+        //     thisCharController.center = _standCenter;
+        // }
+        
+        
         StartCoroutine(SlowDeath(cause));
     }
 
@@ -2041,7 +2063,7 @@ public class Player : Singleton<Player>
     
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (GameMaster.Instance.PLAYERBUSY) return;
+        //if (GameMaster.Instance.PLAYERBUSY) return;
 
         if (hit.collider.CompareTag("FloorTile"))
         {

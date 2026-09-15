@@ -114,6 +114,7 @@ public class PauseManager : MonoBehaviour
     private void TogglePause(InputAction.CallbackContext callbackContext)
     {
         if (!this || !gameObject) return;
+        if (Player.Instance.playerIsJumping) return;
         
         if (IsPaused) UnpauseGame();
         else PauseGame();

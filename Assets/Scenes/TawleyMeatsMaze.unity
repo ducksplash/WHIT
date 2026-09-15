@@ -179,7 +179,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 446615285}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -309,6 +309,7 @@ GameObject:
   - component: {fileID: 648201004}
   - component: {fileID: 648201003}
   - component: {fileID: 648201002}
+  - component: {fileID: 648201005}
   m_Layer: 0
   m_Name: NOVASKY
   m_TagString: Untagged
@@ -341,7 +342,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: -10
   m_Materials:
-  - {fileID: 2100000, guid: 6e03fea4651ea5140bf9fab8087d488d, type: 2}
+  - {fileID: 2100000, guid: f5a44f7bf114fd54f821f8959e8a074e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -388,6 +389,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &648201005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648201001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67bdc28bea401843a59d83dfcfe9854, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &650703702
 GameObject:
   m_ObjectHideFlags: 0

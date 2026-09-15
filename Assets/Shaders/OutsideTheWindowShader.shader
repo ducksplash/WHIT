@@ -69,7 +69,7 @@ Shader "Custom/OutsideTheWindowShader"
         Tags { "Queue"="Transparent" "RenderType"="Transparent" }
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
-        Cull Back
+        Cull Off
 
         Pass
         {

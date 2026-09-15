@@ -31,12 +31,17 @@ Material:
   m_InvalidKeywords:
   - _DISABLE_SSR_TRANSPARENT
   - _DOUBLESIDED_ON
+  - _EMISSIONENABLED_ON
+  - _FRESNELENABLED_ON
+  - _GLOWENABLED_ON
   - _LIGHTNINGENABLED_ON
   - _MASKMAP
   - _MATERIAL_FEATURE_SPECULAR_COLOR
   - _NORMALMAP
   - _NORMALMAP_TANGENT_SPACE
+  - _OVERLAYENABLED_ON
   - _RAINBACK_ON
+  - _RAINENABLED_ON
   - _RAINFRONT_ON
   - _RAINLEFT_ON
   - _RAINRIGHT_ON
@@ -77,7 +82,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CubeTex:
-        m_Texture: {fileID: 8900000, guid: 9e5c52df23518224ca4899b8dbe452b9, type: 2}
+        m_Texture: {fileID: 8900000, guid: 6128b4b6006e90441928254afa174763, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailMap:
@@ -102,19 +107,19 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _LightningTex0:
         m_Texture: {fileID: 2800000, guid: 883017269773de946950db8b8d49a8bc, type: 3}
-        m_Scale: {x: 10, y: 10}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _LightningTex1:
         m_Texture: {fileID: 2800000, guid: c24ada08d3aa3334bba3ac31ea10f1af, type: 3}
-        m_Scale: {x: 10, y: 10}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _LightningTex2:
         m_Texture: {fileID: 2800000, guid: b24fe78e3285fb144a077d4ad01f8192, type: 3}
-        m_Scale: {x: 10, y: 10}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _LightningTex3:
         m_Texture: {fileID: 2800000, guid: 1d6270b4034366b4ea8bdbd7861c38a9, type: 3}
-        m_Scale: {x: 10, y: 10}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: a71e745916977ce41a5e6ae1708f33c6, type: 3}
@@ -224,6 +229,7 @@ Material:
     - _DoubleSidedNormalMode: 1
     - _DstBlend: 0
     - _DstBlend2: 0
+    - _EmissionEnabled: 1
     - _EmissionStrength: 1
     - _EmissiveColorMode: 1
     - _EmissiveExposureWeight: 1
@@ -233,6 +239,8 @@ Material:
     - _EnableFogOnTransparent: 1
     - _EnableGeometricSpecularAA: 0
     - _EnergyConservingSpecularColor: 0
+    - _FresnelEnabled: 1
+    - _GlowEnabled: 1
     - _GlowSpeed: 0
     - _GlowStrength: 0
     - _HeightAmplitude: 0.02
@@ -259,11 +267,14 @@ Material:
     - _Metallic: 1
     - _MetallicRemapMax: 1
     - _MetallicRemapMin: 0
+    - _MovementEnabled: 0
+    - _MovementSpeed: 5
     - _NormalMapSpace: 0
     - _NormalScale: 0
     - _ObjectSpaceUVMapping: 0
     - _ObjectSpaceUVMappingEmissive: 0
     - _OpaqueCullMode: 2
+    - _OverlayEnabled: 1
     - _OverlayRotation: 274
     - _OverlayStrength: 1
     - _PPDLodThreshold: 5
@@ -275,6 +286,7 @@ Material:
     - _RainBack: 1
     - _RainBottom: 0
     - _RainDirection: 0.34
+    - _RainEnabled: 1
     - _RainFront: 1
     - _RainLeft: 1
     - _RainRight: 1
@@ -348,6 +360,7 @@ Material:
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
     - _LightningForeground: {r: 1, g: 1, b: 1, a: 0}
     - _LightningTiling: {r: 16, g: 8, b: 1, a: 0}
+    - _MovementDirection: {r: 1, g: 0, b: 0, a: 0}
     - _OverlayTiling: {r: 64, g: 128, b: 0, a: 0}
     - _OverlayTint: {r: 1, g: 1, b: 1, a: 1}
     - _RainTiling: {r: 200, g: 5, b: 0, a: 0}

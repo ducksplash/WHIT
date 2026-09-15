@@ -27,6 +27,7 @@ public class TextButtonMouseOver : MonoBehaviour, IPointerEnterHandler, IPointer
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (GameMaster.Instance.DeviceType.selectedDeviceType == PlayerDeviceType.SteamOS) return;
         theText.color = HoverColor;
 
         if (usingFormatting)
@@ -38,6 +39,7 @@ public class TextButtonMouseOver : MonoBehaviour, IPointerEnterHandler, IPointer
     }
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (GameMaster.Instance.DeviceType.selectedDeviceType == PlayerDeviceType.SteamOS) return;
         theText.color = OrigColor;
         
         if (usingFormatting)

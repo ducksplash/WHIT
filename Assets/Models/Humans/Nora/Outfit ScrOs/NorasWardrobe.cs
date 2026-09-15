@@ -42,7 +42,7 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer BodPlaceholder7BodyPreview;
     public SkinnedMeshRenderer BodPlaceholder8BodyPreview;
     public SkinnedMeshRenderer BodPlaceholder9BodyPreview;
-    public SkinnedMeshRenderer BodPlaceholder10BodyPreview;
+    public SkinnedMeshRenderer BodyForHighHeelsBodyPreview;
 
     [Header("Preview Eyes")]
     public SkinnedMeshRenderer DefaultEyesPreview;
@@ -170,7 +170,7 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer BodPlaceholder7Body;
     public SkinnedMeshRenderer BodPlaceholder8Body;
     public SkinnedMeshRenderer BodPlaceholder9Body;
-    public SkinnedMeshRenderer BodPlaceholder10Body;
+    public SkinnedMeshRenderer BodyForHighHeelsBody;
 
     [Header("Eyes")]
     public SkinnedMeshRenderer DefaultEyes;
@@ -887,7 +887,7 @@ public class NorasWardrobe : MonoBehaviour
         if (BodPlaceholder7Body != null) { BodPlaceholder7Body.enabled = false; }
         if (BodPlaceholder8Body != null) { BodPlaceholder8Body.enabled = false; }
         if (BodPlaceholder9Body != null) { BodPlaceholder9Body.enabled = false; }
-        if (BodPlaceholder10Body != null) { BodPlaceholder10Body.enabled = false; }
+        if (BodyForHighHeelsBody != null) { BodyForHighHeelsBody.enabled = false; }
     }
 
     private void HideAllBodiesPreview()
@@ -906,7 +906,7 @@ public class NorasWardrobe : MonoBehaviour
         if (BodPlaceholder7BodyPreview != null) { BodPlaceholder7BodyPreview.enabled = false; }
         if (BodPlaceholder8BodyPreview != null) { BodPlaceholder8BodyPreview.enabled = false; }
         if (BodPlaceholder9BodyPreview != null) { BodPlaceholder9BodyPreview.enabled = false; }
-        if (BodPlaceholder10BodyPreview != null) { BodPlaceholder10BodyPreview.enabled = false; }
+        if (BodyForHighHeelsBodyPreview != null) { BodyForHighHeelsBodyPreview.enabled = false; }
     }
 
     private void HideAllEyes()
@@ -1191,7 +1191,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BodPlaceholder7: if (BodPlaceholder7Body != null) { BodPlaceholder7Body.enabled = true; } break;
             case NoraBodies.BodPlaceholder8: if (BodPlaceholder8Body != null) { BodPlaceholder8Body.enabled = true; } break;
             case NoraBodies.BodPlaceholder9: if (BodPlaceholder9Body != null) { BodPlaceholder9Body.enabled = true; } break;
-            case NoraBodies.BodPlaceholder10: if (BodPlaceholder10Body != null) { BodPlaceholder10Body.enabled = true; } break;
+            case NoraBodies.BodyForHighHeels: if (BodyForHighHeelsBody != null) { BodyForHighHeelsBody.enabled = true; } break;
             default: if (NormalBody != null) { NormalBody.enabled = true; } break;
         }
     }
@@ -1215,7 +1215,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BodPlaceholder7: if (BodPlaceholder7BodyPreview != null) { BodPlaceholder7BodyPreview.enabled = true; } break;
             case NoraBodies.BodPlaceholder8: if (BodPlaceholder8BodyPreview != null) { BodPlaceholder8BodyPreview.enabled = true; } break;
             case NoraBodies.BodPlaceholder9: if (BodPlaceholder9BodyPreview != null) { BodPlaceholder9BodyPreview.enabled = true; } break;
-            case NoraBodies.BodPlaceholder10: if (BodPlaceholder10BodyPreview != null) { BodPlaceholder10BodyPreview.enabled = true; } break;
+            case NoraBodies.BodyForHighHeels: if (BodyForHighHeelsBodyPreview != null) { BodyForHighHeelsBodyPreview.enabled = true; } break;
             default: if (NormalBodyPreview != null) { NormalBodyPreview.enabled = true; } break;
         }
     }
@@ -1925,7 +1925,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BodPlaceholder7: return BodPlaceholder7Body;
             case NoraBodies.BodPlaceholder8: return BodPlaceholder8Body;
             case NoraBodies.BodPlaceholder9: return BodPlaceholder9Body;
-            case NoraBodies.BodPlaceholder10: return BodPlaceholder10Body;
+            case NoraBodies.BodyForHighHeels: return BodyForHighHeelsBody;
             default: return NormalBody;
         }
     }
@@ -1948,7 +1948,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BodPlaceholder7: return BodPlaceholder7BodyPreview;
             case NoraBodies.BodPlaceholder8: return BodPlaceholder8BodyPreview;
             case NoraBodies.BodPlaceholder9: return BodPlaceholder9BodyPreview;
-            case NoraBodies.BodPlaceholder10: return BodPlaceholder10BodyPreview;
+            case NoraBodies.BodyForHighHeels: return BodyForHighHeelsBodyPreview;
             default: return NormalBodyPreview;
         }
     }
@@ -2353,7 +2353,7 @@ public class NorasWardrobeEditor : Editor
             ("BodPlaceholder8", () => me.SetBody(NoraBodies.BodPlaceholder8)),
             ("BodPlaceholder9", () => me.SetBody(NoraBodies.BodPlaceholder9)));
         DrawButtonRow(me, clearAllStyle,
-            ("BodPlaceholder10", () => me.SetBody(NoraBodies.BodPlaceholder10)));
+            ("BodyForHighHeels", () => me.SetBody(NoraBodies.BodyForHighHeels)));
 
         EditorGUILayout.Space();
         GUI.backgroundColor = new Color(0.6f, 0.8f, 0.85f);
@@ -2802,7 +2802,7 @@ public enum NoraBodies
     BodPlaceholder7,
     BodPlaceholder8,
     BodPlaceholder9,
-    BodPlaceholder10
+    BodyForHighHeels
 }
 
 public enum NoraEyes
@@ -3150,6 +3150,8 @@ public enum OutfitName
     BlackUnderthings,
     WhiteUnderthings,
     RedUnderthings,
-    PinkUnderthings
+    PinkUnderthings,
+    RelaxedDressAndTights,
+    LayeredSweaterAndPleatedSkirt
     
 }

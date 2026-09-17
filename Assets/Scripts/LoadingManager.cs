@@ -34,7 +34,7 @@ public class LoadingManager : MonoBehaviour
     private bool _isLoading;
 
     private bool inSecret;
-
+    
     // scene-load handshake
     private bool _sceneLoadedFlag;
 
@@ -65,12 +65,16 @@ public class LoadingManager : MonoBehaviour
     /// </summary>
     public void LoadLevel(GAMELEVEL levelName, Action onFinished = null)
     {
+        if (GameMaster.Instance.PLAYERBUSY) return;
+        GameMaster.Instance.PLAYERBUSY = true;
+        
+        Player.Instance.StopPlayerAnimation();
         
         Debug.Log("LoadLevel?");
         if (_isLoading) return;
         
         Debug.Log("LoadLevel??");
-        
+
         
         EventManager.DoLoadingSwirl();
         
@@ -94,10 +98,6 @@ public class LoadingManager : MonoBehaviour
         // 3) Load scene (controlled activation)
         yield return ChangeSceneAsync(levelName);
         
-        
-        
-
-
         EventManager.UnDoLoadingSwirl();
         
         
@@ -142,6 +142,9 @@ public class LoadingManager : MonoBehaviour
         }
 
         _fadeCo = StartCoroutine(FadeCanvasGroupTo(targetAlpha, fadeDuration));
+
+        GameMaster.Instance.TravelCompanion.InitialiseLocations();
+
     }
 
     private IEnumerator FadeToAndWait(float targetAlpha)
@@ -342,7 +345,7 @@ public class LoadingManagerEditor : Editor
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("ETV"))          manager.LoadLevel(GAMELEVEL.ETVStudio);
+            if (GUILayout.Button("ETV"))          manager.LoadLevel(GAMELEVEL.ETV);
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();

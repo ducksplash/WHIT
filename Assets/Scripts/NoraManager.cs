@@ -89,7 +89,7 @@ public class NoraManager : MonoBehaviour
 
         switch (GameMaster.Instance.THISLEVEL)
         {
-            case GAMELEVEL.ETVStudio:
+            case GAMELEVEL.ETV:
                 selectedOutfitType = OutfitType.Work;
                 break;
 

@@ -188,7 +188,7 @@ public class TravelCompanion : MonoBehaviour
 
         if (notepadNavver != null) notepadNavver.ResetList();
 
-        AvailableLocations.Add(GAMELEVEL.ETVStudio, "ETV");
+        AvailableLocations.Add(GAMELEVEL.ETV, "ETV");
         AvailableLocations.Add(GAMELEVEL.NorasOldFlat, "Old Flat");
         AvailableLocations.Add(GAMELEVEL.FarsetCentralStation, "Farset Central");
         AvailableLocations.Add(GAMELEVEL.TawleyMeats, "Tawley Meats");
@@ -224,19 +224,19 @@ public class TravelCompanion : MonoBehaviour
             notepadNavver.GridButtons.Add(notebutton);
 
         }
-        
+
+
+        if (GameMaster.Instance.PLAYERBUSY) GameMaster.Instance.PLAYERBUSY = false;
     }
 
     public void ChangeScene(GAMELEVEL sceneName)
     {
-        
-        
-        GameMaster.Instance.PLAYERBUSY = false;
 
-        LaunchCompanion();
+        if (CompanionOpen) LaunchCompanion();
         
         if (GameMaster.Instance.LoadingManager != null)
         {
+            Debug.Log("to: "+sceneName);
             GameMaster.Instance.LoadingManager.LoadLevel(sceneName, onFinished: InitialiseLocations);
         }
         else

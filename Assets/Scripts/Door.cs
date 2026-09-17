@@ -63,7 +63,8 @@ public class Door : MonoBehaviour
                 break;
             case DoorType.InstantTravel:
                 Debug.Log("inst?");
-                GameMaster.Instance.LoadingManager.LoadLevel(DestinationLevel);
+                GameMaster.Instance.TravelCompanion.ChangeScene(DestinationLevel);
+                
                 break;
         }
     }

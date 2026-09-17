@@ -44,7 +44,6 @@ Material:
   - _DISABLE_DECALS
   - _DISABLE_SSR
   - _DISABLE_SSR_TRANSPARENT
-  - _DOUBLESIDED_ON
   - _ENABLE_GEOMETRIC_SPECULAR_AA
   - _MASKMAP
   - _NORMALMAP
@@ -228,8 +227,8 @@ Material:
     - _ClearCoatSmoothness: 0
     - _CoatMask: 0
     - _Cull: 2
-    - _CullMode: 0
-    - _CullModeForward: 0
+    - _CullMode: 2
+    - _CullModeForward: 2
     - _Cutoff: 0
     - _DepthOffsetEnable: 0
     - _DetailAlbedoMapScale: 1
@@ -242,7 +241,7 @@ Material:
     - _DisplacementLockObjectScale: 1
     - _DisplacementLockTilingScale: 1
     - _DisplacementMode: 0
-    - _DoubleSidedEnable: 1
+    - _DoubleSidedEnable: 0
     - _DoubleSidedGIMode: 2
     - _DoubleSidedNormalMode: 2
     - _DstBlend: 0

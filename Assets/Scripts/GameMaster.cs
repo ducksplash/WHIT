@@ -196,7 +196,7 @@ public class GameMaster : MonoBehaviour
             EditorPrefs.DeleteKey("PlayModeStartScene_TargetLevel");
 
             if (Enum.TryParse(targetLevelName, out GAMELEVEL targetLevel) &&
-                targetLevel != GAMELEVEL.ETVStudio)
+                targetLevel != GAMELEVEL.ETV)
             {
                 StartCoroutine(LoadDevelopmentLevelAfterStartup(targetLevel));
             }
@@ -270,7 +270,7 @@ public class GameMaster : MonoBehaviour
     }
 
     // ====================== MAIN LEVEL ROUTER ======================
-    public void StartLevel(GAMELEVEL level = GAMELEVEL.ETVStudio)
+    public void StartLevel(GAMELEVEL level = GAMELEVEL.ETV)
     {
         THISLEVEL = level;
 
@@ -279,7 +279,7 @@ public class GameMaster : MonoBehaviour
 
         switch (level)
         {
-            case GAMELEVEL.ETVStudio:
+            case GAMELEVEL.ETV:
                 StartLevelETV();
                 break;
 
@@ -327,7 +327,7 @@ public class GameMaster : MonoBehaviour
     // ====================== INDIVIDUAL LEVEL STARTS ======================
     public void StartLevelETV()
     {
-        THISLEVEL = GAMELEVEL.ETVStudio;
+        THISLEVEL = GAMELEVEL.ETV;
         Player.Instance.Spawn();
         
         
@@ -502,7 +502,7 @@ public class GameMaster : MonoBehaviour
 
 public enum GAMELEVEL
 {
-    ETVStudio,
+    ETV,
     MainMenu,
     NorasFlat,
     NorasOldFlat,

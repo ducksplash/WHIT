@@ -10111,6 +10111,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d7e700fdf85d9a41b06872c242bc881, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ExitToScene: 2
   maximumRealtimeLights: 1
   maximumEmissiveLights: 0
   gridWidth: 60
@@ -10159,6 +10160,23 @@ MonoBehaviour:
   ambientLightPrefab: {fileID: 3262779377988819627, guid: 24633066c2c73d942972c91e99b77283,
     type: 3}
   ambientLightHeightOffset: 100
+  ObstacleObjects:
+  - {fileID: 11400000, guid: 00744beba94298f479841286f3ef3e82, type: 2}
+  - {fileID: 11400000, guid: dd8cca4c97919554b900b2009ddd4e67, type: 2}
+  - {fileID: 11400000, guid: 5d6d763a61ce89c45bdf566ebe13bed8, type: 2}
+  - {fileID: 11400000, guid: 0f2eb6f3528955c45a5040b3a3c471c7, type: 2}
+  - {fileID: 11400000, guid: 350835dc3290f8a4a9d7537313f30481, type: 2}
+  - {fileID: 11400000, guid: cbb312120d0283a44949102ec358c858, type: 2}
+  - {fileID: 11400000, guid: e233350dc43dd474c8554f5b69770e68, type: 2}
+  - {fileID: 11400000, guid: afc56c0fe9082394b8bbd6abd05a5bbf, type: 2}
+  - {fileID: 11400000, guid: c1cd9acbb2c8b924a80d67311caeaa98, type: 2}
+  - {fileID: 11400000, guid: 41e78c2377f1b424080d28006c5151a5, type: 2}
+  - {fileID: 11400000, guid: 982f76a2dcd608e49a55cfc654a866db, type: 2}
+  - {fileID: 11400000, guid: 3390e795d90ffe74fb467d5619861c32, type: 2}
+  - {fileID: 11400000, guid: aac75556c63480748a132480c750a460, type: 2}
+  - {fileID: 11400000, guid: 4f29df27c8590ab46ad70782f6bd9b08, type: 2}
+  - {fileID: 11400000, guid: f82d4484e1b179d41920606625ff31c8, type: 2}
+  - {fileID: 11400000, guid: 3620b3ab81480144fa426ae1bf92968b, type: 2}
   spawnLoot: 1
   spawnRedTelepads: 1
   spawnBlueTelepads: 1
@@ -10169,6 +10187,15 @@ MonoBehaviour:
   floorTemplates:
   - {fileID: 4900000, guid: cc1fe31bccd80a5448c296f35c430aec, type: 3}
   - {fileID: 4900000, guid: d49a2b5e1349fdd4fa0c6651f05901cc, type: 3}
+  emptyChar: 35
+  floorChar: 95
+  entranceChar: 69
+  exitChar: 88
+  redTelepadChar: 82
+  blueTelepadChar: 66
+  lootChar: 36
+  specialChar: 42
+  holeChar: 33
   lightList: []
   dungeonMask:
     serializedVersion: 2
@@ -10178,6 +10205,7 @@ MonoBehaviour:
   floorTilesCovered: 0
   IsDungeoning: 0
   floorObjects: []
+  Dungeons: []
 --- !u!1 &4686646307874485883
 GameObject:
   m_ObjectHideFlags: 0

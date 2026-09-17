@@ -374,7 +374,7 @@ public class Player : Singleton<Player>
 
         switch (GameMaster.Instance.THISLEVEL)
         {
-            case GAMELEVEL.ETVStudio:
+            case GAMELEVEL.ETV:
                 spawnPoint = GameMaster.Instance.SPAWNPOINTETV;
                 spawnRotation = GameMaster.Instance.SPAWNROTETV;
                 break;
@@ -1934,11 +1934,23 @@ public class Player : Singleton<Player>
         ButtonFaderLeave.blocksRaycasts = false;
     }
 
+
+    public void StopPlayerAnimation()
+    {
+        Noranimator.SetFloat(AnimSpeed, 0f);
+        Noranimator.SetFloat(AnimMoveX, 0f);
+        Noranimator.SetFloat(AnimMoveY, 0f);
+    }
+    
+    
     public void CauseDeath(string cause)
     {
         if (GameMaster.Instance.PauseManager.IsPaused) GameMaster.Instance.PauseManager.UnpauseGame();
         GameMaster.Instance.PLAYERBUSY = true;
         GameMaster.Instance.NoraManager.IsDead = true;
+        
+        StopPlayerAnimation();
+        
         Debug.Log("death caused, player busy: "+GameMaster.Instance.PLAYERBUSY);
         Debug.Log($"[CauseDeath] Writing PLAYERBUSY=true on GameMaster instance {GameMaster.Instance.GetInstanceID()}");
         
@@ -2056,9 +2068,23 @@ public class Player : Singleton<Player>
     }
     
     
-    
-    
-    
+    private void OnTriggerEnter(Collider other)
+    {
+
+
+        if (other.CompareTag("LightningStrike"))
+        {
+            Debug.Log("elekilled");
+            EventManager.KillPlayer();
+        }
+
+        if (other.CompareTag("DeathBlade"))
+        {
+            Debug.Log("DeathBlade");
+            EventManager.KillPlayer();
+        }
+        
+    }
     
     
     private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -2092,6 +2118,8 @@ public class Player : Singleton<Player>
                 if (tile.attachedLight != null) tile.attachedLight.enabled = false;
             }
         }
+        
+        
 
         if (hit.collider.CompareTag("Spikes"))
         {
@@ -2115,7 +2143,6 @@ public class Player : Singleton<Player>
         }
 
 
-        
         
     }
     

@@ -32,6 +32,8 @@ public class DungeonGenerator : MonoBehaviour
     public static DungeonGenerator Instance => _instance;
     public bool IsNavMeshReady { get; private set; }
 
+    public GAMELEVEL ExitToScene = GAMELEVEL.NorasFlat;
+    
     public int maximumRealtimeLights;
     public int maximumEmissiveLights;
     
@@ -69,6 +71,8 @@ public class DungeonGenerator : MonoBehaviour
     public GameObject ambientLightPrefab;
     public float ambientLightHeightOffset = 100f;
 
+    public List<DungeonObstacles> ObstacleObjects = new List<DungeonObstacles>();
+    
     [Header("Spawn Toggles")]
     public bool spawnLoot = true;
     public bool spawnRedTelepads = true;
@@ -78,17 +82,26 @@ public class DungeonGenerator : MonoBehaviour
 
     public bool allowBackwardTravel = true;
 
-
     [Header("Template Generation")]
     public bool createFromTemplate = false;
     public List<TextAsset> floorTemplates;
+
+    [Header("Template Symbol Mapping")]
+    public char emptyChar = '#';
+    public char floorChar = '_';
+    public char entranceChar = 'E';
+    public char exitChar = 'X';
+    public char redTelepadChar = 'R';
+    public char blueTelepadChar = 'B';
+    public char lootChar = '$';
+    public char specialChar = '*';
+    public char holeChar = '!';
     
     public List<Light> lightList;
     
     public LayerMask dungeonMask;
 
     private List<RoomTypeConfig> _roomTypes = null;
-
 
     [Header("Modules")] public SpikeHandler spikeMan;
     
@@ -133,6 +146,10 @@ public class DungeonGenerator : MonoBehaviour
     public List<GameObject> Dungeons;
     private GameObject ambientLightInstance;
 
+    private Dictionary<Vector3Int, DungeonObstacles> obstacleMap = new Dictionary<Vector3Int, DungeonObstacles>();
+    private Dictionary<char, DungeonObstacles> obstacleCharMap = new Dictionary<char, DungeonObstacles>();
+    private List<MazeDoor> spawnedDoors = new List<MazeDoor>();
+
     public CellType[,,] GetGrid() => grid;
 
     void Awake()
@@ -143,6 +160,7 @@ public class DungeonGenerator : MonoBehaviour
             return;
         }
         _instance = this;
+        
         Dungeons = new List<GameObject>();
         floorObjects = new List<GameObject>();
         enemyTiles = new List<Vector3Int>();
@@ -150,6 +168,9 @@ public class DungeonGenerator : MonoBehaviour
         redPads = new List<Vector3Int>();
         bluePads = new List<Vector3Int>();
         telepadLinks = new List<(Vector3Int redPad, Vector3Int bluePad)>();
+        obstacleMap = new Dictionary<Vector3Int, DungeonObstacles>();
+        obstacleCharMap = new Dictionary<char, DungeonObstacles>();
+        spawnedDoors = new List<MazeDoor>();
         IsNavMeshReady = false;
 
         if (_roomTypes == null)
@@ -216,6 +237,7 @@ public class DungeonGenerator : MonoBehaviour
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
             IsNavMeshReady = false;
+            ClearSelectionIfChildSelected();
             foreach (var floorObj in floorObjects)
             {
                 if (floorObj != null) DestroyImmediate(floorObj);
@@ -230,6 +252,7 @@ public class DungeonGenerator : MonoBehaviour
             bluePads = new List<Vector3Int>();
             spawnableObjectTiles = new List<Vector3Int>();
             enemyTiles = new List<Vector3Int>();
+            obstacleMap.Clear();
             for (int z = 0; z < floorCount; z++)
             {
                 floorCells[z] = new List<Vector2Int>();
@@ -249,19 +272,17 @@ public class DungeonGenerator : MonoBehaviour
             }
 
             PlaceSpecialTiles();
+            PlaceObstacles();
             BuildTelepadLinks();
             if (ValidateDungeonPath())
             {
                 PlaceCubes();
-                SpawnAmbientLight();
                 StartCoroutine(BuildNavMeshAsync());
                 return;
             }
             
             
-            //Debug.Log($"Dungeon generation attempt {attempt + 1} failed. Retrying...");
         }
-        //Debug.LogError("Failed to generate a valid dungeon after maximum attempts.");
     }
 
     void GenerateDungeonFromTemplate()
@@ -272,6 +293,7 @@ public class DungeonGenerator : MonoBehaviour
         }
 
         IsNavMeshReady = false;
+        ClearSelectionIfChildSelected();
         foreach (var floorObj in floorObjects)
         {
             if (floorObj != null) DestroyImmediate(floorObj);
@@ -279,6 +301,18 @@ public class DungeonGenerator : MonoBehaviour
         floorObjects.Clear();
 
         floorCount = floorTemplates.Count;
+
+        obstacleMap.Clear();
+        obstacleCharMap.Clear();
+        foreach (var obstacle in ObstacleObjects)
+        {
+            if (obstacle == null || string.IsNullOrEmpty(obstacle.TemplateMappedCharacter)) continue;
+            char symbolChar = obstacle.TemplateMappedCharacter[0];
+            if (!obstacleCharMap.ContainsKey(symbolChar))
+            {
+                obstacleCharMap[symbolChar] = obstacle;
+            }
+        }
 
         List<string[]> parsedFloors = new List<string[]>();
         int templateWidth = 0;
@@ -334,10 +368,11 @@ public class DungeonGenerator : MonoBehaviour
             {
                 string line = y < lines.Length ? lines[y] : string.Empty;
 
-                for (int x = 0; x < gridWidth; x++)
+                for (int col = 0; col < gridWidth; col++)
                 {
-                    char symbol = x < line.Length ? line[x] : '#';
-                    ApplyTemplateSymbol(symbol, x, y, z);
+                    char symbol = col < line.Length ? line[col] : emptyChar;
+                    int gridX = gridWidth - 1 - col;
+                    ApplyTemplateSymbol(symbol, gridX, y, z);
                 }
             }
         }
@@ -345,104 +380,125 @@ public class DungeonGenerator : MonoBehaviour
         BuildTelepadLinks();
         ValidateDungeonPath();
         PlaceCubes();
-        SpawnAmbientLight();
         StartCoroutine(BuildNavMeshAsync());
     }
 
     void ApplyTemplateSymbol(char symbol, int x, int y, int z)
     {
-        switch (symbol)
+        Vector3Int pos = new Vector3Int(x, y, z);
+
+        if (symbol == emptyChar)
         {
-            case '#':
-            case '0':
-                grid[x, y, z] = CellType.Empty;
-                break;
-
-            case '_':
-                grid[x, y, z] = CellType.Floor;
-                floorCells[z].Add(new Vector2Int(x, y));
-                break;
-
-            case 'E':
-                grid[x, y, z] = CellType.Entrance;
-                floorCells[z].Add(new Vector2Int(x, y));
-                entrancePos = new Vector3Int(x, y, z);
-                spawnPos = entrancePos;
-                break;
-
-            case 'X':
-                grid[x, y, z] = CellType.Exit;
-                floorCells[z].Add(new Vector2Int(x, y));
-                exitPos = new Vector3Int(x, y, z);
-                break;
-
-            case 'R':
-                if (spawnRedTelepads && z != floorCount - 1)
-                {
-                    grid[x, y, z] = CellType.RedTelepad;
-                    redPads.Add(new Vector3Int(x, y, z));
-                }
-                else
-                {
-                    grid[x, y, z] = CellType.Floor;
-                }
-                floorCells[z].Add(new Vector2Int(x, y));
-                break;
-
-            case 'B':
-                if (spawnBlueTelepads && z != 0)
-                {
-                    grid[x, y, z] = CellType.BlueTelepad;
-                    bluePads.Add(new Vector3Int(x, y, z));
-                }
-                else
-                {
-                    grid[x, y, z] = CellType.Floor;
-                }
-                floorCells[z].Add(new Vector2Int(x, y));
-                break;
-
-            case '$':
-                if (spawnLoot)
-                {
-                    grid[x, y, z] = CellType.SpawnableObject;
-                    spawnableObjectTiles.Add(new Vector3Int(x, y, z));
-                }
-                else
-                {
-                    grid[x, y, z] = CellType.Floor;
-                }
-                floorCells[z].Add(new Vector2Int(x, y));
-                break;
-
-            case '*':
-                if (spawnSpecialTiles)
-                {
-                    grid[x, y, z] = CellType.Special;
-                }
-                else
-                {
-                    grid[x, y, z] = CellType.Floor;
-                }
-                floorCells[z].Add(new Vector2Int(x, y));
-                break;
-
-            case '!':
-                if (spawnHoles)
-                {
-                    grid[x, y, z] = CellType.Hole;
-                }
-                else
-                {
-                    grid[x, y, z] = CellType.Floor;
-                }
-                floorCells[z].Add(new Vector2Int(x, y));
-                break;
-
-            default:
-                grid[x, y, z] = CellType.Empty;
-                break;
+            grid[x, y, z] = CellType.Empty;
+            return;
         }
+
+        if (symbol == floorChar)
+        {
+            grid[x, y, z] = CellType.Floor;
+            floorCells[z].Add(new Vector2Int(x, y));
+            return;
+        }
+
+        if (symbol == entranceChar)
+        {
+            grid[x, y, z] = CellType.Entrance;
+            floorCells[z].Add(new Vector2Int(x, y));
+            entrancePos = pos;
+            spawnPos = entrancePos;
+            return;
+        }
+
+        if (symbol == exitChar)
+        {
+            grid[x, y, z] = CellType.Exit;
+            floorCells[z].Add(new Vector2Int(x, y));
+            exitPos = pos;
+            return;
+        }
+
+        if (symbol == redTelepadChar)
+        {
+            if (spawnRedTelepads && z != floorCount - 1)
+            {
+                grid[x, y, z] = CellType.RedTelepad;
+                redPads.Add(pos);
+            }
+            else
+            {
+                grid[x, y, z] = CellType.Floor;
+            }
+            floorCells[z].Add(new Vector2Int(x, y));
+            return;
+        }
+
+        if (symbol == blueTelepadChar)
+        {
+            if (spawnBlueTelepads && z != 0)
+            {
+                grid[x, y, z] = CellType.BlueTelepad;
+                bluePads.Add(pos);
+            }
+            else
+            {
+                grid[x, y, z] = CellType.Floor;
+            }
+            floorCells[z].Add(new Vector2Int(x, y));
+            return;
+        }
+
+        if (symbol == lootChar)
+        {
+            if (spawnLoot)
+            {
+                grid[x, y, z] = CellType.SpawnableObject;
+                spawnableObjectTiles.Add(pos);
+            }
+            else
+            {
+                grid[x, y, z] = CellType.Floor;
+            }
+            floorCells[z].Add(new Vector2Int(x, y));
+            return;
+        }
+
+        if (symbol == specialChar)
+        {
+            if (spawnSpecialTiles)
+            {
+                grid[x, y, z] = CellType.Special;
+            }
+            else
+            {
+                grid[x, y, z] = CellType.Floor;
+            }
+            floorCells[z].Add(new Vector2Int(x, y));
+            return;
+        }
+
+        if (symbol == holeChar)
+        {
+            if (spawnHoles)
+            {
+                grid[x, y, z] = CellType.Hole;
+            }
+            else
+            {
+                grid[x, y, z] = CellType.Floor;
+            }
+            floorCells[z].Add(new Vector2Int(x, y));
+            return;
+        }
+
+        if (obstacleCharMap.TryGetValue(symbol, out DungeonObstacles obstacleConfig))
+        {
+            grid[x, y, z] = CellType.Floor;
+            floorCells[z].Add(new Vector2Int(x, y));
+            obstacleMap[pos] = obstacleConfig;
+            return;
+        }
+
+        grid[x, y, z] = CellType.Empty;
     }
 
     void SpawnAmbientLight()
@@ -1112,8 +1168,144 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
+    void PlaceObstacles()
+    {
+        obstacleMap.Clear();
+        if (ObstacleObjects == null || ObstacleObjects.Count == 0) return;
+
+        for (int z = 0; z < floorCount; z++)
+        {
+            if (floorCells[z].Count == 0) continue;
+
+            List<List<Vector2Int>> components = FindConnectedComponents(z);
+            if (components.Count == 0) continue;
+            List<Vector2Int> mainComponent = components.OrderByDescending(c => c.Count).First();
+
+            foreach (var obstacle in ObstacleObjects)
+            {
+                if (obstacle == null || obstacle.ObstaclePrefab == null) continue;
+
+                int minCount = Mathf.Max(0, Mathf.RoundToInt(obstacle.MinContiguous));
+                int maxCount = Mathf.Max(minCount, Mathf.RoundToInt(obstacle.MaxContiguous));
+                int clusterSize = Random.Range(minCount, maxCount + 1);
+                if (clusterSize <= 0) continue;
+
+                for (int attempt = 0; attempt < 20; attempt++)
+                {
+                    Vector2Int seed = mainComponent[Random.Range(0, mainComponent.Count)];
+                    Vector3Int seedPos = new Vector3Int(seed.x, seed.y, z);
+                    if (!IsValidObstacleTile(seedPos)) continue;
+
+                    List<Vector3Int> cluster = GrowContiguousCluster(seedPos, z, clusterSize);
+                    if (cluster.Count == 0) continue;
+
+                    foreach (var pos in cluster)
+                    {
+                        obstacleMap[pos] = obstacle;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    bool IsValidObstacleTile(Vector3Int pos)
+    {
+        if (!IsInBounds(new Vector2Int(pos.x, pos.y))) return false;
+        if (grid[pos.x, pos.y, pos.z] != CellType.Floor) return false;
+        if (pos == entrancePos || pos == exitPos) return false;
+        if (obstacleMap.ContainsKey(pos)) return false;
+        if (spawnableObjectTiles.Contains(pos)) return false;
+        if (enemyTiles.Contains(pos)) return false;
+        return true;
+    }
+
+    List<Vector3Int> GrowContiguousCluster(Vector3Int seed, int floor, int targetSize)
+    {
+        List<Vector3Int> cluster = new List<Vector3Int>();
+        HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
+        Queue<Vector3Int> frontier = new Queue<Vector3Int>();
+        frontier.Enqueue(seed);
+        visited.Add(seed);
+
+        int[] dx = { 0, 1, 0, -1 };
+        int[] dy = { 1, 0, -1, 0 };
+
+        while (frontier.Count > 0 && cluster.Count < targetSize)
+        {
+            Vector3Int current = frontier.Dequeue();
+            if (!IsValidObstacleTile(current)) continue;
+            cluster.Add(current);
+
+            List<Vector3Int> neighbors = new List<Vector3Int>();
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2Int n2 = new Vector2Int(current.x + dx[i], current.y + dy[i]);
+                if (!IsInBounds(n2)) continue;
+                Vector3Int n = new Vector3Int(n2.x, n2.y, floor);
+                if (!visited.Contains(n))
+                {
+                    neighbors.Add(n);
+                }
+            }
+
+            for (int i = 0; i < neighbors.Count; i++)
+            {
+                int r = Random.Range(i, neighbors.Count);
+                Vector3Int temp = neighbors[i];
+                neighbors[i] = neighbors[r];
+                neighbors[r] = temp;
+            }
+
+            foreach (var n in neighbors)
+            {
+                visited.Add(n);
+                frontier.Enqueue(n);
+            }
+        }
+
+        return cluster;
+    }
+
+    GameObject SpawnObstacleAt(Vector3Int pos, DungeonObstacles obstacle, Transform parent, float floorY)
+    {
+        if (obstacle == null || obstacle.ObstaclePrefab == null) return null;
+
+        float baseY = obstacle.ObstaclePlace == ObstaclePlace.Ceiling
+            ? floorY + ceilingHeight - 0.1f
+            : floorY + 0.05f;
+
+        Vector3 basePos = new Vector3(pos.x * cellSize, baseY, pos.y * cellSize);
+        Vector3 spawnPosition = basePos + new Vector3(0f, obstacle.ObjectYOffset, 0f);
+        GameObject obstacleObj = Instantiate(obstacle.ObstaclePrefab, spawnPosition, Quaternion.identity, parent);
+        obstacleObj.name = $"{obstacle.ObstacleType}_{pos.x}_{pos.y}_F{pos.z}";
+        return obstacleObj;
+    }
+
+    void RegisterIfDoor(GameObject obstacleObj)
+    {
+        if (obstacleObj == null) return;
+        MazeDoor door = obstacleObj.GetComponent<MazeDoor>();
+        if (door != null)
+        {
+            spawnedDoors.Add(door);
+        }
+    }
+
+    void ClearSelectionIfChildSelected()
+    {
+#if UNITY_EDITOR
+        Transform selected = Selection.activeTransform;
+        if (selected != null && (selected == transform || selected.IsChildOf(transform)))
+        {
+            Selection.activeObject = null;
+        }
+#endif
+    }
+
     void PlaceCubes()
     {
+        ClearSelectionIfChildSelected();
         foreach (Transform child in transform)
         {
 #if UNITY_EDITOR
@@ -1124,6 +1316,7 @@ public class DungeonGenerator : MonoBehaviour
         }
 
         floorObjects.Clear();
+        spawnedDoors.Clear();
 
         for (int z = 0; z < floorCount; z++)
         {
@@ -1138,8 +1331,10 @@ public class DungeonGenerator : MonoBehaviour
                 for (int y = 0; y < gridHeight; y++)
                 {
                     CellType cell = grid[x, y, z];
+                    Vector3Int cellPos = new Vector3Int(x, y, z);
                     Vector3 floorPos = new Vector3(x * cellSize, floorY + 0.05f, y * cellSize);
                     GameObject floorObj = null;
+                    obstacleMap.TryGetValue(cellPos, out DungeonObstacles obstacleConfig);
                     string objName = cell == CellType.Spawn ? $"Spawn_{x}_{y}_F{z}" :
                         cell == CellType.RedTelepad ? $"RedTelepad_{x}_{y}_F{z}" :
                         cell == CellType.BlueTelepad ? $"BlueTelepad_{x}_{y}_F{z}" :
@@ -1153,16 +1348,29 @@ public class DungeonGenerator : MonoBehaviour
 
                     if (cell == CellType.Floor)
                     {
-                        if (floorPrefab == null)
+                        bool knockoutFloor = obstacleConfig != null &&
+                                              obstacleConfig.ObstaclePlace == ObstaclePlace.Floor &&
+                                              obstacleConfig.KnockoutPreordainedTile;
+
+                        if (!knockoutFloor)
                         {
-                            grid[x, y, z] = CellType.Empty;
-                            continue;
+                            if (floorPrefab == null)
+                            {
+                                grid[x, y, z] = CellType.Empty;
+                                continue;
+                            }
+
+                            floorObj = Instantiate(floorPrefab, floorPos, Quaternion.identity, floorParent.transform);
+                            floorTilesCount++;
+                            floorObj.name = floorTilesCount.ToString();
+                            floorObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
                         }
 
-                        floorObj = Instantiate(floorPrefab, floorPos, Quaternion.identity, floorParent.transform);
-                        floorTilesCount++;
-                        floorObj.name = floorTilesCount.ToString();
-                        floorObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
+                        if (obstacleConfig != null && obstacleConfig.ObstaclePlace == ObstaclePlace.Floor)
+                        {
+                            GameObject spawnedObstacle = SpawnObstacleAt(cellPos, obstacleConfig, floorParent.transform, floorY);
+                            RegisterIfDoor(spawnedObstacle);
+                        }
                     }
                     else if (cell == CellType.Entrance || cell == CellType.Spawn)
                     {
@@ -1282,7 +1490,6 @@ public class DungeonGenerator : MonoBehaviour
                     {
                         if (holePrefab == null)
                         {
-                            //Debug.LogError($"Missing holePrefab for cell at ({x}, {y}, {z}), skipping");
                             continue;
                         }
 
@@ -1297,7 +1504,7 @@ public class DungeonGenerator : MonoBehaviour
                         }
 
                         modifier.overrideArea = true;
-                        modifier.area = 1; // Not Walkable
+                        modifier.area = 1;
                         continue;
                     }
                     else if (cell == CellType.Special)
@@ -1388,24 +1595,35 @@ public class DungeonGenerator : MonoBehaviour
 
                     if (cell != CellType.Hole && cell != CellType.Empty)
                     {
-                        Vector3 ceilingPos = new Vector3(x * cellSize, floorY + ceilingHeight - 0.1f, y * cellSize);
                         if (ceilingPrefab == null)
                         {
                             continue;
                         }
 
-                        GameObject ceilingObj = Instantiate(ceilingPrefab, ceilingPos, Quaternion.identity, transform);
-                        ceilingObj.name = $"Ceiling_{x}_{y}_F{z}";
-                        ceilingObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
-                        ceilingObj.layer = LayerMask.NameToLayer("solid");
+                        bool knockoutCeiling = obstacleConfig != null &&
+                                               obstacleConfig.ObstaclePlace == ObstaclePlace.Ceiling &&
+                                               obstacleConfig.KnockoutPreordainedTile;
+
+                        if (!knockoutCeiling)
+                        {
+                            Vector3 ceilingPos = new Vector3(x * cellSize, floorY + ceilingHeight - 0.1f, y * cellSize);
+                            GameObject ceilingObj = Instantiate(ceilingPrefab, ceilingPos, Quaternion.identity, transform);
+                            ceilingObj.name = $"Ceiling_{x}_{y}_F{z}";
+                            ceilingObj.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
+                            ceilingObj.layer = LayerMask.NameToLayer("solid");
+                        }
+
+                        if (obstacleConfig != null && obstacleConfig.ObstaclePlace == ObstaclePlace.Ceiling)
+                        {
+                            GameObject spawnedObstacle = SpawnObstacleAt(cellPos, obstacleConfig, transform, floorY);
+                            RegisterIfDoor(spawnedObstacle);
+                        }
 
                         int[] dx = { 0, 1, 0, -1 };
                         int[] dy = { 1, 0, -1, 0 };
                         for (int i = 0; i < 4; i++)
                         {
                             Vector2Int neighbor = new Vector2Int(x + dx[i], y + dy[i]);
-                            // FIXED: only Empty (or out-of-bounds) should force a wall.
-                            // Holes must NOT force walls.
                             if (!IsInBounds(neighbor) || grid[neighbor.x, neighbor.y, z] == CellType.Empty)
                             {
                                 Vector3 wallPos = new Vector3(x * cellSize, floorY + wallHeight / 2 + 0.05f, y * cellSize);
@@ -1453,6 +1671,128 @@ public class DungeonGenerator : MonoBehaviour
                 }
             }
         }
+
+        ConfigureDoors();
+    }
+
+    void ConfigureDoors()
+    {
+        List<MazeDoor> internalDoors = spawnedDoors.Where(d => d != null && !d.ExitDoor).ToList();
+        if (internalDoors.Count == 0) return;
+
+        List<DoorCode> availableColors = Enum.GetValues(typeof(DoorCode)).Cast<DoorCode>().Where(c => c != DoorCode.None).ToList();
+        HashSet<DoorCode> usedColors = new HashSet<DoorCode>();
+
+        foreach (var door in internalDoors)
+        {
+            List<DoorCode> remaining = availableColors.Where(c => !usedColors.Contains(c)).ToList();
+            DoorCode chosen = remaining.Count > 0
+                ? remaining[Random.Range(0, remaining.Count)]
+                : availableColors[Random.Range(0, availableColors.Count)];
+
+            usedColors.Add(chosen);
+            door.ThisDoorCode = chosen;
+            ApplyDoorColor(door, chosen);
+        }
+
+        List<MazeDoor> shuffled = new List<MazeDoor>(internalDoors);
+        for (int i = shuffled.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            MazeDoor temp = shuffled[i];
+            shuffled[i] = shuffled[j];
+            shuffled[j] = temp;
+        }
+
+        List<DoorCode> usedTargets = new List<DoorCode>();
+        int pairCount = shuffled.Count / 2;
+        for (int i = 0; i < pairCount; i++)
+        {
+            MazeDoor doorA = shuffled[i * 2];
+            MazeDoor doorB = shuffled[i * 2 + 1];
+
+            doorA.TargetDoorCode = doorB.ThisDoorCode;
+            doorA.TargetCoordinates = doorB.transform.position;
+
+            doorB.TargetDoorCode = doorA.ThisDoorCode;
+            doorB.TargetCoordinates = doorA.transform.position;
+
+            usedTargets.Add(doorA.ThisDoorCode);
+            usedTargets.Add(doorB.ThisDoorCode);
+        }
+
+        if (shuffled.Count % 2 != 0)
+        {
+            MazeDoor leftover = shuffled[shuffled.Count - 1];
+            List<DoorCode> reusablePool = usedTargets.Where(c => c != leftover.ThisDoorCode).ToList();
+            if (reusablePool.Count > 0)
+            {
+                DoorCode reused = reusablePool[Random.Range(0, reusablePool.Count)];
+                leftover.TargetDoorCode = reused;
+                MazeDoor targetDoor = internalDoors.Find(d => d.ThisDoorCode == reused);
+                if (targetDoor != null)
+                {
+                    leftover.TargetCoordinates = targetDoor.transform.position;
+                }
+            }
+        }
+    }
+
+    void ApplyDoorColor(MazeDoor door, DoorCode code)
+    {
+        if (door.DoorMeshRenderer == null) return;
+
+        Color color = GetColorForDoorCode(code);
+
+        if (door.DoorLight != null)
+        {
+            door.DoorLight.color = color;
+        }
+        
+        Material[] mats = door.DoorMeshRenderer.materials;
+        foreach (var mat in mats)
+        {
+            if (mat.HasProperty("_BaseColor"))
+            {
+                mat.SetColor("_BaseColor", color);
+            }
+            if (mat.HasProperty("_Color"))
+            {
+                mat.SetColor("_Color", color);
+            }
+        }
+        door.DoorMeshRenderer.materials = mats;
+        
+        Material[] lightmats = door.DoorLightMeshRenderer.materials;
+        foreach (var lightmat in lightmats)
+        {
+            if (lightmat.HasProperty("_BaseColor"))
+            {
+                lightmat.SetColor("_BaseColor", color);
+            }
+            if (lightmat.HasProperty("_Color"))
+            {
+                lightmat.SetColor("_Color", color);
+            }
+
+            if (lightmat.HasProperty("_EmissiveColor"))
+            {
+                lightmat.SetColor("_EmissiveColor", color * 20f);
+                lightmat.EnableKeyword("_EMISSIVE_COLOR");
+                lightmat.EnableKeyword("_EMISSION");
+            }
+        }
+        door.DoorMeshRenderer.materials = mats;
+    }
+
+    static Color GetColorForDoorCode(DoorCode code)
+    {
+        if (code == DoorCode.None) return Color.white;
+        if (ColorUtility.TryParseHtmlString(code.ToString(), out Color parsed)) return parsed;
+
+        int hash = code.ToString().GetHashCode();
+        System.Random rand = new System.Random(hash);
+        return new Color((float)rand.NextDouble(), (float)rand.NextDouble(), (float)rand.NextDouble());
     }
 
     bool IsInRoom(Vector2Int pos, Vector2Int center, Vector2Int dimensions)
@@ -1723,8 +2063,13 @@ public class DungeonGeneratorEditor : Editor
         EditorGUILayout.Space();
         if (GUILayout.Button("Regenerate Dungeon"))
         {
-            generator.GenerateDungeon();
-            EditorUtility.SetDirty(generator);
+            Selection.activeObject = generator.gameObject;
+            EditorApplication.delayCall += () =>
+            {
+                if (generator == null) return;
+                generator.GenerateDungeon();
+                EditorUtility.SetDirty(generator);
+            };
         }
         if (GUI.changed)
         {
@@ -1747,3 +2092,35 @@ public class SpawnableObject : MonoBehaviour
 
 
 public enum CellType { Empty, Floor, Entrance, Exit, RedTelepad, BlueTelepad, Spawn, SpawnableObject, Enemy, Hole, Special }
+
+public enum ObstacleType { Workbench, BladeBench, IronBars, RedBarrel, YellowBarrel, Bin, Drainaway, FloorBlade, DoorNorth, DoorEast, DoorWest, DoorSouth, DoorExitNorth, DoorExitEast, DoorExitWest, DoorExitSouth  }
+
+public enum ObstaclePlace { Floor, Ceiling }
+
+public enum DoorCode
+{
+    None,
+    Red,
+    Orange,
+    Yellow,
+    Limegreen,
+    Green,
+    Springgreen,
+    Turquoise,
+    Cyan,
+    Teal,
+    Skyblue,
+    Blue,
+    Royalblue,
+    Purple,
+    Violet,
+    Magenta,
+    Pink,
+    Hotpink,
+    Coral,
+    Salmon,
+    Gold,
+    Aquamarine,
+    Seagreen,
+    Chartreuse
+}

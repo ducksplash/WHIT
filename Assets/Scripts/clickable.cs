@@ -240,9 +240,21 @@ public class clickable : Singleton<clickable>
 
         if (layer == doorlayer || layer == slidingdoorlayer)
         {
-            var door = target.GetComponentInParent<Door>();
-            bool locked = door != null && door.isLocked;
-            SetCursor(locked ? lockeddoorsprite : doorspritegreen, locked ? "locked" : "", locked ? "red" : "white");
+
+            if (target.CompareTag("MazeDoor"))
+            {
+                SetCursor(doorspritegreen, "", "white");
+                Debug.Log("maze door");
+            }
+            else
+            {
+                var door = target.GetComponentInParent<Door>();
+                bool locked = door != null && door.isLocked;
+                SetCursor(locked ? lockeddoorsprite : doorspritegreen, locked ? "locked" : "", locked ? "red" : "white");
+            }
+            
+            
+            
             return;
         }
 
@@ -369,11 +381,18 @@ public class clickable : Singleton<clickable>
             drawer.Interact();
             return;
         }
-
+        
         if (currentHit.transform.GetComponentInParent<Door>() is Door door)
         {
             Debug.Log("door clicked");
             door.TryUseDoor(currentHit.collider);
+            return;
+        }
+        
+        if (currentHit.transform.GetComponentInParent<MazeDoor>() is MazeDoor mazeDoor)
+        {
+            Debug.Log("maze door clicked");
+            mazeDoor.UseMazeDoor();
             return;
         }
 

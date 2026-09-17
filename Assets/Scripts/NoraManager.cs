@@ -46,6 +46,7 @@ public class NoraManager : MonoBehaviour
 
     public void KillPlayer()
     {
+        if (GameMaster.Instance.PLAYERBUSY) return;
         Player.Instance.CauseDeath("TESTING");
     }
 

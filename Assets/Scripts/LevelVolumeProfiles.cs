@@ -54,6 +54,7 @@ public class LevelVolumeProfiles : MonoBehaviour
         if (fog == null) return;
 
         bool enableFog = false;
+        
         Color fogColor = Color.clear;
         
         

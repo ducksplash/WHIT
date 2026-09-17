@@ -2093,7 +2093,7 @@ public class SpawnableObject : MonoBehaviour
 
 public enum CellType { Empty, Floor, Entrance, Exit, RedTelepad, BlueTelepad, Spawn, SpawnableObject, Enemy, Hole, Special }
 
-public enum ObstacleType { Workbench, BladeBench, IronBars, RedBarrel, YellowBarrel, Bin, Drainaway, FloorBlade, DoorNorth, DoorEast, DoorWest, DoorSouth, DoorExitNorth, DoorExitEast, DoorExitWest, DoorExitSouth  }
+public enum ObstacleType { Workbench, BladeBench, IronBars, RedBarrel, YellowBarrel, Bin, Drainaway, FloorBlade, DoorNorth, DoorEast, DoorWest, DoorSouth, DoorExitNorth, DoorExitEast, DoorExitWest, DoorExitSouth, Lightning  }
 
 public enum ObstaclePlace { Floor, Ceiling }
 

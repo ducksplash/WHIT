@@ -139,8 +139,8 @@ MonoBehaviour:
   m_AreaLightCookie: {fileID: 0}
   m_IESPoint: {fileID: 0}
   m_IESSpot: {fileID: 0}
-  m_IncludeForRayTracing: 1
-  m_IncludeForPathTracing: 1
+  m_IncludeForRayTracing: 0
+  m_IncludeForPathTracing: 0
   m_AreaLightShadowCone: 120
   m_UseScreenSpaceShadows: 0
   m_InteractsWithSky: 1
@@ -230,7 +230,7 @@ MonoBehaviour:
   m_ShadowVariant: 0
   m_ShadowPrecision: 0
   useOldInspector: 0
-  useVolumetric: 1
+  useVolumetric: 0
   featuresFoldout: 1
   m_AreaLightEmissiveMeshShadowCastingMode: 0
   m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
@@ -318,11 +318,27 @@ PrefabInstance:
       propertyPath: m_Name
       value: stripLight
       objectReference: {fileID: 0}
+    - target: {fileID: 5879138628072105363, guid: 2e79c9413d89b6749a4c7570854f2fab,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -3789605430817886295, guid: 9fbe5f28c63774449bcd0eb1f41de57d,
+        type: 3}
+    - target: {fileID: 5994300600109422350, guid: 2e79c9413d89b6749a4c7570854f2fab,
+        type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5994300600109422350, guid: 2e79c9413d89b6749a4c7570854f2fab,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 8bf4194f01674244d98ba01b0f3bf309, type: 2}
     - target: {fileID: 5994300600109422350, guid: 2e79c9413d89b6749a4c7570854f2fab,
         type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
-      objectReference: {fileID: 2100000, guid: a44820e830aee25499e1118fff8ce304, type: 2}
+      objectReference: {fileID: 2100000, guid: efaf7f8ab017f81458ad5a991f3f9717, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -364,7 +380,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1002772bd9f1b8e4faffd76ac10d78b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  percentChanceToDisable: 75
+  percentChanceToDisable: 85
 --- !u!65 &926385670017908399
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -457,6 +473,11 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: ef734ff7740f06f4a9e9a93a50a1c4da,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: ef734ff7740f06f4a9e9a93a50a1c4da,
+        type: 3}
+      propertyPath: m_CastShadows
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: ef734ff7740f06f4a9e9a93a50a1c4da,

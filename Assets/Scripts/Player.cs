@@ -2034,19 +2034,23 @@ public class Player : Singleton<Player>
     private IEnumerator SlowRespawn()
     {
         DisableAllScreens();
-        
-        
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
         yield return new WaitForSeconds(0.5f);
-        
+
         DeathScreenFader.alpha = DiedTextFader.alpha = PaperScreenFader.alpha = 0f;
-        
+
         GameMaster.Instance.LoadingManager.SceneFadeIn();
-        
+
         Uncrouch();
         Spawn();
+
+        CrossHair.alpha = 1f;
+        CrouchIndicator.alpha = 1f;
+        TorchIndicator.alpha = 1f;
+        EvidenceCompanion.alpha = 1f;
     }
     
 

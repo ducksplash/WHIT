@@ -61,12 +61,13 @@ Shader "Custom/OutsideTheWindowShader"
         _LightningTex1 ("Lightning Texture 1", 2D) = "white" {}
         _LightningTex2 ("Lightning Texture 2", 2D) = "white" {}
         _LightningTex3 ("Lightning Texture 3", 2D) = "white" {}
+
+        [Toggle] _ReceiveFog ("Receive Fog", Float) = 1
     }
 
     SubShader
     {
-        // Normal transparent behaviour – depth testing restored
-        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
+        Tags { "Queue"="Transparent" "RenderType"="Transparent" "RenderPipeline"="HDRenderPipeline" }
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
         Cull Off
@@ -76,7 +77,11 @@ Shader "Custom/OutsideTheWindowShader"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #include "UnityCG.cginc"
+            #pragma target 4.5
+
+            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderVariables.hlsl"
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/AtmosphericScattering/AtmosphericScattering.hlsl"
 
             struct appdata
             {
@@ -87,50 +92,58 @@ Shader "Custom/OutsideTheWindowShader"
             struct v2f
             {
                 float4 positionCS : SV_POSITION;
-                float3 worldDir   : TEXCOORD0;
+                float3 worldPos   : TEXCOORD0;
                 float2 uv         : TEXCOORD1;
             };
 
-            samplerCUBE _CubeTex;
+            TEXTURECUBE(_CubeTex);
+            SAMPLER(sampler_CubeTex);
             sampler2D   _OverlayTex;
             sampler2D   _RainTex;
             sampler2D   _LightningTex0, _LightningTex1, _LightningTex2, _LightningTex3;
 
-            float4 _TintColor;
+            CBUFFER_START(UnityPerMaterial)
+                float4 _TintColor;
 
-            float  _OverlayEnabled;
-            float4 _OverlayTint, _OverlayTiling;
-            float  _OverlayStrength;
+                float  _OverlayEnabled;
+                float4 _OverlayTint;
+                float4 _OverlayTiling;
+                float  _OverlayStrength;
 
-            float  _RainEnabled;
-            float4 _RainTint, _RainTiling;
-            float  _RainSpeed, _RainStrength;
-            float  _RainFront, _RainBack, _RainLeft, _RainRight, _RainTop, _RainBottom;
-            float  _TopRainDensity, _TopRainSpeed, _TopRainSize, _TopRainVariation;
+                float  _RainEnabled;
+                float4 _RainTint;
+                float4 _RainTiling;
+                float  _RainSpeed;
+                float  _RainStrength;
+                float  _RainFront, _RainBack, _RainLeft, _RainRight, _RainTop, _RainBottom;
+                float  _TopRainDensity, _TopRainSpeed, _TopRainSize, _TopRainVariation;
 
-            float  _GlowEnabled;
-            float4 _GlowColor;
-            float  _GlowStrength, _GlowSpeed;
+                float  _GlowEnabled;
+                float4 _GlowColor;
+                float  _GlowStrength, _GlowSpeed;
 
-            float  _EmissionEnabled;
-            float4 _EmissionColor;
-            float  _EmissionStrength;
+                float  _EmissionEnabled;
+                float4 _EmissionColor;
+                float  _EmissionStrength;
 
-            float  _FresnelEnabled;
-            float  _Smoothness, _Metallic;
+                float  _FresnelEnabled;
+                float  _Smoothness, _Metallic;
 
-            float  _MovementEnabled;
-            float  _MovementSpeed;
-            float4 _MovementDirection;
+                float  _MovementEnabled;
+                float  _MovementSpeed;
+                float4 _MovementDirection;
 
-            float  _LightningEnabled;
-            float4 _LightningForeground;
-            float  _LightningMinTime, _LightningMaxTime, _LightningStrength;
-            float4 _LightningTiling;
+                float  _LightningEnabled;
+                float4 _LightningForeground;
+                float  _LightningMinTime, _LightningMaxTime;
+                float  _LightningMinDuration, _LightningMaxDuration;
+                float  _LightningStrength;
+                float4 _LightningTiling;
 
-            float  _Alpha, _RotationY, _RotationX;
+                float  _Alpha, _RotationY, _RotationX;
 
-            // ─── HELPERS ───────────────────────────────────────────────
+                float  _ReceiveFog;
+            CBUFFER_END
 
             float Hash21(float2 p)
             {
@@ -187,22 +200,18 @@ Shader "Custom/OutsideTheWindowShader"
                 return face;
             }
 
-            // ─── VERTEX ────────────────────────────────────────────────
-
             v2f vert(appdata v)
             {
                 v2f o;
-                o.positionCS = UnityObjectToClipPos(v.vertex);
-                o.worldDir   = mul(unity_ObjectToWorld, v.vertex).xyz - _WorldSpaceCameraPos;
+                o.positionCS = TransformObjectToHClip(v.vertex.xyz);
+                o.worldPos   = TransformObjectToWorld(v.vertex.xyz);
                 o.uv         = v.uv;
                 return o;
             }
 
-            // ─── FRAGMENT ──────────────────────────────────────────────
-
             half4 frag(v2f i) : SV_Target
             {
-                float3 dir = normalize(i.worldDir);
+                float3 dir = -GetWorldSpaceNormalizeViewDir(i.worldPos);
 
                 if (_MovementEnabled > 0.5)
                 {
@@ -216,9 +225,8 @@ Shader "Custom/OutsideTheWindowShader"
                     dir = RotatePitch(dir, angle * moveDir.y * 0.5);
                 }
 
-                half4 tex = texCUBE(_CubeTex, dir) * _TintColor;
+                half4 tex = SAMPLE_TEXTURECUBE(_CubeTex, sampler_CubeTex, dir) * _TintColor;
 
-                // ── Rain ──────────────────────────────────────────────
                 if (_RainEnabled > 0.5)
                 {
                     bool   isTopFace;
@@ -262,7 +270,6 @@ Shader "Custom/OutsideTheWindowShader"
                     }
                 }
 
-                // ── Lightning ─────────────────────────────────────────
                 if (_LightningEnabled > 0.5)
                 {
                     float t         = _Time.y;
@@ -295,37 +302,28 @@ Shader "Custom/OutsideTheWindowShader"
                     }
                 }
 
-                // ── Glow (pulsing) ────────────────────────────────────
                 if (_GlowEnabled > 0.5)
                 {
                     float pulse = sin(_Time.y * _GlowSpeed) * 0.5 + 0.5;
                     tex.rgb += tex.rgb * _GlowColor.rgb * pulse * _GlowStrength;
                 }
 
-                // ── Emission ───────────────────────────────────────────
                 if (_EmissionEnabled > 0.5)
                 {
                     tex.rgb += tex.rgb * _EmissionColor.rgb * _EmissionStrength;
                 }
 
-                // ── Fresnel ────────────────────────────────────────────
                 if (_FresnelEnabled > 0.5)
                 {
                     float fresnel   = pow(1.0 - saturate(dot(dir,
-                                          normalize(_WorldSpaceCameraPos))), 4.0);
+                                          GetWorldSpaceNormalizeViewDir(i.worldPos))), 4.0);
                     float smoothGlow = fresnel * _Smoothness * 2.0;
                     tex.rgb += smoothGlow * lerp(0.04, tex.rgb, _Metallic);
                 }
 
-                // ── Overlay (applied LAST – now also forces opacity) ────────────────
-                // ── Overlay (applied LAST) ───────────────────────────────────────
                 if (_OverlayEnabled > 0.5)
                 {
-                    // Support both scale (xy) and offset (zw)
                     float2 overlayUV = i.uv * _OverlayTiling.xy + _OverlayTiling.zw;
-
-                    // Force wrapping so UVs that go <0 or >1 on the left side
-                    // still sample valid texels instead of clamping to transparent edge
                     overlayUV = frac(overlayUV);
 
                     half4 overlay = tex2D(_OverlayTex, overlayUV) * _OverlayTint;
@@ -333,7 +331,17 @@ Shader "Custom/OutsideTheWindowShader"
                     float factor = saturate(overlay.a * _OverlayStrength);
 
                     tex.rgb = lerp(tex.rgb, overlay.rgb, factor);
-                    tex.a   = max(tex.a, factor);   // keep the opacity force
+                    tex.a   = max(tex.a, factor);
+                }
+
+                if (_ReceiveFog > 0.5)
+                {
+                    PositionInputs posInput = GetPositionInput(i.positionCS.xy, _ScreenSize.zw, i.positionCS.z, i.positionCS.w, i.worldPos);
+                    float3 V = GetWorldSpaceNormalizeViewDir(i.worldPos);
+                    float3 fogColor = 0;
+                    float3 fogOpacity = 0;
+                    EvaluateAtmosphericScattering(posInput, V, fogColor, fogOpacity);
+                    tex.rgb = lerp(tex.rgb, fogColor * tex.a, fogOpacity.r);
                 }
 
                 return half4(tex.rgb, tex.a * _Alpha);

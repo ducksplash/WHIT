@@ -244,7 +244,6 @@ public class clickable : Singleton<clickable>
             if (target.CompareTag("MazeDoor"))
             {
                 SetCursor(doorspritegreen, "", "white");
-                Debug.Log("maze door");
             }
             else
             {

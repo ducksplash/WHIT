@@ -221,7 +221,7 @@ public class incinerator : MonoBehaviour
 
         yield return new WaitForSeconds(3f);
 
-        Player.Instance.CauseDeath("incineration");
+        //Player.Instance.CauseDeath("incineration");
 
         StartCoroutine(cleanup());
     }

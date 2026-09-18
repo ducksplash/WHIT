@@ -336,7 +336,7 @@ public class ComputerSystem : MonoBehaviour
 
         ClosePasswordFieldCompletely();
         ComputerOpen = false;
-        GameMaster.Instance.PLAYERBUSY = false;
+        if (!GameMaster.Instance.NoraManager.IsDead) GameMaster.Instance.PLAYERBUSY = false;
         DisableNavvers();
     }
 

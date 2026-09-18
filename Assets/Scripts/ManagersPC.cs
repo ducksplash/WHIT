@@ -218,7 +218,7 @@ public class ManagersPC : MonoBehaviour
 			PlayerCamera.GetComponent<FirstPersonLook>().enabled = false;
 			//Player.GetComponent<FirstPersonCollision>().enabled = true;
 			//Player.GetComponent<Jump>().enabled = false;
-			GameMaster.Instance.PLAYERBUSY = true;
+			if (!GameMaster.Instance.NoraManager.IsDead) GameMaster.Instance.PLAYERBUSY = true;
 
 			CrossHair.GetComponent<Canvas>().enabled = false;
 			Cursor.lockState = CursorLockMode.None;
@@ -231,7 +231,7 @@ public class ManagersPC : MonoBehaviour
 			thisComputer.GetComponent<Collider>().enabled = true;
 			//Player.GetComponent<FirstPersonCollision>().enabled = true;
 			//Player.GetComponent<Jump>().enabled = true;
-			GameMaster.Instance.PLAYERBUSY = false;
+			if (!GameMaster.Instance.NoraManager.IsDead) GameMaster.Instance.PLAYERBUSY = false;
 
 			CrossHair.GetComponent<Canvas>().enabled = true;
 			Cursor.lockState = CursorLockMode.Locked;

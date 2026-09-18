@@ -15,8 +15,12 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 #endif
 
-public class Player : Singleton<Player>
+public class Player : MonoBehaviour
 {
+    private static Player _instance;
+    public static Player Instance => _instance ??= FindObjectOfType<Player>();
+    
+    
     [Header("Player Status")] 
     public PlayerStatus PlayerStatus;
     
@@ -312,6 +316,19 @@ public class Player : Singleton<Player>
     private CancellationTokenSource _crouchCts;
     private CancellationTokenSource _upperBodyCts;
 
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        _instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+
     void Start()
     {
         CurrentCamera = FirstPersonCamera;
@@ -447,7 +464,7 @@ public class Player : Singleton<Player>
 
     public void SpawnOverride(Vector3 spawnPoint)
     {
-        //Debug.Log("SpawnOverride!");
+        Debug.Log("SpawnOverride!");
         
         
         Vector3 spawnRotation = Vector3.zero;
@@ -455,20 +472,16 @@ public class Player : Singleton<Player>
 
         bool ccWasEnabled = thisCharController != null && thisCharController.enabled;
 
-        if (thisCharController != null)
-            thisCharController.enabled = false;
+        if (thisCharController != null) thisCharController.enabled = false;
 
-        Transform rootTransform = thisCharController != null
-            ? thisCharController.transform
-            : transform;
+        Transform rootTransform = thisCharController != null ? thisCharController.transform : transform;
 
         rootTransform.position = spawnPoint;
         rootTransform.rotation = Quaternion.Euler(spawnRotation);
 
         Physics.SyncTransforms();
 
-        if (thisCharController != null)
-            thisCharController.enabled = ccWasEnabled;
+        if (thisCharController != null) thisCharController.enabled = ccWasEnabled;
 
         GameMaster.Instance.NoraManager.IsDead = false;
         GameMaster.Instance.PLAYERBUSY = false;
@@ -680,7 +693,7 @@ public class Player : Singleton<Player>
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        ForceEndAutonomousMode();
+        if (IsAutonomous) ForceEndAutonomousMode();
     }
     
     void OnDisable()
@@ -921,6 +934,8 @@ public class Player : Singleton<Player>
 
     private async UniTask StandUpSequence()
     {
+        Debug.Log("standup sq");   
+        
         if (Noranimator != null)
         {
             Noranimator.ResetTrigger(AnimStandUp);
@@ -930,7 +945,7 @@ public class Player : Singleton<Player>
         await UniTask.WaitForSeconds(standUpDuration);
 
         ReturnToLocomotion();
-        GameMaster.Instance.PLAYERBUSY = false;
+        if (!GameMaster.Instance.NoraManager.IsDead) GameMaster.Instance.PLAYERBUSY = false;
         ZoomOverride = false;
         _standingUp = false;
     }
@@ -1109,7 +1124,7 @@ public class Player : Singleton<Player>
         await UniTask.WaitForSeconds(wakeUpDuration);
 
         ReturnFromLying();
-        GameMaster.Instance.PLAYERBUSY = false;
+        if (!GameMaster.Instance.NoraManager.IsDead) GameMaster.Instance.PLAYERBUSY = false;
         PlayerTorch.SetActive(true);
         ZoomOverride = false;
         _wakingUp = false;
@@ -1240,7 +1255,7 @@ public class Player : Singleton<Player>
             ThirdPersonCamera.enabled = false;
         }
 
-        GameMaster.Instance.PLAYERBUSY = false;
+        if (!GameMaster.Instance.NoraManager.IsDead) GameMaster.Instance.PLAYERBUSY = false;
         PlayerTorch.SetActive(true);
 
         Debug.Log("[Player] Autonomous Mode force-ended – First Person camera restored");
@@ -1279,7 +1294,7 @@ public class Player : Singleton<Player>
         SetInputEnabled(true);
         FirstPersonLook?.LockLook(false);
 
-        GameMaster.Instance.PLAYERBUSY = false;
+        if (!GameMaster.Instance.NoraManager.IsDead) GameMaster.Instance.PLAYERBUSY = false;
         PlayerTorch.SetActive(true);
     }
 
@@ -1633,6 +1648,7 @@ public class Player : Singleton<Player>
 
     public void TryMelee()
     {
+        if (GameMaster.Instance.NoraManager.IsDead) return;
         if (IsAutonomous) return;
         if (!CombatEnabled) return;
         if (Noranimator == null) return;
@@ -1765,13 +1781,9 @@ public class Player : Singleton<Player>
         float startHeight = thisCharController.height;
         Vector3 startCenter = thisCharController.center;
 
-        float targetHeight = isJumpingUp 
-            ? _standHeight + jumpControllerHeightBoost 
-            : _standHeight;
+        float targetHeight = isJumpingUp ? _standHeight + jumpControllerHeightBoost : _standHeight;
 
-        Vector3 targetCenter = isJumpingUp 
-            ? new Vector3(startCenter.x, startCenter.y + (jumpControllerHeightBoost * 0.5f), startCenter.z) 
-            : _standCenter;
+        Vector3 targetCenter = isJumpingUp ? new Vector3(startCenter.x, startCenter.y + (jumpControllerHeightBoost * 0.5f), startCenter.z) : _standCenter;
 
         float t = 0f;
         float duration = jumpControllerBlendTime;
@@ -1945,10 +1957,6 @@ public class Player : Singleton<Player>
     
     public void CauseDeath(string cause)
     {
-        if (GameMaster.Instance.PauseManager.IsPaused) GameMaster.Instance.PauseManager.UnpauseGame();
-        GameMaster.Instance.PLAYERBUSY = true;
-        GameMaster.Instance.NoraManager.IsDead = true;
-        
         StopPlayerAnimation();
         
         Debug.Log("death caused, player busy: "+GameMaster.Instance.PLAYERBUSY);
@@ -1966,22 +1974,21 @@ public class Player : Singleton<Player>
             StopCoroutine(_controllerJumpBlendRoutine);
             _controllerJumpBlendRoutine = null;
         }
-
-        // // Optional but helpful: snap height back immediately
-        // if (thisCharController != null && _controllerBaselineCaptured)
-        // {
-        //     thisCharController.height = _standHeight;
-        //     thisCharController.center = _standCenter;
-        // }
         
+        
+        Debug.Log("death caused, player busy: "+GameMaster.Instance.PLAYERBUSY);
+        Debug.Log($"[CauseDeath] Writing PLAYERBUSY=true on GameMaster instance {GameMaster.Instance.GetInstanceID()}");
         
         StartCoroutine(SlowDeath(cause));
     }
 
     private IEnumerator SlowDeath(string CauseString)
     {
+        Debug.Log("SlowDeath, player busy: "+GameMaster.Instance.PLAYERBUSY);
         DisableAllScreens();
 
+        Debug.Log("SlowDeath 1, player busy: "+GameMaster.Instance.PLAYERBUSY);
+        
         GameMaster.Instance.LoadingManager.SceneFadeOut();
         
         string buildDate = System.DateTime.Now.ToString("dddd") + ", " + System.DateTime.Now.ToString("MMMM d") + MonthDay(System.DateTime.Now.ToString("dd")) + ", " + System.DateTime.Now.ToString("yyyy");
@@ -1989,6 +1996,7 @@ public class Player : Singleton<Player>
         PaperDeathText.text = CauseString + ".";
         PaperDateText.text  = buildDate;
 
+        Debug.Log("SlowDeath 2, player busy: "+GameMaster.Instance.PLAYERBUSY);
         DeathScreenMain.alpha = 1f;
         DeathScreenMain.blocksRaycasts = true;
         DeathScreenMain.interactable = true;
@@ -2014,9 +2022,9 @@ public class Player : Singleton<Player>
         }
         
         PlayerStatus.AddDeath();
-        
 
         GameMaster.Instance.NorasWardrobe.BurnOutfit();
+        Debug.Log("SlowDeath3, player busy: "+GameMaster.Instance.PLAYERBUSY);
     }
 
 
@@ -2033,6 +2041,7 @@ public class Player : Singleton<Player>
     
     private IEnumerator SlowRespawn()
     {
+        Debug.Log("SlowRespawn");
         DisableAllScreens();
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -2087,13 +2096,19 @@ public class Player : Singleton<Player>
             Debug.Log("DeathBlade");
             EventManager.KillPlayer();
         }
+        if (other.CompareTag("Void"))
+        {
+            Debug.Log("Void");
+            EventManager.KillPlayer();
+        }
         
     }
     
     
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        //if (GameMaster.Instance.PLAYERBUSY) return;
+        if (GameMaster.Instance.PLAYERBUSY) return;
+        if (GameMaster.Instance.NoraManager.IsDead) return;
 
         if (hit.collider.CompareTag("FloorTile"))
         {
@@ -2138,15 +2153,6 @@ public class Player : Singleton<Player>
             // ApplyKnockback(knockback);
             // GameMaster.Instance.PlayerOne.DecrementHealth(10);
         }
-
-
-        if (hit.collider.CompareTag("Void"))
-        {
-            Debug.Log("Fell into hole");
-            EventManager.KillPlayer();
-        }
-
-
         
     }
     

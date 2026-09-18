@@ -61,8 +61,8 @@ public class InventoryManager : MonoBehaviour
     private void CloseInventory()
     {
         InventoryActive = false;
-
-        GameMaster.Instance.PLAYERBUSY = false;
+        Debug.Log("close inv");
+        if (!GameMaster.Instance.NoraManager.IsDead) GameMaster.Instance.PLAYERBUSY = false;
 
         RestoreLookSensitivity();
 

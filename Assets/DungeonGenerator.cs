@@ -73,7 +73,7 @@ public class DungeonGenerator : MonoBehaviour
 
     public List<DungeonObstacles> ObstacleObjects = new List<DungeonObstacles>();
     
-    [Header("Spawn Toggles")]
+    [Header("Spawn Toggles\nDo not overlap functions;\ni.e. using 'SpawnHoles' alongside Scriptable Objects.")]
     public bool spawnLoot = true;
     public bool spawnRedTelepads = true;
     public bool spawnBlueTelepads = true;
@@ -274,6 +274,7 @@ public class DungeonGenerator : MonoBehaviour
             PlaceSpecialTiles();
             PlaceObstacles();
             BuildTelepadLinks();
+            
             if (ValidateDungeonPath())
             {
                 PlaceCubes();
@@ -377,9 +378,11 @@ public class DungeonGenerator : MonoBehaviour
             }
         }
 
+        
         BuildTelepadLinks();
         ValidateDungeonPath();
         PlaceCubes();
+        SpawnAmbientLight();
         StartCoroutine(BuildNavMeshAsync());
     }
 
@@ -2093,7 +2096,27 @@ public class SpawnableObject : MonoBehaviour
 
 public enum CellType { Empty, Floor, Entrance, Exit, RedTelepad, BlueTelepad, Spawn, SpawnableObject, Enemy, Hole, Special }
 
-public enum ObstacleType { Workbench, BladeBench, IronBars, RedBarrel, YellowBarrel, Bin, Drainaway, FloorBlade, DoorNorth, DoorEast, DoorWest, DoorSouth, DoorExitNorth, DoorExitEast, DoorExitWest, DoorExitSouth, Lightning  }
+public enum ObstacleType { 
+    Workbench, 
+    BladeBench, 
+    IronBars, 
+    RedBarrel, 
+    YellowBarrel, 
+    Bin, 
+    Drainaway, 
+    FloorBlade, 
+    DoorNorth, 
+    DoorEast, 
+    DoorWest, 
+    DoorSouth, 
+    DoorExitNorth, 
+    DoorExitEast, 
+    DoorExitWest, 
+    DoorExitSouth, 
+    Lightning,
+    Hole,
+    HangingPiggie
+}
 
 public enum ObstaclePlace { Floor, Ceiling }
 

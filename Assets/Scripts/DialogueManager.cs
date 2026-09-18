@@ -139,7 +139,7 @@ public class DialogueManager : MonoBehaviour
         if (DebugMode)
         {
             Debug.Log("Debug Mode: Thought 'seen' filtering disabled testing purposes!");
-            GameMaster.Instance.PLAYERBUSY = false;
+            if (!GameMaster.Instance.NoraManager.IsDead)  GameMaster.Instance.PLAYERBUSY = false;
         }
         else
         {
@@ -526,7 +526,7 @@ public class DialogueManager : MonoBehaviour
         Player.Instance.FirstPersonLook.SetPlayerRotation(new Vector2(yaw, pitch));
 
         CutsceneInProgress = false;
-        GameMaster.Instance.PLAYERBUSY = false;
+        if (!GameMaster.Instance.NoraManager.IsDead) GameMaster.Instance.PLAYERBUSY = false;
         SaveWhatYouSee();
     }
 

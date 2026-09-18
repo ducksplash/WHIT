@@ -571,7 +571,7 @@ public class Phone : MonoBehaviour
         changeScreen(HomeScreen);
 
         // clear busy FIRST so Player/Animator isn't gated this frame
-        GameMaster.Instance.PLAYERBUSY = false;
+        if (!GameMaster.Instance.NoraManager.IsDead) GameMaster.Instance.PLAYERBUSY = false;
         PhoneOpened = false;
 
         Player.Instance.TogglePhone(true);

@@ -46,7 +46,17 @@ public class NoraManager : MonoBehaviour
 
     public void KillPlayer()
     {
+        //if (GameMaster.Instance.PauseManager.IsPaused) GameMaster.Instance.PauseManager.UnpauseGame();
+        //
         if (GameMaster.Instance.PLAYERBUSY) return;
+        if (IsDead) return;
+
+        GameMaster.Instance.NoraManager.IsDead = true;
+        GameMaster.Instance.PLAYERBUSY = true;
+        
+        Debug.Log("is busy yet?"+GameMaster.Instance.PLAYERBUSY);
+        
+        
         Player.Instance.CauseDeath("TESTING");
     }
 

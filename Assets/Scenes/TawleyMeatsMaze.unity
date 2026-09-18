@@ -238,7 +238,7 @@ Transform:
   m_GameObject: {fileID: 446615285}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 112.2207, y: -7.1, z: 156.20615}
+  m_LocalPosition: {x: 112.2207, y: -50, z: 156.20615}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -292,12 +292,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 10, y: 1.5475509, z: 10}
-  m_Center: {x: 0, y: -0.76474196, z: 0}
+  m_Size: {x: 10, y: 2.0300891, z: 10}
+  m_Center: {x: 0, y: -0.5234718, z: 0}
 --- !u!1 &648201001
 GameObject:
   m_ObjectHideFlags: 0
@@ -10153,7 +10153,7 @@ MonoBehaviour:
     type: 3}
   lootPrefab: {fileID: 3887077492594736797, guid: b25a9991afd703f46bfbf7ba3e776c53,
     type: 3}
-  holePrefab: {fileID: 3148606218231221046, guid: de9b1baf16dc6654a945ad89b47db566,
+  holePrefab: {fileID: 7445329599146101498, guid: de9b1baf16dc6654a945ad89b47db566,
     type: 3}
   specialTilePrefab: {fileID: 7682569051715949998, guid: 9933d1db59983014081cec57200af6be,
     type: 3}
@@ -10177,11 +10177,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4f29df27c8590ab46ad70782f6bd9b08, type: 2}
   - {fileID: 11400000, guid: f82d4484e1b179d41920606625ff31c8, type: 2}
   - {fileID: 11400000, guid: 3620b3ab81480144fa426ae1bf92968b, type: 2}
+  - {fileID: 11400000, guid: bab46ef658839a34297db19c146a589a, type: 2}
+  - {fileID: 11400000, guid: 9916c7248e175f74aa272de8cd953a00, type: 2}
   spawnLoot: 0
-  spawnRedTelepads: 1
-  spawnBlueTelepads: 1
-  spawnSpecialTiles: 1
-  spawnHoles: 1
+  spawnRedTelepads: 0
+  spawnBlueTelepads: 0
+  spawnSpecialTiles: 0
+  spawnHoles: 0
   allowBackwardTravel: 0
   createFromTemplate: 1
   floorTemplates:

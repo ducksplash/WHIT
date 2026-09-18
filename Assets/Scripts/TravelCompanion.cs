@@ -123,7 +123,7 @@ public class TravelCompanion : MonoBehaviour
             TravelCanvas.alpha = 0f;
             TravelCanvas.blocksRaycasts = false;
 
-            GameMaster.Instance.PLAYERBUSY = false;
+            if (!GameMaster.Instance.NoraManager.IsDead) GameMaster.Instance.PLAYERBUSY = false;
             CompanionOpen = false;
 
             evidencecompanion.alpha = 0.9f;
@@ -224,9 +224,6 @@ public class TravelCompanion : MonoBehaviour
             notepadNavver.GridButtons.Add(notebutton);
 
         }
-
-
-        if (GameMaster.Instance.PLAYERBUSY) GameMaster.Instance.PLAYERBUSY = false;
     }
 
     public void ChangeScene(GAMELEVEL sceneName)

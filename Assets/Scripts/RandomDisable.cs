@@ -20,16 +20,14 @@ public class RandomDisable : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("MazeDoor"))
+        if (other.CompareTag("MazeDoor") || other.CompareTag("MetalBars"))
         {
-            Debug.Log("Light disabled by OnTriggerEnter MazeDoor");
             gameObject.SetActive(false);
         }
     }
     private void OnTriggerStay(Collider other)
     {
-        Debug.Log("Light disabled by OnTriggerStay MazeDoor");
-        if (other.CompareTag("MazeDoor"))
+        if (other.CompareTag("MazeDoor") || other.CompareTag("MetalBars"))
         {
             gameObject.SetActive(false);
         }

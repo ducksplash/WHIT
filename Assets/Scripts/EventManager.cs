@@ -43,9 +43,11 @@ public static class EventManager
     public static event Action OnKelliStarted = () => { };
     public static event Action OnKelliStopped = () => { };
     public static event Action<DoorAccessPanel> OnKelliFoundDevice = (AccessPanel) => { };
+    public static event Action<MazeAccessPanel> OnKelliFoundMazeDevice = (AccessPanel) => { };
     public static event Action OnKelliLostDevice = () => { };
     
     
+    public static event Action<string> OnKelliUnlockGate = (GateID) => { };
     
     public static event Action OnDoLoadingSwirl = () => { };
     public static event Action OnUnDoLoadingSwirl = () => { };
@@ -87,7 +89,14 @@ public static class EventManager
         OnOutfitWasChanged.Invoke(OutfitName);
     }
 
-    
+
+
+    public static void KelliUnlockGate(string GateID)
+    {
+        OnKelliUnlockGate.Invoke(GateID);
+    }
+
+
     
     public static void SpawnPlayer()
     {
@@ -122,6 +131,11 @@ public static class EventManager
     public static void KelliFoundDevice(DoorAccessPanel foundDevice)
     {
         OnKelliFoundDevice.Invoke(foundDevice);
+    }
+
+    public static void KelliFoundDeviceMaze(MazeAccessPanel foundDevice)
+    {
+        OnKelliFoundMazeDevice.Invoke(foundDevice);
     }
 
     public static void KelliLostDevice()

@@ -149,7 +149,15 @@ public class DungeonGenerator : MonoBehaviour
     private Dictionary<Vector3Int, DungeonObstacles> obstacleMap = new Dictionary<Vector3Int, DungeonObstacles>();
     private Dictionary<char, DungeonObstacles> obstacleCharMap = new Dictionary<char, DungeonObstacles>();
     private List<MazeDoor> spawnedDoors = new List<MazeDoor>();
+    private struct QueuedObstacleSpawn
+    {
+        public Vector3Int pos;
+        public DungeonObstacles obstacle;
+        public Transform parent;
+        public float floorY;
+    }
 
+    private List<QueuedObstacleSpawn> queuedObstacleSpawns = new List<QueuedObstacleSpawn>();
     public CellType[,,] GetGrid() => grid;
 
     void Awake()
@@ -1320,6 +1328,7 @@ public class DungeonGenerator : MonoBehaviour
 
         floorObjects.Clear();
         spawnedDoors.Clear();
+        queuedObstacleSpawns.Clear();
 
         for (int z = 0; z < floorCount; z++)
         {
@@ -1371,8 +1380,13 @@ public class DungeonGenerator : MonoBehaviour
 
                         if (obstacleConfig != null && obstacleConfig.ObstaclePlace == ObstaclePlace.Floor)
                         {
-                            GameObject spawnedObstacle = SpawnObstacleAt(cellPos, obstacleConfig, floorParent.transform, floorY);
-                            RegisterIfDoor(spawnedObstacle);
+                            queuedObstacleSpawns.Add(new QueuedObstacleSpawn
+                            {
+                                pos = cellPos,
+                                obstacle = obstacleConfig,
+                                parent = floorParent.transform,
+                                floorY = floorY
+                            });
                         }
                     }
                     else if (cell == CellType.Entrance || cell == CellType.Spawn)
@@ -1618,8 +1632,13 @@ public class DungeonGenerator : MonoBehaviour
 
                         if (obstacleConfig != null && obstacleConfig.ObstaclePlace == ObstaclePlace.Ceiling)
                         {
-                            GameObject spawnedObstacle = SpawnObstacleAt(cellPos, obstacleConfig, transform, floorY);
-                            RegisterIfDoor(spawnedObstacle);
+                            queuedObstacleSpawns.Add(new QueuedObstacleSpawn
+                            {
+                                pos = cellPos,
+                                obstacle = obstacleConfig,
+                                parent = transform,
+                                floorY = floorY
+                            });
                         }
 
                         int[] dx = { 0, 1, 0, -1 };
@@ -1674,10 +1693,37 @@ public class DungeonGenerator : MonoBehaviour
                 }
             }
         }
-
+        SpawnQueuedObstacles();
         ConfigureDoors();
     }
+    void SpawnQueuedObstacles()
+    {
+        var ordered = queuedObstacleSpawns.OrderBy(GetObstacleSpawnPriority).ToList();
 
+        foreach (var queued in ordered)
+        {
+            GameObject spawnedObstacle = SpawnObstacleAt(queued.pos, queued.obstacle, queued.parent, queued.floorY);
+            RegisterIfDoor(spawnedObstacle);
+        }
+
+        queuedObstacleSpawns.Clear();
+    }
+
+    int GetObstacleSpawnPriority(QueuedObstacleSpawn queued)
+    {
+        switch (queued.obstacle.ObstacleType)
+        {
+            case ObstacleType.MetalBars:
+                return 0;
+            case ObstacleType.AccessPanelN:
+            case ObstacleType.AccessPanelE:
+            case ObstacleType.AccessPanelS:
+            case ObstacleType.AccessPanelW:
+                return 1;
+            default:
+                return 2;
+        }
+    }
     void ConfigureDoors()
     {
         List<MazeDoor> internalDoors = spawnedDoors.Where(d => d != null && !d.ExitDoor).ToList();
@@ -2115,7 +2161,14 @@ public enum ObstacleType {
     DoorExitSouth, 
     Lightning,
     Hole,
-    HangingPiggie
+    HangingPiggie,
+    FireHole,
+    HangingLight,
+    MetalBars,
+    AccessPanelN,
+    AccessPanelE,
+    AccessPanelS,
+    AccessPanelW,
 }
 
 public enum ObstaclePlace { Floor, Ceiling }

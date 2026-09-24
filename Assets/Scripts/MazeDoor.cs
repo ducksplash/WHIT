@@ -41,6 +41,10 @@ public class MazeDoor : MonoBehaviour
     {
         Vector3 target = TargetCoordinates;
 
+        Debug.Log("This Door Code: "+ThisDoorCode);
+        
+        EventManager.MazeDoorUsed();
+        
         Debug.Log($"Telepad '{name}' teleporting player " + $"from {Player.Instance.transform.position} to {target}");
         
         Player.Instance.SpawnOverride(target);

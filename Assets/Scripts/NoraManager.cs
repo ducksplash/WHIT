@@ -15,7 +15,7 @@ public class NoraManager : MonoBehaviour
     public OutfitName CurrentOutfit = OutfitName.Work;
     private List<OutfitName> usedOutfits = new List<OutfitName>();
     public bool IsDead;
-
+    public List<Deaths> DeathTexts = new List<Deaths>();
 
     private void Start()
     {
@@ -44,7 +44,7 @@ public class NoraManager : MonoBehaviour
     }
 
 
-    public void KillPlayer()
+    public void KillPlayer(Death causeOfDeath)
     {
         //if (GameMaster.Instance.PauseManager.IsPaused) GameMaster.Instance.PauseManager.UnpauseGame();
         //
@@ -54,10 +54,22 @@ public class NoraManager : MonoBehaviour
         GameMaster.Instance.NoraManager.IsDead = true;
         GameMaster.Instance.PLAYERBUSY = true;
         
+        EventManager.Death();
+        
         Debug.Log("is busy yet?"+GameMaster.Instance.PLAYERBUSY);
+
+        string cause = "unknown";
+
+        foreach (Deaths deathtxt in DeathTexts)
+        {
+            if (deathtxt.DeathType == causeOfDeath)
+            {
+                cause = deathtxt.DeathText;
+            }
+        }
         
         
-        Player.Instance.CauseDeath("TESTING");
+        Player.Instance.CauseDeath(cause);
     }
 
     public void RespawnPlayer()
@@ -199,7 +211,7 @@ public class NoraManagerEditor : Editor
                 GUI.backgroundColor = new Color(0.9f, 0.3f, 0.3f);
                 if (GUILayout.Button("Kill Player", GUILayout.Height(32)))
                 {
-                    manager.KillPlayer();
+                    manager.KillPlayer(Death.Drowned);
                 }
 
                 GUI.backgroundColor = new Color(0.3f, 0.75f, 0.4f);
@@ -222,3 +234,17 @@ public class NoraManagerEditor : Editor
     }
 }
 #endif
+
+public enum Death
+{
+    Electrocuted,
+    Drowned,
+    DrownedInBlood,
+    Frozen,
+    Asphyxiated,
+    Burned,
+    Stabbed,
+    Beaten,
+    Sawn,
+    Vanished
+}

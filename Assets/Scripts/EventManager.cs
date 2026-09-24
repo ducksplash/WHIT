@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class EventManager
@@ -38,6 +39,7 @@ public static class EventManager
     public static event Action<Seat> OnNoraSit = (thisSeat) => { };
     public static event Action<Bed> OnNoraSleep = (thisBed) => { };
     public static event Action OnSpawnPlayer = () => { };
+    public static event Action OnDeath = () => { };
     public static event Action OnCrouch = () => { };
     public static event Action OnUnCrouch = () => { };
     public static event Action OnKelliStarted = () => { };
@@ -60,7 +62,9 @@ public static class EventManager
     public static event Action OnStartThoughtVignette = () => { };
 
     
-    public static event Action OnKillPlayer = () => { };
+    public static event Action OnMazeDoorUsed = () => { };
+    public static event Action<GameObject> OnBloodPipeLoaded = (Pipe) => { };
+    public static event Action<Death> OnKillPlayer = (death) => { };
     // cheev
     
     public static event Action<SteamAchievements> OnUnlockAchievement = (SteamAchievements) => { };
@@ -80,6 +84,22 @@ public static class EventManager
     public static void StartThoughtVignette()
     {
         OnStartThoughtVignette.Invoke();
+    }
+
+    public static void BloodPipeLoaded(GameObject BloodPipe)
+    {
+        OnBloodPipeLoaded.Invoke(BloodPipe);
+    }
+
+
+    public static void MazeDoorUsed()
+    {
+        OnMazeDoorUsed.Invoke();
+    }
+
+    public static void Death()
+    {
+        OnDeath.Invoke();
     }
 
 
@@ -113,9 +133,9 @@ public static class EventManager
         OnUnCrouch.Invoke();
     }
 
-    public static void KillPlayer()
+    public static void KillPlayer(Death death)
     {
-        OnKillPlayer.Invoke();
+        OnKillPlayer.Invoke(death);
     }
 
     public static void KelliStarted()

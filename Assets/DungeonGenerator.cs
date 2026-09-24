@@ -2169,6 +2169,10 @@ public enum ObstacleType {
     AccessPanelE,
     AccessPanelS,
     AccessPanelW,
+    PipeN,
+    PipeE,
+    PipeS,
+    PipeW
 }
 
 public enum ObstaclePlace { Floor, Ceiling }

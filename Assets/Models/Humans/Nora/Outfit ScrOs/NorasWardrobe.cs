@@ -105,6 +105,11 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer WhiteFMBShoesPreview;
     public SkinnedMeshRenderer RedFMBShoesPreview;
     public SkinnedMeshRenderer HeelsShoesPreview;
+    public SkinnedMeshRenderer StraplessHeelsBlackShoesPreview;
+    public SkinnedMeshRenderer StraplessHeelsRedShoesPreview;
+    public SkinnedMeshRenderer StraplessHeelsPinkShoesPreview;
+    public SkinnedMeshRenderer StraplessHeelsSilverShoesPreview;
+    public SkinnedMeshRenderer ShuPlaceholder5ShoesPreview;
 
     [Header("Preview Hair")]
     public SkinnedMeshRenderer DefaultHairPreview;
@@ -123,7 +128,12 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer HeartHairPreview;
     public SkinnedMeshRenderer CloudHairPreview;
     public SkinnedMeshRenderer AngelHairPreview;
-    public SkinnedMeshRenderer HaPlaceholder5Preview;
+    public SkinnedMeshRenderer BlondeHairPreview;
+    public SkinnedMeshRenderer GingerHairPreview;
+    public SkinnedMeshRenderer GingerTwinTailsPreview;
+    public SkinnedMeshRenderer BlondeTwinTailsPreview;
+    public SkinnedMeshRenderer HaPlaceholder4Preview;
+    public SkinnedMeshRenderer HaPlaceholder6Preview;
 
 
     [Header("Preview Necklace")]
@@ -233,6 +243,11 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer WhiteFMBShoes;
     public SkinnedMeshRenderer RedFMBShoes;
     public SkinnedMeshRenderer HeelsShoes;
+    public SkinnedMeshRenderer StraplessHeelsBlackShoes;
+    public SkinnedMeshRenderer StraplessHeelsRedShoes;
+    public SkinnedMeshRenderer StraplessHeelsPinkShoes;
+    public SkinnedMeshRenderer StraplessHeelsSilverShoes;
+    public SkinnedMeshRenderer ShuPlaceholder5Shoes;
 
     [Header("Hair")]
     public SkinnedMeshRenderer DefaultHair;
@@ -251,7 +266,12 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer HeartHair;
     public SkinnedMeshRenderer CloudHair;
     public SkinnedMeshRenderer AngelHair;
-    public SkinnedMeshRenderer HaPlaceholder5;
+    public SkinnedMeshRenderer BlondeHair;
+    public SkinnedMeshRenderer GingerHair;
+    public SkinnedMeshRenderer GingerTwinTails;
+    public SkinnedMeshRenderer BlondeTwinTails;
+    public SkinnedMeshRenderer HaPlaceholder4;
+    public SkinnedMeshRenderer HaPlaceholder6;
     
     [Header("Necklace")]
     public SkinnedMeshRenderer ButterflyNecklace;
@@ -586,7 +606,8 @@ public class NorasWardrobe : MonoBehaviour
         {
             DefaultHair, WorkHair, WorkHairTwo, CasualHair,
             PyjamaHair, DatingHair, PapilioHair, OutHair, UpHair, HomelessHair, TwinTailsHair, UpDo,
-            SunHair, HeartHair, CloudHair, AngelHair, HaPlaceholder5
+            SunHair, HeartHair, CloudHair, AngelHair, BlondeHair,
+            GingerHair, GingerTwinTails, BlondeTwinTails, HaPlaceholder4, HaPlaceholder6
         };
 
         foreach (var smr in allHair)
@@ -609,7 +630,8 @@ public class NorasWardrobe : MonoBehaviour
             DefaultHairPreview, WorkHairPreview, WorkHairTwoPreview, CasualHairPreview,
             PyjamaHairPreview, DatingHairPreview, PapilioHairPreview, OutHairPreview,
             UpHairPreview, HomelessHairPreview, TwinTailsHairPreview, UpDoPreview,
-            SunHairPreview, HeartHairPreview, CloudHairPreview, AngelHairPreview, HaPlaceholder5Preview
+            SunHairPreview, HeartHairPreview, CloudHairPreview, AngelHairPreview, BlondeHairPreview,
+            GingerHairPreview, GingerTwinTailsPreview, BlondeTwinTailsPreview, HaPlaceholder4Preview, HaPlaceholder6Preview
         };
 
         foreach (var smr in allHairPreview)
@@ -631,7 +653,8 @@ public class NorasWardrobe : MonoBehaviour
             WorkFlatsShoes, SilentShoesShoes, SandalsShoes, BootsShoes, WhiteFlatsShoes,
             ShittyTrainersShoes, FMBShoes, BlackBowFlatsShoes, WhiteBowFlatsShoes,
             BlackBootsShoes, BlackFMBShoes, PrimAndProperShoes, PinkBowFlatsShoes,
-            WhiteFMBShoes, RedFMBShoes, HeelsShoes
+            WhiteFMBShoes, RedFMBShoes, HeelsShoes,
+            StraplessHeelsBlackShoes, StraplessHeelsRedShoes, StraplessHeelsPinkShoes, StraplessHeelsSilverShoes, ShuPlaceholder5Shoes
         };
 
         foreach (var smr in allShoes)
@@ -654,7 +677,8 @@ public class NorasWardrobe : MonoBehaviour
             WorkFlatsShoesPreview, SilentShoesShoesPreview, SandalsShoesPreview, BootsShoesPreview, WhiteFlatsShoesPreview,
             ShittyTrainersShoesPreview, FMBShoesPreview, BlackBowFlatsShoesPreview, WhiteBowFlatsShoesPreview,
             BlackBootsShoesPreview, BlackFMBShoesPreview, PrimAndProperShoesPreview, PinkBowFlatsShoesPreview,
-            WhiteFMBShoesPreview, RedFMBShoesPreview, HeelsShoesPreview
+            WhiteFMBShoesPreview, RedFMBShoesPreview, HeelsShoesPreview,
+            StraplessHeelsBlackShoesPreview, StraplessHeelsRedShoesPreview, StraplessHeelsPinkShoesPreview, StraplessHeelsSilverShoesPreview, ShuPlaceholder5ShoesPreview
         };
 
         foreach (var smr in allShoesPreview)
@@ -747,7 +771,12 @@ public class NorasWardrobe : MonoBehaviour
         if (HeartHair != null) { HeartHair.enabled = false; }
         if (CloudHair != null) { CloudHair.enabled = false; }
         if (AngelHair != null) { AngelHair.enabled = false; }
-        if (HaPlaceholder5 != null) { HaPlaceholder5.enabled = false; }
+        if (BlondeHair != null) { BlondeHair.enabled = false; }
+        if (GingerHair != null) { GingerHair.enabled = false; }
+        if (GingerTwinTails != null) { GingerTwinTails.enabled = false; }
+        if (BlondeTwinTails != null) { BlondeTwinTails.enabled = false; }
+        if (HaPlaceholder4 != null) { HaPlaceholder4.enabled = false; }
+        if (HaPlaceholder6 != null) { HaPlaceholder6.enabled = false; }
     }
 
     private void HideAllHairPreview()
@@ -768,7 +797,12 @@ public class NorasWardrobe : MonoBehaviour
         if (HeartHairPreview != null) { HeartHairPreview.enabled = false; }
         if (CloudHairPreview != null) { CloudHairPreview.enabled = false; }
         if (AngelHairPreview != null) { AngelHairPreview.enabled = false; }
-        if (HaPlaceholder5Preview != null) { HaPlaceholder5Preview.enabled = false; }
+        if (BlondeHairPreview != null) { BlondeHairPreview.enabled = false; }
+        if (GingerHairPreview != null) { GingerHairPreview.enabled = false; }
+        if (GingerTwinTailsPreview != null) { GingerTwinTailsPreview.enabled = false; }
+        if (BlondeTwinTailsPreview != null) { BlondeTwinTailsPreview.enabled = false; }
+        if (HaPlaceholder4Preview != null) { HaPlaceholder4Preview.enabled = false; }
+        if (HaPlaceholder6Preview != null) { HaPlaceholder6Preview.enabled = false; }
     }
 
     private void HideAllShoes()
@@ -804,6 +838,16 @@ public class NorasWardrobe : MonoBehaviour
         if (RedFMBShoes != null) { RedFMBShoes.enabled = false; }
 
         if (HeelsShoes != null) { HeelsShoes.enabled = false; }
+
+        if (StraplessHeelsBlackShoes != null) { StraplessHeelsBlackShoes.enabled = false; }
+
+        if (StraplessHeelsRedShoes != null) { StraplessHeelsRedShoes.enabled = false; }
+
+        if (StraplessHeelsPinkShoes != null) { StraplessHeelsPinkShoes.enabled = false; }
+
+        if (StraplessHeelsSilverShoes != null) { StraplessHeelsSilverShoes.enabled = false; }
+
+        if (ShuPlaceholder5Shoes != null) { ShuPlaceholder5Shoes.enabled = false; }
     }
 
     private void HideAllShoesPreview()
@@ -839,6 +883,16 @@ public class NorasWardrobe : MonoBehaviour
         if (RedFMBShoesPreview != null) { RedFMBShoesPreview.enabled = false; }
 
         if (HeelsShoesPreview != null) { HeelsShoesPreview.enabled = false; }
+
+        if (StraplessHeelsBlackShoesPreview != null) { StraplessHeelsBlackShoesPreview.enabled = false; }
+
+        if (StraplessHeelsRedShoesPreview != null) { StraplessHeelsRedShoesPreview.enabled = false; }
+
+        if (StraplessHeelsPinkShoesPreview != null) { StraplessHeelsPinkShoesPreview.enabled = false; }
+
+        if (StraplessHeelsSilverShoesPreview != null) { StraplessHeelsSilverShoesPreview.enabled = false; }
+
+        if (ShuPlaceholder5ShoesPreview != null) { ShuPlaceholder5ShoesPreview.enabled = false; }
     }
     
     private void HideAllNecklaces()
@@ -958,7 +1012,12 @@ public class NorasWardrobe : MonoBehaviour
             case HairName.HeartHair: if (HeartHair != null) { HeartHair.enabled = true; } break;
             case HairName.CloudHair: if (CloudHair != null) { CloudHair.enabled = true; } break;
             case HairName.AngelHair: if (AngelHair != null) { AngelHair.enabled = true; } break;
-            case HairName.HaPlaceholder5: if (HaPlaceholder5 != null) { HaPlaceholder5.enabled = true; } break;
+            case HairName.BlondeHair: if (BlondeHair != null) { BlondeHair.enabled = true; } break;
+            case HairName.GingerHair: if (GingerHair != null) { GingerHair.enabled = true; } break;
+            case HairName.GingerTwinTails: if (GingerTwinTails != null) { GingerTwinTails.enabled = true; } break;
+            case HairName.BlondeTwinTails: if (BlondeTwinTails != null) { BlondeTwinTails.enabled = true; } break;
+            case HairName.HaPlaceholder4: if (HaPlaceholder4 != null) { HaPlaceholder4.enabled = true; } break;
+            case HairName.HaPlaceholder6: if (HaPlaceholder6 != null) { HaPlaceholder6.enabled = true; } break;
         }
     }
 
@@ -983,7 +1042,12 @@ public class NorasWardrobe : MonoBehaviour
             case HairName.HeartHair: if (HeartHairPreview != null) { HeartHairPreview.enabled = true; } break;
             case HairName.CloudHair: if (CloudHairPreview != null) { CloudHairPreview.enabled = true; } break;
             case HairName.AngelHair: if (AngelHairPreview != null) { AngelHairPreview.enabled = true; } break;
-            case HairName.HaPlaceholder5: if (HaPlaceholder5Preview != null) { HaPlaceholder5Preview.enabled = true; } break;
+            case HairName.BlondeHair: if (BlondeHairPreview != null) { BlondeHairPreview.enabled = true; } break;
+            case HairName.GingerHair: if (GingerHairPreview != null) { GingerHairPreview.enabled = true; } break;
+            case HairName.GingerTwinTails: if (GingerTwinTailsPreview != null) { GingerTwinTailsPreview.enabled = true; } break;
+            case HairName.BlondeTwinTails: if (BlondeTwinTailsPreview != null) { BlondeTwinTailsPreview.enabled = true; } break;
+            case HairName.HaPlaceholder4: if (HaPlaceholder4Preview != null) { HaPlaceholder4Preview.enabled = true; } break;
+            case HairName.HaPlaceholder6: if (HaPlaceholder6Preview != null) { HaPlaceholder6Preview.enabled = true; } break;
         }
     }
 
@@ -1057,6 +1121,26 @@ public class NorasWardrobe : MonoBehaviour
                 if (HeelsShoes != null) { HeelsShoes.enabled = true; }
 
                 break;
+            case ShoesName.StraplessHeelsBlack:
+                if (StraplessHeelsBlackShoes != null) { StraplessHeelsBlackShoes.enabled = true; }
+
+                break;
+            case ShoesName.StraplessHeelsRed:
+                if (StraplessHeelsRedShoes != null) { StraplessHeelsRedShoes.enabled = true; }
+
+                break;
+            case ShoesName.StraplessHeelsPink:
+                if (StraplessHeelsPinkShoes != null) { StraplessHeelsPinkShoes.enabled = true; }
+
+                break;
+            case ShoesName.StraplessHeelsSilver:
+                if (StraplessHeelsSilverShoes != null) { StraplessHeelsSilverShoes.enabled = true; }
+
+                break;
+            case ShoesName.ShuPlaceholder5:
+                if (ShuPlaceholder5Shoes != null) { ShuPlaceholder5Shoes.enabled = true; }
+
+                break;
             case ShoesName.None:
 
                 break;
@@ -1099,6 +1183,16 @@ public class NorasWardrobe : MonoBehaviour
             break; case ShoesName.RedFMB: if (RedFMBShoesPreview != null) { RedFMBShoesPreview.enabled = true; }
 
             break; case ShoesName.Heels: if (HeelsShoesPreview != null) { HeelsShoesPreview.enabled = true; }
+
+            break; case ShoesName.StraplessHeelsBlack: if (StraplessHeelsBlackShoesPreview != null) { StraplessHeelsBlackShoesPreview.enabled = true; }
+
+            break; case ShoesName.StraplessHeelsRed: if (StraplessHeelsRedShoesPreview != null) { StraplessHeelsRedShoesPreview.enabled = true; }
+
+            break; case ShoesName.StraplessHeelsPink: if (StraplessHeelsPinkShoesPreview != null) { StraplessHeelsPinkShoesPreview.enabled = true; }
+
+            break; case ShoesName.StraplessHeelsSilver: if (StraplessHeelsSilverShoesPreview != null) { StraplessHeelsSilverShoesPreview.enabled = true; }
+
+            break; case ShoesName.ShuPlaceholder5: if (ShuPlaceholder5ShoesPreview != null) { ShuPlaceholder5ShoesPreview.enabled = true; }
 
             break;
         }
@@ -2288,6 +2382,14 @@ public class NorasWardrobeEditor : Editor
             ("RedFMB", () => me.SetShoes(ShoesName.RedFMB)));
         DrawButtonRow(me, clearAllStyle,
             ("Heels", () => me.SetShoes(ShoesName.Heels)));
+        DrawButtonRow(me, clearAllStyle,
+            ("StraplessHeelsBlack", () => me.SetShoes(ShoesName.StraplessHeelsBlack)),
+            ("StraplessHeelsRed", () => me.SetShoes(ShoesName.StraplessHeelsRed)));
+        DrawButtonRow(me, clearAllStyle,
+            ("StraplessHeelsPink", () => me.SetShoes(ShoesName.StraplessHeelsPink)),
+            ("StraplessHeelsSilver", () => me.SetShoes(ShoesName.StraplessHeelsSilver)));
+        DrawButtonRow(me, clearAllStyle,
+            ("ShuPlaceholder5", () => me.SetShoes(ShoesName.ShuPlaceholder5)));
         DrawButtonRow(me, clearAllStyle, ("None", () => me.SetShoes(ShoesName.None)));
 
         
@@ -2402,7 +2504,14 @@ public class NorasWardrobeEditor : Editor
             ("CloudHair", () => me.SetHair(HairName.CloudHair)),
             ("AngelHair", () => me.SetHair(HairName.AngelHair)));
         DrawButtonRow(me, clearAllStyle,
-            ("HaPlaceholder5", () => me.SetHair(HairName.HaPlaceholder5)));
+            ("GingerHair", () => me.SetHair(HairName.GingerHair)),
+            ("GingerTwinTails", () => me.SetHair(HairName.GingerTwinTails)));
+        DrawButtonRow(me, clearAllStyle,
+            ("BlondeTwinTails", () => me.SetHair(HairName.BlondeTwinTails)),
+            ("HaPlaceholder4", () => me.SetHair(HairName.HaPlaceholder4)));
+        DrawButtonRow(me, clearAllStyle,
+            ("BlondeHair", () => me.SetHair(HairName.BlondeHair)),
+            ("HaPlaceholder6", () => me.SetHair(HairName.HaPlaceholder6)));
 
         EditorGUILayout.Space();
         GUI.backgroundColor = Color.white;
@@ -2419,11 +2528,6 @@ public class NorasWardrobeEditor : Editor
             ("Random Undergarments", () => me.SetRandomOutfitOfType(OutfitType.Undergarments)));
         DrawButtonRow(me, clearAllStyle,
             ("Random Special Outfit", () => me.SetRandomOutfitOfType(OutfitType.Special)));
-
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField("---------------------", EditorStyles.boldLabel);
-        EditorGUILayout.Space();
-        GUI.backgroundColor = Color.white;
         EditorGUILayout.EndVertical();
         DrawDefaultInspector();
     }
@@ -2735,7 +2839,12 @@ public enum HairName
     HeartHair,
     CloudHair,
     AngelHair,
-    HaPlaceholder5
+    BlondeHair,
+    GingerHair,
+    GingerTwinTails,
+    BlondeTwinTails,
+    HaPlaceholder4,
+    HaPlaceholder6
 }
 
 
@@ -2757,6 +2866,11 @@ public enum ShoesName
     WhiteFMB,
     RedFMB,
     Heels,
+    StraplessHeelsBlack,
+    StraplessHeelsRed,
+    StraplessHeelsPink,
+    StraplessHeelsSilver,
+    ShuPlaceholder5,
     None
 }
 
@@ -2951,7 +3065,7 @@ public enum OutfitName
     FrootCardiganTop,
     CasualShortDress,
     StrappyTopAndShorts,
-    StylishHalterTopAndPants,
+    WorkCardiAndSkirt,
     LeatherTube,
     CasualTeeAndPants,
     BlazerAndSkirt,
@@ -3152,6 +3266,9 @@ public enum OutfitName
     RedUnderthings,
     PinkUnderthings,
     RelaxedDressAndTights,
-    LayeredSweaterAndPleatedSkirt
+    LayeredSweaterAndPleatedSkirt,
+    StrappyRedDress,
+    ShortDressWithBows,
+    ShortStretchyDress
     
 }

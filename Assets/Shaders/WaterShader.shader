@@ -17,13 +17,21 @@ Shader "Custom/WaterShader"
         _Tiling2 ("Normal Tiling 2", Vector) = (99,99,0,0)
         _PanDir2 ("Pan Direction 2", Vector) = (0,-1,0,0)
 
+        _EmissionMap       ("Emission Map", 2D)   = "black" {}
+        _EmissionColor     ("Emission Color", Color) = (0,0,0,1)
+        _EmissionIntensity ("Emission Intensity", Float) = 1
+
         _Alpha ("Alpha", Range(0,1)) = 1
+
+        [Enum(UnityEngine.Rendering.CullMode)] _CullMode ("Cull Mode", Float) = 0
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTestMode ("ZTest Mode", Float) = 4
     }
 
     SubShader
     {
         Tags { "Queue"="Geometry" "RenderType"="Transparent" }
-        Cull Off
+        Cull [_CullMode]
+        ZTest [_ZTestMode]
         ZWrite On
 
         Pass
@@ -52,6 +60,7 @@ Shader "Custom/WaterShader"
 
             sampler2D _BaseMap;
             sampler2D _NormalMap;
+            sampler2D _EmissionMap;
 
             float4 _MainColor, _TopColor;
             float  _Smoothness;
@@ -59,6 +68,8 @@ Shader "Custom/WaterShader"
             float  _FresnelPower;
             float4 _Tiling1, _PanDir1;
             float4 _Tiling2, _PanDir2;
+            float4 _EmissionColor;
+            float  _EmissionIntensity;
             float  _Alpha;
 
             v2f vert(appdata v)
@@ -100,7 +111,12 @@ Shader "Custom/WaterShader"
                 half4 baseTex = tex2D(_BaseMap, i.uv);
                 half3 albedo = lerp(_MainColor.rgb, _TopColor.rgb, fresnel) * baseTex.rgb;
 
-                return half4(albedo, _Alpha);
+                half3 emissionTex = tex2D(_EmissionMap, i.uv).rgb;
+                half3 emission = emissionTex * _EmissionColor.rgb * _EmissionIntensity;
+
+                half3 finalColor = albedo + emission;
+
+                return half4(finalColor, _Alpha);
             }
             ENDHLSL
         }

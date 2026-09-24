@@ -1959,14 +1959,12 @@ public class Player : MonoBehaviour
     {
         StopPlayerAnimation();
         
-        Debug.Log("death caused, player busy: "+GameMaster.Instance.PLAYERBUSY);
-        Debug.Log($"[CauseDeath] Writing PLAYERBUSY=true on GameMaster instance {GameMaster.Instance.GetInstanceID()}");
-        
         if (_jumpRoutine != null)
         {
             StopCoroutine(_jumpRoutine);
             _jumpRoutine = null;
         }
+        
         playerIsJumping = false;
 
         if (_controllerJumpBlendRoutine != null)
@@ -1974,10 +1972,6 @@ public class Player : MonoBehaviour
             StopCoroutine(_controllerJumpBlendRoutine);
             _controllerJumpBlendRoutine = null;
         }
-        
-        
-        Debug.Log("death caused, player busy: "+GameMaster.Instance.PLAYERBUSY);
-        Debug.Log($"[CauseDeath] Writing PLAYERBUSY=true on GameMaster instance {GameMaster.Instance.GetInstanceID()}");
         
         StartCoroutine(SlowDeath(cause));
     }
@@ -2088,18 +2082,18 @@ public class Player : MonoBehaviour
         if (other.CompareTag("LightningStrike"))
         {
             Debug.Log("elekilled");
-            EventManager.KillPlayer();
+            EventManager.KillPlayer(Death.Electrocuted);
         }
 
         if (other.CompareTag("DeathBlade"))
         {
             Debug.Log("DeathBlade");
-            EventManager.KillPlayer();
+            EventManager.KillPlayer(Death.Sawn);
         }
         if (other.CompareTag("Void"))
         {
             Debug.Log("Void");
-            EventManager.KillPlayer();
+            EventManager.KillPlayer(Death.Vanished);
         }
         
     }

@@ -13,7 +13,8 @@ public class MeatsMazeDirector : MonoBehaviour
     public Vector3 StartPosition = new Vector3();
     public float BloodRiseAmount = 4f;
     public float BloodBathDuration = 100f;
-    
+    public ThoughtName SelectedThoughtBubble = ThoughtName.NoraLookingAtBloodPipes;
+
     private CancellationTokenSource bloodBathCTS;
 
     private void Start()
@@ -57,10 +58,14 @@ public class MeatsMazeDirector : MonoBehaviour
     
     private async void StartBloodBathSoon()
     {
-
-        await UniTask.WaitForSeconds(3);
+        
+        await UniTask.WaitForSeconds(2);
         
         StartBloodBath();
+        
+        await UniTask.WaitForSeconds(1);
+        
+        GameMaster.Instance.DialogueManager.PlayThought(SelectedThoughtBubble);
     }
     
     

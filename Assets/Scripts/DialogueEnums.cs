@@ -82,4 +82,5 @@ public enum ThoughtName
     NoraNeedsTestEvidence = 8,
     NoraReadyToGo = 9,
     NoraLookingAtCorkboard = 10,
+    NoraLookingAtBloodPipes = 11
 }

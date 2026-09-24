@@ -225,6 +225,7 @@ public class SmokeVignetteController : MonoBehaviour
     private void Start()
     {
         EventManager.OnStartThoughtVignette += PlayThoughtRoutine;
+        EventManager.OnEndThoughtVignette += StopThoughtRoutine;
     }
 
     private void PlayThoughtRoutine()
@@ -396,6 +397,36 @@ public class SmokeVignetteController : MonoBehaviour
         return routine;
     }
 
+    
+    private void StopThoughtRoutine()
+    {
+        StopRoutineGracefully().Forget();
+    }
+
+    private async UniTaskVoid StopRoutineGracefully()
+    {
+        if (routineCts != null)
+        {
+            routineCts.Cancel();
+            routineCts.Dispose();
+            routineCts = null;
+        }
+
+        IsRoutinePlaying = false;
+
+        var fadeOuts = new List<UniTask>();
+        foreach (var layer in layers)
+        {
+            if (layer.currentAlpha > 0.001f)
+            {
+                layer.isActive = false;
+                fadeOuts.Add(FadeLayerAlpha(layer, layer.currentAlpha, 0f, LayerFadeDuration, CancellationToken.None));
+            }
+        }
+
+        await UniTask.WhenAll(fadeOuts);
+    }
+    
     public void ApplyRoutineToState(SmokeRoutine routine)
     {
         if (routine == null)

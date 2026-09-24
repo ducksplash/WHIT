@@ -3269,6 +3269,7 @@ public enum OutfitName
     LayeredSweaterAndPleatedSkirt,
     StrappyRedDress,
     ShortDressWithBows,
-    ShortStretchyDress
+    ShortStretchyDress,
+    SluttyDress
     
 }

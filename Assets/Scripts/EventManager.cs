@@ -60,7 +60,7 @@ public static class EventManager
     public static event Action OnResetThirdPersonState = () => { };
 
     public static event Action OnStartThoughtVignette = () => { };
-
+    public static event Action OnEndThoughtVignette;
     
     public static event Action OnMazeDoorUsed = () => { };
     public static event Action<GameObject> OnBloodPipeLoaded = (Pipe) => { };
@@ -91,7 +91,11 @@ public static class EventManager
         OnBloodPipeLoaded.Invoke(BloodPipe);
     }
 
-
+    public static void EndThoughtVignette()
+    {
+        OnEndThoughtVignette?.Invoke();
+    }
+    
     public static void MazeDoorUsed()
     {
         OnMazeDoorUsed.Invoke();

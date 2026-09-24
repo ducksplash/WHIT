@@ -203,6 +203,10 @@ public class DialogueManager : MonoBehaviour
         {
             Debug.LogWarning("Exception: "+thisEX);
         }
+        finally
+        {
+            EventManager.EndThoughtVignette();
+        }
 
     }
 

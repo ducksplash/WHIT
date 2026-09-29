@@ -3270,6 +3270,10 @@ public enum OutfitName
     StrappyRedDress,
     ShortDressWithBows,
     ShortStretchyDress,
-    SluttyDress
+    SluttyDress,
+    VickieDress,
+    GracefulVickieDress,
+    PleatedDressWithCollar,
+    CollaredBlousseAndPants
     
 }

@@ -3274,6 +3274,14 @@ public enum OutfitName
     VickieDress,
     GracefulVickieDress,
     PleatedDressWithCollar,
-    CollaredBlousseAndPants
+    CollaredBlousseAndPants,
+    CollaredBlousseAndLongSkirt,
+    BlazerAndTrousers,
+    CocktailDress,
+    CollaredTopAndPleatedSkirt,
+    LongDressAndShirt,
+    ShortDressAndShirt,
+    LongModestDress,
+    TinyTopAndPleatedSkirt
     
 }

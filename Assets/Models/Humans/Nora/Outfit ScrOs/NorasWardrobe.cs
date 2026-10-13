@@ -33,6 +33,16 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer PapilioBodyPreview;
     public SkinnedMeshRenderer CloudBodyPreview;
     public SkinnedMeshRenderer LightningBodyPreview;
+    public SkinnedMeshRenderer IndianBodyPreview;
+    public SkinnedMeshRenderer IndianHeelsBodyPreview;
+    public SkinnedMeshRenderer AsianBodyPreview;
+    public SkinnedMeshRenderer AsianHeelsBodyPreview;
+    public SkinnedMeshRenderer HispanicBodyPreview;
+    public SkinnedMeshRenderer HispanicHeelsBodyPreview;
+    public SkinnedMeshRenderer BlackBodyPreview;
+    public SkinnedMeshRenderer BlackHeelsBodyPreview;
+    public SkinnedMeshRenderer PaleBodyPreview;
+    public SkinnedMeshRenderer PaleHeelsBodyPreview;
     public SkinnedMeshRenderer BodPlaceholder1BodyPreview;
     public SkinnedMeshRenderer BodPlaceholder2BodyPreview;
     public SkinnedMeshRenderer BodPlaceholder3BodyPreview;
@@ -42,6 +52,7 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer BodPlaceholder7BodyPreview;
     public SkinnedMeshRenderer BodPlaceholder8BodyPreview;
     public SkinnedMeshRenderer BodPlaceholder9BodyPreview;
+    public SkinnedMeshRenderer BodPlaceholder10BodyPreview;
     public SkinnedMeshRenderer BodyForHighHeelsBodyPreview;
 
     [Header("Preview Eyes")]
@@ -151,7 +162,7 @@ public class NorasWardrobe : MonoBehaviour
     
     [Header("Preview Glasses")]
     public SkinnedMeshRenderer ProfessionalGlassesPreview;
-    public SkinnedMeshRenderer GlaPlaceholder1GlassesPreview;
+    public SkinnedMeshRenderer ProfessionalGlassesOnHeadPreview;
     public SkinnedMeshRenderer GlaPlaceholder2GlassesPreview;
     public SkinnedMeshRenderer GlaPlaceholder3GlassesPreview;
     public SkinnedMeshRenderer GlaPlaceholder4GlassesPreview;
@@ -171,6 +182,16 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer PapilioBody;
     public SkinnedMeshRenderer CloudBody;
     public SkinnedMeshRenderer LightningBody;
+    public SkinnedMeshRenderer IndianBody;
+    public SkinnedMeshRenderer IndianHeelsBody;
+    public SkinnedMeshRenderer AsianBody;
+    public SkinnedMeshRenderer AsianHeelsBody;
+    public SkinnedMeshRenderer HispanicBody;
+    public SkinnedMeshRenderer HispanicHeelsBody;
+    public SkinnedMeshRenderer BlackBody;
+    public SkinnedMeshRenderer BlackHeelsBody;
+    public SkinnedMeshRenderer PaleBody;
+    public SkinnedMeshRenderer PaleHeelsBody;
     public SkinnedMeshRenderer BodPlaceholder1Body;
     public SkinnedMeshRenderer BodPlaceholder2Body;
     public SkinnedMeshRenderer BodPlaceholder3Body;
@@ -180,6 +201,7 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer BodPlaceholder7Body;
     public SkinnedMeshRenderer BodPlaceholder8Body;
     public SkinnedMeshRenderer BodPlaceholder9Body;
+    public SkinnedMeshRenderer BodPlaceholder10Body;
     public SkinnedMeshRenderer BodyForHighHeelsBody;
 
     [Header("Eyes")]
@@ -288,7 +310,7 @@ public class NorasWardrobe : MonoBehaviour
     
     [Header("Glasses")]
     public SkinnedMeshRenderer ProfessionalGlasses;
-    public SkinnedMeshRenderer GlaPlaceholder1Glasses;
+    public SkinnedMeshRenderer ProfessionalGlassesOnHead;
     public SkinnedMeshRenderer GlaPlaceholder2Glasses;
     public SkinnedMeshRenderer GlaPlaceholder3Glasses;
     public SkinnedMeshRenderer GlaPlaceholder4Glasses;
@@ -474,7 +496,7 @@ public class NorasWardrobe : MonoBehaviour
 
         SkinnedMeshRenderer[] allGlasses =
         {
-            ProfessionalGlasses, GlaPlaceholder1Glasses, GlaPlaceholder2Glasses, GlaPlaceholder3Glasses, GlaPlaceholder4Glasses
+            ProfessionalGlasses, ProfessionalGlassesOnHead, GlaPlaceholder2Glasses, GlaPlaceholder3Glasses, GlaPlaceholder4Glasses
         };
 
         foreach (var smr in allGlasses)
@@ -494,7 +516,7 @@ public class NorasWardrobe : MonoBehaviour
 
         SkinnedMeshRenderer[] allGlassesPreview =
         {
-            ProfessionalGlassesPreview, GlaPlaceholder1GlassesPreview, GlaPlaceholder2GlassesPreview, GlaPlaceholder3GlassesPreview, GlaPlaceholder4GlassesPreview
+            ProfessionalGlassesPreview, ProfessionalGlassesOnHeadPreview, GlaPlaceholder2GlassesPreview, GlaPlaceholder3GlassesPreview, GlaPlaceholder4GlassesPreview
         };
 
         foreach (var smr in allGlassesPreview)
@@ -738,7 +760,7 @@ public class NorasWardrobe : MonoBehaviour
     private void HideAllGlasses()
     {
         if (ProfessionalGlasses != null) { ProfessionalGlasses.enabled = false; }
-        if (GlaPlaceholder1Glasses != null) { GlaPlaceholder1Glasses.enabled = false; }
+        if (ProfessionalGlassesOnHead != null) { ProfessionalGlassesOnHead.enabled = false; }
         if (GlaPlaceholder2Glasses != null) { GlaPlaceholder2Glasses.enabled = false; }
         if (GlaPlaceholder3Glasses != null) { GlaPlaceholder3Glasses.enabled = false; }
         if (GlaPlaceholder4Glasses != null) { GlaPlaceholder4Glasses.enabled = false; }
@@ -747,7 +769,7 @@ public class NorasWardrobe : MonoBehaviour
     private void HideAllGlassesPreview()
     {
         if (ProfessionalGlassesPreview != null) { ProfessionalGlassesPreview.enabled = false; }
-        if (GlaPlaceholder1GlassesPreview != null) { GlaPlaceholder1GlassesPreview.enabled = false; }
+        if (ProfessionalGlassesOnHeadPreview != null) { ProfessionalGlassesOnHeadPreview.enabled = false; }
         if (GlaPlaceholder2GlassesPreview != null) { GlaPlaceholder2GlassesPreview.enabled = false; }
         if (GlaPlaceholder3GlassesPreview != null) { GlaPlaceholder3GlassesPreview.enabled = false; }
         if (GlaPlaceholder4GlassesPreview != null) { GlaPlaceholder4GlassesPreview.enabled = false; }
@@ -932,6 +954,16 @@ public class NorasWardrobe : MonoBehaviour
         if (PapilioBody != null) { PapilioBody.enabled = false; }
         if (CloudBody != null) { CloudBody.enabled = false; }
         if (LightningBody != null) { LightningBody.enabled = false; }
+        if (IndianBody != null) { IndianBody.enabled = false; }
+        if (IndianHeelsBody != null) { IndianHeelsBody.enabled = false; }
+        if (AsianBody != null) { AsianBody.enabled = false; }
+        if (AsianHeelsBody != null) { AsianHeelsBody.enabled = false; }
+        if (HispanicBody != null) { HispanicBody.enabled = false; }
+        if (HispanicHeelsBody != null) { HispanicHeelsBody.enabled = false; }
+        if (BlackBody != null) { BlackBody.enabled = false; }
+        if (BlackHeelsBody != null) { BlackHeelsBody.enabled = false; }
+        if (PaleBody != null) { PaleBody.enabled = false; }
+        if (PaleHeelsBody != null) { PaleHeelsBody.enabled = false; }
         if (BodPlaceholder1Body != null) { BodPlaceholder1Body.enabled = false; }
         if (BodPlaceholder2Body != null) { BodPlaceholder2Body.enabled = false; }
         if (BodPlaceholder3Body != null) { BodPlaceholder3Body.enabled = false; }
@@ -941,6 +973,7 @@ public class NorasWardrobe : MonoBehaviour
         if (BodPlaceholder7Body != null) { BodPlaceholder7Body.enabled = false; }
         if (BodPlaceholder8Body != null) { BodPlaceholder8Body.enabled = false; }
         if (BodPlaceholder9Body != null) { BodPlaceholder9Body.enabled = false; }
+        if (BodPlaceholder10Body != null) { BodPlaceholder10Body.enabled = false; }
         if (BodyForHighHeelsBody != null) { BodyForHighHeelsBody.enabled = false; }
     }
 
@@ -951,6 +984,16 @@ public class NorasWardrobe : MonoBehaviour
         if (PapilioBodyPreview != null) { PapilioBodyPreview.enabled = false; }
         if (CloudBodyPreview != null) { CloudBodyPreview.enabled = false; }
         if (LightningBodyPreview != null) { LightningBodyPreview.enabled = false; }
+        if (IndianBodyPreview != null) { IndianBodyPreview.enabled = false; }
+        if (IndianHeelsBodyPreview != null) { IndianHeelsBodyPreview.enabled = false; }
+        if (AsianBodyPreview != null) { AsianBodyPreview.enabled = false; }
+        if (AsianHeelsBodyPreview != null) { AsianHeelsBodyPreview.enabled = false; }
+        if (HispanicBodyPreview != null) { HispanicBodyPreview.enabled = false; }
+        if (HispanicHeelsBodyPreview != null) { HispanicHeelsBodyPreview.enabled = false; }
+        if (BlackBodyPreview != null) { BlackBodyPreview.enabled = false; }
+        if (BlackHeelsBodyPreview != null) { BlackHeelsBodyPreview.enabled = false; }
+        if (PaleBodyPreview != null) { PaleBodyPreview.enabled = false; }
+        if (PaleHeelsBodyPreview != null) { PaleHeelsBodyPreview.enabled = false; }
         if (BodPlaceholder1BodyPreview != null) { BodPlaceholder1BodyPreview.enabled = false; }
         if (BodPlaceholder2BodyPreview != null) { BodPlaceholder2BodyPreview.enabled = false; }
         if (BodPlaceholder3BodyPreview != null) { BodPlaceholder3BodyPreview.enabled = false; }
@@ -960,6 +1003,7 @@ public class NorasWardrobe : MonoBehaviour
         if (BodPlaceholder7BodyPreview != null) { BodPlaceholder7BodyPreview.enabled = false; }
         if (BodPlaceholder8BodyPreview != null) { BodPlaceholder8BodyPreview.enabled = false; }
         if (BodPlaceholder9BodyPreview != null) { BodPlaceholder9BodyPreview.enabled = false; }
+        if (BodPlaceholder10BodyPreview != null) { BodPlaceholder10BodyPreview.enabled = false; }
         if (BodyForHighHeelsBodyPreview != null) { BodyForHighHeelsBodyPreview.enabled = false; }
     }
 
@@ -1244,7 +1288,7 @@ public class NorasWardrobe : MonoBehaviour
         switch (glasses)
         {
             case GlassesName.Professional: if (ProfessionalGlasses != null) { ProfessionalGlasses.enabled = true; } break;
-            case GlassesName.GlaPlaceholder1: if (GlaPlaceholder1Glasses != null) { GlaPlaceholder1Glasses.enabled = true; } break;
+            case GlassesName.ProfessionalGlassesOnHead: if (ProfessionalGlassesOnHead != null) { ProfessionalGlassesOnHead.enabled = true; } break;
             case GlassesName.GlaPlaceholder2: if (GlaPlaceholder2Glasses != null) { GlaPlaceholder2Glasses.enabled = true; } break;
             case GlassesName.GlaPlaceholder3: if (GlaPlaceholder3Glasses != null) { GlaPlaceholder3Glasses.enabled = true; } break;
             case GlassesName.GlaPlaceholder4: if (GlaPlaceholder4Glasses != null) { GlaPlaceholder4Glasses.enabled = true; } break;
@@ -1258,7 +1302,7 @@ public class NorasWardrobe : MonoBehaviour
         switch (glasses)
         {
             case GlassesName.Professional: if (ProfessionalGlassesPreview != null) { ProfessionalGlassesPreview.enabled = true; } break;
-            case GlassesName.GlaPlaceholder1: if (GlaPlaceholder1GlassesPreview != null) { GlaPlaceholder1GlassesPreview.enabled = true; } break;
+            case GlassesName.ProfessionalGlassesOnHead: if (ProfessionalGlassesOnHeadPreview != null) { ProfessionalGlassesOnHeadPreview.enabled = true; } break;
             case GlassesName.GlaPlaceholder2: if (GlaPlaceholder2GlassesPreview != null) { GlaPlaceholder2GlassesPreview.enabled = true; } break;
             case GlassesName.GlaPlaceholder3: if (GlaPlaceholder3GlassesPreview != null) { GlaPlaceholder3GlassesPreview.enabled = true; } break;
             case GlassesName.GlaPlaceholder4: if (GlaPlaceholder4GlassesPreview != null) { GlaPlaceholder4GlassesPreview.enabled = true; } break;
@@ -1276,6 +1320,16 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.Papilio: if (PapilioBody != null) { PapilioBody.enabled = true; } break;
             case NoraBodies.Cloud: if (CloudBody != null) { CloudBody.enabled = true; } break;
             case NoraBodies.Lightning: if (LightningBody != null) { LightningBody.enabled = true; } break;
+            case NoraBodies.Indian: if (IndianBody != null) { IndianBody.enabled = true; } break;
+            case NoraBodies.IndianHeels: if (IndianHeelsBody != null) { IndianHeelsBody.enabled = true; } break;
+            case NoraBodies.Asian: if (AsianBody != null) { AsianBody.enabled = true; } break;
+            case NoraBodies.AsianHeels: if (AsianHeelsBody != null) { AsianHeelsBody.enabled = true; } break;
+            case NoraBodies.Hispanic: if (HispanicBody != null) { HispanicBody.enabled = true; } break;
+            case NoraBodies.HispanicHeels: if (HispanicHeelsBody != null) { HispanicHeelsBody.enabled = true; } break;
+            case NoraBodies.Black: if (BlackBody != null) { BlackBody.enabled = true; } break;
+            case NoraBodies.BlackHeels: if (BlackHeelsBody != null) { BlackHeelsBody.enabled = true; } break;
+            case NoraBodies.Pale: if (PaleBody != null) { PaleBody.enabled = true; } break;
+            case NoraBodies.PaleHeels: if (PaleHeelsBody != null) { PaleHeelsBody.enabled = true; } break;
             case NoraBodies.BodPlaceholder1: if (BodPlaceholder1Body != null) { BodPlaceholder1Body.enabled = true; } break;
             case NoraBodies.BodPlaceholder2: if (BodPlaceholder2Body != null) { BodPlaceholder2Body.enabled = true; } break;
             case NoraBodies.BodPlaceholder3: if (BodPlaceholder3Body != null) { BodPlaceholder3Body.enabled = true; } break;
@@ -1285,6 +1339,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BodPlaceholder7: if (BodPlaceholder7Body != null) { BodPlaceholder7Body.enabled = true; } break;
             case NoraBodies.BodPlaceholder8: if (BodPlaceholder8Body != null) { BodPlaceholder8Body.enabled = true; } break;
             case NoraBodies.BodPlaceholder9: if (BodPlaceholder9Body != null) { BodPlaceholder9Body.enabled = true; } break;
+            case NoraBodies.BodPlaceholder10: if (BodPlaceholder10Body != null) { BodPlaceholder10Body.enabled = true; } break;
             case NoraBodies.BodyForHighHeels: if (BodyForHighHeelsBody != null) { BodyForHighHeelsBody.enabled = true; } break;
             default: if (NormalBody != null) { NormalBody.enabled = true; } break;
         }
@@ -1300,6 +1355,16 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.Papilio: if (PapilioBodyPreview != null) { PapilioBodyPreview.enabled = true; } break;
             case NoraBodies.Cloud: if (CloudBodyPreview != null) { CloudBodyPreview.enabled = true; } break;
             case NoraBodies.Lightning: if (LightningBodyPreview != null) { LightningBodyPreview.enabled = true; } break;
+            case NoraBodies.Indian: if (IndianBodyPreview != null) { IndianBodyPreview.enabled = true; } break;
+            case NoraBodies.IndianHeels: if (IndianHeelsBodyPreview != null) { IndianHeelsBodyPreview.enabled = true; } break;
+            case NoraBodies.Asian: if (AsianBodyPreview != null) { AsianBodyPreview.enabled = true; } break;
+            case NoraBodies.AsianHeels: if (AsianHeelsBodyPreview != null) { AsianHeelsBodyPreview.enabled = true; } break;
+            case NoraBodies.Hispanic: if (HispanicBodyPreview != null) { HispanicBodyPreview.enabled = true; } break;
+            case NoraBodies.HispanicHeels: if (HispanicHeelsBodyPreview != null) { HispanicHeelsBodyPreview.enabled = true; } break;
+            case NoraBodies.Black: if (BlackBodyPreview != null) { BlackBodyPreview.enabled = true; } break;
+            case NoraBodies.BlackHeels: if (BlackHeelsBodyPreview != null) { BlackHeelsBodyPreview.enabled = true; } break;
+            case NoraBodies.Pale: if (PaleBodyPreview != null) { PaleBodyPreview.enabled = true; } break;
+            case NoraBodies.PaleHeels: if (PaleHeelsBodyPreview != null) { PaleHeelsBodyPreview.enabled = true; } break;
             case NoraBodies.BodPlaceholder1: if (BodPlaceholder1BodyPreview != null) { BodPlaceholder1BodyPreview.enabled = true; } break;
             case NoraBodies.BodPlaceholder2: if (BodPlaceholder2BodyPreview != null) { BodPlaceholder2BodyPreview.enabled = true; } break;
             case NoraBodies.BodPlaceholder3: if (BodPlaceholder3BodyPreview != null) { BodPlaceholder3BodyPreview.enabled = true; } break;
@@ -1309,6 +1374,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BodPlaceholder7: if (BodPlaceholder7BodyPreview != null) { BodPlaceholder7BodyPreview.enabled = true; } break;
             case NoraBodies.BodPlaceholder8: if (BodPlaceholder8BodyPreview != null) { BodPlaceholder8BodyPreview.enabled = true; } break;
             case NoraBodies.BodPlaceholder9: if (BodPlaceholder9BodyPreview != null) { BodPlaceholder9BodyPreview.enabled = true; } break;
+            case NoraBodies.BodPlaceholder10: if (BodPlaceholder10BodyPreview != null) { BodPlaceholder10BodyPreview.enabled = true; } break;
             case NoraBodies.BodyForHighHeels: if (BodyForHighHeelsBodyPreview != null) { BodyForHighHeelsBodyPreview.enabled = true; } break;
             default: if (NormalBodyPreview != null) { NormalBodyPreview.enabled = true; } break;
         }
@@ -1767,6 +1833,30 @@ public class NorasWardrobe : MonoBehaviour
         SwitchToOutfit(order[index]);
     }
 
+#if UNITY_EDITOR
+    public void StepOutfitFiltered(int direction, Func<Outfit, bool> filter)
+    {
+        List<OutfitName> order = GetInspectorOrderedOutfits();
+        if (order.Count == 0) { return; }
+
+        int index = order.IndexOf(currentOutfit);
+        if (index < 0) { index = direction > 0 ? -1 : 0; }
+
+        for (int i = 0; i < order.Count; i++)
+        {
+            index = ((index + direction) % order.Count + order.Count) % order.Count;
+            Outfit candidate = GetOutfit(order[index]);
+            if (filter == null || (candidate != null && filter(candidate)))
+            {
+                SwitchToOutfit(order[index]);
+                return;
+            }
+        }
+
+        Debug.LogWarning("NorasWardrobe: No outfits match the current filter.");
+    }
+#endif
+
     private void SwitchToOutfit(OutfitName outfit)
     {
         if (outfit == OutfitName.None) { DisableAllMainOutfits(); return; }
@@ -2010,6 +2100,16 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.Papilio: return PapilioBody;
             case NoraBodies.Cloud: return CloudBody;
             case NoraBodies.Lightning: return LightningBody;
+            case NoraBodies.Indian: return IndianBody;
+            case NoraBodies.IndianHeels: return IndianHeelsBody;
+            case NoraBodies.Asian: return AsianBody;
+            case NoraBodies.AsianHeels: return AsianHeelsBody;
+            case NoraBodies.Hispanic: return HispanicBody;
+            case NoraBodies.HispanicHeels: return HispanicHeelsBody;
+            case NoraBodies.Black: return BlackBody;
+            case NoraBodies.BlackHeels: return BlackHeelsBody;
+            case NoraBodies.Pale: return PaleBody;
+            case NoraBodies.PaleHeels: return PaleHeelsBody;
             case NoraBodies.BodPlaceholder1: return BodPlaceholder1Body;
             case NoraBodies.BodPlaceholder2: return BodPlaceholder2Body;
             case NoraBodies.BodPlaceholder3: return BodPlaceholder3Body;
@@ -2019,6 +2119,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BodPlaceholder7: return BodPlaceholder7Body;
             case NoraBodies.BodPlaceholder8: return BodPlaceholder8Body;
             case NoraBodies.BodPlaceholder9: return BodPlaceholder9Body;
+            case NoraBodies.BodPlaceholder10: return BodPlaceholder10Body;
             case NoraBodies.BodyForHighHeels: return BodyForHighHeelsBody;
             default: return NormalBody;
         }
@@ -2033,6 +2134,16 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.Papilio: return PapilioBodyPreview;
             case NoraBodies.Cloud: return CloudBodyPreview;
             case NoraBodies.Lightning: return LightningBodyPreview;
+            case NoraBodies.Indian: return IndianBodyPreview;
+            case NoraBodies.IndianHeels: return IndianHeelsBodyPreview;
+            case NoraBodies.Asian: return AsianBodyPreview;
+            case NoraBodies.AsianHeels: return AsianHeelsBodyPreview;
+            case NoraBodies.Hispanic: return HispanicBodyPreview;
+            case NoraBodies.HispanicHeels: return HispanicHeelsBodyPreview;
+            case NoraBodies.Black: return BlackBodyPreview;
+            case NoraBodies.BlackHeels: return BlackHeelsBodyPreview;
+            case NoraBodies.Pale: return PaleBodyPreview;
+            case NoraBodies.PaleHeels: return PaleHeelsBodyPreview;
             case NoraBodies.BodPlaceholder1: return BodPlaceholder1BodyPreview;
             case NoraBodies.BodPlaceholder2: return BodPlaceholder2BodyPreview;
             case NoraBodies.BodPlaceholder3: return BodPlaceholder3BodyPreview;
@@ -2042,6 +2153,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BodPlaceholder7: return BodPlaceholder7BodyPreview;
             case NoraBodies.BodPlaceholder8: return BodPlaceholder8BodyPreview;
             case NoraBodies.BodPlaceholder9: return BodPlaceholder9BodyPreview;
+            case NoraBodies.BodPlaceholder10: return BodPlaceholder10BodyPreview;
             case NoraBodies.BodyForHighHeels: return BodyForHighHeelsBodyPreview;
             default: return NormalBodyPreview;
         }
@@ -2134,6 +2246,26 @@ public class NorasWardrobeEditor : Editor
     private const float ButtonSpacing = 4f;
     private const float SideMargin = 40f;
     private const int DefaultColumns = 3;
+    private const string FilterSessionKey = "NorasWardrobeEditor.OutfitFilter";
+
+    private enum OutfitFilter
+    {
+        All,
+        StageOne,
+        StageTwo,
+        StageThree,
+        StageSpecial,
+        TypeWork,
+        TypeMain,
+        TypePyjamas,
+        TypeNightOut,
+        TypeSpecial,
+        TypeStoryline,
+        TypeUndergarments,
+        MarkedForDeletion
+    }
+
+    private OutfitFilter _filter = OutfitFilter.All;
 
     private OutfitName? _pendingPreviewOutfit;
     private string _outfitSearchText = string.Empty;
@@ -2143,6 +2275,7 @@ public class NorasWardrobeEditor : Editor
     {
         _pendingPreviewOutfit = null;
         _outfitSearchText = string.Empty;
+        _filter = (OutfitFilter)SessionState.GetInt(FilterSessionKey, (int)OutfitFilter.All);
         EditorApplication.update += OnEditorUpdate;
     }
 
@@ -2162,6 +2295,82 @@ public class NorasWardrobeEditor : Editor
         {
             _outfitSearchText = string.Empty;
             Repaint();
+        }
+    }
+
+    private static string GetFilterLabel(OutfitFilter filter)
+    {
+        switch (filter)
+        {
+            case OutfitFilter.All: return "All";
+            case OutfitFilter.StageOne: return "Only Stage: One";
+            case OutfitFilter.StageTwo: return "Only Stage: Two";
+            case OutfitFilter.StageThree: return "Only Stage: Three";
+            case OutfitFilter.StageSpecial: return "Only Stage: Special";
+            case OutfitFilter.TypeWork: return "Only Type: Work";
+            case OutfitFilter.TypeMain: return "Only Type: Main";
+            case OutfitFilter.TypePyjamas: return "Only Type: Pyjamas";
+            case OutfitFilter.TypeNightOut: return "Only Type: NightOut";
+            case OutfitFilter.TypeSpecial: return "Only Type: Special";
+            case OutfitFilter.TypeStoryline: return "Only Type: Storyline";
+            case OutfitFilter.TypeUndergarments: return "Only Type: Undergarments";
+            case OutfitFilter.MarkedForDeletion: return "Only Marked For Deletion";
+            default: return "All";
+        }
+    }
+
+
+    private static Func<Outfit, bool> GetFilterPredicate(OutfitFilter filter)
+    {
+        switch (filter)
+        {
+            case OutfitFilter.StageOne: return o => o.outfitStage == OutfitStage.StageOne;
+            case OutfitFilter.StageTwo: return o => o.outfitStage == OutfitStage.StageTwo;
+            case OutfitFilter.StageThree: return o => o.outfitStage == OutfitStage.StageThree;
+            case OutfitFilter.StageSpecial: return o => o.outfitStage == OutfitStage.Special;
+            case OutfitFilter.TypeWork: return o => o.outfitType == OutfitType.Work;
+            case OutfitFilter.TypeMain: return o => o.outfitType == OutfitType.Main;
+            case OutfitFilter.TypePyjamas: return o => o.outfitType == OutfitType.Pyjamas;
+            case OutfitFilter.TypeNightOut: return o => o.outfitType == OutfitType.NightOut;
+            case OutfitFilter.TypeSpecial: return o => o.outfitType == OutfitType.Special;
+            case OutfitFilter.TypeStoryline: return o => o.outfitType == OutfitType.Storyline;
+            case OutfitFilter.TypeUndergarments: return o => o.outfitType == OutfitType.Undergarments;
+            case OutfitFilter.MarkedForDeletion: return o => o.MarkedForDeletion;
+            default: return null;
+        }
+    }
+
+    private void AddFilterMenuItem(GenericMenu menu, OutfitFilter filter)
+    {
+        menu.AddItem(new GUIContent(GetFilterLabel(filter)), _filter == filter, () =>
+        {
+            _filter = filter;
+            SessionState.SetInt(FilterSessionKey, (int)filter);
+            Repaint();
+        });
+    }
+
+    private void DrawFilterDropdown(GUIStyle style)
+    {
+        if (GUILayout.Button("Filter: " + GetFilterLabel(_filter) + "  \u25BE", style, GUILayout.Height(ButtonHeight)))
+        {
+            GenericMenu menu = new GenericMenu();
+            AddFilterMenuItem(menu, OutfitFilter.All);
+            AddFilterMenuItem(menu, OutfitFilter.StageOne);
+            AddFilterMenuItem(menu, OutfitFilter.StageTwo);
+            AddFilterMenuItem(menu, OutfitFilter.StageThree);
+            AddFilterMenuItem(menu, OutfitFilter.StageSpecial);
+            menu.AddSeparator("");
+            AddFilterMenuItem(menu, OutfitFilter.TypeWork);
+            AddFilterMenuItem(menu, OutfitFilter.TypeMain);
+            AddFilterMenuItem(menu, OutfitFilter.TypePyjamas);
+            AddFilterMenuItem(menu, OutfitFilter.TypeNightOut);
+            AddFilterMenuItem(menu, OutfitFilter.TypeSpecial);
+            AddFilterMenuItem(menu, OutfitFilter.TypeStoryline);
+            AddFilterMenuItem(menu, OutfitFilter.TypeUndergarments);
+            menu.AddSeparator("");
+            AddFilterMenuItem(menu, OutfitFilter.MarkedForDeletion);
+            menu.ShowAsContext();
         }
     }
 
@@ -2257,7 +2466,11 @@ public class NorasWardrobeEditor : Editor
         
 
         GUI.backgroundColor = Color.red;
-        DrawButtonRow(me, redButton, ("Previous Outfit", () => { me.PreviousOutfit(); SelectOutfitAsset(me); }), ("Next Outfit", () => { me.NextOutfit(); SelectOutfitAsset(me); }));
+        DrawButtonRow(me, redButton,
+            ("Previous Outfit", () => { me.StepOutfitFiltered(-1, GetFilterPredicate(_filter)); SelectOutfitAsset(me); }),
+            ("Next Outfit", () => { me.StepOutfitFiltered(1, GetFilterPredicate(_filter)); SelectOutfitAsset(me); }));
+
+        DrawFilterDropdown(redButton);
         
         
         EditorGUILayout.Space();
@@ -2423,7 +2636,7 @@ public class NorasWardrobeEditor : Editor
         EditorGUILayout.LabelField("Glasses", EditorStyles.boldLabel);
         DrawButtonRow(me, clearAllStyle,
             ("Professional", () => me.SetGlasses(GlassesName.Professional)),
-            ("GlaPlaceholder1", () => me.SetGlasses(GlassesName.GlaPlaceholder1)));
+            ("ProfessionalGlassesOnHead", () => me.SetGlasses(GlassesName.ProfessionalGlassesOnHead)));
         DrawButtonRow(me, clearAllStyle,
             ("GlaPlaceholder2", () => me.SetGlasses(GlassesName.GlaPlaceholder2)),
             ("GlaPlaceholder3", () => me.SetGlasses(GlassesName.GlaPlaceholder3)));
@@ -2443,6 +2656,19 @@ public class NorasWardrobeEditor : Editor
             ("Cloud", () => me.SetBody(NoraBodies.Cloud)),
             ("Lightning", () => me.SetBody(NoraBodies.Lightning)));
         DrawButtonRow(me, clearAllStyle,
+            ("Indian", () => me.SetBody(NoraBodies.Indian)),
+            ("IndianHeels", () => me.SetBody(NoraBodies.IndianHeels)),
+            ("Asian", () => me.SetBody(NoraBodies.Asian)));
+        DrawButtonRow(me, clearAllStyle,
+            ("AsianHeels", () => me.SetBody(NoraBodies.AsianHeels)),
+            ("Hispanic", () => me.SetBody(NoraBodies.Hispanic)),
+            ("HispanicHeels", () => me.SetBody(NoraBodies.HispanicHeels)));
+        DrawButtonRow(me, clearAllStyle,
+            ("Black", () => me.SetBody(NoraBodies.Black)),
+            ("BlackHeels", () => me.SetBody(NoraBodies.BlackHeels)),
+            ("Pale", () => me.SetBody(NoraBodies.Pale)),
+            ("PaleHeels", () => me.SetBody(NoraBodies.PaleHeels)));
+        DrawButtonRow(me, clearAllStyle,
             ("BodPlaceholder1", () => me.SetBody(NoraBodies.BodPlaceholder1)),
             ("BodPlaceholder2", () => me.SetBody(NoraBodies.BodPlaceholder2)),
             ("BodPlaceholder3", () => me.SetBody(NoraBodies.BodPlaceholder3)));
@@ -2454,6 +2680,8 @@ public class NorasWardrobeEditor : Editor
             ("BodPlaceholder7", () => me.SetBody(NoraBodies.BodPlaceholder7)),
             ("BodPlaceholder8", () => me.SetBody(NoraBodies.BodPlaceholder8)),
             ("BodPlaceholder9", () => me.SetBody(NoraBodies.BodPlaceholder9)));
+        DrawButtonRow(me, clearAllStyle,
+            ("BodPlaceholder10", () => me.SetBody(NoraBodies.BodPlaceholder10)));
         DrawButtonRow(me, clearAllStyle,
             ("BodyForHighHeels", () => me.SetBody(NoraBodies.BodyForHighHeels)));
 
@@ -2894,7 +3122,7 @@ public enum GlassesName
 {
     None,
     Professional,
-    GlaPlaceholder1,
+    ProfessionalGlassesOnHead,
     GlaPlaceholder2,
     GlaPlaceholder3,
     GlaPlaceholder4
@@ -2907,6 +3135,17 @@ public enum NoraBodies
     Papilio,
     Cloud,
     Lightning,
+    Indian,
+    IndianHeels,
+    Asian,
+    AsianHeels,
+    Hispanic,
+    HispanicHeels,
+    Black,
+    BlackHeels,
+    Pale,
+    BodyForHighHeels,
+    PaleHeels,
     BodPlaceholder1,
     BodPlaceholder2,
     BodPlaceholder3,
@@ -2916,7 +3155,7 @@ public enum NoraBodies
     BodPlaceholder7,
     BodPlaceholder8,
     BodPlaceholder9,
-    BodyForHighHeels
+    BodPlaceholder10
 }
 
 public enum NoraEyes
@@ -3282,6 +3521,20 @@ public enum OutfitName
     LongDressAndShirt,
     ShortDressAndShirt,
     LongModestDress,
-    TinyTopAndPleatedSkirt
+    TinyTopAndPleatedSkirt,
+    StraplessTopWithCardiAndSkirt,
+    HoodieAndPleatedSkirt,
+    CollaredTopAndPants,
+    DanceClass,
+    Teacher,
+    ClingyTopAndPleatedSkirt,
+    SkateClass,
+    StylishJacketAndShortSkirt,
+    LayeredTopAndLongSkirt,
+    MiniskirtWithLayeredTop,
+    WoolyJumperAndPleatedSkirt,
+    ConservativeAtWork,
+    HorDress
+    
     
 }

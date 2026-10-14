@@ -436,12 +436,22 @@ public class NorasWardrobe : MonoBehaviour
             .ToList();
     }
 
+    private int CountSpawnableOutfitsForStage(OutfitStage stage)
+    {
+        if (Outfits == null) { return 0; }
+
+        return Outfits.Count(o => o != null && o.thisOutfit != OutfitName.None && o.outfitStage == stage && IsOutfitSpawnable(o.thisOutfit));
+    }
+
     public void SelectAndApplyOutfitForDeaths(int deaths)
     {
         OutfitStage stage;
 
-        if (deaths < 46) { stage = OutfitStage.StageOne; }
-        else if (deaths < 92) { stage = OutfitStage.StageTwo; }
+        int stageOneCount = CountSpawnableOutfitsForStage(OutfitStage.StageOne);
+        int stageTwoCount = CountSpawnableOutfitsForStage(OutfitStage.StageTwo);
+
+        if (deaths < stageOneCount) { stage = OutfitStage.StageOne; }
+        else if (deaths < stageOneCount + stageTwoCount) { stage = OutfitStage.StageTwo; }
         else { stage = OutfitStage.StageThree; }
 
         List<OutfitName> pool = GetOutfitsForStageExcludingBurned(stage);
@@ -3370,7 +3380,7 @@ public enum OutfitName
     BlousseAndPants,
     FloatyTopAndTinySkirt,
     HeartDress,
-    SkinTightLeo,
+    TinyShinyDress,
     WavyDress,
     RuffleTopAndSkirt,
     RuffleTopWithPants,
@@ -3534,7 +3544,8 @@ public enum OutfitName
     MiniskirtWithLayeredTop,
     WoolyJumperAndPleatedSkirt,
     ConservativeAtWork,
-    HorDress
+    HorDress,
+    CroppedDress
     
     
 }

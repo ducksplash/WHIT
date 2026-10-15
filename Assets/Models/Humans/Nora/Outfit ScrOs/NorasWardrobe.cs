@@ -155,10 +155,10 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer LaceChokerNecklacePreview;
     public SkinnedMeshRenderer CasualChokerNecklacePreview;
     public SkinnedMeshRenderer StarNecklacePreview;
-    public SkinnedMeshRenderer NekPlaceholder1NecklacePreview;
-    public SkinnedMeshRenderer NekPlaceholder2NecklacePreview;
-    public SkinnedMeshRenderer NekPlaceholder3NecklacePreview;
-    public SkinnedMeshRenderer NekPlaceholder4NecklacePreview;
+    public SkinnedMeshRenderer AnkhNecklacePreview;
+    public SkinnedMeshRenderer CelticKnotNecklacePreview;
+    public SkinnedMeshRenderer CherriesNecklacePreview;
+    public SkinnedMeshRenderer LoveNecklacePreview;
     
     [Header("Preview Glasses")]
     public SkinnedMeshRenderer ProfessionalGlassesPreview;
@@ -303,10 +303,10 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer LaceChokerNecklace;
     public SkinnedMeshRenderer CasualChokerNecklace;
     public SkinnedMeshRenderer StarNecklace;
-    public SkinnedMeshRenderer NekPlaceholder1Necklace;
-    public SkinnedMeshRenderer NekPlaceholder2Necklace;
-    public SkinnedMeshRenderer NekPlaceholder3Necklace;
-    public SkinnedMeshRenderer NekPlaceholder4Necklace;
+    public SkinnedMeshRenderer AnkhNecklace;
+    public SkinnedMeshRenderer CelticKnotNecklace;
+    public SkinnedMeshRenderer CherriesNecklace;
+    public SkinnedMeshRenderer LoveNecklace;
     
     [Header("Glasses")]
     public SkinnedMeshRenderer ProfessionalGlasses;
@@ -732,7 +732,7 @@ public class NorasWardrobe : MonoBehaviour
         {
             ButterflyNecklace, PearlsNecklace, CrossNecklace,
             HeartNecklace, LaceChokerNecklace, CasualChokerNecklace, StarNecklace,
-            NekPlaceholder1Necklace, NekPlaceholder2Necklace, NekPlaceholder3Necklace, NekPlaceholder4Necklace
+            AnkhNecklace, CelticKnotNecklace, CherriesNecklace, LoveNecklace
         };
 
         foreach (var smr in allNecklaces)
@@ -754,7 +754,7 @@ public class NorasWardrobe : MonoBehaviour
         {
             ButterflyNecklacePreview, PearlsNecklacePreview, CrossNecklacePreview,
             HeartNecklacePreview, LaceChokerNecklacePreview, CasualChokerNecklacePreview, StarNecklacePreview,
-            NekPlaceholder1NecklacePreview, NekPlaceholder2NecklacePreview, NekPlaceholder3NecklacePreview, NekPlaceholder4NecklacePreview
+            AnkhNecklacePreview, CelticKnotNecklacePreview, CherriesNecklacePreview, LoveNecklacePreview
         };
 
         foreach (var smr in allNecklacesPreview)
@@ -936,10 +936,10 @@ public class NorasWardrobe : MonoBehaviour
         if (LaceChokerNecklace != null) { LaceChokerNecklace.enabled = false; }
         if (CasualChokerNecklace != null) { CasualChokerNecklace.enabled = false; }
         if (StarNecklace != null) { StarNecklace.enabled = false; }
-        if (NekPlaceholder1Necklace != null) { NekPlaceholder1Necklace.enabled = false; }
-        if (NekPlaceholder2Necklace != null) { NekPlaceholder2Necklace.enabled = false; }
-        if (NekPlaceholder3Necklace != null) { NekPlaceholder3Necklace.enabled = false; }
-        if (NekPlaceholder4Necklace != null) { NekPlaceholder4Necklace.enabled = false; }
+        if (AnkhNecklace != null) { AnkhNecklace.enabled = false; }
+        if (CelticKnotNecklace != null) { CelticKnotNecklace.enabled = false; }
+        if (CherriesNecklace != null) { CherriesNecklace.enabled = false; }
+        if (LoveNecklace != null) { LoveNecklace.enabled = false; }
     }
 
     private void HideAllNecklacesPreview()
@@ -951,10 +951,10 @@ public class NorasWardrobe : MonoBehaviour
         if (LaceChokerNecklacePreview != null) { LaceChokerNecklacePreview.enabled = false; }
         if (CasualChokerNecklacePreview != null) { CasualChokerNecklacePreview.enabled = false; }
         if (StarNecklacePreview != null) { StarNecklacePreview.enabled = false; }
-        if (NekPlaceholder1NecklacePreview != null) { NekPlaceholder1NecklacePreview.enabled = false; }
-        if (NekPlaceholder2NecklacePreview != null) { NekPlaceholder2NecklacePreview.enabled = false; }
-        if (NekPlaceholder3NecklacePreview != null) { NekPlaceholder3NecklacePreview.enabled = false; }
-        if (NekPlaceholder4NecklacePreview != null) { NekPlaceholder4NecklacePreview.enabled = false; }
+        if (AnkhNecklacePreview != null) { AnkhNecklacePreview.enabled = false; }
+        if (CelticKnotNecklacePreview != null) { CelticKnotNecklacePreview.enabled = false; }
+        if (CherriesNecklacePreview != null) { CherriesNecklacePreview.enabled = false; }
+        if (LoveNecklacePreview != null) { LoveNecklacePreview.enabled = false; }
     }
 
     private void HideAllBodies()
@@ -1264,10 +1264,10 @@ public class NorasWardrobe : MonoBehaviour
             case NecklaceName.LaceChoker: if (LaceChokerNecklace != null) { LaceChokerNecklace.enabled = true; } break;
             case NecklaceName.CasualChoker: if (CasualChokerNecklace != null) { CasualChokerNecklace.enabled = true; } break;
             case NecklaceName.Star: if (StarNecklace != null) { StarNecklace.enabled = true; } break;
-            case NecklaceName.NekPlaceholder1: if (NekPlaceholder1Necklace != null) { NekPlaceholder1Necklace.enabled = true; } break;
-            case NecklaceName.NekPlaceholder2: if (NekPlaceholder2Necklace != null) { NekPlaceholder2Necklace.enabled = true; } break;
-            case NecklaceName.NekPlaceholder3: if (NekPlaceholder3Necklace != null) { NekPlaceholder3Necklace.enabled = true; } break;
-            case NecklaceName.NekPlaceholder4: if (NekPlaceholder4Necklace != null) { NekPlaceholder4Necklace.enabled = true; } break;
+            case NecklaceName.Ankh: if (AnkhNecklace != null) { AnkhNecklace.enabled = true; } break;
+            case NecklaceName.CelticKnot: if (CelticKnotNecklace != null) { CelticKnotNecklace.enabled = true; } break;
+            case NecklaceName.Cherries: if (CherriesNecklace != null) { CherriesNecklace.enabled = true; } break;
+            case NecklaceName.Love: if (LoveNecklace != null) { LoveNecklace.enabled = true; } break;
             case NecklaceName.None: break;
         }
     }
@@ -1284,10 +1284,10 @@ public class NorasWardrobe : MonoBehaviour
             case NecklaceName.LaceChoker: if (LaceChokerNecklacePreview != null) { LaceChokerNecklacePreview.enabled = true; } break;
             case NecklaceName.CasualChoker: if (CasualChokerNecklacePreview != null) { CasualChokerNecklacePreview.enabled = true; } break;
             case NecklaceName.Star: if (StarNecklacePreview != null) { StarNecklacePreview.enabled = true; } break;
-            case NecklaceName.NekPlaceholder1: if (NekPlaceholder1NecklacePreview != null) { NekPlaceholder1NecklacePreview.enabled = true; } break;
-            case NecklaceName.NekPlaceholder2: if (NekPlaceholder2NecklacePreview != null) { NekPlaceholder2NecklacePreview.enabled = true; } break;
-            case NecklaceName.NekPlaceholder3: if (NekPlaceholder3NecklacePreview != null) { NekPlaceholder3NecklacePreview.enabled = true; } break;
-            case NecklaceName.NekPlaceholder4: if (NekPlaceholder4NecklacePreview != null) { NekPlaceholder4NecklacePreview.enabled = true; } break;
+            case NecklaceName.Ankh: if (AnkhNecklacePreview != null) { AnkhNecklacePreview.enabled = true; } break;
+            case NecklaceName.CelticKnot: if (CelticKnotNecklacePreview != null) { CelticKnotNecklacePreview.enabled = true; } break;
+            case NecklaceName.Cherries: if (CherriesNecklacePreview != null) { CherriesNecklacePreview.enabled = true; } break;
+            case NecklaceName.Love: if (LoveNecklacePreview != null) { LoveNecklacePreview.enabled = true; } break;
             case NecklaceName.None: break;
         }
     }
@@ -1736,7 +1736,7 @@ public class NorasWardrobe : MonoBehaviour
     private Outfit GetOutfit(OutfitName outfit)
     {
         if (_outfitLookup == null) { BuildOutfitLookup(); }
-        return _outfitLookup.TryGetValue(outfit, out Outfit data) ? data : null;
+        return _outfitLookup != null && _outfitLookup.TryGetValue(outfit, out Outfit data) ? data : null;
     }
 
     private void BuildOutfitLookup()
@@ -2631,11 +2631,11 @@ public class NorasWardrobeEditor : Editor
             ("CasualChoker", () => me.SetNecklace(NecklaceName.CasualChoker)),
             ("Star", () => me.SetNecklace(NecklaceName.Star)));
         DrawButtonRow(me, clearAllStyle,
-            ("NekPlaceholder1", () => me.SetNecklace(NecklaceName.NekPlaceholder1)),
-            ("NekPlaceholder2", () => me.SetNecklace(NecklaceName.NekPlaceholder2)));
+            ("Ankh", () => me.SetNecklace(NecklaceName.Ankh)),
+            ("CelticKnot", () => me.SetNecklace(NecklaceName.CelticKnot)));
         DrawButtonRow(me, clearAllStyle,
-            ("NekPlaceholder3", () => me.SetNecklace(NecklaceName.NekPlaceholder3)),
-            ("NekPlaceholder4", () => me.SetNecklace(NecklaceName.NekPlaceholder4)));
+            ("Cherries", () => me.SetNecklace(NecklaceName.Cherries)),
+            ("Love", () => me.SetNecklace(NecklaceName.Love)));
         DrawButtonRow(me, clearAllStyle,
             ("None", () => me.SetNecklace(NecklaceName.None)));
         
@@ -2755,17 +2755,10 @@ public class NorasWardrobeEditor : Editor
         GUI.backgroundColor = Color.white;
 
         EditorGUILayout.LabelField("Random Outfits", EditorStyles.boldLabel);
-        DrawButtonRow(me, clearAllStyle,
-            ("Random Work", () => me.SetRandomOutfitOfType(OutfitType.Work)),
-            ("Random Main", () => me.SetRandomOutfitOfType(OutfitType.Main)));
-        DrawButtonRow(me, clearAllStyle,
-            ("Random Night Out", () => me.SetRandomOutfitOfType(OutfitType.NightOut)),
-            ("Random Pyjamas", () => me.SetRandomOutfitOfType(OutfitType.Pyjamas)));
-        DrawButtonRow(me, clearAllStyle,
-            ("Random Storyline", () => me.SetRandomOutfitOfType(OutfitType.Storyline)),
-            ("Random Undergarments", () => me.SetRandomOutfitOfType(OutfitType.Undergarments)));
-        DrawButtonRow(me, clearAllStyle,
-            ("Random Special Outfit", () => me.SetRandomOutfitOfType(OutfitType.Special)));
+        DrawButtonRow(me, clearAllStyle, ("Random Work", () => me.SetRandomOutfitOfType(OutfitType.Work)), ("Random Main", () => me.SetRandomOutfitOfType(OutfitType.Main)));
+        DrawButtonRow(me, clearAllStyle, ("Random Night Out", () => me.SetRandomOutfitOfType(OutfitType.NightOut)), ("Random Pyjamas", () => me.SetRandomOutfitOfType(OutfitType.Pyjamas)));
+        DrawButtonRow(me, clearAllStyle, ("Random Storyline", () => me.SetRandomOutfitOfType(OutfitType.Storyline)), ("Random Undergarments", () => me.SetRandomOutfitOfType(OutfitType.Undergarments)));
+        DrawButtonRow(me, clearAllStyle, ("Random Special Outfit", () => me.SetRandomOutfitOfType(OutfitType.Special)));
         EditorGUILayout.EndVertical();
         DrawDefaultInspector();
     }
@@ -3122,10 +3115,10 @@ public enum NecklaceName
     LaceChoker,
     CasualChoker,
     Star,
-    NekPlaceholder1,
-    NekPlaceholder2,
-    NekPlaceholder3,
-    NekPlaceholder4
+    Ankh,
+    CelticKnot,
+    Cherries,
+    Love
 }
 
 public enum GlassesName

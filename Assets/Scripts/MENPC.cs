@@ -1449,6 +1449,8 @@ public enum NPCOutfitName
     None,
     Casual,
     Dress,
-    FlutterDress
+    FlutterDress,
+    TopAndSkirt,
+    ShirtAndSkirt
     
 }

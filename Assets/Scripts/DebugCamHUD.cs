@@ -257,7 +257,7 @@ public class DebugCamHUD : MonoBehaviour
             if (_npc == null)
                 currentTargetText.text = "Current Target: None";
             else
-                currentTargetText.text = $"Current Target: {_npc.GetComponent<Me>().ThisCharacterName}";
+                currentTargetText.text = $"Current Target: {_npc.GetComponent<MENPC>().ThisCharacterName}";
         }
 
         if (currentStateText != null)
@@ -567,8 +567,8 @@ public class DebugCamHUD : MonoBehaviour
     {
         if (_npc == null) return;
 
-        Me me = _npc.gameObject.GetComponent<Me>();
-        if (me != null) me.ToggleWorkOutfit();
+        MENPC me = _npc.gameObject.GetComponent<MENPC>();
+        //if (me != null) me.ToggleWorkOutfit();
 
         RefreshForTarget(_lastTarget);
     }
@@ -577,8 +577,8 @@ public class DebugCamHUD : MonoBehaviour
     {
         if (_npc == null) return;
 
-        Me me = _npc.gameObject.GetComponent<Me>();
-        if (me != null) me.ToggleCasualOutfit();
+        MENPC me = _npc.gameObject.GetComponent<MENPC>();
+        //if (me != null) me.ToggleCasualOutfit();
 
         RefreshForTarget(_lastTarget);
     }
@@ -587,8 +587,8 @@ public class DebugCamHUD : MonoBehaviour
     {
         if (_npc == null) return;
 
-        Me me = _npc.gameObject.GetComponent<Me>();
-        if (me != null) me.ToggleThirdOutfit();
+        MENPC me = _npc.gameObject.GetComponent<MENPC>();
+        //if (me != null) me.ToggleThirdOutfit();
 
         RefreshForTarget(_lastTarget);
     }

@@ -27,7 +27,7 @@ public class Outfit : ScriptableObject
     public NecklaceName Necklace = NecklaceName.None;
     public GlassesName Glasses = GlassesName.None;
     public NoraBodies Body = NoraBodies.Normal;
-    public NoraEyes Eyes = NoraEyes.Default;
+    public Eyes Eyes = Eyes.Default;
 
     public WingsName Wings = WingsName.None;
     public ApronName Apron = ApronName.None;

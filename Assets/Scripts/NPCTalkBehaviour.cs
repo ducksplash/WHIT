@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class NPCTalkBehaviour : NPCBehaviourBase
@@ -51,6 +52,51 @@ public class NPCTalkBehaviour : NPCBehaviourBase
         if (speaker != null) _conversationSpeakers.Remove(speaker);
         _primaryConversationSpeaker = GetNearestSpeaker();
         _isConversationLocked = _conversationSpeakers.Count > 0;
+        if (!_isConversationLocked)
+        {
+            npc.useStateMachine = true;
+            if (AgentReady()) { Agent.isStopped = false; Agent.ResetPath(); }
+            ForceReturnToLocomotion();
+            if (npc.GetCurrentState() == NPCState.Talk) EnterState(NPCState.Patrolling);
+        }
+    }
+    
+    public async UniTask BeginConversationWithNora()
+    {
+        npc.useStateMachine = false;
+
+        if (AgentReady())
+        {
+            Agent.isStopped = true;
+            Agent.ResetPath();
+        }
+
+
+        _isConversationLocked = _conversationSpeakers.Count > 0;
+
+        Vector3 targetPosition = Player.Instance.transform.position;
+
+        while (true)
+        {
+            FaceTowards(targetPosition, Time.deltaTime, TurnSmoothing * 1.5f);
+
+            Vector3 direction = targetPosition - transform.position;
+            direction.y = 0f;
+
+            if (direction.sqrMagnitude < 0.001f ||
+                Vector3.Angle(transform.forward, direction) < 2f)
+                break;
+
+            await UniTask.Yield();
+        }
+        
+        ForceIdlePose();
+    }
+
+    
+    
+    public void EndConversationWithNora()
+    {
         if (!_isConversationLocked)
         {
             npc.useStateMachine = true;

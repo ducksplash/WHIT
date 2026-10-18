@@ -17,7 +17,9 @@ public class NPCController : MonoBehaviour
     public bool FindSeat;
     public bool PlayAnimation;
     public string startupAnimationTrigger;
-
+    public MENPC MeNPC;
+    
+    
     [Header("AI State Machine")] public bool useStateMachine = true;
     public Transform currentTarget;
     public float activeRadius = 15f;
@@ -110,9 +112,7 @@ public class NPCController : MonoBehaviour
     public float sidestepDuration = 0.7f;
     public float renegotiateCooldown = 0.8f;
     public float renegotiateCheckInterval = 0.15f;
-
-    public Me npcMetaActions;
-
+    
     [Header("Behaviour Plugins")] [SerializeField]
     private NPCLadderBehaviour  _ladder;
     [SerializeField] private NPCSittingBehaviour _sitting;
@@ -488,7 +488,6 @@ public class NPCController : MonoBehaviour
         if (_lying == null) _lying = GetComponent<NPCLyingBehaviour>();
         if (_talk == null) _talk = GetComponent<NPCTalkBehaviour>();
         if (_combat == null) _combat = GetComponent<NPCCombatBehaviour>();
-        if (npcMetaActions == null) npcMetaActions = GetComponent<Me>();
 
         _ladder?.Init(this);
         _sitting?.Init(this);

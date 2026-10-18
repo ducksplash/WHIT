@@ -19,6 +19,11 @@ public static class EventManager
     public static event Action<Transform> OnStartNotepad = (NorepadTransform) => { };
     public static event Action OnStopComputer = () => { };
     public static event Action OnStopPhone = () => { };
+    public static event Action<NPCController> OnEngageNPC = (selectedNPC) => { };
+    public static event Action OnDisengageNPC = () => { };
+    public static event Action<NPC> OnNextNPC = (selectedNPC) => { };
+    public static event Action<NPC> OnPrevNPC = (selectedNPC) => { };
+    public static event Action<NPC> OnExitNPC = (selectedNPC) => { };
     public static event Action OnStopNotepad = () => { };
     public static event Action OnCameraOpen = () => { };
     public static event Action OnCameraClosed = () => { };
@@ -95,7 +100,30 @@ public static class EventManager
     {
         OnEndThoughtVignette?.Invoke();
     }
-    
+    public static void EngageNPC(NPCController thisNPC)
+    {
+        OnEngageNPC?.Invoke(thisNPC);
+    }
+    public static void DisengageNPC()
+    {
+        OnDisengageNPC?.Invoke();
+    }
+
+    public static void NPCPrev(NPC thisNPC)
+    {
+        OnPrevNPC?.Invoke(thisNPC);
+    }
+
+    public static void NPCNext(NPC thisNPC)
+    {
+        OnNextNPC?.Invoke(thisNPC);
+    }
+
+    public static void NPCExit(NPC thisNPC)
+    {
+        OnExitNPC?.Invoke(thisNPC);
+    }
+
     public static void MazeDoorUsed()
     {
         OnMazeDoorUsed.Invoke();

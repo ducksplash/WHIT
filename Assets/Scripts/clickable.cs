@@ -14,12 +14,13 @@ public class clickable : Singleton<clickable>
     public Sprite drawersprite, drawerspritegreen, lockeddrawersprite;
     public Sprite lockeddoorsprite;
     public Sprite seatsprite;
-    public Sprite bedsprite;
+    public Sprite bedsprite, npcsprite;
     public Sprite pickupsprite, pickupcloseenoughsprite, evidencesprite;
 
     [Header("Info Text")]
     public TextMeshProUGUI infotext, infotextbg;
     public Transform infotextbgimg;
+
 
     [Header("Input")]
     public InputActionReference pointerPosition;
@@ -41,6 +42,7 @@ public class clickable : Singleton<clickable>
     int doorlayer, drawerlayer, clickablelayer, enemylayer;
     int itemlayer, evidencelayer, staticevidencelayer, slidingdoorlayer, seatlayer, bedlayer;
     int terminallayer;
+    private int NPCLayer;
 
     // ✅ NEW: interaction mask (excludes player)
     private int interactionMask;
@@ -75,6 +77,7 @@ public class clickable : Singleton<clickable>
         terminallayer = LayerMask.NameToLayer("terminal");
         seatlayer = LayerMask.NameToLayer("SEAT");
         bedlayer = LayerMask.NameToLayer("BED");
+        NPCLayer = LayerMask.NameToLayer("NPC");
 
         SetCursor(idlesprite, "");
 
@@ -198,7 +201,7 @@ public class clickable : Singleton<clickable>
                 layer == itemlayer || layer == drawerlayer || layer == doorlayer ||
                 layer == slidingdoorlayer || layer == clickablelayer || layer == enemylayer ||
                 layer == evidencelayer || layer == staticevidencelayer || layer == terminallayer ||
-                layer == seatlayer || layer == bedlayer;
+                layer == seatlayer || layer == bedlayer || layer == NPCLayer;
 
             if (isInteractableLayer) return p;
             if (p.CompareTag("COLLECTABLE")) return p;
@@ -284,6 +287,12 @@ public class clickable : Singleton<clickable>
         if (layer == enemylayer)
         {
             SetCursor(enemysprite, "", "red");
+            return;
+        }
+
+        if (layer == NPCLayer)
+        {
+            SetCursor(npcsprite, "???", "green");
             return;
         }
 
@@ -408,6 +417,16 @@ public class clickable : Singleton<clickable>
         if (currentHit.transform.GetComponentInParent<Seat>() is Seat thisSeat)
         {
             thisSeat.NoraSit();
+        }
+
+
+        if (currentHit.transform.GetComponentInParent<NPCController>() is NPCController thisNPC)
+        {
+            Debug.Log("clicked npc");
+
+            thisNPC.Talk.BeginConversationWithNora();
+            EventManager.EngageNPC(thisNPC);
+            Player.Instance.StopPlayerAnimation();
         }
 
 

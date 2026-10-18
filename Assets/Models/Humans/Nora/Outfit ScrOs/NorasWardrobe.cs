@@ -611,7 +611,7 @@ public class NorasWardrobe : MonoBehaviour
             if (bones != null) { smr.bones = bones; }
             smr.updateWhenOffscreen = true;
         }
-        SetEyes(NoraEyes.Default);
+        SetEyes(Eyes.Default);
     }
 
     private void SetupEyesPreview()
@@ -626,7 +626,7 @@ public class NorasWardrobe : MonoBehaviour
             if (bones != null) { smr.bones = bones; }
             smr.updateWhenOffscreen = true;
         }
-        SetEyesPreview(NoraEyes.Default);
+        SetEyesPreview(Eyes.Default);
     }
 
     private void SetupHair()
@@ -1390,40 +1390,40 @@ public class NorasWardrobe : MonoBehaviour
         }
     }
 
-    public void SetEyes(NoraEyes eyes)
+    public void SetEyes(Eyes eyes)
     {
         HideAllEyes();
         switch (eyes)
         {
-            case NoraEyes.Default: if (DefaultEyes != null) { DefaultEyes.enabled = true; } break;
-            case NoraEyes.Sun: if (SunEyes != null) { SunEyes.enabled = true; } break;
-            case NoraEyes.Lightning: if (LightningEyes != null) { LightningEyes.enabled = true; } break;
-            case NoraEyes.Butterfly: if (ButterflyEyes != null) { ButterflyEyes.enabled = true; } break;
-            case NoraEyes.Cloud: if (CloudEyes != null) { CloudEyes.enabled = true; } break;
-            case NoraEyes.Invisible: if (InvisibleEyes != null) { InvisibleEyes.enabled = true; } break;
-            case NoraEyes.EyPlaceholder1: if (EyPlaceholder1Eyes != null) { EyPlaceholder1Eyes.enabled = true; } break;
-            case NoraEyes.EyPlaceholder2: if (EyPlaceholder2Eyes != null) { EyPlaceholder2Eyes.enabled = true; } break;
-            case NoraEyes.EyPlaceholder3: if (EyPlaceholder3Eyes != null) { EyPlaceholder3Eyes.enabled = true; } break;
-            case NoraEyes.EyPlaceholder4: if (EyPlaceholder4Eyes != null) { EyPlaceholder4Eyes.enabled = true; } break;
+            case Eyes.Default: if (DefaultEyes != null) { DefaultEyes.enabled = true; } break;
+            case Eyes.Sun: if (SunEyes != null) { SunEyes.enabled = true; } break;
+            case Eyes.Lightning: if (LightningEyes != null) { LightningEyes.enabled = true; } break;
+            case Eyes.Butterfly: if (ButterflyEyes != null) { ButterflyEyes.enabled = true; } break;
+            case Eyes.Cloud: if (CloudEyes != null) { CloudEyes.enabled = true; } break;
+            case Eyes.Invisible: if (InvisibleEyes != null) { InvisibleEyes.enabled = true; } break;
+            case Eyes.EyPlaceholder1: if (EyPlaceholder1Eyes != null) { EyPlaceholder1Eyes.enabled = true; } break;
+            case Eyes.EyPlaceholder2: if (EyPlaceholder2Eyes != null) { EyPlaceholder2Eyes.enabled = true; } break;
+            case Eyes.EyPlaceholder3: if (EyPlaceholder3Eyes != null) { EyPlaceholder3Eyes.enabled = true; } break;
+            case Eyes.EyPlaceholder4: if (EyPlaceholder4Eyes != null) { EyPlaceholder4Eyes.enabled = true; } break;
             default: if (DefaultEyes != null) { DefaultEyes.enabled = true; } break;
         }
     }
 
-    public void SetEyesPreview(NoraEyes eyes)
+    public void SetEyesPreview(Eyes eyes)
     {
         HideAllEyesPreview();
         switch (eyes)
         {
-            case NoraEyes.Default: if (DefaultEyesPreview != null) { DefaultEyesPreview.enabled = true; } break;
-            case NoraEyes.Sun: if (SunEyesPreview != null) { SunEyesPreview.enabled = true; } break;
-            case NoraEyes.Lightning: if (LightningEyesPreview != null) { LightningEyesPreview.enabled = true; } break;
-            case NoraEyes.Butterfly: if (ButterflyEyesPreview != null) { ButterflyEyesPreview.enabled = true; } break;
-            case NoraEyes.Cloud: if (CloudEyesPreview != null) { CloudEyesPreview.enabled = true; } break;
-            case NoraEyes.Invisible: if (InvisibleEyesPreview != null) { InvisibleEyesPreview.enabled = true; } break;
-            case NoraEyes.EyPlaceholder1: if (EyPlaceholder1EyesPreview != null) { EyPlaceholder1EyesPreview.enabled = true; } break;
-            case NoraEyes.EyPlaceholder2: if (EyPlaceholder2EyesPreview != null) { EyPlaceholder2EyesPreview.enabled = true; } break;
-            case NoraEyes.EyPlaceholder3: if (EyPlaceholder3EyesPreview != null) { EyPlaceholder3EyesPreview.enabled = true; } break;
-            case NoraEyes.EyPlaceholder4: if (EyPlaceholder4EyesPreview != null) { EyPlaceholder4EyesPreview.enabled = true; } break;
+            case Eyes.Default: if (DefaultEyesPreview != null) { DefaultEyesPreview.enabled = true; } break;
+            case Eyes.Sun: if (SunEyesPreview != null) { SunEyesPreview.enabled = true; } break;
+            case Eyes.Lightning: if (LightningEyesPreview != null) { LightningEyesPreview.enabled = true; } break;
+            case Eyes.Butterfly: if (ButterflyEyesPreview != null) { ButterflyEyesPreview.enabled = true; } break;
+            case Eyes.Cloud: if (CloudEyesPreview != null) { CloudEyesPreview.enabled = true; } break;
+            case Eyes.Invisible: if (InvisibleEyesPreview != null) { InvisibleEyesPreview.enabled = true; } break;
+            case Eyes.EyPlaceholder1: if (EyPlaceholder1EyesPreview != null) { EyPlaceholder1EyesPreview.enabled = true; } break;
+            case Eyes.EyPlaceholder2: if (EyPlaceholder2EyesPreview != null) { EyPlaceholder2EyesPreview.enabled = true; } break;
+            case Eyes.EyPlaceholder3: if (EyPlaceholder3EyesPreview != null) { EyPlaceholder3EyesPreview.enabled = true; } break;
+            case Eyes.EyPlaceholder4: if (EyPlaceholder4EyesPreview != null) { EyPlaceholder4EyesPreview.enabled = true; } break;
             default: if (DefaultEyesPreview != null) { DefaultEyesPreview.enabled = true; } break;
         }
     }
@@ -1703,9 +1703,9 @@ public class NorasWardrobe : MonoBehaviour
         return GetOutfit(outfit)?.Body ?? NoraBodies.Normal;
     }
 
-    private NoraEyes GetEyesForOutfit(OutfitName outfit)
+    private Eyes GetEyesForOutfit(OutfitName outfit)
     {
-        return GetOutfit(outfit)?.Eyes ?? NoraEyes.Default;
+        return GetOutfit(outfit)?.Eyes ?? Eyes.Default;
     }
 
     private WingsName GetWingsForOutfit(OutfitName outfit)
@@ -1978,7 +1978,7 @@ public class NorasWardrobe : MonoBehaviour
         HideAllNecklaces();
         HideAllGlasses();
         SetBody(NoraBodies.Normal);
-        SetEyes(NoraEyes.Default);
+        SetEyes(Eyes.Default);
         SetWings(WingsName.None);
         SetApron(ApronName.None);
         SetHat(HatName.None);
@@ -2700,19 +2700,19 @@ public class NorasWardrobeEditor : Editor
 
         EditorGUILayout.LabelField("Eyes", EditorStyles.boldLabel);
         DrawButtonRow(me, clearAllStyle,
-            ("Default", () => me.SetEyes(NoraEyes.Default)),
-            ("Sun", () => me.SetEyes(NoraEyes.Sun)),
-            ("Lightning", () => me.SetEyes(NoraEyes.Lightning)));
+            ("Default", () => me.SetEyes(Eyes.Default)),
+            ("Sun", () => me.SetEyes(Eyes.Sun)),
+            ("Lightning", () => me.SetEyes(Eyes.Lightning)));
         DrawButtonRow(me, clearAllStyle,
-            ("Butterfly", () => me.SetEyes(NoraEyes.Butterfly)),
-            ("Cloud", () => me.SetEyes(NoraEyes.Cloud)),
-            ("Invisible", () => me.SetEyes(NoraEyes.Invisible)));
+            ("Butterfly", () => me.SetEyes(Eyes.Butterfly)),
+            ("Cloud", () => me.SetEyes(Eyes.Cloud)),
+            ("Invisible", () => me.SetEyes(Eyes.Invisible)));
         DrawButtonRow(me, clearAllStyle,
-            ("EyPlaceholder1", () => me.SetEyes(NoraEyes.EyPlaceholder1)),
-            ("EyPlaceholder2", () => me.SetEyes(NoraEyes.EyPlaceholder2)));
+            ("EyPlaceholder1", () => me.SetEyes(Eyes.EyPlaceholder1)),
+            ("EyPlaceholder2", () => me.SetEyes(Eyes.EyPlaceholder2)));
         DrawButtonRow(me, clearAllStyle,
-            ("EyPlaceholder3", () => me.SetEyes(NoraEyes.EyPlaceholder3)),
-            ("EyPlaceholder4", () => me.SetEyes(NoraEyes.EyPlaceholder4)));
+            ("EyPlaceholder3", () => me.SetEyes(Eyes.EyPlaceholder3)),
+            ("EyPlaceholder4", () => me.SetEyes(Eyes.EyPlaceholder4)));
         
         EditorGUILayout.Space();
         GUI.backgroundColor = new Color(0.6f, 0.9f, 0.6f);
@@ -3161,7 +3161,7 @@ public enum NoraBodies
     BodPlaceholder10
 }
 
-public enum NoraEyes
+public enum Eyes
 {
     Default,
     Sun,

@@ -15,6 +15,8 @@ public class UInstance : Singleton<UInstance>
     public TextMeshProUGUI tipsTextBG;
     public ControlPad controlPad;
 
+    public CanvasGroup NPCContextMenu;
+    
     public void Start()
     {
         cutsceneBarsCanvas.alpha = 0;
@@ -22,6 +24,12 @@ public class UInstance : Singleton<UInstance>
 
         EventManager.OnDebugCameraToggle += DebugDisableHUD;
         EventManager.OnDialogueCanProceed += ToggleDialogueCanProceed;
+
+        EventManager.OnEngageNPC += EnableNPCContext;
+        EventManager.OnDisengageNPC += DisableNPCContext;
+        
+        DisableNPCContext();
+
     }
 
     private void ToggleDialogueCanProceed(bool toggleval)
@@ -39,6 +47,39 @@ public class UInstance : Singleton<UInstance>
         HudCanvas.alpha = b ? 0 : 1;
     }
 
+
+
+    void EnableNPCContext(NPCController contextNPC)
+    {
+        GameMaster.Instance.PLAYERBUSY = true;
+        
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        
+        Debug.Log("npc menu open");
+        NPCContextMenu.alpha = 1;
+        NPCContextMenu.blocksRaycasts = true;
+        NPCContextMenu.interactable = true;
+    }
+
+
+    void DisableNPCContext()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        
+        Debug.Log("npc menu close");
+        NPCContextMenu.alpha = 0;
+        NPCContextMenu.blocksRaycasts = false;
+        NPCContextMenu.interactable = false;
+        
+        GameMaster.Instance.PLAYERBUSY = false;
+    }
+
+
+    
+    
     /// <summary>
     /// Fade in cutscene bars and fade out HUD (UniTask version)
     /// </summary>

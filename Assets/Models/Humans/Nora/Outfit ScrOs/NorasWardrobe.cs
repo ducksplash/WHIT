@@ -43,7 +43,7 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer BlackHeelsBodyPreview;
     public SkinnedMeshRenderer PaleBodyPreview;
     public SkinnedMeshRenderer PaleHeelsBodyPreview;
-    public SkinnedMeshRenderer BodPlaceholder1BodyPreview;
+    public SkinnedMeshRenderer PapilioBodyForHeelsBodyPreview;
     public SkinnedMeshRenderer BodPlaceholder2BodyPreview;
     public SkinnedMeshRenderer BodPlaceholder3BodyPreview;
     public SkinnedMeshRenderer BodPlaceholder4BodyPreview;
@@ -52,7 +52,7 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer BodPlaceholder7BodyPreview;
     public SkinnedMeshRenderer BodPlaceholder8BodyPreview;
     public SkinnedMeshRenderer BodPlaceholder9BodyPreview;
-    public SkinnedMeshRenderer BodPlaceholder10BodyPreview;
+    public SkinnedMeshRenderer PapilioBodyForHeels0BodyPreview;
     public SkinnedMeshRenderer BodyForHighHeelsBodyPreview;
 
     [Header("Preview Eyes")]
@@ -192,7 +192,7 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer BlackHeelsBody;
     public SkinnedMeshRenderer PaleBody;
     public SkinnedMeshRenderer PaleHeelsBody;
-    public SkinnedMeshRenderer BodPlaceholder1Body;
+    public SkinnedMeshRenderer PapilioBodyForHeelsBody;
     public SkinnedMeshRenderer BodPlaceholder2Body;
     public SkinnedMeshRenderer BodPlaceholder3Body;
     public SkinnedMeshRenderer BodPlaceholder4Body;
@@ -201,7 +201,7 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer BodPlaceholder7Body;
     public SkinnedMeshRenderer BodPlaceholder8Body;
     public SkinnedMeshRenderer BodPlaceholder9Body;
-    public SkinnedMeshRenderer BodPlaceholder10Body;
+    public SkinnedMeshRenderer PapilioBodyForHeels0Body;
     public SkinnedMeshRenderer BodyForHighHeelsBody;
 
     [Header("Eyes")]
@@ -974,7 +974,7 @@ public class NorasWardrobe : MonoBehaviour
         if (BlackHeelsBody != null) { BlackHeelsBody.enabled = false; }
         if (PaleBody != null) { PaleBody.enabled = false; }
         if (PaleHeelsBody != null) { PaleHeelsBody.enabled = false; }
-        if (BodPlaceholder1Body != null) { BodPlaceholder1Body.enabled = false; }
+        if (PapilioBodyForHeelsBody != null) { PapilioBodyForHeelsBody.enabled = false; }
         if (BodPlaceholder2Body != null) { BodPlaceholder2Body.enabled = false; }
         if (BodPlaceholder3Body != null) { BodPlaceholder3Body.enabled = false; }
         if (BodPlaceholder4Body != null) { BodPlaceholder4Body.enabled = false; }
@@ -983,7 +983,7 @@ public class NorasWardrobe : MonoBehaviour
         if (BodPlaceholder7Body != null) { BodPlaceholder7Body.enabled = false; }
         if (BodPlaceholder8Body != null) { BodPlaceholder8Body.enabled = false; }
         if (BodPlaceholder9Body != null) { BodPlaceholder9Body.enabled = false; }
-        if (BodPlaceholder10Body != null) { BodPlaceholder10Body.enabled = false; }
+        if (PapilioBodyForHeels0Body != null) { PapilioBodyForHeels0Body.enabled = false; }
         if (BodyForHighHeelsBody != null) { BodyForHighHeelsBody.enabled = false; }
     }
 
@@ -1004,7 +1004,7 @@ public class NorasWardrobe : MonoBehaviour
         if (BlackHeelsBodyPreview != null) { BlackHeelsBodyPreview.enabled = false; }
         if (PaleBodyPreview != null) { PaleBodyPreview.enabled = false; }
         if (PaleHeelsBodyPreview != null) { PaleHeelsBodyPreview.enabled = false; }
-        if (BodPlaceholder1BodyPreview != null) { BodPlaceholder1BodyPreview.enabled = false; }
+        if (PapilioBodyForHeelsBodyPreview != null) { PapilioBodyForHeelsBodyPreview.enabled = false; }
         if (BodPlaceholder2BodyPreview != null) { BodPlaceholder2BodyPreview.enabled = false; }
         if (BodPlaceholder3BodyPreview != null) { BodPlaceholder3BodyPreview.enabled = false; }
         if (BodPlaceholder4BodyPreview != null) { BodPlaceholder4BodyPreview.enabled = false; }
@@ -1013,7 +1013,7 @@ public class NorasWardrobe : MonoBehaviour
         if (BodPlaceholder7BodyPreview != null) { BodPlaceholder7BodyPreview.enabled = false; }
         if (BodPlaceholder8BodyPreview != null) { BodPlaceholder8BodyPreview.enabled = false; }
         if (BodPlaceholder9BodyPreview != null) { BodPlaceholder9BodyPreview.enabled = false; }
-        if (BodPlaceholder10BodyPreview != null) { BodPlaceholder10BodyPreview.enabled = false; }
+        if (PapilioBodyForHeels0BodyPreview != null) { PapilioBodyForHeels0BodyPreview.enabled = false; }
         if (BodyForHighHeelsBodyPreview != null) { BodyForHighHeelsBodyPreview.enabled = false; }
     }
 
@@ -1340,7 +1340,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BlackHeels: if (BlackHeelsBody != null) { BlackHeelsBody.enabled = true; } break;
             case NoraBodies.Pale: if (PaleBody != null) { PaleBody.enabled = true; } break;
             case NoraBodies.PaleHeels: if (PaleHeelsBody != null) { PaleHeelsBody.enabled = true; } break;
-            case NoraBodies.BodPlaceholder1: if (BodPlaceholder1Body != null) { BodPlaceholder1Body.enabled = true; } break;
+            case NoraBodies.PapilioBodyForHeels: if (PapilioBodyForHeelsBody != null) { PapilioBodyForHeelsBody.enabled = true; } break;
             case NoraBodies.BodPlaceholder2: if (BodPlaceholder2Body != null) { BodPlaceholder2Body.enabled = true; } break;
             case NoraBodies.BodPlaceholder3: if (BodPlaceholder3Body != null) { BodPlaceholder3Body.enabled = true; } break;
             case NoraBodies.BodPlaceholder4: if (BodPlaceholder4Body != null) { BodPlaceholder4Body.enabled = true; } break;
@@ -1349,7 +1349,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BodPlaceholder7: if (BodPlaceholder7Body != null) { BodPlaceholder7Body.enabled = true; } break;
             case NoraBodies.BodPlaceholder8: if (BodPlaceholder8Body != null) { BodPlaceholder8Body.enabled = true; } break;
             case NoraBodies.BodPlaceholder9: if (BodPlaceholder9Body != null) { BodPlaceholder9Body.enabled = true; } break;
-            case NoraBodies.BodPlaceholder10: if (BodPlaceholder10Body != null) { BodPlaceholder10Body.enabled = true; } break;
+            case NoraBodies.PapilioBodyForHeels0: if (PapilioBodyForHeels0Body != null) { PapilioBodyForHeels0Body.enabled = true; } break;
             case NoraBodies.BodyForHighHeels: if (BodyForHighHeelsBody != null) { BodyForHighHeelsBody.enabled = true; } break;
             default: if (NormalBody != null) { NormalBody.enabled = true; } break;
         }
@@ -1375,7 +1375,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BlackHeels: if (BlackHeelsBodyPreview != null) { BlackHeelsBodyPreview.enabled = true; } break;
             case NoraBodies.Pale: if (PaleBodyPreview != null) { PaleBodyPreview.enabled = true; } break;
             case NoraBodies.PaleHeels: if (PaleHeelsBodyPreview != null) { PaleHeelsBodyPreview.enabled = true; } break;
-            case NoraBodies.BodPlaceholder1: if (BodPlaceholder1BodyPreview != null) { BodPlaceholder1BodyPreview.enabled = true; } break;
+            case NoraBodies.PapilioBodyForHeels: if (PapilioBodyForHeelsBodyPreview != null) { PapilioBodyForHeelsBodyPreview.enabled = true; } break;
             case NoraBodies.BodPlaceholder2: if (BodPlaceholder2BodyPreview != null) { BodPlaceholder2BodyPreview.enabled = true; } break;
             case NoraBodies.BodPlaceholder3: if (BodPlaceholder3BodyPreview != null) { BodPlaceholder3BodyPreview.enabled = true; } break;
             case NoraBodies.BodPlaceholder4: if (BodPlaceholder4BodyPreview != null) { BodPlaceholder4BodyPreview.enabled = true; } break;
@@ -1384,7 +1384,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BodPlaceholder7: if (BodPlaceholder7BodyPreview != null) { BodPlaceholder7BodyPreview.enabled = true; } break;
             case NoraBodies.BodPlaceholder8: if (BodPlaceholder8BodyPreview != null) { BodPlaceholder8BodyPreview.enabled = true; } break;
             case NoraBodies.BodPlaceholder9: if (BodPlaceholder9BodyPreview != null) { BodPlaceholder9BodyPreview.enabled = true; } break;
-            case NoraBodies.BodPlaceholder10: if (BodPlaceholder10BodyPreview != null) { BodPlaceholder10BodyPreview.enabled = true; } break;
+            case NoraBodies.PapilioBodyForHeels0: if (PapilioBodyForHeels0BodyPreview != null) { PapilioBodyForHeels0BodyPreview.enabled = true; } break;
             case NoraBodies.BodyForHighHeels: if (BodyForHighHeelsBodyPreview != null) { BodyForHighHeelsBodyPreview.enabled = true; } break;
             default: if (NormalBodyPreview != null) { NormalBodyPreview.enabled = true; } break;
         }
@@ -2120,7 +2120,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BlackHeels: return BlackHeelsBody;
             case NoraBodies.Pale: return PaleBody;
             case NoraBodies.PaleHeels: return PaleHeelsBody;
-            case NoraBodies.BodPlaceholder1: return BodPlaceholder1Body;
+            case NoraBodies.PapilioBodyForHeels: return PapilioBodyForHeelsBody;
             case NoraBodies.BodPlaceholder2: return BodPlaceholder2Body;
             case NoraBodies.BodPlaceholder3: return BodPlaceholder3Body;
             case NoraBodies.BodPlaceholder4: return BodPlaceholder4Body;
@@ -2129,7 +2129,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BodPlaceholder7: return BodPlaceholder7Body;
             case NoraBodies.BodPlaceholder8: return BodPlaceholder8Body;
             case NoraBodies.BodPlaceholder9: return BodPlaceholder9Body;
-            case NoraBodies.BodPlaceholder10: return BodPlaceholder10Body;
+            case NoraBodies.PapilioBodyForHeels0: return PapilioBodyForHeels0Body;
             case NoraBodies.BodyForHighHeels: return BodyForHighHeelsBody;
             default: return NormalBody;
         }
@@ -2154,7 +2154,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BlackHeels: return BlackHeelsBodyPreview;
             case NoraBodies.Pale: return PaleBodyPreview;
             case NoraBodies.PaleHeels: return PaleHeelsBodyPreview;
-            case NoraBodies.BodPlaceholder1: return BodPlaceholder1BodyPreview;
+            case NoraBodies.PapilioBodyForHeels: return PapilioBodyForHeelsBodyPreview;
             case NoraBodies.BodPlaceholder2: return BodPlaceholder2BodyPreview;
             case NoraBodies.BodPlaceholder3: return BodPlaceholder3BodyPreview;
             case NoraBodies.BodPlaceholder4: return BodPlaceholder4BodyPreview;
@@ -2163,7 +2163,7 @@ public class NorasWardrobe : MonoBehaviour
             case NoraBodies.BodPlaceholder7: return BodPlaceholder7BodyPreview;
             case NoraBodies.BodPlaceholder8: return BodPlaceholder8BodyPreview;
             case NoraBodies.BodPlaceholder9: return BodPlaceholder9BodyPreview;
-            case NoraBodies.BodPlaceholder10: return BodPlaceholder10BodyPreview;
+            case NoraBodies.PapilioBodyForHeels0: return PapilioBodyForHeels0BodyPreview;
             case NoraBodies.BodyForHighHeels: return BodyForHighHeelsBodyPreview;
             default: return NormalBodyPreview;
         }
@@ -2679,7 +2679,7 @@ public class NorasWardrobeEditor : Editor
             ("Pale", () => me.SetBody(NoraBodies.Pale)),
             ("PaleHeels", () => me.SetBody(NoraBodies.PaleHeels)));
         DrawButtonRow(me, clearAllStyle,
-            ("BodPlaceholder1", () => me.SetBody(NoraBodies.BodPlaceholder1)),
+            ("PapilioBodyForHeels", () => me.SetBody(NoraBodies.PapilioBodyForHeels)),
             ("BodPlaceholder2", () => me.SetBody(NoraBodies.BodPlaceholder2)),
             ("BodPlaceholder3", () => me.SetBody(NoraBodies.BodPlaceholder3)));
         DrawButtonRow(me, clearAllStyle,
@@ -2691,7 +2691,7 @@ public class NorasWardrobeEditor : Editor
             ("BodPlaceholder8", () => me.SetBody(NoraBodies.BodPlaceholder8)),
             ("BodPlaceholder9", () => me.SetBody(NoraBodies.BodPlaceholder9)));
         DrawButtonRow(me, clearAllStyle,
-            ("BodPlaceholder10", () => me.SetBody(NoraBodies.BodPlaceholder10)));
+            ("PapilioBodyForHeels0", () => me.SetBody(NoraBodies.PapilioBodyForHeels0)));
         DrawButtonRow(me, clearAllStyle,
             ("BodyForHighHeels", () => me.SetBody(NoraBodies.BodyForHighHeels)));
 
@@ -3149,7 +3149,7 @@ public enum NoraBodies
     Pale,
     BodyForHighHeels,
     PaleHeels,
-    BodPlaceholder1,
+    PapilioBodyForHeels,
     BodPlaceholder2,
     BodPlaceholder3,
     BodPlaceholder4,
@@ -3158,7 +3158,7 @@ public enum NoraBodies
     BodPlaceholder7,
     BodPlaceholder8,
     BodPlaceholder9,
-    BodPlaceholder10
+    PapilioBodyForHeels0
 }
 
 public enum Eyes
@@ -3538,7 +3538,14 @@ public enum OutfitName
     WoolyJumperAndPleatedSkirt,
     ConservativeAtWork,
     HorDress,
-    CroppedDress
+    CroppedDress,
+    ModestDressWithTee,
+    Petticoat,
+    StringyDress,
+    RelaxedStringyDress,
+    RelaxedStrappyTopAndSkirt,
+    OpenBlousseAndSkirt,
+    OpenBlousseAndPleatedSkirt
     
     
 }

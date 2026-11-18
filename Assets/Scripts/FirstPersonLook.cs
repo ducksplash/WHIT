@@ -210,7 +210,7 @@ public class FirstPersonLook : MonoBehaviour
     private bool LookAllowedThisFrame()
     {
         if (bypassGM) return true;
-        if (GameMaster.Instance.PauseManager.IsPaused) return false;
+        //if (GameMaster.Instance.PauseManager.IsPaused) return false;
 
         // Lying with free look: bypass PLAYERBUSY entirely, same as seated.
         if (_isLying) return _lyingLookAllowed;

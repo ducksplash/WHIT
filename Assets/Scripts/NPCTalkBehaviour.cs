@@ -61,6 +61,14 @@ public class NPCTalkBehaviour : NPCBehaviourBase
         }
     }
     
+    
+    
+    
+    
+    
+    
+    
+    
     public async UniTask BeginConversationWithNora()
     {
         npc.useStateMachine = false;
@@ -93,6 +101,11 @@ public class NPCTalkBehaviour : NPCBehaviourBase
         ForceIdlePose();
     }
 
+    
+    
+    
+    
+    
     
     
     public void EndConversationWithNora()

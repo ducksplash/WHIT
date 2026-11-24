@@ -143,8 +143,18 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer GingerHairPreview;
     public SkinnedMeshRenderer GingerTwinTailsPreview;
     public SkinnedMeshRenderer BlondeTwinTailsPreview;
+    public SkinnedMeshRenderer DagnyHairPreview;
+    public SkinnedMeshRenderer AsymmetricalHairPreview;
+    public SkinnedMeshRenderer ShortMessyHairPreview;
+    public SkinnedMeshRenderer BitchyBobPreview;
+    public SkinnedMeshRenderer LongPlaittedHairPreview;
+    public SkinnedMeshRenderer HaPlaceholder3Preview;
     public SkinnedMeshRenderer HaPlaceholder4Preview;
+    public SkinnedMeshRenderer HaPlaceholder5Preview;
     public SkinnedMeshRenderer HaPlaceholder6Preview;
+    public SkinnedMeshRenderer HaPlaceholder7Preview;
+    public SkinnedMeshRenderer HaPlaceholder8Preview;
+    public SkinnedMeshRenderer HaPlaceholder9Preview;
 
 
     [Header("Preview Necklace")]
@@ -292,8 +302,18 @@ public class NorasWardrobe : MonoBehaviour
     public SkinnedMeshRenderer GingerHair;
     public SkinnedMeshRenderer GingerTwinTails;
     public SkinnedMeshRenderer BlondeTwinTails;
+    public SkinnedMeshRenderer DagnyHair;
+    public SkinnedMeshRenderer AsymmetricalHair;
+    public SkinnedMeshRenderer ShortMessyHair;
+    public SkinnedMeshRenderer BitchyBob;
+    public SkinnedMeshRenderer LongPlaittedHair;
+    public SkinnedMeshRenderer HaPlaceholder3;
     public SkinnedMeshRenderer HaPlaceholder4;
+    public SkinnedMeshRenderer HaPlaceholder5;
     public SkinnedMeshRenderer HaPlaceholder6;
+    public SkinnedMeshRenderer HaPlaceholder7;
+    public SkinnedMeshRenderer HaPlaceholder8;
+    public SkinnedMeshRenderer HaPlaceholder9;
     
     [Header("Necklace")]
     public SkinnedMeshRenderer ButterflyNecklace;
@@ -639,7 +659,9 @@ public class NorasWardrobe : MonoBehaviour
             DefaultHair, WorkHair, WorkHairTwo, CasualHair,
             PyjamaHair, DatingHair, PapilioHair, OutHair, UpHair, HomelessHair, TwinTailsHair, UpDo,
             SunHair, HeartHair, CloudHair, AngelHair, BlondeHair,
-            GingerHair, GingerTwinTails, BlondeTwinTails, HaPlaceholder4, HaPlaceholder6
+            GingerHair, GingerTwinTails, BlondeTwinTails, DagnyHair, AsymmetricalHair,
+            BitchyBob, LongPlaittedHair, HaPlaceholder3, HaPlaceholder4, HaPlaceholder5,
+            HaPlaceholder6, HaPlaceholder7, HaPlaceholder8, HaPlaceholder9, ShortMessyHair
         };
 
         foreach (var smr in allHair)
@@ -663,7 +685,9 @@ public class NorasWardrobe : MonoBehaviour
             PyjamaHairPreview, DatingHairPreview, PapilioHairPreview, OutHairPreview,
             UpHairPreview, HomelessHairPreview, TwinTailsHairPreview, UpDoPreview,
             SunHairPreview, HeartHairPreview, CloudHairPreview, AngelHairPreview, BlondeHairPreview,
-            GingerHairPreview, GingerTwinTailsPreview, BlondeTwinTailsPreview, HaPlaceholder4Preview, HaPlaceholder6Preview
+            GingerHairPreview, GingerTwinTailsPreview, BlondeTwinTailsPreview, DagnyHairPreview, AsymmetricalHairPreview,
+            BitchyBobPreview, LongPlaittedHairPreview, HaPlaceholder3Preview, HaPlaceholder4Preview, HaPlaceholder5Preview,
+            HaPlaceholder6Preview, HaPlaceholder7Preview, HaPlaceholder8Preview, HaPlaceholder9Preview, ShortMessyHairPreview
         };
 
         foreach (var smr in allHairPreview)
@@ -807,8 +831,18 @@ public class NorasWardrobe : MonoBehaviour
         if (GingerHair != null) { GingerHair.enabled = false; }
         if (GingerTwinTails != null) { GingerTwinTails.enabled = false; }
         if (BlondeTwinTails != null) { BlondeTwinTails.enabled = false; }
+        if (DagnyHair != null) { DagnyHair.enabled = false; }
+        if (AsymmetricalHair != null) { AsymmetricalHair.enabled = false; }
+        if (BitchyBob != null) { BitchyBob.enabled = false; }
+        if (LongPlaittedHair != null) { LongPlaittedHair.enabled = false; }
+        if (HaPlaceholder3 != null) { HaPlaceholder3.enabled = false; }
         if (HaPlaceholder4 != null) { HaPlaceholder4.enabled = false; }
+        if (HaPlaceholder5 != null) { HaPlaceholder5.enabled = false; }
         if (HaPlaceholder6 != null) { HaPlaceholder6.enabled = false; }
+        if (HaPlaceholder7 != null) { HaPlaceholder7.enabled = false; }
+        if (HaPlaceholder8 != null) { HaPlaceholder8.enabled = false; }
+        if (HaPlaceholder9 != null) { HaPlaceholder9.enabled = false; }
+        if (ShortMessyHair != null) { ShortMessyHair.enabled = false; }
     }
 
     private void HideAllHairPreview()
@@ -833,8 +867,18 @@ public class NorasWardrobe : MonoBehaviour
         if (GingerHairPreview != null) { GingerHairPreview.enabled = false; }
         if (GingerTwinTailsPreview != null) { GingerTwinTailsPreview.enabled = false; }
         if (BlondeTwinTailsPreview != null) { BlondeTwinTailsPreview.enabled = false; }
+        if (DagnyHairPreview != null) { DagnyHairPreview.enabled = false; }
+        if (AsymmetricalHairPreview != null) { AsymmetricalHairPreview.enabled = false; }
+        if (BitchyBobPreview != null) { BitchyBobPreview.enabled = false; }
+        if (LongPlaittedHairPreview != null) { LongPlaittedHairPreview.enabled = false; }
+        if (HaPlaceholder3Preview != null) { HaPlaceholder3Preview.enabled = false; }
         if (HaPlaceholder4Preview != null) { HaPlaceholder4Preview.enabled = false; }
+        if (HaPlaceholder5Preview != null) { HaPlaceholder5Preview.enabled = false; }
         if (HaPlaceholder6Preview != null) { HaPlaceholder6Preview.enabled = false; }
+        if (HaPlaceholder7Preview != null) { HaPlaceholder7Preview.enabled = false; }
+        if (HaPlaceholder8Preview != null) { HaPlaceholder8Preview.enabled = false; }
+        if (HaPlaceholder9Preview != null) { HaPlaceholder9Preview.enabled = false; }
+        if (ShortMessyHairPreview != null) { ShortMessyHairPreview.enabled = false; }
     }
 
     private void HideAllShoes()
@@ -1070,8 +1114,18 @@ public class NorasWardrobe : MonoBehaviour
             case HairName.GingerHair: if (GingerHair != null) { GingerHair.enabled = true; } break;
             case HairName.GingerTwinTails: if (GingerTwinTails != null) { GingerTwinTails.enabled = true; } break;
             case HairName.BlondeTwinTails: if (BlondeTwinTails != null) { BlondeTwinTails.enabled = true; } break;
+            case HairName.DagnyHair: if (DagnyHair != null) { DagnyHair.enabled = true; } break;
+            case HairName.AsymmetricalHair: if (AsymmetricalHair != null) { AsymmetricalHair.enabled = true; } break;
+            case HairName.BitchyBob: if (BitchyBob != null) { BitchyBob.enabled = true; } break;
+            case HairName.LongPlaittedHair: if (LongPlaittedHair != null) { LongPlaittedHair.enabled = true; } break;
+            case HairName.HaPlaceholder3: if (HaPlaceholder3 != null) { HaPlaceholder3.enabled = true; } break;
             case HairName.HaPlaceholder4: if (HaPlaceholder4 != null) { HaPlaceholder4.enabled = true; } break;
+            case HairName.HaPlaceholder5: if (HaPlaceholder5 != null) { HaPlaceholder5.enabled = true; } break;
             case HairName.HaPlaceholder6: if (HaPlaceholder6 != null) { HaPlaceholder6.enabled = true; } break;
+            case HairName.HaPlaceholder7: if (HaPlaceholder7 != null) { HaPlaceholder7.enabled = true; } break;
+            case HairName.HaPlaceholder8: if (HaPlaceholder8 != null) { HaPlaceholder8.enabled = true; } break;
+            case HairName.HaPlaceholder9: if (HaPlaceholder9 != null) { HaPlaceholder9.enabled = true; } break;
+            case HairName.ShortMessyHair: if (ShortMessyHair != null) { ShortMessyHair.enabled = true; } break;
         }
     }
 
@@ -1100,8 +1154,18 @@ public class NorasWardrobe : MonoBehaviour
             case HairName.GingerHair: if (GingerHairPreview != null) { GingerHairPreview.enabled = true; } break;
             case HairName.GingerTwinTails: if (GingerTwinTailsPreview != null) { GingerTwinTailsPreview.enabled = true; } break;
             case HairName.BlondeTwinTails: if (BlondeTwinTailsPreview != null) { BlondeTwinTailsPreview.enabled = true; } break;
+            case HairName.DagnyHair: if (DagnyHairPreview != null) { DagnyHairPreview.enabled = true; } break;
+            case HairName.AsymmetricalHair: if (AsymmetricalHairPreview != null) { AsymmetricalHairPreview.enabled = true; } break;
+            case HairName.BitchyBob: if (BitchyBobPreview != null) { BitchyBobPreview.enabled = true; } break;
+            case HairName.LongPlaittedHair: if (LongPlaittedHairPreview != null) { LongPlaittedHairPreview.enabled = true; } break;
+            case HairName.HaPlaceholder3: if (HaPlaceholder3Preview != null) { HaPlaceholder3Preview.enabled = true; } break;
             case HairName.HaPlaceholder4: if (HaPlaceholder4Preview != null) { HaPlaceholder4Preview.enabled = true; } break;
+            case HairName.HaPlaceholder5: if (HaPlaceholder5Preview != null) { HaPlaceholder5Preview.enabled = true; } break;
             case HairName.HaPlaceholder6: if (HaPlaceholder6Preview != null) { HaPlaceholder6Preview.enabled = true; } break;
+            case HairName.HaPlaceholder7: if (HaPlaceholder7Preview != null) { HaPlaceholder7Preview.enabled = true; } break;
+            case HairName.HaPlaceholder8: if (HaPlaceholder8Preview != null) { HaPlaceholder8Preview.enabled = true; } break;
+            case HairName.HaPlaceholder9: if (HaPlaceholder9Preview != null) { HaPlaceholder9Preview.enabled = true; } break;
+            case HairName.ShortMessyHair: if (ShortMessyHairPreview != null) { ShortMessyHairPreview.enabled = true; } break;
         }
     }
 
@@ -2746,10 +2810,24 @@ public class NorasWardrobeEditor : Editor
             ("GingerTwinTails", () => me.SetHair(HairName.GingerTwinTails)));
         DrawButtonRow(me, clearAllStyle,
             ("BlondeTwinTails", () => me.SetHair(HairName.BlondeTwinTails)),
-            ("HaPlaceholder4", () => me.SetHair(HairName.HaPlaceholder4)));
+            ("DagnyHair", () => me.SetHair(HairName.DagnyHair)));
         DrawButtonRow(me, clearAllStyle,
             ("BlondeHair", () => me.SetHair(HairName.BlondeHair)),
+            ("AsymmetricalHair", () => me.SetHair(HairName.AsymmetricalHair)));
+        DrawButtonRow(me, clearAllStyle,
+            ("BitchyBob", () => me.SetHair(HairName.BitchyBob)),
+            ("LongPlaittedHair", () => me.SetHair(HairName.LongPlaittedHair)),
+            ("HaPlaceholder3", () => me.SetHair(HairName.HaPlaceholder3)));
+        DrawButtonRow(me, clearAllStyle,
+            ("HaPlaceholder4", () => me.SetHair(HairName.HaPlaceholder4)),
+            ("HaPlaceholder5", () => me.SetHair(HairName.HaPlaceholder5)),
             ("HaPlaceholder6", () => me.SetHair(HairName.HaPlaceholder6)));
+        DrawButtonRow(me, clearAllStyle,
+            ("HaPlaceholder7", () => me.SetHair(HairName.HaPlaceholder7)),
+            ("HaPlaceholder8", () => me.SetHair(HairName.HaPlaceholder8)),
+            ("HaPlaceholder9", () => me.SetHair(HairName.HaPlaceholder9)));
+        DrawButtonRow(me, clearAllStyle,
+            ("ShortMessyHair", () => me.SetHair(HairName.ShortMessyHair)));
 
         EditorGUILayout.Space();
         GUI.backgroundColor = Color.white;
@@ -3074,8 +3152,18 @@ public enum HairName
     GingerHair,
     GingerTwinTails,
     BlondeTwinTails,
+    DagnyHair,
+    AsymmetricalHair,
+    ShortMessyHair,
+    BitchyBob,
+    LongPlaittedHair,
+    HaPlaceholder3,
     HaPlaceholder4,
-    HaPlaceholder6
+    HaPlaceholder5,
+    HaPlaceholder6,
+    HaPlaceholder7,
+    HaPlaceholder8,
+    HaPlaceholder9
 }
 
 
@@ -3545,7 +3633,14 @@ public enum OutfitName
     RelaxedStringyDress,
     RelaxedStrappyTopAndSkirt,
     OpenBlousseAndSkirt,
-    OpenBlousseAndPleatedSkirt
+    OpenBlousseAndPleatedSkirt,
+    TuckedBlousseAndSkirt,
+    TuckedBlousseAndLongSkirt,
+    Dagny,
+    LongModestDressAndCardi,
+    UntuckedBlousseAndTinySkirt,
+    BusinessDressAndCardi,
+    PrettyPetticoat
     
     
 }
